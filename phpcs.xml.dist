@@ -26,10 +26,14 @@
 
 	<!-- Rules: WordPress Coding Standards -->
 	<!-- https://github.com/WordPress/WordPress-Coding-Standards -->
+	<!-- Note: This project uses PSR-4 autoloading, so some WordPress naming conventions are excluded -->
 	<rule ref="WordPress-Core">
 		<!-- Allow short array syntax [] instead of array() -->
 		<exclude name="Generic.Arrays.DisallowShortArraySyntax"/>
 		<exclude name="Universal.Arrays.DisallowShortArraySyntax"/>
+		<!-- Exclude file naming rules - we use PSR-4 autoloading -->
+		<exclude name="WordPress.Files.FileName.InvalidClassFileName"/>
+		<exclude name="WordPress.Files.FileName.NotHyphenatedLowercase"/>
 	</rule>
 
 	<rule ref="WordPress-Docs"/>
@@ -103,11 +107,13 @@
 	<rule ref="WordPress.WP.AlternativeFunctions"/>
 
 	<!-- Naming conventions -->
+	<!-- Note: Allow both PSR-4 namespace (NotionSync) and WordPress-style prefixes (notion_wp) -->
 	<rule ref="WordPress.NamingConventions.PrefixAllGlobals">
 		<properties>
 			<property name="prefixes" type="array">
 				<element value="notion_wp"/>
 				<element value="NOTION_WP"/>
+				<element value="NotionSync"/>
 			</property>
 		</properties>
 	</rule>
