@@ -14,6 +14,7 @@ namespace NotionSync\Admin;
 
 use NotionSync\Sync\ContentFetcher;
 use NotionSync\Sync\SyncManager;
+use NotionSync\Admin\BulkSyncProcessor;
 
 // Load WP_List_Table if not already loaded.
 if ( ! class_exists( 'WP_List_Table' ) ) {
@@ -385,8 +386,8 @@ class PagesListTable extends \WP_List_Table {
 	/**
 	 * Process bulk actions.
 	 *
-	 * Handles bulk sync operations for selected pages.
-	 * This method should be called before prepare_items().
+	 * Handles bulk sync operations for selected pages by delegating
+	 * to BulkSyncProcessor. This method should be called before prepare_items().
 	 *
 	 * @since 1.0.0
 	 */
@@ -404,96 +405,9 @@ class PagesListTable extends \WP_List_Table {
 		// Get selected page IDs.
 		$page_ids = isset( $_REQUEST['page_ids'] ) ? (array) $_REQUEST['page_ids'] : array();
 
-		if ( empty( $page_ids ) ) {
-			add_settings_error(
-				'notion_sync',
-				'no_pages_selected',
-				__( 'No pages selected. Please select pages to sync.', 'notion-wp' ),
-				'warning'
-			);
-			return;
-		}
-
-		// Sync each selected page.
-		$success_count = 0;
-		$error_count   = 0;
-		$errors        = array();
-
-		foreach ( $page_ids as $page_id ) {
-			$page_id = sanitize_text_field( $page_id );
-
-			try {
-				$result = $this->manager->sync_page( $page_id );
-
-				if ( $result['success'] ) {
-					$success_count++;
-				} else {
-					$error_count++;
-					$errors[] = $result['error'] ?? __( 'Unknown error', 'notion-wp' );
-				}
-			} catch ( \Exception $e ) {
-				$error_count++;
-				$errors[] = $e->getMessage();
-			}
-		}
-
-		// Add admin notice with results.
-		if ( $success_count > 0 && $error_count === 0 ) {
-			add_settings_error(
-				'notion_sync',
-				'bulk_sync_success',
-				sprintf(
-					/* translators: %d: number of pages synced */
-					_n(
-						'Successfully synced %d page.',
-						'Successfully synced %d pages.',
-						$success_count,
-						'notion-wp'
-					),
-					$success_count
-				),
-				'success'
-			);
-		} elseif ( $success_count > 0 && $error_count > 0 ) {
-			$error_details = ! empty( $errors ) ? ' ' . implode( ', ', array_slice( $errors, 0, 3 ) ) : '';
-			add_settings_error(
-				'notion_sync',
-				'bulk_sync_partial',
-				sprintf(
-					/* translators: 1: number of successful syncs, 2: number of errors, 3: error details */
-					__( 'Synced %1$d pages. Failed to sync %2$d pages.%3$s', 'notion-wp' ),
-					$success_count,
-					$error_count,
-					$error_details
-				),
-				'warning'
-			);
-		} else {
-			$error_details = ! empty( $errors ) ? ' ' . implode( ', ', array_slice( $errors, 0, 3 ) ) : '';
-			add_settings_error(
-				'notion_sync',
-				'bulk_sync_error',
-				sprintf(
-					/* translators: 1: number of errors, 2: error details */
-					__( 'Failed to sync %1$d pages.%2$s', 'notion-wp' ),
-					$error_count,
-					$error_details
-				),
-				'error'
-			);
-		}
-
-		// Redirect to remove the action from URL.
-		wp_safe_redirect(
-			add_query_arg(
-				array(
-					'page'            => 'notion-sync',
-					'settings-updated' => '1',
-				),
-				admin_url( 'admin.php' )
-			)
-		);
-		exit;
+		// Delegate to bulk sync processor.
+		$processor = new BulkSyncProcessor( $this->manager );
+		$processor->process( $page_ids );
 	}
 
 	/**
@@ -534,61 +448,5 @@ class PagesListTable extends \WP_List_Table {
 	 */
 	public function no_items() {
 		esc_html_e( 'No Notion pages found. Please share pages with your integration in Notion.', 'notion-wp' );
-	}
-
-	/**
-	 * Display the bulk actions dropdown.
-	 *
-	 * Override to add accessible attributes.
-	 *
-	 * @since 1.0.0
-	 *
-	 * @param string $which Position: 'top' or 'bottom'.
-	 */
-	protected function bulk_actions( $which = '' ) {
-		if ( is_null( $this->_actions ) ) {
-			$this->_actions = $this->get_bulk_actions();
-
-			/**
-			 * Filters the bulk actions for the list table.
-			 *
-			 * @since 1.0.0
-			 *
-			 * @param array  $actions Bulk actions array.
-			 * @param string $which   Position: 'top' or 'bottom'.
-			 */
-			$this->_actions = apply_filters( "bulk_actions-{$this->screen->id}", $this->_actions, $which );
-
-			$two = '';
-		} else {
-			$two = '2';
-		}
-
-		if ( empty( $this->_actions ) ) {
-			return;
-		}
-
-		echo '<label for="bulk-action-selector-' . esc_attr( $which ) . '" class="screen-reader-text">' .
-			esc_html__( 'Select bulk action', 'notion-wp' ) . '</label>';
-		echo '<select name="action' . esc_attr( $two ) . '" id="bulk-action-selector-' . esc_attr( $which ) . '">';
-		echo '<option value="-1">' . esc_html__( 'Bulk actions', 'notion-wp' ) . '</option>';
-
-		foreach ( $this->_actions as $name => $title ) {
-			echo "\t" . '<option value="' . esc_attr( $name ) . '">' . esc_html( $title ) . "</option>\n";
-		}
-
-		echo "</select>\n";
-
-		submit_button(
-			__( 'Apply', 'notion-wp' ),
-			'action',
-			'',
-			false,
-			array(
-				'id'    => 'doaction' . esc_attr( $two ),
-				'class' => 'button action',
-			)
-		);
-		echo "\n";
 	}
 }
