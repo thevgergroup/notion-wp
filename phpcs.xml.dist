@@ -118,6 +118,8 @@
 				<element value="NOTION_WP"/>
 				<element value="NotionSync"/>
 				<element value="NotionWP"/>
+				<element value="notion_sync"/>
+				<element value="NOTION_SYNC"/>
 			</property>
 		</properties>
 	</rule>
