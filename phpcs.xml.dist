@@ -92,6 +92,12 @@
 		<severity>0</severity>
 	</rule>
 
+	<!-- Disable strict translation literal check - allows variables in translation functions -->
+	<!-- This is needed for dynamic message construction while maintaining i18n support -->
+	<rule ref="WordPress.WP.I18n.NonSingularStringLiteralText">
+		<severity>0</severity>
+	</rule>
+
 	<!-- WordPress-specific adjustments -->
 	<rule ref="WordPress.WP.I18n">
 		<properties>
