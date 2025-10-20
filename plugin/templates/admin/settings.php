@@ -9,11 +9,10 @@
  * @since 0.1.0
  *
  * Available variables:
- * @var bool   $is_connected   Whether user is connected to Notion.
- * @var string $token          Notion API token (if connected).
- * @var array  $workspace_info Workspace information array.
- * @var array  $pages          List of accessible pages.
- * @var string $error_message  Error message to display (if any).
+ * @var bool                                     $is_connected   Whether user is connected to Notion.
+ * @var array                                    $workspace_info Workspace information array.
+ * @var \NotionSync\Admin\PagesListTable|null    $list_table     Pages list table instance.
+ * @var string                                   $error_message  Error message to display (if any).
  */
 
 // Exit if accessed directly.
@@ -24,6 +23,8 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 <div class="wrap">
 	<h1><?php echo esc_html( get_admin_page_title() ); ?></h1>
+
+	<?php settings_errors( 'notion_sync' ); ?>
 
 	<?php if ( ! empty( $error_message ) ) : ?>
 		<div class="notice notice-warning is-dismissible">
@@ -166,56 +167,22 @@ if ( ! defined( 'ABSPATH' ) ) {
 				</form>
 			</div>
 
-			<!-- Accessible Pages -->
-			<?php if ( ! empty( $pages ) ) : ?>
+			<!-- Notion Pages List Table -->
+			<?php if ( null !== $list_table ) : ?>
 				<div class="card" style="margin-top: 20px;">
-					<h2><?php esc_html_e( 'Accessible Pages', 'notion-wp' ); ?></h2>
+					<h2><?php esc_html_e( 'Notion Pages', 'notion-wp' ); ?></h2>
 
 					<p>
-						<?php esc_html_e( 'Here are some of the Notion pages this integration can access:', 'notion-wp' ); ?>
+						<?php esc_html_e( 'Select pages to sync to WordPress. Pages will be created as draft posts.', 'notion-wp' ); ?>
 					</p>
 
-					<table class="wp-list-table widefat fixed striped" style="margin-top: 15px;">
-						<thead>
-							<tr>
-								<th style="width: 50%;"><?php esc_html_e( 'Page Title', 'notion-wp' ); ?></th>
-								<th style="width: 30%;"><?php esc_html_e( 'Last Edited', 'notion-wp' ); ?></th>
-								<th style="width: 20%;"><?php esc_html_e( 'Actions', 'notion-wp' ); ?></th>
-							</tr>
-						</thead>
-						<tbody>
-							<?php foreach ( $pages as $page ) : ?>
-								<tr>
-									<td>
-										<strong><?php echo esc_html( $page['title'] ); ?></strong>
-									</td>
-									<td>
-										<?php
-										if ( ! empty( $page['last_edited_time'] ) ) {
-											$timestamp = strtotime( $page['last_edited_time'] );
-											echo esc_html( human_time_diff( $timestamp, current_time( 'timestamp' ) ) );
-											echo ' ' . esc_html__( 'ago', 'notion-wp' );
-										} else {
-											echo '—';
-										}
-										?>
-									</td>
-									<td>
-										<?php if ( ! empty( $page['url'] ) ) : ?>
-											<a
-												href="<?php echo esc_url( $page['url'] ); ?>"
-												target="_blank"
-												rel="noopener noreferrer"
-												class="button button-small"
-											>
-												<?php esc_html_e( 'View in Notion', 'notion-wp' ); ?>
-											</a>
-										<?php endif; ?>
-									</td>
-								</tr>
-							<?php endforeach; ?>
-						</tbody>
-					</table>
+					<!-- Admin notice container for AJAX messages -->
+					<div id="notion-sync-messages" style="margin-top: 15px;"></div>
+
+					<form id="notion-pages-form" method="post" style="margin-top: 15px;">
+						<?php wp_nonce_field( 'bulk-pages' ); ?>
+						<?php $list_table->display(); ?>
+					</form>
 
 					<p class="description" style="margin-top: 15px;">
 						<?php
@@ -225,11 +192,11 @@ if ( ! defined( 'ABSPATH' ) ) {
 								_n(
 									'Showing %d page. To access more pages, share them with your integration in Notion.',
 									'Showing %d pages. To access more pages, share them with your integration in Notion.',
-									count( $pages ),
+									count( $list_table->items ),
 									'notion-wp'
 								)
 							),
-							count( $pages )
+							count( $list_table->items )
 						);
 						?>
 					</p>

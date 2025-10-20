@@ -190,6 +190,57 @@ class NotionClient {
 	}
 
 	/**
+	 * Get a Notion page by ID.
+	 *
+	 * @param string $page_id Notion page ID.
+	 * @return array Page data or error.
+	 */
+	public function get_page( $page_id ) {
+		try {
+			$response = $this->request( 'GET', '/pages/' . $page_id );
+			return $response;
+		} catch ( \Exception $e ) {
+			return array(
+				'error' => $e->getMessage(),
+			);
+		}
+	}
+
+	/**
+	 * Get block children (content blocks from a page or block).
+	 *
+	 * @param string      $block_id Block or page ID to fetch children from.
+	 * @param string|null $cursor   Pagination cursor (null for first page).
+	 * @return array Block children data with pagination info, or error.
+	 */
+	public function get_block_children( $block_id, $cursor = null ) {
+		try {
+			$endpoint = '/blocks/' . $block_id . '/children';
+
+			// Add pagination parameters if cursor provided.
+			$query_params = array();
+			if ( null !== $cursor ) {
+				$query_params['start_cursor'] = $cursor;
+			}
+
+			// Add page size for consistent batches.
+			$query_params['page_size'] = 100;
+
+			// Build query string if parameters exist.
+			if ( ! empty( $query_params ) ) {
+				$endpoint .= '?' . http_build_query( $query_params );
+			}
+
+			$response = $this->request( 'GET', $endpoint );
+			return $response;
+		} catch ( \Exception $e ) {
+			return array(
+				'error' => $e->getMessage(),
+			);
+		}
+	}
+
+	/**
 	 * Make a request to Notion API.
 	 *
 	 * @param string $method   HTTP method (GET, POST, PATCH, DELETE).

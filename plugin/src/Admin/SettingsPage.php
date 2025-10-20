@@ -10,6 +10,7 @@ namespace NotionSync\Admin;
 
 use NotionSync\API\NotionClient;
 use NotionSync\Security\Encryption;
+use NotionSync\Sync\SyncManager;
 
 /**
  * Class SettingsPage
@@ -29,6 +30,8 @@ class SettingsPage {
 		add_action( 'admin_post_notion_sync_connect', array( $this, 'handle_connect' ) );
 		add_action( 'admin_post_notion_sync_disconnect', array( $this, 'handle_disconnect' ) );
 		add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_assets' ) );
+		add_action( 'wp_ajax_notion_sync_page', array( $this, 'handle_sync_page_ajax' ) );
+		add_action( 'wp_ajax_notion_bulk_sync', array( $this, 'handle_bulk_sync_ajax' ) );
 	}
 
 	/**
@@ -86,10 +89,16 @@ class SettingsPage {
 				'ajaxUrl' => admin_url( 'admin-ajax.php' ),
 				'nonce'   => wp_create_nonce( 'notion_sync_ajax' ),
 				'i18n'    => array(
-					'connecting'    => __( 'Connecting...', 'notion-wp' ),
-					'connected'     => __( 'Connected!', 'notion-wp' ),
-					'disconnecting' => __( 'Disconnecting...', 'notion-wp' ),
-					'error'         => __( 'An error occurred. Please try again.', 'notion-wp' ),
+					'connecting'      => __( 'Connecting...', 'notion-wp' ),
+					'connected'       => __( 'Connected!', 'notion-wp' ),
+					'disconnecting'   => __( 'Disconnecting...', 'notion-wp' ),
+					'error'           => __( 'An error occurred. Please try again.', 'notion-wp' ),
+					'syncing'         => __( 'Syncing...', 'notion-wp' ),
+					'synced'          => __( 'Synced', 'notion-wp' ),
+					'syncError'       => __( 'Sync failed', 'notion-wp' ),
+					'confirmBulkSync' => __( 'Are you sure you want to sync the selected pages?', 'notion-wp' ),
+					'selectPages'     => __( 'Please select at least one page to sync.', 'notion-wp' ),
+					'copied'          => __( 'Copied!', 'notion-wp' ),
 				),
 			)
 		);
@@ -129,11 +138,11 @@ class SettingsPage {
 		$encrypted_token = get_option( 'notion_wp_token', '' );
 		$token           = ! empty( $encrypted_token ) ? Encryption::decrypt( $encrypted_token ) : '';
 		$is_connected    = ! empty( $token );
-		$workspace_info = array();
-		$pages          = array();
-		$error_message  = '';
+		$workspace_info  = array();
+		$list_table      = null;
+		$error_message   = '';
 
-		// If connected, fetch workspace info and pages.
+		// If connected, fetch workspace info and initialize list table.
 		if ( $is_connected ) {
 			$workspace_info = $this->get_cached_workspace_info( $token );
 
@@ -148,23 +157,28 @@ class SettingsPage {
 						// Cache for 1 hour.
 						set_transient( 'notion_wp_workspace_info_cache', $workspace_info, HOUR_IN_SECONDS );
 						update_option( 'notion_wp_workspace_info', $workspace_info );
-
-						// Fetch pages.
-						$pages = $client->list_pages( 10 );
 					} else {
 						$error_message = $workspace_info['error'] ?? __( 'Unable to fetch workspace information.', 'notion-wp' );
 					}
 				} catch ( \Exception $e ) {
 					$error_message = $e->getMessage();
 				}
-			} else {
-				// Use cached data and try to fetch pages.
-				try {
-					$client = new NotionClient( $token );
-					$pages  = $client->list_pages( 10 );
-				} catch ( \Exception $e ) {
-					$error_message = $e->getMessage();
-				}
+			}
+
+			// Initialize pages list table.
+			try {
+				$client  = new NotionClient( $token );
+				$fetcher = new \NotionSync\Sync\ContentFetcher( $client );
+				$manager = new SyncManager();
+
+				$list_table = new PagesListTable( $fetcher, $manager );
+
+				// Process bulk actions BEFORE preparing items.
+				$list_table->process_bulk_action();
+
+				$list_table->prepare_items();
+			} catch ( \Exception $e ) {
+				$error_message = $e->getMessage();
 			}
 		}
 
@@ -366,5 +380,193 @@ class SettingsPage {
 	 */
 	private function clear_rate_limit() {
 		delete_transient( 'notion_sync_attempts_' . get_current_user_id() );
+	}
+
+	/**
+	 * Handle AJAX request to sync a single Notion page.
+	 *
+	 * Syncs a Notion page to WordPress and returns the result as JSON.
+	 * Used by the "Sync Now" button in the pages list table.
+	 *
+	 * @since 1.0.0
+	 *
+	 * @return void Outputs JSON response and exits.
+	 */
+	public function handle_sync_page_ajax() {
+		// Verify nonce.
+		check_ajax_referer( 'notion_sync_ajax', 'nonce' );
+
+		// Check user capabilities.
+		if ( ! current_user_can( 'manage_options' ) ) {
+			wp_send_json_error(
+				array(
+					'message' => __( 'Insufficient permissions to sync pages.', 'notion-wp' ),
+				),
+				403
+			);
+		}
+
+		// Get and validate page ID.
+		$page_id = isset( $_POST['page_id'] ) ? sanitize_text_field( wp_unslash( $_POST['page_id'] ) ) : '';
+
+		if ( empty( $page_id ) ) {
+			wp_send_json_error(
+				array(
+					'message' => __( 'Page ID is required.', 'notion-wp' ),
+				),
+				400
+			);
+		}
+
+		// Attempt to sync the page.
+		try {
+			$manager = new SyncManager();
+			$result  = $manager->sync_page( $page_id );
+
+			if ( $result['success'] ) {
+				// Get updated sync status for response.
+				$sync_status = $manager->get_sync_status( $page_id );
+
+				wp_send_json_success(
+					array(
+						'message'     => __( 'Page synced successfully!', 'notion-wp' ),
+						'post_id'     => $result['post_id'],
+						'edit_url'    => get_edit_post_link( $result['post_id'] ),
+						'view_url'    => get_permalink( $result['post_id'] ),
+						'last_synced' => $sync_status['last_synced'],
+					)
+				);
+			} else {
+				wp_send_json_error(
+					array(
+						'message' => $result['error'] ?? __( 'An unknown error occurred while syncing.', 'notion-wp' ),
+					),
+					500
+				);
+			}
+		} catch ( \Exception $e ) {
+			wp_send_json_error(
+				array(
+					'message' => sprintf(
+						/* translators: %s: error message */
+						__( 'Sync failed: %s', 'notion-wp' ),
+						$e->getMessage()
+					),
+				),
+				500
+			);
+		}
+	}
+
+	/**
+	 * Handle AJAX request to bulk sync multiple Notion pages.
+	 *
+	 * Syncs multiple Notion pages to WordPress and returns aggregated results.
+	 * Used by the "Sync Selected" bulk action in the pages list table.
+	 *
+	 * @since 1.0.0
+	 *
+	 * @return void Outputs JSON response and exits.
+	 */
+	public function handle_bulk_sync_ajax() {
+		// Verify nonce.
+		check_ajax_referer( 'notion_sync_ajax', 'nonce' );
+
+		// Check user capabilities.
+		if ( ! current_user_can( 'manage_options' ) ) {
+			wp_send_json_error(
+				array(
+					'message' => __( 'Insufficient permissions to sync pages.', 'notion-wp' ),
+				),
+				403
+			);
+		}
+
+		// Get and validate page IDs.
+		$page_ids = isset( $_POST['page_ids'] ) ? (array) $_POST['page_ids'] : array();
+		$page_ids = array_map( 'sanitize_text_field', $page_ids );
+
+		if ( empty( $page_ids ) ) {
+			wp_send_json_error(
+				array(
+					'message' => __( 'No pages selected for sync.', 'notion-wp' ),
+				),
+				400
+			);
+		}
+
+		// Sync each page and track results.
+		$manager       = new SyncManager();
+		$success_count = 0;
+		$error_count   = 0;
+		$results       = array();
+
+		foreach ( $page_ids as $page_id ) {
+			try {
+				$result = $manager->sync_page( $page_id );
+
+				if ( $result['success'] ) {
+					$success_count++;
+					$results[ $page_id ] = array(
+						'success' => true,
+						'post_id' => $result['post_id'],
+					);
+				} else {
+					$error_count++;
+					$results[ $page_id ] = array(
+						'success' => false,
+						'error'   => $result['error'],
+					);
+				}
+			} catch ( \Exception $e ) {
+				$error_count++;
+				$results[ $page_id ] = array(
+					'success' => false,
+					'error'   => $e->getMessage(),
+				);
+			}
+		}
+
+		// Build response message.
+		if ( $success_count > 0 && $error_count === 0 ) {
+			$message = sprintf(
+				/* translators: %d: number of successfully synced pages */
+				_n(
+					'Successfully synced %d page.',
+					'Successfully synced %d pages.',
+					$success_count,
+					'notion-wp'
+				),
+				$success_count
+			);
+		} elseif ( $success_count > 0 && $error_count > 0 ) {
+			$message = sprintf(
+				/* translators: 1: number of successful syncs, 2: number of failed syncs */
+				__( 'Synced %1$d pages successfully. %2$d failed.', 'notion-wp' ),
+				$success_count,
+				$error_count
+			);
+		} else {
+			$message = sprintf(
+				/* translators: %d: number of failed pages */
+				_n(
+					'Failed to sync %d page.',
+					'Failed to sync %d pages.',
+					$error_count,
+					'notion-wp'
+				),
+				$error_count
+			);
+		}
+
+		// Send response.
+		wp_send_json_success(
+			array(
+				'message'       => $message,
+				'success_count' => $success_count,
+				'error_count'   => $error_count,
+				'results'       => $results,
+			)
+		);
 	}
 }
