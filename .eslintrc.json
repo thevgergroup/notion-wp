@@ -26,7 +26,8 @@
 		"wp": "readonly",
 		"jQuery": "readonly",
 		"_": "readonly",
-		"notionWP": "readonly"
+		"notionWP": "readonly",
+		"notionSyncAdmin": "readonly"
 	},
 	"rules": {
 		// Prettier integration
