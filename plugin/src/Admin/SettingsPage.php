@@ -111,12 +111,17 @@ class SettingsPage {
 		}
 
 		// Require HTTPS for security (except in development environments).
-		$is_local = in_array( $_SERVER['HTTP_HOST'] ?? '', array( 'localhost', '127.0.0.1' ), true ) ||
-					strpos( $_SERVER['HTTP_HOST'] ?? '', '.localtest.me' ) !== false;
+		$http_host = isset( $_SERVER['HTTP_HOST'] ) ?
+			sanitize_text_field( wp_unslash( $_SERVER['HTTP_HOST'] ) ) : '';
+		$is_local  = in_array( $http_host, array( 'localhost', '127.0.0.1' ), true ) ||
+					strpos( $http_host, '.localtest.me' ) !== false;
 
 		if ( ! is_ssl() && ! defined( 'WP_DEBUG' ) && ! $is_local ) {
 			wp_die(
-				esc_html__( 'HTTPS is required to configure Notion Sync. Please enable SSL/TLS or add "define( \'FORCE_SSL_ADMIN\', true );" to wp-config.php.', 'notion-wp' ),
+				esc_html__(
+					'HTTPS is required to configure Notion Sync. Please enable SSL/TLS or add "define( \'FORCE_SSL_ADMIN\', true );" to wp-config.php.',
+					'notion-wp'
+				),
 				esc_html__( 'HTTPS Required', 'notion-wp' ),
 				array(
 					'response'  => 403,
@@ -129,9 +134,9 @@ class SettingsPage {
 		$encrypted_token = get_option( 'notion_wp_token', '' );
 		$token           = ! empty( $encrypted_token ) ? Encryption::decrypt( $encrypted_token ) : '';
 		$is_connected    = ! empty( $token );
-		$workspace_info = array();
-		$pages          = array();
-		$error_message  = '';
+		$workspace_info  = array();
+		$pages           = array();
+		$error_message   = '';
 
 		// If connected, fetch workspace info and pages.
 		if ( $is_connected ) {
@@ -321,7 +326,7 @@ class SettingsPage {
 	private function redirect_with_message( $type, $message ) {
 		$redirect_url = add_query_arg(
 			array(
-				'page'               => 'notion-sync',
+				'page'                 => 'notion-sync',
 				'notion_sync_' . $type => rawurlencode( $message ),
 			),
 			admin_url( 'admin.php' )
