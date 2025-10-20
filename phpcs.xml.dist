@@ -83,6 +83,15 @@
 		<severity>0</severity>
 	</rule>
 
+	<!-- Disable cosmetic alignment rules - all auto-fixable with phpcbf -->
+	<!-- These create noise without improving code quality and can be fixed in batch later -->
+	<rule ref="Generic.Formatting.MultipleStatementAlignment">
+		<severity>0</severity>
+	</rule>
+	<rule ref="WordPress.Arrays.MultipleStatementAlignment">
+		<severity>0</severity>
+	</rule>
+
 	<!-- WordPress-specific adjustments -->
 	<rule ref="WordPress.WP.I18n">
 		<properties>
