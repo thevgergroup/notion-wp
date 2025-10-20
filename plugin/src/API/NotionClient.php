@@ -186,7 +186,22 @@ class NotionClient {
 			'url'              => $page_data['url'] ?? '',
 			'last_edited_time' => $page_data['last_edited_time'] ?? '',
 			'created_time'     => $page_data['created_time'] ?? '',
+			'object_type'      => $page_data['object'] ?? 'page',
+			'parent_type'      => $this->get_parent_type( $page_data ),
 		);
+	}
+
+	/**
+	 * Determine the parent type of a page to distinguish database entries.
+	 *
+	 * @param array $page_data Raw page data from Notion API.
+	 * @return string Parent type: 'database', 'page', or 'workspace'.
+	 */
+	private function get_parent_type( $page_data ) {
+		if ( isset( $page_data['parent']['type'] ) ) {
+			return $page_data['parent']['type'];
+		}
+		return 'unknown';
 	}
 
 	/**

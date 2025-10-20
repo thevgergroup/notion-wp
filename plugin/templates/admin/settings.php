@@ -35,12 +35,12 @@ if ( ! defined( 'ABSPATH' ) ) {
 		</div>
 	<?php endif; ?>
 
-	<div class="notion-sync-settings" style="max-width: 800px;">
+	<div class="notion-sync-settings">
 
 		<?php if ( ! $is_connected ) : ?>
 
 			<!-- Connection Form -->
-			<div class="card">
+			<div class="card connection-card">
 				<h2><?php esc_html_e( 'Connect to Notion', 'notion-wp' ); ?></h2>
 
 				<p>
@@ -118,7 +118,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 		<?php else : ?>
 
 			<!-- Connected State -->
-			<div class="card">
+			<div class="card connection-card">
 				<h2><?php esc_html_e( 'Connection Status', 'notion-wp' ); ?></h2>
 
 				<div style="display: flex; align-items: center; gap: 10px; margin-bottom: 20px;">
@@ -237,6 +237,16 @@ if ( ! defined( 'ABSPATH' ) ) {
 	box-shadow: 0 1px 1px rgba(0,0,0,.04);
 }
 
+/* Connection card has limited width for better form UX */
+.notion-sync-settings .connection-card {
+	max-width: 800px;
+}
+
+/* Pages list table uses full width for better data visibility */
+.notion-sync-settings .card:not(.connection-card) {
+	max-width: none;
+}
+
 .notion-sync-settings .card h2 {
 	margin-top: 0;
 	font-size: 18px;
@@ -245,8 +255,58 @@ if ( ! defined( 'ABSPATH' ) ) {
 	margin-bottom: 15px;
 }
 
+/* Ensure WP_List_Table uses available width */
+.notion-sync-settings .wp-list-table {
+	max-width: 100%;
+}
+
+/* Improve table spacing and readability */
+.notion-sync-settings .wp-list-table th,
+.notion-sync-settings .wp-list-table td {
+	padding: 12px 10px;
+}
+
+.notion-sync-settings .wp-list-table thead th {
+	font-weight: 600;
+	background: #f9fafb;
+}
+
+/* Column width optimization */
+.notion-sync-settings .wp-list-table .column-cb {
+	width: 2.5%;
+}
+
+.notion-sync-settings .wp-list-table .column-title {
+	width: 30%;
+}
+
+.notion-sync-settings .wp-list-table .column-type {
+	width: 12%;
+}
+
+.notion-sync-settings .wp-list-table .column-notion_id {
+	width: 12%;
+}
+
+.notion-sync-settings .wp-list-table .column-sync_status {
+	width: 12%;
+}
+
+.notion-sync-settings .wp-list-table .column-wp_post {
+	width: 12%;
+}
+
+.notion-sync-settings .wp-list-table .column-last_synced {
+	width: 14%;
+}
+
+/* Better row hover state */
+.notion-sync-settings .wp-list-table tbody tr:hover {
+	background-color: #f9fafb;
+}
+
 @media screen and (max-width: 782px) {
-	.notion-sync-settings {
+	.notion-sync-settings .connection-card {
 		max-width: 100% !important;
 	}
 

@@ -9,6 +9,7 @@
 namespace NotionSync\Blocks\Converters;
 
 use NotionSync\Blocks\BlockConverterInterface;
+use NotionSync\Blocks\LinkRewriter;
 
 /**
  * Converts Notion numbered_list_item blocks to Gutenberg lists
@@ -193,6 +194,9 @@ class NumberedListConverter implements BlockConverterInterface {
 	/**
 	 * Apply link to formatted text
 	 *
+	 * Automatically rewrites Notion internal links to WordPress permalinks
+	 * if the target page has been synced.
+	 *
 	 * @since 1.0.0
 	 *
 	 * @param string $formatted  The formatted HTML content.
@@ -209,8 +213,21 @@ class NumberedListConverter implements BlockConverterInterface {
 		}
 
 		if ( $link_url ) {
-			$escaped_url = esc_url( $link_url );
-			$formatted   = sprintf( '<a href="%s">%s</a>', $escaped_url, $formatted );
+			// Rewrite Notion internal links to WordPress permalinks.
+			$link_data   = LinkRewriter::rewrite_url( $link_url );
+			$escaped_url = esc_url( $link_data['url'] );
+
+			// Add data-notion-id attribute if this is a Notion link.
+			if ( $link_data['notion_page_id'] ) {
+				$formatted = sprintf(
+					'<a href="%s" data-notion-id="%s">%s</a>',
+					$escaped_url,
+					esc_attr( $link_data['notion_page_id'] ),
+					$formatted
+				);
+			} else {
+				$formatted = sprintf( '<a href="%s">%s</a>', $escaped_url, $formatted );
+			}
 		}
 
 		return $formatted;

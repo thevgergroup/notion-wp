@@ -16,6 +16,7 @@ namespace NotionSync\Sync;
 use NotionSync\API\NotionClient;
 use NotionSync\Blocks\BlockConverter;
 use NotionSync\Security\Encryption;
+use NotionSync\Sync\LinkUpdater;
 
 /**
  * Class SyncManager
@@ -198,6 +199,12 @@ class SyncManager {
 
 			// Step 7: Store Notion metadata.
 			$this->store_post_metadata( $post_id, $notion_page_id, $page_properties );
+
+			// Step 8: Update links across all synced posts.
+			// This solves the chicken-and-egg problem where Page A is synced before Page B,
+			// causing links in Page A to point to Notion. After syncing Page B, we update
+			// all posts to rewrite those Notion links to WordPress permalinks.
+			LinkUpdater::update_all_links();
 
 			// Return success result.
 			return array(

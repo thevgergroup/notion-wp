@@ -51,6 +51,9 @@ class BlockConverter {
 			new Converters\HeadingConverter(),
 			new Converters\BulletedListConverter(),
 			new Converters\NumberedListConverter(),
+			new Converters\ChildPageConverter(),
+			new Converters\ChildDatabaseConverter(),
+			new Converters\LinkToPageConverter(),
 		);
 
 		/**

@@ -9,6 +9,7 @@
 namespace NotionSync\Blocks\Converters;
 
 use NotionSync\Blocks\BlockConverterInterface;
+use NotionSync\Blocks\LinkRewriter;
 
 /**
  * Converts Notion paragraph blocks to Gutenberg paragraphs
@@ -176,6 +177,8 @@ class ParagraphConverter implements BlockConverterInterface {
 	 * Apply link to formatted text
 	 *
 	 * Wraps text in an anchor tag if a link is present.
+	 * Automatically rewrites Notion internal links to WordPress permalinks
+	 * if the target page has been synced.
 	 *
 	 * @since 1.0.0
 	 *
@@ -195,8 +198,22 @@ class ParagraphConverter implements BlockConverterInterface {
 		}
 
 		if ( $link_url ) {
-			$escaped_url = esc_url( $link_url );
-			$formatted   = sprintf( '<a href="%s">%s</a>', $escaped_url, $formatted );
+			// Rewrite Notion internal links to WordPress permalinks.
+			$link_data   = LinkRewriter::rewrite_url( $link_url );
+			$escaped_url = esc_url( $link_data['url'] );
+
+			// Add data-notion-id attribute if this is a Notion link.
+			// This allows the link to be updated when permalink structure changes.
+			if ( $link_data['notion_page_id'] ) {
+				$formatted = sprintf(
+					'<a href="%s" data-notion-id="%s">%s</a>',
+					$escaped_url,
+					esc_attr( $link_data['notion_page_id'] ),
+					$formatted
+				);
+			} else {
+				$formatted = sprintf( '<a href="%s">%s</a>', $escaped_url, $formatted );
+			}
 		}
 
 		return $formatted;

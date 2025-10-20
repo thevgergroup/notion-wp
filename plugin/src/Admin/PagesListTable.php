@@ -81,6 +81,7 @@ class PagesListTable extends \WP_List_Table {
 		return array(
 			'cb'          => '<input type="checkbox" />',
 			'title'       => __( 'Page Title', 'notion-wp' ),
+			'type'        => __( 'Type', 'notion-wp' ),
 			'notion_id'   => __( 'Notion ID', 'notion-wp' ),
 			'sync_status' => __( 'Status', 'notion-wp' ),
 			'wp_post'     => __( 'WordPress Post', 'notion-wp' ),
@@ -193,6 +194,50 @@ class PagesListTable extends \WP_List_Table {
 			'<strong>%s</strong>%s',
 			esc_html( $title ),
 			$this->row_actions( $actions )
+		);
+	}
+
+	/**
+	 * Render type column.
+	 *
+	 * Displays the type of Notion object (Page, Database Entry, Database).
+	 *
+	 * @since 1.0.0
+	 *
+	 * @param array $item Page data array.
+	 * @return string HTML for type column.
+	 */
+	protected function column_type( $item ) {
+		$parent_type = $item['parent_type'] ?? 'unknown';
+		$object_type = $item['object_type'] ?? 'page';
+
+		// Determine display label and icon
+		if ( 'database' === $object_type ) {
+			$label = __( 'Database', 'notion-wp' );
+			$icon  = 'dashicons-database';
+			$color = '#7c3aed'; // Purple
+		} elseif ( 'database_id' === $parent_type ) {
+			$label = __( 'DB Entry', 'notion-wp' );
+			$icon  = 'dashicons-list-view';
+			$color = '#2563eb'; // Blue
+		} elseif ( 'page_id' === $parent_type ) {
+			$label = __( 'Child Page', 'notion-wp' );
+			$icon  = 'dashicons-media-document';
+			$color = '#059669'; // Emerald green
+		} else {
+			$label = __( 'Page', 'notion-wp' );
+			$icon  = 'dashicons-media-document';
+			$color = '#16a34a'; // Green
+		}
+
+		return sprintf(
+			'<span style="display: inline-flex; align-items: center; gap: 4px; color: %s;">
+				<span class="dashicons %s" style="font-size: 16px;"></span>
+				<span>%s</span>
+			</span>',
+			esc_attr( $color ),
+			esc_attr( $icon ),
+			esc_html( $label )
 		);
 	}
 
