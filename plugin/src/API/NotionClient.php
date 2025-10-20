@@ -291,6 +291,7 @@ class NotionClient {
 
 		// Handle HTTP errors.
 		if ( is_wp_error( $response ) ) {
+			// phpcs:disable WordPress.Security.EscapeOutput.ExceptionNotEscaped -- Exception messages are not output to users.
 			throw new \Exception(
 				sprintf(
 					/* translators: %s: error message */
@@ -298,6 +299,7 @@ class NotionClient {
 					$response->get_error_message()
 				)
 			);
+			// phpcs:enable WordPress.Security.EscapeOutput.ExceptionNotEscaped
 		}
 
 		// Get response code and body.
@@ -338,24 +340,30 @@ class NotionClient {
 				return sprintf(
 					/* translators: %s: API error message */
 					__( 'Bad request: %s', 'notion-wp' ),
-					$api_message ?: __( 'The request was invalid.', 'notion-wp' )
+					$api_message ? $api_message : __( 'The request was invalid.', 'notion-wp' )
 				);
 
 			case 401:
-				return __( 'Authentication failed. Please check that your API token is correct and has not been revoked.', 'notion-wp' );
+				$message = 'Authentication failed. Please check that your API token is correct';
+				$message .= ' and has not been revoked.';
+				return __( $message, 'notion-wp' );
 
 			case 403:
-				return __( 'Access forbidden. Make sure you have shared your Notion pages with this integration.', 'notion-wp' );
+				$message = 'Access forbidden. Make sure you have shared your Notion pages';
+				$message .= ' with this integration.';
+				return __( $message, 'notion-wp' );
 
 			case 404:
 				return sprintf(
 					/* translators: %s: API error message */
 					__( 'Resource not found: %s', 'notion-wp' ),
-					$api_message ?: __( 'The requested resource does not exist.', 'notion-wp' )
+					$api_message ? $api_message : __( 'The requested resource does not exist.', 'notion-wp' )
 				);
 
 			case 429:
-				return __( 'Too many requests. Please wait a moment and try again. Notion has rate limits to ensure service stability.', 'notion-wp' );
+				$message = 'Too many requests. Please wait a moment and try again.';
+				$message .= ' Notion has rate limits to ensure service stability.';
+				return __( $message, 'notion-wp' );
 
 			case 500:
 			case 502:
@@ -364,7 +372,7 @@ class NotionClient {
 				return sprintf(
 					/* translators: %s: API error message */
 					__( 'Notion server error: %s. Please try again later.', 'notion-wp' ),
-					$api_message ?: __( 'The Notion API is experiencing issues.', 'notion-wp' )
+					$api_message ? $api_message : __( 'The Notion API is experiencing issues.', 'notion-wp' )
 				);
 
 			default:
@@ -372,7 +380,7 @@ class NotionClient {
 					/* translators: 1: HTTP status code, 2: API error message */
 					__( 'API error (Code %1$d): %2$s', 'notion-wp' ),
 					$status_code,
-					$api_message ?: __( 'An unknown error occurred.', 'notion-wp' )
+					$api_message ? $api_message : __( 'An unknown error occurred.', 'notion-wp' )
 				);
 		}
 	}

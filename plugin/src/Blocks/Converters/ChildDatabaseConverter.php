@@ -64,8 +64,13 @@ class ChildDatabaseConverter implements BlockConverterInterface {
 		$url = 'https://notion.so/' . $normalized_id;
 
 		// Create a paragraph with database icon and link to Notion.
+		$template  = "<!-- wp:paragraph -->\n";
+		$template .= '<p>📊 <strong><a href="%s" target="_blank" rel="noopener noreferrer">';
+		$template .= 'View Database: %s</a></strong> <em>(opens in Notion)</em></p>';
+		$template .= "\n<!-- /wp:paragraph -->\n\n";
+
 		return sprintf(
-			"<!-- wp:paragraph -->\n<p>📊 <strong><a href=\"%s\" target=\"_blank\" rel=\"noopener noreferrer\">View Database: %s</a></strong> <em>(opens in Notion)</em></p>\n<!-- /wp:paragraph -->\n\n",
+			$template,
 			esc_url( $url ),
 			esc_html( $title )
 		);
