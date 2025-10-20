@@ -57,7 +57,7 @@
 		"lint:phpcbf": "phpcbf -p --colors",
 		"lint:phpstan": "phpstan analyse --memory-limit=1G",
 		"lint:phpstan:quiet": "phpstan analyse --memory-limit=1G --no-progress --error-format=table",
-		"lint:php-cs-fixer": "php-cs-fixer fix --dry-run --diff --verbose",
+		"lint:php-cs-fixer": "php-cs-fixer fix --dry-run --diff --verbose --allow-risky=yes",
 		"lint:fix": [
 			"@lint:phpcbf",
 			"@lint:php-cs-fixer:fix"
