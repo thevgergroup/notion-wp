@@ -73,7 +73,7 @@ class LinkUpdater {
 			$result = self::update_post_links( $post->ID );
 
 			if ( $result['updated'] ) {
-				$posts_updated++;
+				++$posts_updated;
 				$links_rewritten += $result['links_rewritten'];
 			}
 		}
@@ -117,7 +117,7 @@ class LinkUpdater {
 
 		// Pattern 1: Match links with data-notion-id attribute (newer format).
 		// This allows updating links even after they've been rewritten to WordPress permalinks.
-		// Matches: <a href="..." data-notion-id="...">
+		// Matches: <a href="..." data-notion-id="...">.
 		$pattern_with_id = '#<a([^>]*?)href="([^"]*)"([^>]*?)data-notion-id="([a-f0-9]{32})"([^>]*)>#i';
 
 		$updated_content = preg_replace_callback(
@@ -156,7 +156,7 @@ class LinkUpdater {
 		);
 
 		// Pattern 2: Match Notion internal links without data-notion-id (older format).
-		// Matches: href="/[32-hex-chars]" or href="https://notion.so/[32-hex-chars]"
+		// Matches: href="/[32-hex-chars]" or href="https://notion.so/[32-hex-chars]".
 		$pattern_no_id = '#href="(/[a-f0-9]{32}|https://notion\.so/[a-f0-9]{32}(?:-[a-f0-9]{12})?)"#i';
 
 		$updated_content = preg_replace_callback(

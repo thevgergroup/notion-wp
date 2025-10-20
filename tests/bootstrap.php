@@ -8,17 +8,17 @@
  * @package Notion_WP
  */
 
-// Load WordPress stubs if available
+// Load WordPress stubs if available.
 if ( file_exists( __DIR__ . '/../vendor/php-stubs/wordpress-stubs/wordpress-stubs.php' ) ) {
 	require_once __DIR__ . '/../vendor/php-stubs/wordpress-stubs/wordpress-stubs.php';
 }
 
-// Load WP-CLI stubs if available
+// Load WP-CLI stubs if available.
 if ( file_exists( __DIR__ . '/../vendor/php-stubs/wp-cli-stubs/wp-cli-stubs.php' ) ) {
 	require_once __DIR__ . '/../vendor/php-stubs/wp-cli-stubs/wp-cli-stubs.php';
 }
 
-// Define plugin constants if not already defined
+// Define plugin constants if not already defined.
 if ( ! defined( 'NOTION_WP_VERSION' ) ) {
 	define( 'NOTION_WP_VERSION', '0.1.0' );
 }
@@ -35,8 +35,9 @@ if ( ! defined( 'NOTION_WP_PLUGIN_URL' ) ) {
 	define( 'NOTION_WP_PLUGIN_URL', 'http://localhost/wp-content/plugins/notion-wp/' );
 }
 
-// Common WordPress constants
+// Common WordPress constants.
 if ( ! defined( 'ABSPATH' ) ) {
+	// phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedConstantFound -- ABSPATH is a WordPress core constant.
 	define( 'ABSPATH', '/var/www/html/' );
 }
 
