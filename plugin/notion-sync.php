@@ -30,6 +30,16 @@ define( 'NOTION_SYNC_PATH', plugin_dir_path( __FILE__ ) );
 define( 'NOTION_SYNC_URL', plugin_dir_url( __FILE__ ) );
 define( 'NOTION_SYNC_BASENAME', plugin_basename( __FILE__ ) );
 
+// Load composer autoloader for Action Scheduler and other dependencies.
+if ( file_exists( __DIR__ . '/vendor/autoload.php' ) ) {
+	require_once __DIR__ . '/vendor/autoload.php';
+}
+
+// Initialize Action Scheduler (WooCommerce library for background processing).
+if ( file_exists( __DIR__ . '/vendor/woocommerce/action-scheduler/action-scheduler.php' ) ) {
+	require_once __DIR__ . '/vendor/woocommerce/action-scheduler/action-scheduler.php';
+}
+
 // PSR-4 autoloader.
 spl_autoload_register(
 	function ( $class_name ) {
