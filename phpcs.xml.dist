@@ -13,6 +13,9 @@
 	<exclude-pattern>*/dist/*</exclude-pattern>
 	<exclude-pattern>*.min.js</exclude-pattern>
 	<exclude-pattern>*.asset.php</exclude-pattern>
+	<!-- Exclude example/sample files -->
+	<exclude-pattern>*/ENQUEUE-SNIPPET.php</exclude-pattern>
+	<exclude-pattern>*/settings-sample.php</exclude-pattern>
 
 	<!-- How to scan -->
 	<arg value="sp"/> <!-- Show sniff and progress -->
