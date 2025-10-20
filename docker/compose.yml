@@ -1,0 +1,146 @@
+# Docker Compose configuration for WordPress plugin development with git worktree support
+#
+# ISOLATION STRATEGY:
+# - Each worktree has its own .env file with unique COMPOSE_PROJECT_NAME
+# - Container names, networks, and volumes are prefixed with project name
+# - Traefik routes traffic based on WP_SITE_HOST (e.g., foo.localtest.me)
+# - Database and WordPress data stored in named volumes unique to each worktree
+# - Plugin directory mounted from worktree root for live development
+#
+# USAGE:
+# From your worktree directory:
+#   docker compose -f ../docker/compose.yml up -d
+
+services:
+  # Traefik reverse proxy (shared across all worktrees)
+  # Routes traffic to appropriate WordPress container based on hostname
+  traefik:
+    image: traefik:v2.11
+    container_name: notionwp_traefik  # Single shared Traefik instance
+    command:
+      - "--api.insecure=true"
+      - "--providers.docker=true"
+      - "--providers.docker.exposedbydefault=false"
+      - "--entrypoints.web.address=:80"
+      - "--log.level=INFO"
+    ports:
+      - "80:80"       # HTTP traffic for all *.localtest.me domains
+      - "8080:8080"   # Traefik dashboard at http://localhost:8080
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+    networks:
+      - traefik_network
+    restart: unless-stopped
+
+  # MariaDB database (isolated per worktree)
+  db:
+    image: mariadb:11
+    container_name: ${COMPOSE_PROJECT_NAME}_db
+    environment:
+      MYSQL_ROOT_PASSWORD: ${DB_ROOT_PASSWORD:-root}
+      MYSQL_DATABASE: ${DB_NAME}
+      MYSQL_USER: ${DB_USER:-wp}
+      MYSQL_PASSWORD: ${DB_PASSWORD:-wp}
+    ports:
+      # Expose on unique port for external DB access (e.g., TablePlus, Sequel Pro)
+      - "${DB_PORT:-3306}:3306"
+    volumes:
+      - db_data:/var/lib/mysql
+    networks:
+      - internal
+      - traefik_network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "healthcheck.sh", "--connect", "--innodb_initialized"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # WordPress with Apache (isolated per worktree)
+  wordpress:
+    image: wordpress:${WP_VERSION:-php8.3-apache}
+    container_name: ${COMPOSE_PROJECT_NAME}_wp
+    environment:
+      # Database connection
+      WORDPRESS_DB_HOST: db:3306
+      WORDPRESS_DB_USER: ${DB_USER:-wp}
+      WORDPRESS_DB_PASSWORD: ${DB_PASSWORD:-wp}
+      WORDPRESS_DB_NAME: ${DB_NAME}
+      WORDPRESS_TABLE_PREFIX: ${WP_TABLE_PREFIX:-wp_}
+
+      # WordPress configuration
+      WORDPRESS_DEBUG: ${WP_DEBUG:-1}
+      WORDPRESS_DEBUG_LOG: ${WP_DEBUG_LOG:-1}
+      WORDPRESS_DEBUG_DISPLAY: ${WP_DEBUG_DISPLAY:-0}
+
+      # Site URL (set via wp-cli after install to avoid port confusion)
+      # WORDPRESS_CONFIG_EXTRA is used in wp-config.php
+    volumes:
+      # Mount plugin source from plugin directory
+      - ../plugin:/var/www/html/wp-content/plugins/notion-sync:rw
+
+      # WordPress core and wp-content stored in named volume
+      - wp_data:/var/www/html
+
+      # Custom PHP configuration
+      - ./config/php.ini:/usr/local/etc/php/conf.d/custom.ini:ro
+    depends_on:
+      db:
+        condition: service_healthy
+    networks:
+      - internal
+      - traefik_network
+    labels:
+      # Enable Traefik routing
+      - "traefik.enable=true"
+      - "traefik.http.routers.${COMPOSE_PROJECT_NAME}.rule=Host(`${WP_SITE_HOST}`)"
+      - "traefik.http.routers.${COMPOSE_PROJECT_NAME}.entrypoints=web"
+      - "traefik.http.services.${COMPOSE_PROJECT_NAME}.loadbalancer.server.port=80"
+      - "traefik.docker.network=traefik_network"
+    restart: unless-stopped
+
+  # WP-CLI for WordPress management (isolated per worktree)
+  wpcli:
+    image: wordpress:cli-${WP_CLI_VERSION:-php8.3}
+    container_name: ${COMPOSE_PROJECT_NAME}_wpcli
+    user: "33:33"  # www-data user/group
+    environment:
+      WORDPRESS_DB_HOST: db:3306
+      WORDPRESS_DB_USER: ${DB_USER:-wp}
+      WORDPRESS_DB_PASSWORD: ${DB_PASSWORD:-wp}
+      WORDPRESS_DB_NAME: ${DB_NAME}
+    volumes:
+      # Share WordPress volume with wordpress service
+      - wp_data:/var/www/html
+
+      # Mount plugin source from plugin directory
+      - ../plugin:/var/www/html/wp-content/plugins/notion-sync:rw
+    networks:
+      - internal
+    depends_on:
+      wordpress:
+        condition: service_started
+    # Keep container running for wp-cli commands via docker exec
+    entrypoint: ["tail", "-f", "/dev/null"]
+
+# Named volumes for data persistence (unique per worktree)
+volumes:
+  db_data:
+    name: ${COMPOSE_PROJECT_NAME}_db_data
+    driver: local
+
+  wp_data:
+    name: ${COMPOSE_PROJECT_NAME}_wp_data
+    driver: local
+
+# Networks
+networks:
+  # Internal network for WordPress <-> DB communication (isolated per worktree)
+  internal:
+    name: ${COMPOSE_PROJECT_NAME}_internal
+    driver: bridge
+
+  # Shared Traefik network for reverse proxy routing
+  traefik_network:
+    name: traefik_network
+    driver: bridge

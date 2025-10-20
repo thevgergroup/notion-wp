@@ -1,0 +1,453 @@
+/**
+ * Admin Styles for Notion Sync Settings Page (Plain CSS Version)
+ *
+ * This is a plain CSS version of admin.scss for use without a build process.
+ * For Phase 0, you can use this directly without Sass compilation.
+ *
+ * Design Requirements:
+ * - Matches WordPress admin design language
+ * - WCAG 2.1 AA compliant
+ * - Mobile responsive at 782px breakpoint
+ * - Accessible focus states
+ *
+ * @package NotionSync
+ */
+
+/* =============================================================================
+   Main Container
+   ========================================================================== */
+
+.notion-sync-settings {
+	max-width: 800px;
+	margin: 20px 0;
+	font-size: 13px;
+	line-height: 1.5;
+}
+
+/* =============================================================================
+   Page Header
+   ========================================================================== */
+
+.notion-sync-header {
+	margin-bottom: 20px;
+}
+
+.notion-sync-header h1 {
+	font-size: 23px;
+	font-weight: 400;
+	margin: 0;
+	padding: 9px 0 4px;
+	line-height: 1.3;
+}
+
+.notion-sync-header .subtitle {
+	color: #646970;
+	font-size: 14px;
+	margin-top: 5px;
+}
+
+/* =============================================================================
+   Connection Form (Disconnected State)
+   ========================================================================== */
+
+.notion-sync-connection-form {
+	background: #fff;
+	border: 1px solid #c3c4c7;
+	border-radius: 4px;
+	padding: 20px;
+	box-shadow: 0 1px 1px rgba(0, 0, 0, 0.04);
+}
+
+.notion-sync-connection-form .form-intro {
+	margin-bottom: 20px;
+}
+
+.notion-sync-connection-form .form-intro h2 {
+	font-size: 16px;
+	font-weight: 600;
+	margin: 0 0 10px;
+}
+
+.notion-sync-connection-form .form-intro p {
+	color: #50575e;
+	margin: 0 0 10px;
+}
+
+.notion-sync-connection-form .form-intro a {
+	color: #2271b1;
+	text-decoration: none;
+}
+
+.notion-sync-connection-form .form-intro a:hover,
+.notion-sync-connection-form .form-intro a:focus {
+	color: #135e96;
+	text-decoration: underline;
+}
+
+.notion-sync-connection-form .form-field {
+	margin-bottom: 20px;
+}
+
+.notion-sync-connection-form .form-field label {
+	display: block;
+	margin-bottom: 5px;
+	font-weight: 600;
+	color: #1d2327;
+}
+
+.notion-sync-connection-form .form-field .description {
+	display: block;
+	margin-top: 5px;
+	color: #646970;
+	font-size: 13px;
+	font-style: italic;
+}
+
+.notion-sync-connection-form .token-input {
+	width: 100%;
+	max-width: 600px;
+	padding: 6px 8px;
+	font-family: 'Menlo', 'Monaco', 'Consolas', monospace;
+	font-size: 12px;
+	line-height: 1.5;
+	border: 1px solid #8c8f94;
+	border-radius: 4px;
+	background: #fff;
+	box-shadow: 0 0 0 transparent;
+	transition: box-shadow 0.1s linear;
+}
+
+.notion-sync-connection-form .token-input:focus {
+	border-color: #2271b1;
+	box-shadow: 0 0 0 1px #2271b1;
+	outline: 2px solid transparent;
+}
+
+.notion-sync-connection-form .token-input[type='password'] {
+	letter-spacing: 0.3em;
+}
+
+.notion-sync-connection-form .form-actions {
+	margin-top: 20px;
+	display: flex;
+	align-items: center;
+	gap: 12px;
+}
+
+.notion-sync-connection-form .form-actions .button-primary {
+	min-height: 32px;
+	padding: 0 16px;
+	font-size: 13px;
+	line-height: 2.15384615;
+}
+
+.notion-sync-connection-form .form-actions .button-primary:disabled {
+	opacity: 0.6;
+	cursor: not-allowed;
+}
+
+.notion-sync-connection-form .form-actions .button-primary .spinner {
+	float: none;
+	margin: 0 8px 0 0;
+}
+
+/* =============================================================================
+   Workspace Info (Connected State)
+   ========================================================================== */
+
+.notion-sync-workspace-info {
+	background: #fff;
+	border: 1px solid #c3c4c7;
+	border-left: 4px solid #00a32a;
+	border-radius: 4px;
+	padding: 20px;
+	box-shadow: 0 1px 1px rgba(0, 0, 0, 0.04);
+	margin-bottom: 20px;
+}
+
+.notion-sync-workspace-info .success-icon {
+	color: #00a32a;
+	font-size: 18px;
+	margin-right: 8px;
+	vertical-align: middle;
+}
+
+.notion-sync-workspace-info .success-icon::before {
+	content: '\2713';
+	font-weight: bold;
+}
+
+.notion-sync-workspace-info .workspace-name {
+	font-size: 16px;
+	font-weight: 600;
+	margin: 0 0 10px;
+	display: inline-block;
+}
+
+.notion-sync-workspace-info .workspace-details {
+	color: #50575e;
+	margin-bottom: 15px;
+}
+
+.notion-sync-workspace-info .workspace-details p {
+	margin: 5px 0;
+}
+
+.notion-sync-workspace-info .disconnect-button {
+	color: #b32d2e;
+	border-color: #b32d2e;
+}
+
+.notion-sync-workspace-info .disconnect-button:hover,
+.notion-sync-workspace-info .disconnect-button:focus {
+	color: #b32d2e;
+	border-color: #b32d2e;
+	background: #fef0f0;
+}
+
+/* =============================================================================
+   Pages List
+   ========================================================================== */
+
+.notion-sync-pages {
+	background: #fff;
+	border: 1px solid #c3c4c7;
+	border-radius: 4px;
+	box-shadow: 0 1px 1px rgba(0, 0, 0, 0.04);
+}
+
+.notion-sync-pages h2 {
+	font-size: 16px;
+	font-weight: 600;
+	margin: 0;
+	padding: 15px 20px;
+	border-bottom: 1px solid #c3c4c7;
+}
+
+.notion-sync-pages .pages-list {
+	max-height: 400px;
+	overflow-y: auto;
+	padding: 0;
+	margin: 0;
+}
+
+.notion-sync-pages .pages-list:empty::after {
+	content: 'No pages found. Make sure pages are shared with your integration.';
+	display: block;
+	padding: 20px;
+	color: #646970;
+	text-align: center;
+	font-style: italic;
+}
+
+.notion-sync-pages .page-item {
+	padding: 12px 20px;
+	border-bottom: 1px solid #f0f0f1;
+	display: flex;
+	align-items: center;
+	gap: 12px;
+}
+
+.notion-sync-pages .page-item:last-child {
+	border-bottom: none;
+}
+
+.notion-sync-pages .page-item:hover {
+	background: #f6f7f7;
+}
+
+.notion-sync-pages .page-item .page-icon {
+	font-size: 18px;
+	min-width: 24px;
+	text-align: center;
+}
+
+.notion-sync-pages .page-item .page-icon.default-icon::before {
+	content: '\1F4C4';
+}
+
+.notion-sync-pages .page-item .page-info {
+	flex: 1;
+	min-width: 0;
+}
+
+.notion-sync-pages .page-item .page-info .page-title {
+	font-weight: 600;
+	color: #1d2327;
+	margin: 0 0 3px;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+}
+
+.notion-sync-pages .page-item .page-info .page-meta {
+	color: #646970;
+	font-size: 12px;
+}
+
+/* =============================================================================
+   Loading States
+   ========================================================================== */
+
+.notion-sync-loading {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	padding: 40px;
+	background: #fff;
+	border: 1px solid #c3c4c7;
+	border-radius: 4px;
+}
+
+.notion-sync-loading .spinner {
+	float: none;
+	margin-right: 10px;
+}
+
+.notion-sync-loading .loading-text {
+	color: #646970;
+	font-size: 14px;
+}
+
+.spinner.is-active {
+	display: inline-block;
+	visibility: visible;
+}
+
+/* =============================================================================
+   Admin Notices
+   ========================================================================== */
+
+.notice.notion-sync-notice p {
+	margin: 0.5em 0;
+}
+
+.notice.notion-sync-notice code {
+	background: #f0f0f1;
+	padding: 2px 6px;
+	border-radius: 3px;
+	font-family: 'Menlo', 'Monaco', 'Consolas', monospace;
+	font-size: 12px;
+}
+
+/* =============================================================================
+   Inline Errors (from JavaScript validation)
+   ========================================================================== */
+
+.notion-sync-inline-error {
+	color: #d63638;
+	margin-top: 5px;
+	font-size: 13px;
+}
+
+/* =============================================================================
+   Accessibility Enhancements
+   ========================================================================== */
+
+.notion-sync-settings a:focus,
+.notion-sync-settings button:focus,
+.notion-sync-settings input:focus,
+.notion-sync-settings select:focus {
+	outline: 2px solid #2271b1;
+	outline-offset: 2px;
+}
+
+.screen-reader-text {
+	border: 0;
+	clip: rect(1px, 1px, 1px, 1px);
+	clip-path: inset(50%);
+	height: 1px;
+	margin: -1px;
+	overflow: hidden;
+	padding: 0;
+	position: absolute;
+	width: 1px;
+	word-wrap: normal !important;
+}
+
+.skip-to-content:focus {
+	clip: auto;
+	clip-path: none;
+	height: auto;
+	width: auto;
+	position: static;
+}
+
+/* =============================================================================
+   Mobile Responsive (WordPress Admin Breakpoint)
+   ========================================================================== */
+
+@media screen and (max-width: 782px) {
+	.notion-sync-settings {
+		margin: 10px 0;
+	}
+
+	.notion-sync-connection-form,
+	.notion-sync-workspace-info,
+	.notion-sync-pages {
+		padding: 15px;
+	}
+
+	.notion-sync-connection-form .token-input {
+		max-width: 100%;
+		font-size: 16px;
+	}
+
+	.notion-sync-connection-form .form-actions {
+		flex-direction: column;
+		align-items: stretch;
+	}
+
+	.notion-sync-connection-form .form-actions .button-primary {
+		width: 100%;
+		min-height: 44px;
+		font-size: 14px;
+	}
+
+	.notion-sync-pages .page-item {
+		padding: 15px;
+	}
+
+	.notion-sync-pages .page-item .page-icon {
+		font-size: 20px;
+	}
+
+	.notion-sync-pages .page-item .page-info .page-title {
+		font-size: 14px;
+	}
+
+	.notion-sync-pages .pages-list {
+		max-height: 300px;
+	}
+}
+
+@media screen and (max-width: 480px) {
+	.notion-sync-header h1 {
+		font-size: 20px;
+	}
+
+	.notion-sync-pages .page-item {
+		flex-direction: column;
+		align-items: flex-start;
+		gap: 8px;
+	}
+
+	.notion-sync-pages .page-item .page-info {
+		width: 100%;
+	}
+}
+
+/* =============================================================================
+   Print Styles
+   ========================================================================== */
+
+@media print {
+	.notion-sync-connection-form .token-input {
+		filter: blur(8px);
+	}
+
+	.notion-sync-connection-form .form-actions,
+	.notion-sync-workspace-info .disconnect-button {
+		display: none;
+	}
+}

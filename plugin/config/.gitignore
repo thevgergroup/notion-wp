@@ -1,0 +1,12 @@
+# Ignore all config files (worktree-specific)
+*.json
+*.yaml
+*.yml
+
+# Except examples
+!*.example.json
+!*.example.yaml
+!*.example.yml
+
+# Keep this gitignore
+!.gitignore

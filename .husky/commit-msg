@@ -1,0 +1,44 @@
+#!/bin/sh
+. "$(dirname "$0")/_/husky.sh"
+
+# Notion-WP Plugin Commit Message Hook
+# Enforces conventional commit message format
+
+commit_msg_file=$1
+commit_msg=$(cat "$commit_msg_file")
+
+# Regex for conventional commit format
+# Format: type(scope): subject
+# Example: feat(sync): add notion to wordpress sync
+conventional_commit_regex='^(feat|fix|docs|style|refactor|perf|test|chore|build|ci|revert)(\(.+\))?: .{3,}'
+
+if ! echo "$commit_msg" | grep -qE "$conventional_commit_regex"; then
+	echo ""
+	echo "❌ Invalid commit message format"
+	echo ""
+	echo "Commit messages must follow the Conventional Commits format:"
+	echo ""
+	echo "  type(scope): subject"
+	echo ""
+	echo "Types:"
+	echo "  feat:     A new feature"
+	echo "  fix:      A bug fix"
+	echo "  docs:     Documentation only changes"
+	echo "  style:    Code style changes (formatting, etc.)"
+	echo "  refactor: Code change that neither fixes a bug nor adds a feature"
+	echo "  perf:     Performance improvement"
+	echo "  test:     Adding or updating tests"
+	echo "  chore:    Maintenance tasks"
+	echo "  build:    Build system or dependency changes"
+	echo "  ci:       CI configuration changes"
+	echo "  revert:   Revert a previous commit"
+	echo ""
+	echo "Example:"
+	echo "  feat(sync): add notion to wordpress sync"
+	echo "  fix(auth): handle invalid token gracefully"
+	echo "  docs(readme): update installation instructions"
+	echo ""
+	exit 1
+fi
+
+exit 0

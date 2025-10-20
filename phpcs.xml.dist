@@ -1,0 +1,126 @@
+<?xml version="1.0"?>
+<ruleset name="Notion-WP Plugin Coding Standards">
+	<description>WordPress Coding Standards for Notion-WP Plugin</description>
+
+	<!-- What to scan -->
+	<file>./plugin</file>
+	<file>./tests</file>
+
+	<!-- Exclude patterns -->
+	<exclude-pattern>*/vendor/*</exclude-pattern>
+	<exclude-pattern>*/node_modules/*</exclude-pattern>
+	<exclude-pattern>*/build/*</exclude-pattern>
+	<exclude-pattern>*/dist/*</exclude-pattern>
+	<exclude-pattern>*.min.js</exclude-pattern>
+	<exclude-pattern>*.asset.php</exclude-pattern>
+
+	<!-- How to scan -->
+	<arg value="sp"/> <!-- Show sniff and progress -->
+	<arg name="basepath" value="./"/> <!-- Strip the file paths down to the relevant bit -->
+	<arg name="colors"/>
+	<arg name="extensions" value="php"/>
+	<arg name="parallel" value="8"/> <!-- Enables parallel processing when available for faster checks -->
+
+	<!-- Rules: Check PHP version compatibility -->
+	<config name="testVersion" value="8.0-"/>
+
+	<!-- Rules: WordPress Coding Standards -->
+	<!-- https://github.com/WordPress/WordPress-Coding-Standards -->
+	<rule ref="WordPress-Core">
+		<!-- Allow short array syntax [] instead of array() -->
+		<exclude name="Generic.Arrays.DisallowShortArraySyntax"/>
+		<exclude name="Universal.Arrays.DisallowShortArraySyntax"/>
+	</rule>
+
+	<rule ref="WordPress-Docs"/>
+
+	<rule ref="WordPress-Extra">
+		<!-- We prefer short array syntax -->
+		<exclude name="Universal.Arrays.DisallowShortArraySyntax"/>
+	</rule>
+
+	<!-- Enforce PSR-4 autoloading standard for class files -->
+	<rule ref="PSR1.Classes.ClassDeclaration"/>
+
+	<!-- Check for PHP cross-version compatibility -->
+	<rule ref="PHPCompatibility">
+		<!-- WordPress minimum is PHP 7.4, we're targeting 8.0+ -->
+		<exclude name="PHPCompatibility.FunctionUse.ArgumentFunctionsReportCurrentValue"/>
+	</rule>
+
+	<!-- File Size Limit: Maximum 500 lines per file -->
+	<!-- This is a CRITICAL requirement from principles.md -->
+	<rule ref="Generic.Files.LineLength">
+		<properties>
+			<!-- Soft limit for line length -->
+			<property name="lineLimit" value="120"/>
+			<!-- Hard limit for line length -->
+			<property name="absoluteLineLimit" value="150"/>
+		</properties>
+	</rule>
+
+	<!-- Enforce maximum file size -->
+	<rule ref="Generic.Files.LineCount">
+		<properties>
+			<!-- Maximum 500 lines per file (from principles.md) -->
+			<property name="maxLineCount" value="500"/>
+		</properties>
+	</rule>
+
+	<!-- Additional strict rules for code quality -->
+	<rule ref="Generic.CodeAnalysis.EmptyStatement"/>
+	<rule ref="Generic.CodeAnalysis.UnconditionalIfStatement"/>
+	<rule ref="Generic.CodeAnalysis.UnnecessaryFinalModifier"/>
+	<rule ref="Generic.CodeAnalysis.UselessOverridingMethod"/>
+	<rule ref="Generic.Commenting.Todo"/>
+	<rule ref="Generic.Commenting.Fixme"/>
+
+	<!-- WordPress-specific adjustments -->
+	<rule ref="WordPress.WP.I18n">
+		<properties>
+			<!-- Set your plugin text domain -->
+			<property name="text_domain" type="array">
+				<element value="notion-wp"/>
+			</property>
+		</properties>
+	</rule>
+
+	<!-- Verify WordPress minimum version compatibility -->
+	<rule ref="WordPress.WP.DeprecatedFunctions">
+		<properties>
+			<property name="minimum_supported_version" value="6.0"/>
+		</properties>
+	</rule>
+
+	<!-- Enforce nonce verification for forms -->
+	<rule ref="WordPress.Security.NonceVerification"/>
+
+	<!-- Enforce sanitization and escaping -->
+	<rule ref="WordPress.Security.ValidatedSanitizedInput"/>
+	<rule ref="WordPress.Security.EscapeOutput"/>
+
+	<!-- Database queries must be prepared -->
+	<rule ref="WordPress.DB.PreparedSQL"/>
+	<rule ref="WordPress.DB.DirectDatabaseQuery"/>
+
+	<!-- Disallow dangerous functions -->
+	<rule ref="WordPress.PHP.DiscouragedPHPFunctions"/>
+	<rule ref="WordPress.WP.AlternativeFunctions"/>
+
+	<!-- Naming conventions -->
+	<rule ref="WordPress.NamingConventions.PrefixAllGlobals">
+		<properties>
+			<property name="prefixes" type="array">
+				<element value="notion_wp"/>
+				<element value="NOTION_WP"/>
+			</property>
+		</properties>
+	</rule>
+
+	<!-- Allow modern PHP features -->
+	<rule ref="PSR12.Properties.ConstantVisibility"/>
+	<rule ref="PSR12.Classes.ClassInstantiation"/>
+
+	<!-- Performance: Disallow slow functions in loops -->
+	<rule ref="Squiz.PHP.DisallowMultipleAssignments"/>
+</ruleset>

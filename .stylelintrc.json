@@ -1,0 +1,254 @@
+{
+	"$schema": "https://json.schemastore.org/stylelintrc",
+	"extends": [
+		"stylelint-config-standard",
+		"stylelint-config-wordpress/scss"
+	],
+	"plugins": [
+		"stylelint-scss",
+		"stylelint-order"
+	],
+	"rules": {
+		"comment-empty-line-before": [
+			"always",
+			{
+				"except": ["first-nested"],
+				"ignore": ["stylelint-commands"]
+			}
+		],
+		"declaration-block-no-duplicate-properties": [
+			true,
+			{
+				"ignore": ["consecutive-duplicates-with-different-values"]
+			}
+		],
+		"declaration-no-important": [
+			true,
+			{
+				"severity": "warning",
+				"message": "Avoid using !important. Document exceptions in code comments."
+			}
+		],
+		"font-family-name-quotes": "always-where-recommended",
+		"font-weight-notation": "numeric",
+		"function-url-quotes": "always",
+		"max-nesting-depth": [
+			3,
+			{
+				"ignore": ["blockless-at-rules", "pseudo-classes"],
+				"severity": "warning"
+			}
+		],
+		"no-descending-specificity": null,
+		"no-duplicate-selectors": true,
+		"selector-class-pattern": null,
+		"selector-id-pattern": null,
+		"selector-max-compound-selectors": [
+			4,
+			{
+				"severity": "warning"
+			}
+		],
+		"selector-max-id": [
+			1,
+			{
+				"severity": "warning",
+				"message": "Avoid using IDs for styling. Use classes instead."
+			}
+		],
+		"selector-max-specificity": null,
+		"selector-max-type": [
+			3,
+			{
+				"ignore": ["child", "descendant", "compounded"],
+				"severity": "warning"
+			}
+		],
+		"value-keyword-case": [
+			"lower",
+			{
+				"ignoreProperties": ["font-family"]
+			}
+		],
+		"order/properties-alphabetical-order": null,
+		"order/properties-order": [
+			[
+				{
+					"groupName": "Special",
+					"emptyLineBefore": "always",
+					"properties": ["composes", "@import", "@extend", "@mixin", "@at-root"]
+				},
+				{
+					"groupName": "Position",
+					"emptyLineBefore": "always",
+					"properties": ["position", "top", "right", "bottom", "left", "z-index"]
+				},
+				{
+					"groupName": "Box Model",
+					"emptyLineBefore": "always",
+					"properties": [
+						"display",
+						"flex",
+						"flex-direction",
+						"flex-wrap",
+						"flex-flow",
+						"flex-grow",
+						"flex-shrink",
+						"flex-basis",
+						"align-content",
+						"align-items",
+						"align-self",
+						"justify-content",
+						"order",
+						"grid",
+						"grid-template",
+						"grid-template-rows",
+						"grid-template-columns",
+						"grid-template-areas",
+						"grid-area",
+						"grid-row",
+						"grid-row-start",
+						"grid-row-end",
+						"grid-column",
+						"grid-column-start",
+						"grid-column-end",
+						"gap",
+						"row-gap",
+						"column-gap",
+						"float",
+						"clear",
+						"box-sizing",
+						"width",
+						"min-width",
+						"max-width",
+						"height",
+						"min-height",
+						"max-height",
+						"margin",
+						"margin-top",
+						"margin-right",
+						"margin-bottom",
+						"margin-left",
+						"padding",
+						"padding-top",
+						"padding-right",
+						"padding-bottom",
+						"padding-left",
+						"overflow",
+						"overflow-x",
+						"overflow-y"
+					]
+				},
+				{
+					"groupName": "Typography",
+					"emptyLineBefore": "always",
+					"properties": [
+						"color",
+						"font",
+						"font-family",
+						"font-size",
+						"font-weight",
+						"font-style",
+						"font-variant",
+						"line-height",
+						"letter-spacing",
+						"text-align",
+						"text-decoration",
+						"text-indent",
+						"text-overflow",
+						"text-rendering",
+						"text-shadow",
+						"text-transform",
+						"white-space",
+						"word-break",
+						"word-spacing",
+						"word-wrap"
+					]
+				},
+				{
+					"groupName": "Visual",
+					"emptyLineBefore": "always",
+					"properties": [
+						"background",
+						"background-attachment",
+						"background-clip",
+						"background-color",
+						"background-image",
+						"background-origin",
+						"background-position",
+						"background-repeat",
+						"background-size",
+						"border",
+						"border-top",
+						"border-right",
+						"border-bottom",
+						"border-left",
+						"border-width",
+						"border-style",
+						"border-color",
+						"border-radius",
+						"box-shadow",
+						"outline",
+						"opacity",
+						"visibility",
+						"filter",
+						"backdrop-filter"
+					]
+				},
+				{
+					"groupName": "Animation",
+					"emptyLineBefore": "always",
+					"properties": [
+						"transform",
+						"transform-origin",
+						"transition",
+						"transition-property",
+						"transition-duration",
+						"transition-timing-function",
+						"transition-delay",
+						"animation",
+						"animation-name",
+						"animation-duration",
+						"animation-timing-function",
+						"animation-delay",
+						"animation-iteration-count",
+						"animation-direction",
+						"animation-fill-mode",
+						"animation-play-state"
+					]
+				},
+				{
+					"groupName": "Misc",
+					"emptyLineBefore": "always",
+					"properties": [
+						"appearance",
+						"content",
+						"cursor",
+						"pointer-events",
+						"resize",
+						"user-select",
+						"will-change"
+					]
+				}
+			],
+			{
+				"unspecified": "bottomAlphabetical",
+				"emptyLineBeforeUnspecified": "always"
+			}
+		],
+		"scss/at-extend-no-missing-placeholder": null,
+		"scss/at-function-pattern": "^[a-z][a-z0-9]*(-[a-z0-9]+)*$",
+		"scss/at-import-partial-extension": "never",
+		"scss/at-mixin-pattern": "^[a-z][a-z0-9]*(-[a-z0-9]+)*$",
+		"scss/dollar-variable-pattern": "^[a-z][a-z0-9]*(-[a-z0-9]+)*$",
+		"scss/percent-placeholder-pattern": "^[a-z][a-z0-9]*(-[a-z0-9]+)*$",
+		"scss/selector-no-redundant-nesting-selector": true
+	},
+	"ignoreFiles": [
+		"node_modules/**/*",
+		"vendor/**/*",
+		"build/**/*",
+		"dist/**/*",
+		"**/*.min.css"
+	]
+}

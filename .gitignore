@@ -1,0 +1,66 @@
+# WordPress Plugin Development - Root .gitignore
+
+# Environment files (worktree-specific, never commit)
+.env
+
+# Database dumps
+*.sql
+dump-*.sql
+
+# WordPress debug log
+debug.log
+wp-content/debug.log
+
+# OS files
+.DS_Store
+Thumbs.db
+*.swp
+*.swo
+*~
+
+# IDE and editor files
+.idea/
+.vscode/
+*.sublime-project
+*.sublime-workspace
+.project
+.settings/
+
+# Node.js (if building assets)
+node_modules/
+npm-debug.log
+yarn-error.log
+.npm/
+.yarn/
+
+# PHP
+vendor/
+composer.lock
+*.phar
+
+# Build artifacts
+build/
+dist/
+*.zip
+
+# Testing
+.phpunit.result.cache
+tests/_output/
+coverage/
+.coverage
+
+# Linting caches
+.php-cs-fixer.cache
+.phpcs-cache
+.stylelintcache
+.eslintcache
+
+# Temporary files
+tmp/
+temp/
+*.tmp
+
+# Backup files
+*.bak
+*.backup
+*~

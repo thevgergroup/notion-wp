@@ -1,0 +1,118 @@
+{
+  "version": "1.0",
+  "description": "Field mappings for Notion database properties → WordPress fields",
+  "databases": {
+    "example-notion-database-id": {
+      "enabled": true,
+      "target_post_type": "post",
+      "sync_strategy": "add_and_update",
+      "property_mappings": {
+        "Name": {
+          "wp_field": "post_title",
+          "required": true,
+          "sanitize": "sanitize_text_field"
+        },
+        "Status": {
+          "wp_field": "post_status",
+          "transform": {
+            "Published": "publish",
+            "Draft": "draft",
+            "Pending": "pending",
+            "Private": "private"
+          },
+          "default": "draft"
+        },
+        "Published Date": {
+          "wp_field": "post_date",
+          "format": "Y-m-d H:i:s",
+          "timezone": "UTC"
+        },
+        "Slug": {
+          "wp_field": "post_name",
+          "sanitize": "sanitize_title"
+        },
+        "Excerpt": {
+          "wp_field": "post_excerpt",
+          "sanitize": "wp_kses_post"
+        },
+        "Categories": {
+          "wp_field": "category",
+          "taxonomy": true,
+          "create_if_missing": true
+        },
+        "Tags": {
+          "wp_field": "post_tag",
+          "taxonomy": true,
+          "create_if_missing": true
+        },
+        "Author": {
+          "wp_field": "post_author",
+          "transform": "email_to_user_id",
+          "fallback_user": "admin"
+        },
+        "Featured Image": {
+          "wp_field": "_thumbnail_id",
+          "type": "attachment",
+          "import_media": true
+        },
+        "Meta Description": {
+          "wp_field": "_yoast_wpseo_metadesc",
+          "custom_field": true,
+          "sanitize": "sanitize_textarea_field"
+        },
+        "Focus Keyword": {
+          "wp_field": "_yoast_wpseo_focuskw",
+          "custom_field": true
+        },
+        "Custom Field 1": {
+          "wp_field": "my_custom_field",
+          "custom_field": true,
+          "acf": false
+        }
+      }
+    },
+    "blog-posts-database-id": {
+      "enabled": true,
+      "target_post_type": "post",
+      "sync_strategy": "full_mirror",
+      "property_mappings": {
+        "Title": {
+          "wp_field": "post_title",
+          "required": true
+        },
+        "Published": {
+          "wp_field": "post_date"
+        },
+        "Topic": {
+          "wp_field": "category",
+          "taxonomy": true
+        }
+      }
+    },
+    "pages-database-id": {
+      "enabled": true,
+      "target_post_type": "page",
+      "sync_strategy": "add_and_update",
+      "generate_menu": true,
+      "menu_name": "Notion Pages",
+      "property_mappings": {
+        "Name": {
+          "wp_field": "post_title"
+        },
+        "Order": {
+          "wp_field": "menu_order",
+          "type": "number"
+        }
+      }
+    }
+  },
+  "global_settings": {
+    "default_post_status": "draft",
+    "default_post_author": 1,
+    "import_media": true,
+    "convert_internal_links": true,
+    "preserve_notion_ids": true,
+    "update_existing_posts": true,
+    "delete_removed_posts": false
+  }
+}

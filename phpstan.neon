@@ -1,0 +1,93 @@
+# PHPStan Configuration for Notion-WP Plugin
+# https://phpstan.org/config-reference
+
+parameters:
+	# Analysis level: 0-9 (principles.md requires minimum level 5)
+	level: 5
+
+	# Paths to analyze
+	paths:
+		- plugin
+
+	# Paths to exclude
+	excludePaths:
+		- plugin/vendor
+		- plugin/node_modules
+		- plugin/build
+		- plugin/dist
+
+	# Bootstrap file for WordPress functions
+	bootstrapFiles:
+		- tests/bootstrap.php
+
+	# Scan files even without declared classes
+	scanDirectories:
+		- plugin
+
+	# Ignore errors that WordPress causes
+	# WordPress has some non-standard patterns that PHPStan flags
+	ignoreErrors:
+		# WordPress uses snake_case for functions, which is fine
+		- '#Function \w+ is never used#'
+		# WordPress hooks pass mixed types
+		- '#Parameter .* of function add_action expects#'
+		- '#Parameter .* of function add_filter expects#'
+		# WordPress globals are dynamically set
+		- '#Variable \$wpdb might not be defined#'
+		- '#Undefined variable: \$wpdb#'
+		# Plugin activation hooks have mixed return types
+		- '#Function register_activation_hook invoked with#'
+		- '#Function register_deactivation_hook invoked with#'
+
+	# WordPress-specific stub files to understand WP core functions
+	# These will be loaded if available via composer
+	stubFiles:
+		# Add WordPress stubs when we install them via Composer
+		# - vendor/php-stubs/wordpress-stubs/wordpress-stubs.php
+
+	# Treat dynamic properties as always defined (WordPress uses them heavily)
+	universalObjectCratesClasses:
+		- stdClass
+		- WP_Post
+		- WP_User
+		- WP_Term
+
+	# Check for always true/false conditions
+	checkAlwaysTrueCheckTypeFunctionCall: true
+	checkAlwaysTrueInstanceof: true
+	checkAlwaysTrueStrictComparison: true
+
+	# Unused variable detection
+	checkUnusedVariables: true
+
+	# Type coverage requirements
+	# As code matures, increase these values
+	reportUnmatchedIgnoredErrors: false
+	checkMissingIterableValueType: false # Enable later for stricter typing
+	checkGenericClassInNonGenericObjectType: false # Enable later
+
+	# Bleeding edge features (optional - enables latest PHP features)
+	# polluteScopeWithLoopInitialAssignments: false
+	# polluteScopeWithAlwaysIterableForeach: false
+
+	# Parallel processing for faster analysis
+	parallel:
+		# Auto-detect number of CPUs
+		jobSize: 20
+		maximumNumberOfProcesses: 32
+		minimumNumberOfJobSize: 2
+
+# Include PHPStan extensions for better WordPress analysis
+includes:
+	# Uncomment when installed via Composer:
+	# - vendor/szepeviktor/phpstan-wordpress/extension.neon
+	# - vendor/phpstan/phpstan-strict-rules/rules.neon
+	# - vendor/phpstan/phpstan-deprecation-rules/rules.neon
+
+# Service configuration (advanced)
+services:
+	# Add custom rules here if needed
+
+# Rules configuration
+rules:
+	# Add custom rule instances here if needed

@@ -1,0 +1,37 @@
+# Docker development environment - gitignore
+# Only commit shared configuration, not worktree-specific files
+
+# Worktree-specific environment files (each worktree has its own)
+# These should NOT be committed as they contain unique values per worktree
+*.env
+
+# Docker Compose override files (worktree-specific customizations)
+docker-compose.override.yml
+compose.override.yml
+
+# Database dumps (created by make db-export)
+*.sql
+dump-*.sql
+
+# Volume mount directories (if using bind mounts instead of named volumes)
+data/
+volumes/
+mysql/
+wordpress/
+
+# Logs
+logs/
+*.log
+
+# Temporary files
+*.tmp
+.DS_Store
+
+# WP-CLI cache
+.wp-cli/
+
+# Keep these files (shared across all worktrees)
+!compose.yml
+!config/
+!config/**
+!.gitignore

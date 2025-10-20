@@ -1,0 +1,318 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Notion Sync - Admin UI Preview</title>
+
+    <!-- Load WordPress admin styles from CDN (for preview purposes) -->
+    <link rel="stylesheet" href="https://unpkg.com/@wordpress/components@latest/build-style/style.css">
+
+    <!-- Load our custom styles -->
+    <link rel="stylesheet" href="src/css/admin.css">
+
+    <style>
+        /* Minimal WordPress admin frame simulation */
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen-Sans, Ubuntu, Cantarell, "Helvetica Neue", sans-serif;
+            background: #f0f0f1;
+            margin: 0;
+            padding: 0;
+        }
+
+        .admin-frame {
+            margin: 20px auto;
+            max-width: 1200px;
+            background: #f0f0f1;
+            padding: 20px;
+        }
+
+        .preview-controls {
+            background: #fff;
+            border: 1px solid #c3c4c7;
+            border-radius: 4px;
+            padding: 15px;
+            margin-bottom: 20px;
+        }
+
+        .preview-controls button {
+            margin-right: 10px;
+        }
+
+        /* WordPress button styles */
+        .button {
+            display: inline-block;
+            text-decoration: none;
+            font-size: 13px;
+            line-height: 2.15384615;
+            min-height: 30px;
+            margin: 0;
+            padding: 0 10px;
+            cursor: pointer;
+            border-width: 1px;
+            border-style: solid;
+            border-radius: 3px;
+            white-space: nowrap;
+            box-sizing: border-box;
+            background: #f6f7f7;
+            border-color: #2271b1;
+            color: #2271b1;
+        }
+
+        .button-primary {
+            background: #2271b1;
+            border-color: #2271b1;
+            color: #fff;
+        }
+
+        .button:hover {
+            background: #f0f0f1;
+            border-color: #0a4b78;
+            color: #0a4b78;
+        }
+
+        .button-primary:hover {
+            background: #135e96;
+            border-color: #135e96;
+            color: #fff;
+        }
+
+        /* WordPress notice styles */
+        .notice {
+            background: #fff;
+            border-left: 4px solid #72aee6;
+            box-shadow: 0 1px 1px rgba(0,0,0,.04);
+            margin: 5px 0 15px;
+            padding: 12px;
+        }
+
+        .notice-success {
+            border-left-color: #00a32a;
+        }
+
+        .notice-error {
+            border-left-color: #d63638;
+        }
+
+        .notice-warning {
+            border-left-color: #dba617;
+        }
+
+        .notice-info {
+            border-left-color: #72aee6;
+        }
+
+        /* WordPress spinner */
+        .spinner {
+            background: url(data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAiIGhlaWdodD0iMjAiIHZpZXdCb3g9IjAgMCAyMCAyMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48Y2lyY2xlIGN4PSIxMCIgY3k9IjEwIiByPSI5IiBzdHJva2U9IiM3MmFlZTYiIHN0cm9rZS13aWR0aD0iMiIgZmlsbD0ibm9uZSIgc3Ryb2tlLWRhc2hhcnJheT0iMjggNTYuNTIiIHN0cm9rZS1saW5lY2FwPSJyb3VuZCIvPjwvc3ZnPg==) no-repeat;
+            background-size: 20px 20px;
+            display: none;
+            float: left;
+            opacity: .7;
+            width: 20px;
+            height: 20px;
+            margin: 2px 5px 0;
+            animation: rotation 1s linear infinite;
+        }
+
+        .spinner.is-active {
+            display: inline-block;
+        }
+
+        @keyframes rotation {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+
+        .hidden {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="admin-frame">
+        <!-- Preview Controls -->
+        <div class="preview-controls">
+            <strong>Preview States:</strong>
+            <button class="button" onclick="showState('disconnected')">Disconnected</button>
+            <button class="button" onclick="showState('connected')">Connected</button>
+            <button class="button" onclick="showState('loading')">Loading</button>
+            <button class="button" onclick="showNotice('success')">Show Success</button>
+            <button class="button" onclick="showNotice('error')">Show Error</button>
+        </div>
+
+        <!-- Admin Notices -->
+        <div id="notice-container"></div>
+
+        <!-- Main Content -->
+        <div class="wrap notion-sync-settings">
+            <!-- Page Header -->
+            <div class="notion-sync-header">
+                <h1>Notion Sync Settings</h1>
+                <p class="subtitle">Connect your WordPress site to Notion for seamless content synchronization.</p>
+            </div>
+
+            <!-- STATE 1: Disconnected - Connection Form -->
+            <div id="state-disconnected" class="state-container">
+                <div class="notion-sync-connection-form">
+                    <div class="form-intro">
+                        <h2>Connect to Notion</h2>
+                        <p>To connect your Notion workspace, you'll need an Internal Integration Token.</p>
+                        <p><strong>How to get your token:</strong></p>
+                        <ol>
+                            <li>Go to <a href="https://www.notion.com/my-integrations" target="_blank">notion.com/my-integrations</a></li>
+                            <li>Click "New integration"</li>
+                            <li>Give it a name (e.g., "WordPress Sync")</li>
+                            <li>Copy the "Internal Integration Token"</li>
+                            <li>Share your Notion pages with the integration</li>
+                        </ol>
+                    </div>
+
+                    <form id="notion-sync-connection-form" onsubmit="return false;">
+                        <div class="form-field">
+                            <label for="notion_token">
+                                Notion Integration Token
+                                <span class="required">*</span>
+                            </label>
+                            <input
+                                type="password"
+                                id="notion_token"
+                                name="notion_token"
+                                class="token-input"
+                                placeholder="secret_..."
+                                required
+                            >
+                            <span class="description">
+                                Your token starts with "secret_" and should be kept confidential.
+                            </span>
+                        </div>
+
+                        <div class="form-actions">
+                            <button type="submit" class="button button-primary" disabled>
+                                Connect to Notion
+                            </button>
+                            <span class="description">
+                                This will verify your token and establish the connection.
+                            </span>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <!-- STATE 2: Connected - Workspace Info -->
+            <div id="state-connected" class="state-container hidden">
+                <div class="notion-sync-workspace-info">
+                    <span class="success-icon"></span>
+                    <h2 class="workspace-name">My Notion Workspace</h2>
+
+                    <div class="workspace-details">
+                        <p><strong>User:</strong> user@example.com</p>
+                        <p><strong>Last connected:</strong> October 19, 2025 at 7:00 PM</p>
+                    </div>
+
+                    <button type="button" class="button disconnect-button" onclick="alert('Disconnect confirmation dialog would appear here')">
+                        Disconnect
+                    </button>
+                </div>
+
+                <!-- Pages List -->
+                <div class="notion-sync-pages">
+                    <h2>Available Pages</h2>
+                    <div class="pages-list">
+                        <div class="page-item">
+                            <span class="page-icon">📄</span>
+                            <div class="page-info">
+                                <div class="page-title">Getting Started Guide</div>
+                                <div class="page-meta">Edited 2 hours ago</div>
+                            </div>
+                        </div>
+
+                        <div class="page-item">
+                            <span class="page-icon">📝</span>
+                            <div class="page-info">
+                                <div class="page-title">Blog Post: WordPress Integration</div>
+                                <div class="page-meta">Edited yesterday</div>
+                            </div>
+                        </div>
+
+                        <div class="page-item">
+                            <span class="page-icon">📊</span>
+                            <div class="page-info">
+                                <div class="page-title">Product Roadmap 2024</div>
+                                <div class="page-meta">Edited 3 days ago</div>
+                            </div>
+                        </div>
+
+                        <div class="page-item">
+                            <span class="page-icon">🚀</span>
+                            <div class="page-info">
+                                <div class="page-title">Launch Checklist</div>
+                                <div class="page-meta">Edited last week</div>
+                            </div>
+                        </div>
+
+                        <div class="page-item">
+                            <span class="page-icon">📚</span>
+                            <div class="page-info">
+                                <div class="page-title">Documentation</div>
+                                <div class="page-meta">Edited 2 weeks ago</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- STATE 3: Loading -->
+            <div id="state-loading" class="state-container hidden">
+                <div class="notion-sync-loading">
+                    <span class="spinner is-active"></span>
+                    <span class="loading-text">Connecting to Notion...</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Load our JavaScript -->
+    <script src="src/js/admin.js"></script>
+
+    <!-- Preview control script -->
+    <script>
+        function showState(state) {
+            // Hide all states
+            document.querySelectorAll('.state-container').forEach(el => {
+                el.classList.add('hidden');
+            });
+
+            // Show selected state
+            const stateEl = document.getElementById('state-' + state);
+            if (stateEl) {
+                stateEl.classList.remove('hidden');
+            }
+        }
+
+        function showNotice(type) {
+            const container = document.getElementById('notice-container');
+            const notice = document.createElement('div');
+            notice.className = 'notice notice-' + type;
+
+            let message = '';
+            if (type === 'success') {
+                message = '<p><strong>Connected successfully!</strong> Your Notion workspace is now connected.</p>';
+            } else if (type === 'error') {
+                message = '<p><strong>Connection failed</strong> Invalid token. Please check your Notion integration token and try again.</p>';
+            }
+
+            notice.innerHTML = message;
+            container.appendChild(notice);
+
+            // Auto-remove after 5 seconds
+            setTimeout(() => {
+                notice.remove();
+            }, 5000);
+        }
+
+        // Show disconnected state by default
+        showState('disconnected');
+    </script>
+</body>
+</html>

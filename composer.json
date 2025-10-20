@@ -1,0 +1,94 @@
+{
+	"name": "thevgergroup/notion-wp",
+	"description": "Bi-directional sync between Notion and WordPress",
+	"type": "wordpress-plugin",
+	"license": "GPL-2.0-or-later",
+	"authors": [
+		{
+			"name": "The VGER Group",
+			"email": "info@thevgergroup.com"
+		}
+	],
+	"minimum-stability": "stable",
+	"prefer-stable": true,
+	"require": {
+		"php": ">=8.0"
+	},
+	"require-dev": {
+		"squizlabs/php_codesniffer": "^3.8",
+		"wp-coding-standards/wpcs": "^3.0",
+		"phpcompatibility/php-compatibility": "^9.3",
+		"phpstan/phpstan": "^1.10",
+		"szepeviktor/phpstan-wordpress": "^1.3",
+		"phpstan/phpstan-strict-rules": "^1.5",
+		"phpstan/phpstan-deprecation-rules": "^1.1",
+		"friendsofphp/php-cs-fixer": "^3.40",
+		"php-stubs/wordpress-stubs": "^6.4",
+		"php-stubs/wp-cli-stubs": "^2.10",
+		"dealerdirect/phpcodesniffer-composer-installer": "^1.0"
+	},
+	"config": {
+		"allow-plugins": {
+			"dealerdirect/phpcodesniffer-composer-installer": true
+		},
+		"optimize-autoloader": true,
+		"sort-packages": true,
+		"platform": {
+			"php": "8.0"
+		}
+	},
+	"autoload": {
+		"psr-4": {
+			"NotionWP\\": "plugin/src/"
+		}
+	},
+	"autoload-dev": {
+		"psr-4": {
+			"NotionWP\\Tests\\": "tests/"
+		}
+	},
+	"scripts": {
+		"lint": [
+			"@lint:phpcs",
+			"@lint:phpstan"
+		],
+		"lint:phpcs": "phpcs -p -s --colors",
+		"lint:phpcs:quiet": "phpcs --report=summary",
+		"lint:phpcbf": "phpcbf -p --colors",
+		"lint:phpstan": "phpstan analyse --memory-limit=1G",
+		"lint:phpstan:quiet": "phpstan analyse --memory-limit=1G --no-progress --error-format=table",
+		"lint:php-cs-fixer": "php-cs-fixer fix --dry-run --diff --verbose",
+		"lint:fix": [
+			"@lint:phpcbf",
+			"@lint:php-cs-fixer:fix"
+		],
+		"lint:fix:quiet": "php-cs-fixer fix --quiet",
+		"lint:php-cs-fixer:fix": "php-cs-fixer fix --verbose",
+		"analyze": [
+			"@lint:phpstan"
+		],
+		"check": [
+			"@lint",
+			"@analyze"
+		],
+		"test": "echo 'Tests not yet configured'",
+		"post-install-cmd": [
+			"@php -r \"echo '\\n\\033[32m✓ Composer dependencies installed successfully\\033[0m\\n';\"",
+			"@php -r \"echo '\\033[33mRun \\033[1mcomposer lint\\033[0m\\033[33m to check code quality\\033[0m\\n\\n';\""
+		],
+		"post-update-cmd": [
+			"@php -r \"echo '\\n\\033[32m✓ Composer dependencies updated successfully\\033[0m\\n\\n';\""
+		]
+	},
+	"scripts-descriptions": {
+		"lint": "Run all PHP linters (PHPCS and PHPStan)",
+		"lint:phpcs": "Run PHP_CodeSniffer to check for code style violations",
+		"lint:phpcbf": "Run PHP Code Beautifier and Fixer to auto-fix code style issues",
+		"lint:phpstan": "Run PHPStan for static analysis",
+		"lint:php-cs-fixer": "Run PHP-CS-Fixer to check for code style issues (dry-run)",
+		"lint:fix": "Auto-fix all PHP code style issues",
+		"analyze": "Run static analysis tools",
+		"check": "Run all checks (linting and analysis)",
+		"test": "Run PHPUnit tests (not yet configured)"
+	}
+}

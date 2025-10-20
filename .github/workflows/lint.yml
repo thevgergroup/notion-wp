@@ -1,0 +1,147 @@
+name: Code Quality & Linting
+
+on:
+  pull_request:
+    branches:
+      - main
+      - develop
+    paths:
+      - '**.php'
+      - '**.js'
+      - '**.jsx'
+      - '**.ts'
+      - '**.tsx'
+      - '**.css'
+      - '**.scss'
+      - '**.sass'
+      - 'composer.json'
+      - 'composer.lock'
+      - 'package.json'
+      - 'package-lock.json'
+      - 'phpcs.xml.dist'
+      - 'phpstan.neon'
+      - '.php-cs-fixer.php'
+      - '.eslintrc.json'
+      - '.stylelintrc.json'
+  push:
+    branches:
+      - main
+      - develop
+
+# Cancel in-progress runs when a new workflow with the same group is triggered
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  php-lint:
+    name: PHP Linting (PHP ${{ matrix.php }})
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        php: ['8.0', '8.1', '8.2', '8.3']
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: ${{ matrix.php }}
+          extensions: mbstring, xml, ctype, json
+          coverage: none
+          tools: composer:v2
+
+      - name: Get Composer cache directory
+        id: composer-cache
+        run: echo "dir=$(composer config cache-files-dir)" >> $GITHUB_OUTPUT
+
+      - name: Cache Composer dependencies
+        uses: actions/cache@v4
+        with:
+          path: ${{ steps.composer-cache.outputs.dir }}
+          key: ${{ runner.os }}-composer-${{ hashFiles('**/composer.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-composer-
+
+      - name: Install Composer dependencies
+        run: composer install --prefer-dist --no-progress --no-suggest
+
+      - name: Run PHP_CodeSniffer
+        run: composer lint:phpcs
+
+      - name: Run PHPStan
+        run: composer lint:phpstan
+
+      - name: Run PHP-CS-Fixer (dry-run)
+        run: composer lint:php-cs-fixer
+
+  javascript-lint:
+    name: JavaScript/CSS Linting
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+          cache: 'npm'
+
+      - name: Install npm dependencies
+        run: npm ci
+
+      - name: Run ESLint
+        run: npm run lint:js
+
+      - name: Run Stylelint
+        run: npm run lint:css
+
+      - name: Check code formatting (Prettier)
+        run: npm run format:check
+
+  file-size-check:
+    name: File Size Compliance
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Check for files exceeding 500 lines
+        run: |
+          echo "Checking for files exceeding 500 lines..."
+          LARGE_FILES=$(find plugin -type f \( -name "*.php" -o -name "*.js" -o -name "*.jsx" -o -name "*.ts" -o -name "*.tsx" \) -exec wc -l {} \; | awk '$1 > 500 {print $2 " (" $1 " lines)"}')
+
+          if [ -n "$LARGE_FILES" ]; then
+            echo "❌ The following files exceed the 500-line limit:"
+            echo "$LARGE_FILES"
+            echo ""
+            echo "Please refactor these files into smaller, more focused modules."
+            echo "See docs/development/principles.md for guidelines."
+            exit 1
+          else
+            echo "✅ All files are within the 500-line limit"
+          fi
+
+  summary:
+    name: Linting Summary
+    runs-on: ubuntu-latest
+    needs: [php-lint, javascript-lint, file-size-check]
+    if: always()
+
+    steps:
+      - name: Check results
+        run: |
+          if [ "${{ needs.php-lint.result }}" == "failure" ] || \
+             [ "${{ needs.javascript-lint.result }}" == "failure" ] || \
+             [ "${{ needs.file-size-check.result }}" == "failure" ]; then
+            echo "❌ Linting checks failed"
+            exit 1
+          else
+            echo "✅ All linting checks passed"
+          fi
