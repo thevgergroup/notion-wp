@@ -64,3 +64,6 @@ temp/
 *.bak
 *.backup
 *~
+
+# Worktree directories
+/worktrees/
