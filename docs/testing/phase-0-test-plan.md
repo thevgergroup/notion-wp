@@ -1622,9 +1622,9 @@ For each browser, run core functional tests (TC-F001 through TC-F012)
 
 ### Completion Tracking
 
-**Test Execution Date:** ******\_******
+**Test Execution Date:** **\*\***\_**\*\***
 
-**Tester Name:** ******\_******
+**Tester Name:** **\*\***\_**\*\***
 
 | Category     | Total Tests | Passed | Failed | Blocked | Pass Rate |
 | ------------ | ----------- | ------ | ------ | ------- | --------- |
@@ -1738,9 +1738,9 @@ After testing completes:
 
 ### Test Completion
 
-**Test Lead:** ************\_************
-**Signature:** ************\_************
-**Date:** ************\_************
+**Test Lead:** \***\*\*\*\*\*\*\***\_\***\*\*\*\*\*\*\***
+**Signature:** \***\*\*\*\*\*\*\***\_\***\*\*\*\*\*\*\***
+**Date:** \***\*\*\*\*\*\*\***\_\***\*\*\*\*\*\*\***
 
 **Result:** [ ] PASS - Ready for Gatekeeping Demo [ ] FAIL - Fixes Required
 

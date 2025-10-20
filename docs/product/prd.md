@@ -566,11 +566,11 @@ address several key requirements and challenges:
   into WordPress post content. There are two approaches:
 
 - **Render as HTML**: Simpler route -- convert each Notion block to an
-  HTML snippet and concatenate for the post_content. For example, a
+  HTML snippet and concatenate for the post*content. For example, a
   Notion heading block becomes `<h2>Heading text</h2>`, a paragraph
   becomes `<p>…</p>`, a bulleted list becomes `<ul><li>…</li></ul>`,
   an image block becomes an `<img src="...">` tag, etc. This is
-  relatively straightforward and ensures the content _displays_
+  relatively straightforward and ensures the content \_displays*
   correctly on the site. Both WP Sync and Content Importer essentially
   do this (Content Importer stores the content in a custom post type
   and gives you a shortcode that outputs pre-built HTML).

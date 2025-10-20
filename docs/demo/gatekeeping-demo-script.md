@@ -389,9 +389,9 @@ If asked something you don't know:
 
 ## Demo Feedback Form
 
-**Presenter:** ************\_************
-**Date:** ************\_************
-**Audience:** ************\_************
+**Presenter:** \***\*\*\*\*\*\*\***\_\***\*\*\*\*\*\*\***
+**Date:** \***\*\*\*\*\*\*\***\_\***\*\*\*\*\*\*\***
+**Audience:** \***\*\*\*\*\*\*\***\_\***\*\*\*\*\*\*\***
 **Demo Duration:** **\_\_\_** minutes
 
 ### Demo Performance
@@ -464,11 +464,11 @@ If asked something you don't know:
 
 **Result:** [ ] PASS - Proceed to Phase 1 [ ] FAIL - Fixes Required
 
-**Gatekeeping Approval:** ************\_************
+**Gatekeeping Approval:** \***\*\*\*\*\*\*\***\_\***\*\*\*\*\*\*\***
 
-**Signature:** ************\_************
+**Signature:** \***\*\*\*\*\*\*\***\_\***\*\*\*\*\*\*\***
 
-**Date:** ************\_************
+**Date:** \***\*\*\*\*\*\*\***\_\***\*\*\*\*\*\*\***
 
 **Next Steps:**
 

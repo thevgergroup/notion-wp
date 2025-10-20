@@ -632,7 +632,7 @@ These are explicitly NOT required for Phase 0:
 - [ ] I have verified the demo works
 - [ ] I approve moving to Phase 1
 
-**Date Completed:** ******\_\_\_******
+**Date Completed:** **\*\***\_\_\_**\*\***
 
 ---
 
