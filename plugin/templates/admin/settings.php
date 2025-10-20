@@ -55,23 +55,22 @@ if ( ! defined( 'ABSPATH' ) ) {
 				<ol style="margin-left: 20px; line-height: 1.8;">
 					<li>
 						<?php
-						printf(
+					printf(
+						/* translators: %s: URL to Notion integrations page */
+						wp_kses(
 							/* translators: %s: URL to Notion integrations page */
-							wp_kses(
-								__(
-								'Visit <a href="%s" target="_blank" rel="noopener noreferrer">Notion Integrations</a> and create a new integration.',
-									'notion-wp'
+							__( 'Visit <a href="%s" target="_blank" rel="noopener noreferrer">Notion Integrations</a> and create a new integration.', 'notion-wp' ),
+							array(
+								'a' => array(
+									'href'   => array(),
+									'target' => array(),
+									'rel'    => array(),
 								),
-								array(
-									'a' => array(
-										'href'   => array(),
-										'target' => array(),
-										'rel'    => array(),
-									),
-								)
-							),
-							esc_url( 'https://www.notion.com/my-integrations' )
-						);
+							)
+						),
+						esc_url( 'https://www.notion.com/my-integrations' )
+					);
+
 						?>
 					</li>
 					<li><?php esc_html_e( 'Copy the "Internal Integration Token" (starts with "secret_").', 'notion-wp' ); ?></li>
