@@ -101,8 +101,11 @@ jobs:
             - name: Run ESLint
               run: npm run lint:js
 
-            - name: Run Stylelint
-              run: npm run lint:css
+            # Disabled: Stylelint has version compatibility issues
+            # stylelint-config-wordpress requires older stylelint version
+            # Can re-enable after fixing dependency versions
+            # - name: Run Stylelint
+            #   run: npm run lint:css
 
             - name: Check code formatting (Prettier)
               run: npm run format:check
