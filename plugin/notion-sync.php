@@ -59,6 +59,10 @@ function init() {
 	// Load text domain for translations.
 	load_plugin_textdomain( 'notion-wp', false, dirname( NOTION_SYNC_BASENAME ) . '/languages' );
 
+	// Register database custom post type.
+	$database_cpt = new Database\DatabasePostType();
+	$database_cpt->register();
+
 	// Initialize admin interface.
 	if ( is_admin() ) {
 		$settings_page = new Admin\SettingsPage();
@@ -86,6 +90,13 @@ function activate() {
 	if ( false === get_option( 'notion_wp_workspace_info' ) ) {
 		add_option( 'notion_wp_workspace_info', array() );
 	}
+
+	// Create custom database tables.
+	\NotionSync\Database\Schema::create_tables();
+
+	// Register database CPT before flushing rewrite rules.
+	$database_cpt = new \NotionSync\Database\DatabasePostType();
+	$database_cpt->register();
 
 	// Flush rewrite rules.
 	flush_rewrite_rules();
