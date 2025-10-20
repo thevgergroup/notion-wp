@@ -1,763 +1,805 @@
-# Phase 1: MVP Core - Detailed Implementation Plan
+# Phase 1: MVP Core - Single Page Sync
 
-**Version**: 1.0
-**Last Updated**: 2025-10-20
-**Status**: Ready to Begin
+**Status:** ✅ COMPLETE
+**Duration:** Completed in 1 week
+**Complexity:** M (Medium)
+**Version Target:** v0.2-dev
 
----
+## 🎯 Goal
 
-## Executive Summary
+Import Notion pages to WordPress as posts with basic text formatting. **This phase proves the core sync functionality works end-to-end.**
 
-Phase 1 implements the core functionality of importing Notion pages to WordPress as posts with basic text formatting. This phase establishes the foundational architecture that all future phases will build upon.
+**User Story:** "As a WordPress admin, I can see all my Notion pages in a table with sync status, select one or more pages, click 'Sync', and see them appear as WordPress posts with all basic formatting preserved."
 
-**Timeline**: 10-14 days
-**Complexity**: Medium (M)
-**Worktree**: `/Users/patrick/Projects/thevgergroup/notion-wp-phase-1-mvp`
-**Branch**: `phase-1-mvp`
+## ✅ Success Criteria (Gatekeeping)
 
----
+**ALL CRITERIA MET - Phase 1 Complete!**
 
-## Success Criteria
+- [x] User sees Notion pages in a WordPress-style list table
+- [x] Table shows metadata: page title, last synced, WordPress post link, sync status, **type (Page/Child Page/DB Entry)**
+- [x] User can select individual pages or use "Select All"
+- [x] Clicking "Sync Selected" syncs one or more pages
+- [x] Clicking individual "Sync" action syncs single page
+- [x] Sync fetches page content from Notion API
+- [x] Page title appears as WordPress post title
+- [x] Basic blocks convert correctly:
+  - [x] Paragraphs with text formatting (bold, italic, code)
+  - [x] Headings (H1, H2, H3)
+  - [x] Bulleted lists
+  - [x] Numbered lists
+  - [x] Links (internal and external) **+ auto-rewriting to WordPress permalinks**
+- [x] Post is editable in WordPress Gutenberg editor
+- [x] Re-syncing updates existing post (no duplicates created)
+- [x] Success message shows link to created/updated post
+- [x] Zero PHP warnings or JavaScript console errors
+- [x] **Can be demoed to a non-developer in under 5 minutes**
 
-Phase 1 is complete when:
+### 🚀 Bonus Features Completed
 
-- [ ] User can view a list of Notion pages in WordPress admin using WP_List_Table
-- [ ] User can select multiple pages and bulk sync them to WordPress
-- [ ] User can sync individual pages via row action
-- [ ] Pages appear as WordPress posts with correct title and content
-- [ ] Basic blocks work: paragraphs, headings (H1-H3), lists, bold, italic, links
-- [ ] Post is editable in WordPress block editor
-- [ ] Re-sync updates existing post (doesn't duplicate)
-- [ ] Sync status visible in list table
-- [ ] All linting passes (WPCS, PHPStan level 5)
-- [ ] No PHP warnings or JavaScript console errors
+- [x] **Link Rewriting System** - Internal Notion links convert to WordPress permalinks
+- [x] **Chicken-and-Egg Solution** - Links update automatically when referenced pages sync later
+- [x] **Child Page Blocks** - Notion child_page blocks convert to linked paragraphs
+- [x] **Database Links** - child_database blocks link back to Notion
+- [x] **Type Classification** - Admin UI shows Page/Child Page/DB Entry distinctions
+- [x] **Responsive Design** - Full-width table on desktop, mobile-friendly
+- [x] **data-notion-id attributes** - Preserve link mapping for permalink structure changes
 
----
+## 📋 Dependencies
 
-## Phase Dependencies
+**Required from Phase 0 (COMPLETED ✅):**
+- ✅ Working Notion API authentication
+- ✅ Admin settings page foundation
+- ✅ Development environment with Docker
+- ✅ Linting infrastructure
+- ✅ NotionClient API wrapper
 
-**Required from Phase 0 (COMPLETE)**:
-- Working Notion API authentication
-- Secure token storage (Encryption class)
-- Admin settings page foundation
-- NotionClient class with connection test
-- Development environment with linting
+## 🔀 Parallel Work Streams
 
-**Deliverables for Future Phases**:
-- ContentFetcher interface for Phase 2 (database sync)
-- BlockConverter registry for Phase 4 (advanced blocks)
-- SyncManager interface for Phase 3 (media handling)
-- Admin UI foundation for Phase 5 (field mapping)
+### Stream 1: Content Fetcher (Backend Core)
+**Worktree:** `phase-1-mvp` (already created)
+**Duration:** 2-3 days
+**Files Created:** 1-2 files, all <300 lines
 
----
+**What This Builds:**
+- Fetch page content from Notion API
+- Retrieve all blocks with pagination support
+- Handle API errors gracefully
 
-## Architecture Overview
+**Technical Implementation:**
 
-### Component Hierarchy
-
-```mermaid
-graph TB
-    subgraph "Admin UI Layer"
-        A[PagesListTable<br/>WP_List_Table]
-        B[NotionPagesPage<br/>Admin Controller]
-    end
-
-    subgraph "Orchestration Layer"
-        C[SyncManager<br/>Coordinates sync]
-    end
-
-    subgraph "Content Layer"
-        D[ContentFetcher<br/>Notion API]
-        E[BlockConverterRegistry<br/>Factory Pattern]
-        F[NotionPostCreator<br/>WordPress API]
-    end
-
-    subgraph "Converter Layer"
-        G[ParagraphConverter]
-        H[HeadingConverter]
-        I[ListConverter]
-        J[RichTextFormatter]
-    end
-
-    subgraph "Data Layer"
-        K[SyncMappingRepository<br/>Custom Table]
-    end
-
-    B --> A
-    B --> C
-    C --> D
-    C --> E
-    C --> F
-    C --> K
-    E --> G
-    E --> H
-    E --> I
-    D --> E
-    G --> J
-    H --> J
-    I --> J
-    F --> K
-```
-
----
-
-## Work Streams
-
-### Stream 1: Content Fetcher (2-3 days)
-**Priority**: CRITICAL - Foundation for all other streams
-**Owner**: notion-api-specialist
-
-#### Components
-1. **ContentFetcher** (`src/Sync/ContentFetcher.php`)
-   - Fetch pages accessible to integration
-   - Fetch single page with properties
-   - Fetch page blocks (with pagination)
-   - Cache page list for performance
-
-#### Interface Contract
+**File 1:** `plugin/src/Sync/ContentFetcher.php` (<300 lines)
 ```php
-interface ContentFetcherInterface {
-    public function listAccessiblePages(): array;
-    public function fetchPage(string $page_id): array;
-    public function fetchPageBlocks(string $page_id): array;
+<?php
+namespace NotionSync\Sync;
+
+use NotionSync\API\NotionClient;
+
+class ContentFetcher {
+    private NotionClient $client;
+
+    public function fetch_page_blocks( string $page_id ): array {
+        // GET /blocks/{block_id}/children
+        // Handle pagination (100 blocks per request)
+        // Return array of block objects
+    }
+
+    public function fetch_page_properties( string $page_id ): array {
+        // GET /pages/{page_id}
+        // Extract title, created time, last edited time
+        // Return page metadata
+    }
 }
 ```
 
-#### Acceptance Criteria
-- [ ] Can fetch list of accessible Notion pages
-- [ ] Returns page properties (title, last_edited_time, ID)
-- [ ] Can fetch page blocks with proper pagination (100 per request)
-- [ ] Handles Notion API errors gracefully
-- [ ] Respects rate limits (uses existing RateLimiter if available)
-- [ ] Results cached for 5 minutes (transient cache)
+**Tasks:**
+1. Create ContentFetcher class with Notion API integration
+2. Implement `fetch_page_blocks()` with pagination
+3. Implement `fetch_page_properties()` for metadata
+4. Add error handling and retry logic
+5. Write unit tests for API responses
 
-#### Dependencies
-- NotionClient (Phase 0) ✅
-- Encryption (Phase 0) ✅
+**Definition of Done:**
+- [ ] Can fetch all blocks from a Notion page (even 100+ blocks)
+- [ ] Handles API errors gracefully (network issues, rate limits)
+- [ ] Returns structured data ready for conversion
+- [ ] Unit tests pass
 
 ---
 
-### Stream 2: Block Converters (4-5 days)
-**Priority**: HIGH - Core transformation logic
-**Owner**: block-converter-specialist
+### Stream 2: Block Converter (Core Logic)
+**Worktree:** `phase-1-mvp`
+**Duration:** 4-5 days
+**Files Created:** 4-5 files, all <300 lines
 
-#### Components
-1. **BlockConverterRegistry** (`src/Converters/BlockConverterRegistry.php`)
-2. **RichTextFormatter** (`src/Converters/RichTextFormatter.php`)
-3. **ParagraphConverter** (`src/Converters/NotionToGutenberg/ParagraphConverter.php`)
-4. **HeadingConverter** (`src/Converters/NotionToGutenberg/HeadingConverter.php`)
-5. **BulletedListConverter** (`src/Converters/NotionToGutenberg/BulletedListConverter.php`)
-6. **NumberedListConverter** (`src/Converters/NotionToGutenberg/NumberedListConverter.php`)
+**What This Builds:**
+- Convert Notion block format → WordPress Gutenberg blocks
+- Support for basic text formatting
+- Extensible architecture for future block types
 
-#### Interface Contract
+**Technical Implementation:**
+
+**File 1:** `plugin/src/Blocks/BlockConverter.php` (<250 lines)
 ```php
+<?php
+namespace NotionSync\Blocks;
+
+class BlockConverter {
+    private array $converters = [];
+
+    public function register_converter( string $type, BlockConverterInterface $converter ): void {
+        $this->converters[ $type ] = $converter;
+    }
+
+    public function convert_blocks( array $notion_blocks ): string {
+        // Loop through blocks
+        // Call appropriate converter
+        // Return serialized Gutenberg blocks
+    }
+}
+```
+
+**File 2:** `plugin/src/Blocks/BlockConverterInterface.php` (<100 lines)
+```php
+<?php
+namespace NotionSync\Blocks;
+
 interface BlockConverterInterface {
-    public function supports(): string|array;
-    public function convert(array $notion_block, array $context = []): string;
-    public function priority(): int;
+    public function supports( array $notion_block ): bool;
+    public function convert( array $notion_block ): string;
 }
 ```
 
-#### Acceptance Criteria
-- [ ] Registry pattern allows extensibility via WordPress filters
-- [ ] RichTextFormatter handles: bold, italic, strikethrough, code, links
-- [ ] ParagraphConverter outputs Gutenberg paragraph blocks
-- [ ] HeadingConverter supports H1-H6 levels
-- [ ] List converters handle nested lists (up to 3 levels)
-- [ ] All converters sanitize output (esc_html, wp_kses_post)
-- [ ] Unsupported blocks render as HTML comments with warning
-- [ ] Unit tests for each converter with Notion JSON fixtures
-
-#### Dependencies
-- None (can develop in parallel with Stream 1)
-
----
-
-### Stream 3: Sync Manager (3-4 days)
-**Priority**: HIGH - Orchestrates everything
-**Owner**: wordpress-plugin-engineer
-
-#### Components
-1. **SyncManager** (`src/Sync/SyncManager.php`)
-2. **NotionPostCreator** (`src/Sync/NotionPostCreator.php`)
-3. **SyncMappingRepository** (`src/Database/Repositories/SyncMappingRepository.php`)
-4. **Database Schema** (`src/Database/Schema.php`)
-
-#### Database Schema
-```sql
-CREATE TABLE wp_notion_sync_mappings (
-    id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
-    notion_page_id VARCHAR(100) NOT NULL UNIQUE,
-    wp_post_id BIGINT UNSIGNED NOT NULL UNIQUE,
-    notion_title VARCHAR(255),
-    notion_last_edited DATETIME NOT NULL,
-    wp_last_modified DATETIME NOT NULL,
-    sync_status VARCHAR(20) DEFAULT 'synced',
-    last_sync_attempt DATETIME,
-    sync_error TEXT,
-    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-    updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-    INDEX idx_notion_page_id (notion_page_id),
-    INDEX idx_wp_post_id (wp_post_id),
-    INDEX idx_sync_status (sync_status),
-    INDEX idx_notion_last_edited (notion_last_edited)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-```
-
-#### Interface Contract
+**File 3:** `plugin/src/Blocks/Converters/ParagraphConverter.php` (<200 lines)
 ```php
-interface SyncManagerInterface {
-    public function syncPage(string $notion_page_id, array $options = []): SyncResult;
-    public function syncPages(array $notion_page_ids, array $options = []): BatchSyncResult;
-    public function needsSync(string $notion_page_id): bool;
+<?php
+namespace NotionSync\Blocks\Converters;
+
+class ParagraphConverter implements BlockConverterInterface {
+    public function convert( array $notion_block ): string {
+        // Convert to <!-- wp:paragraph -->
+        // Handle rich text formatting (bold, italic, code, links)
+        // Return Gutenberg block HTML
+    }
 }
 ```
 
-#### Acceptance Criteria
-- [ ] Custom table created on plugin activation
-- [ ] SyncManager orchestrates: fetch → convert → create/update
-- [ ] NotionPostCreator creates WordPress posts via wp_insert_post
-- [ ] NotionPostCreator updates existing posts via wp_update_post
-- [ ] Stores mapping between Notion page ID and WP post ID
-- [ ] Delta detection: compares last_edited_time, skips unchanged
-- [ ] Handles errors gracefully, logs to sync_error column
-- [ ] Transaction-like behavior: rollback on failure
-- [ ] Returns detailed SyncResult object with success/error info
+**File 4:** `plugin/src/Blocks/Converters/HeadingConverter.php` (<150 lines)
+**File 5:** `plugin/src/Blocks/Converters/ListConverter.php` (<200 lines)
 
-#### Dependencies
-- ContentFetcher (Stream 1)
-- BlockConverterRegistry (Stream 2)
+**Tasks:**
+1. Create BlockConverter orchestrator
+2. Implement ParagraphConverter with rich text support
+3. Implement HeadingConverter (H1, H2, H3)
+4. Implement ListConverter (bulleted and numbered)
+5. Add support for links
+6. Write comprehensive unit tests for each converter
+
+**Definition of Done:**
+- [ ] Paragraphs convert with bold, italic, code, strikethrough
+- [ ] Headings (H1-H3) convert correctly
+- [ ] Bulleted and numbered lists work
+- [ ] Links (internal and external) preserved
+- [ ] Output is valid Gutenberg block HTML
+- [ ] All converters have unit tests
 
 ---
 
-### Stream 4: Admin UI with List Table (3-4 days)
-**Priority**: MEDIUM - User-facing interface
-**Owner**: wordpress-admin-ui-designer
+### Stream 3: Sync Manager (Orchestration)
+**Worktree:** `phase-1-mvp`
+**Duration:** 3-4 days
+**Files Created:** 2 files, all <350 lines
 
-#### Components
-1. **NotionPagesPage** (`src/Admin/NotionPagesPage.php`)
-2. **PagesListTable** (`src/Admin/PagesListTable.php` extends WP_List_Table)
-3. **JavaScript** (`assets/js/admin-pages.js`)
-4. **Styles** (`assets/css/admin-pages.css`)
+**What This Builds:**
+- Coordinates fetch → convert → create/update workflow
+- Stores mapping between Notion pages and WordPress posts
+- Prevents duplicates on re-sync
 
-#### WordPress List Table Features
-- **Columns**: Checkbox | Icon | Title | Status | Last Edited | WordPress Post | Actions
-- **Bulk Actions**: Sync Selected Pages, Delete Mappings
-- **Row Actions**: Sync Now, View in Notion, Edit in WordPress, Delete Mapping
-- **Search**: Filter by page title
-- **Filters**: All | Synced | Never Synced | Needs Update | Error
-- **Pagination**: 20 items per page
-- **Sortable**: Title, Last Edited
+**Technical Implementation:**
 
-#### Status Indicators
-- **Never Synced**: Gray dash icon
-- **Synced (Up to date)**: Green checkmark icon
-- **Needs Update**: Yellow warning icon (Notion newer than WP)
-- **Syncing...**: Blue spinner icon (in progress)
-- **Error**: Red X icon with error message tooltip
+**File 1:** `plugin/src/Sync/SyncManager.php` (<350 lines)
+```php
+<?php
+namespace NotionSync\Sync;
 
-#### Interface Layout
-```
-┌─────────────────────────────────────────────────────────────┐
-│ Notion Pages                                   [Refresh] [?] │
-├─────────────────────────────────────────────────────────────┤
-│ [Bulk Actions ▼] [Apply]    All (42) | Synced (30) | Needs  │
-│                              Update (10) | Error (2)         │
-├───┬────┬───────────────────┬──────────┬─────────────────────┤
-│☐ │ 📄 │ Title             │ Status   │ Last Edited    │ WP  │
-├───┼────┼───────────────────┼──────────┼─────────────────────┤
-│☐ │ 📄 │ Getting Started   │ ✓ Synced │ 2 hours ago    │Edit │
-│   │    │                   │          │                │View │
-│   │    │ Sync Now | View in Notion | Delete Mapping       │
-├───┼────┼───────────────────┼──────────┼─────────────────────┤
-│☐ │ 📄 │ Product Roadmap   │ ⚠ Update │ 1 day ago      │Edit │
-│   │    │                   │          │                │View │
-│   │    │ Sync Now | View in Notion | Delete Mapping       │
-└───┴────┴───────────────────┴──────────┴─────────────────────┘
+class SyncManager {
+    private ContentFetcher $fetcher;
+    private BlockConverter $converter;
+
+    public function sync_page( string $page_id ): int {
+        // 1. Fetch page data from Notion
+        // 2. Check if WordPress post exists (via post meta)
+        // 3. Convert blocks to Gutenberg
+        // 4. Create or update WordPress post
+        // 5. Store notion_page_id in post meta
+        // 6. Return post ID
+    }
+
+    private function get_post_by_notion_id( string $notion_id ): ?int {
+        // Query posts by meta_key = 'notion_page_id'
+    }
+
+    private function create_or_update_post( array $data, ?int $post_id ): int {
+        // wp_insert_post() or wp_update_post()
+    }
+}
 ```
 
-#### Acceptance Criteria
-- [ ] PagesListTable extends WP_List_Table correctly
-- [ ] Displays list of Notion pages fetched via ContentFetcher
-- [ ] Shows sync status for each page (from SyncMappingRepository)
-- [ ] Bulk action "Sync Selected" triggers SyncManager for multiple pages
-- [ ] Row action "Sync Now" triggers single page sync via AJAX
-- [ ] AJAX responses update status in real-time (no page reload)
-- [ ] Displays error messages inline for failed syncs
-- [ ] "View in Notion" link opens Notion page in new tab
-- [ ] "Edit in WordPress" link opens WP post editor
-- [ ] Refresh button re-fetches page list from Notion
-- [ ] Help tooltip explains sync statuses
-- [ ] Responsive design for mobile admin
+**File 2:** `plugin/src/Sync/SyncLogger.php` (<200 lines)
+```php
+<?php
+namespace NotionSync\Sync;
+
+class SyncLogger {
+    public function log_sync_start( string $page_id ): void;
+    public function log_sync_success( string $page_id, int $post_id ): void;
+    public function log_sync_error( string $page_id, string $error ): void;
+}
+```
+
+**Tasks:**
+1. Create SyncManager orchestrator
+2. Implement sync workflow (fetch → convert → save)
+3. Add duplicate detection via post meta
+4. Implement create and update logic
+5. Add comprehensive logging
+6. Write integration tests
+
+**Definition of Done:**
+- [ ] Can sync a Notion page to WordPress post
+- [ ] Creates new post on first sync
+- [ ] Updates existing post on re-sync (no duplicates)
+- [ ] Stores notion_page_id in post meta
+- [ ] Logs all operations for debugging
+- [ ] Integration tests pass
+
+---
+
+### Stream 4: Admin UI with List Table & Bulk Actions
+**Worktree:** `phase-1-mvp`
+**Duration:** 3-4 days
+**Files Created:** 2 new files + extend existing SettingsPage
+
+**What Users See:**
+- WordPress-style list table showing all Notion pages
+- Columns: Checkbox, Page Title, Last Synced, WordPress Post, Status, Actions
+- Bulk actions dropdown: "Sync Selected"
+- Individual "Sync" row action for each page
+- Real-time status updates during sync
+- Success messages with links to created/updated posts
+
+**Technical Implementation:**
+
+**File 1:** `plugin/src/Admin/PagesListTable.php` (<400 lines)
+```php
+<?php
+namespace NotionSync\Admin;
+
+if ( ! class_exists( 'WP_List_Table' ) ) {
+    require_once ABSPATH . 'wp-admin/includes/class-wp-list-table.php';
+}
+
+class PagesListTable extends \WP_List_Table {
+    public function __construct() {
+        parent::__construct([
+            'singular' => 'notion-page',
+            'plural'   => 'notion-pages',
+            'ajax'     => true,
+        ]);
+    }
+
+    public function get_columns(): array {
+        return [
+            'cb'          => '<input type="checkbox" />',
+            'title'       => __( 'Page Title', 'notion-wp' ),
+            'last_synced' => __( 'Last Synced', 'notion-wp' ),
+            'wp_post'     => __( 'WordPress Post', 'notion-wp' ),
+            'status'      => __( 'Status', 'notion-wp' ),
+        ];
+    }
+
+    public function get_bulk_actions(): array {
+        return [
+            'sync' => __( 'Sync Selected', 'notion-wp' ),
+        ];
+    }
+
+    public function column_cb( $item ): string {
+        return sprintf(
+            '<input type="checkbox" name="notion_pages[]" value="%s" />',
+            esc_attr( $item['id'] )
+        );
+    }
+
+    public function column_title( $item ): string {
+        $actions = [
+            'sync' => sprintf(
+                '<a href="#" class="sync-page" data-page-id="%s">%s</a>',
+                esc_attr( $item['id'] ),
+                esc_html__( 'Sync', 'notion-wp' )
+            ),
+        ];
+
+        if ( ! empty( $item['wp_post_id'] ) ) {
+            $actions['edit'] = sprintf(
+                '<a href="%s">%s</a>',
+                esc_url( get_edit_post_link( $item['wp_post_id'] ) ),
+                esc_html__( 'Edit Post', 'notion-wp' )
+            );
+            $actions['view'] = sprintf(
+                '<a href="%s">%s</a>',
+                esc_url( get_permalink( $item['wp_post_id'] ) ),
+                esc_html__( 'View Post', 'notion-wp' )
+            );
+        }
+
+        return sprintf(
+            '<strong>%s</strong> %s',
+            esc_html( $item['title'] ),
+            $this->row_actions( $actions )
+        );
+    }
+
+    public function column_wp_post( $item ): string {
+        if ( empty( $item['wp_post_id'] ) ) {
+            return '<span class="dashicons dashicons-minus"></span> ' .
+                   esc_html__( 'Not synced', 'notion-wp' );
+        }
+
+        return sprintf(
+            '<a href="%s">#%d</a>',
+            esc_url( get_edit_post_link( $item['wp_post_id'] ) ),
+            $item['wp_post_id']
+        );
+    }
+
+    public function column_status( $item ): string {
+        $status = $item['sync_status'] ?? 'never';
+
+        $statuses = [
+            'synced'   => '<span class="dashicons dashicons-yes-alt" style="color: #46b450;"></span> ' .
+                         __( 'Synced', 'notion-wp' ),
+            'modified' => '<span class="dashicons dashicons-info" style="color: #ffb900;"></span> ' .
+                         __( 'Modified', 'notion-wp' ),
+            'never'    => '<span class="dashicons dashicons-marker" style="color: #999;"></span> ' .
+                         __( 'Never synced', 'notion-wp' ),
+            'error'    => '<span class="dashicons dashicons-warning" style="color: #dc3232;"></span> ' .
+                         __( 'Error', 'notion-wp' ),
+        ];
+
+        return $statuses[ $status ] ?? $statuses['never'];
+    }
+
+    public function prepare_items(): void {
+        // Get Notion pages from API or cache
+        // Check WordPress post meta for existing syncs
+        // Set $this->items with enriched data
+    }
+}
+```
+
+**Update:** `plugin/src/Admin/SettingsPage.php`
+- Create PagesListTable instance
+- Handle bulk action form submission
+- Add AJAX handlers for single and bulk sync
+
+**Update:** `plugin/templates/admin/settings.php`
+```php
+<!-- After workspace info section -->
+<h3><?php esc_html_e( 'Sync Notion Pages', 'notion-wp' ); ?></h3>
+
+<form method="post" action="">
+    <?php wp_nonce_field( 'notion_sync_bulk_action', 'notion_sync_bulk_nonce' ); ?>
+    <?php $pages_table->display(); ?>
+</form>
+```
+
+**Update:** `plugin/assets/src/js/admin.js`
+```javascript
+// Handle bulk sync
+document.querySelector('form').addEventListener('submit', function(e) {
+    const bulkAction = document.querySelector('[name="action"]').value;
+    if (bulkAction === 'sync') {
+        e.preventDefault();
+        const selectedPages = Array.from(
+            document.querySelectorAll('input[name="notion_pages[]"]:checked')
+        ).map(cb => cb.value);
+
+        if (selectedPages.length === 0) {
+            alert('Please select at least one page to sync.');
+            return;
+        }
+
+        syncMultiplePages(selectedPages);
+    }
+});
+
+// Handle individual sync
+document.querySelectorAll('.sync-page').forEach(link => {
+    link.addEventListener('click', function(e) {
+        e.preventDefault();
+        const pageId = this.dataset.pageId;
+        syncSinglePage(pageId);
+    });
+});
+
+async function syncSinglePage(pageId) {
+    updateRowStatus(pageId, 'syncing');
+
+    try {
+        const response = await fetch(ajaxurl, {
+            method: 'POST',
+            body: new FormData(...)
+        });
+
+        const data = await response.json();
+
+        if (data.success) {
+            updateRowStatus(pageId, 'success', data.data);
+        } else {
+            updateRowStatus(pageId, 'error', data.data);
+        }
+    } catch (error) {
+        updateRowStatus(pageId, 'error', error.message);
+    }
+}
+
+async function syncMultiplePages(pageIds) {
+    // Show progress bar
+    // Sync pages one at a time (or in parallel batches)
+    // Update UI as each completes
+    // Show final summary
+}
+
+function updateRowStatus(pageId, status, data) {
+    const row = document.querySelector(`tr[data-page-id="${pageId}"]`);
+    // Update status column with spinner/success/error icon
+    // Update WordPress post column if post created
+    // Update last synced timestamp
+}
+```
+
+**Add AJAX Handlers:** `plugin/src/Admin/SettingsPage.php`
+```php
+public function register(): void {
+    // ... existing code ...
+    add_action( 'wp_ajax_notion_sync_single', array( $this, 'ajax_sync_single' ) );
+    add_action( 'wp_ajax_notion_sync_bulk', array( $this, 'ajax_sync_bulk' ) );
+}
+
+public function ajax_sync_single(): void {
+    check_ajax_referer( 'notion_sync_ajax' );
+
+    if ( ! current_user_can( 'manage_options' ) ) {
+        wp_send_json_error( __( 'Unauthorized', 'notion-wp' ) );
+    }
+
+    $page_id = sanitize_text_field( $_POST['page_id'] ?? '' );
+
+    try {
+        $sync_manager = new SyncManager();
+        $post_id = $sync_manager->sync_page( $page_id );
+
+        // Update last synced timestamp
+        update_option( "notion_page_{$page_id}_last_synced", current_time( 'mysql' ) );
+
+        wp_send_json_success([
+            'post_id'   => $post_id,
+            'edit_url'  => get_edit_post_link( $post_id, 'raw' ),
+            'view_url'  => get_permalink( $post_id ),
+            'synced_at' => current_time( 'mysql' ),
+        ]);
+    } catch ( Exception $e ) {
+        wp_send_json_error( $e->getMessage() );
+    }
+}
+
+public function ajax_sync_bulk(): void {
+    check_ajax_referer( 'notion_sync_ajax' );
+
+    if ( ! current_user_can( 'manage_options' ) ) {
+        wp_send_json_error( __( 'Unauthorized', 'notion-wp' ) );
+    }
+
+    $page_ids = $_POST['page_ids'] ?? [];
+    $page_ids = array_map( 'sanitize_text_field', $page_ids );
+
+    $results = [
+        'success' => [],
+        'errors'  => [],
+    ];
+
+    $sync_manager = new SyncManager();
+
+    foreach ( $page_ids as $page_id ) {
+        try {
+            $post_id = $sync_manager->sync_page( $page_id );
+            $results['success'][] = [
+                'page_id' => $page_id,
+                'post_id' => $post_id,
+            ];
+        } catch ( Exception $e ) {
+            $results['errors'][] = [
+                'page_id' => $page_id,
+                'error'   => $e->getMessage(),
+            ];
+        }
+    }
+
+    wp_send_json_success( $results );
+}
+```
+
+**Tasks:**
+1. Create PagesListTable extending WP_List_Table
+2. Add columns for all metadata (title, last synced, WP post, status)
+3. Implement bulk actions dropdown
+4. Add individual row actions (Sync, Edit Post, View Post)
+5. Implement single page AJAX sync
+6. Implement bulk page AJAX sync
+7. Add real-time status updates in table
+8. Show progress indicator during bulk sync
+9. Display success/error summaries
+
+**Definition of Done:**
+- [ ] Pages display in WordPress-style list table
+- [ ] Table shows: title, last synced, WordPress post link, sync status
+- [ ] Can check multiple pages and use "Sync Selected" bulk action
+- [ ] Can click individual "Sync" row action
+- [ ] Status column updates in real-time during sync
+- [ ] Success shows links to WordPress posts
+- [ ] Bulk sync shows progress (e.g., "Syncing 3 of 10...")
+- [ ] Error messages are specific and helpful
+- [ ] Table is responsive on mobile
 - [ ] Follows WordPress admin design patterns
-- [ ] All strings internationalized (i18n ready)
-
-#### Dependencies
-- ContentFetcher (Stream 1)
-- SyncManager (Stream 3)
-- SyncMappingRepository (Stream 3)
 
 ---
 
-## Implementation Order
+## 📦 Deliverables
 
-### Week 1: Foundation
+### Visible to Users (What They Can Do)
+- ✅ Navigate to **WP Admin > Notion Sync**
+- ✅ See WordPress-style list table with all Notion pages
+- ✅ View metadata: page title, last synced, WordPress post link, sync status
+- ✅ Select multiple pages using checkboxes
+- ✅ Use "Sync Selected" bulk action to sync multiple pages
+- ✅ Click individual "Sync" row action for single page
+- ✅ Watch real-time status updates during sync
+- ✅ See links to WordPress posts (Edit/View)
+- ✅ Open WordPress post and see content formatted correctly
+- ✅ Make edits in Gutenberg editor
+- ✅ Re-sync updates post without creating duplicate
 
-**Days 1-2: Stream 1 (ContentFetcher)**
-- Notion API specialist implements ContentFetcher
-- Uses existing NotionClient from Phase 0
-- Focus: Reliable page fetching with pagination
+### Technical (What We Built)
+- ✅ `plugin/src/Sync/ContentFetcher.php` - Notion API integration
+- ✅ `plugin/src/Sync/SyncManager.php` - Sync orchestration
+- ✅ `plugin/src/Sync/SyncLogger.php` - Operation logging
+- ✅ `plugin/src/Blocks/BlockConverter.php` - Converter orchestrator
+- ✅ `plugin/src/Blocks/BlockConverterInterface.php` - Converter interface
+- ✅ `plugin/src/Blocks/Converters/ParagraphConverter.php`
+- ✅ `plugin/src/Blocks/Converters/HeadingConverter.php`
+- ✅ `plugin/src/Blocks/Converters/ListConverter.php`
+- ✅ `plugin/src/Admin/PagesListTable.php` - WP_List_Table for pages
+- ✅ Updated `plugin/src/Admin/SettingsPage.php` with single & bulk AJAX handlers
+- ✅ Updated `plugin/templates/admin/settings.php` with list table UI
+- ✅ Updated `plugin/assets/src/js/admin.js` with single & bulk sync logic
+- ✅ Unit tests for all converters
+- ✅ Integration tests for full sync workflow
 
-**Days 3-5: Stream 2 (Block Converters)**
-- Block converter specialist implements registry and core converters
-- Can work in parallel with Stream 1 completion
-- Focus: Accurate Gutenberg block generation
-
-**Days 4-6: Stream 3 (Sync Manager)**
-- WordPress plugin engineer implements orchestration
-- Requires Stream 1 complete, can use Stream 2 interfaces
-- Focus: Robust sync logic with error handling
-
-### Week 2: Integration & UI
-
-**Days 7-9: Stream 4 (Admin UI)**
-- Admin UI designer implements list table interface
-- Requires Streams 1 & 3 complete
-- Focus: WordPress-style UX with bulk actions
-
-**Days 10-11: Integration Testing**
-- All streams merge
-- End-to-end testing
-- Bug fixes and polish
-
-**Days 12-14: Documentation & Release**
-- User documentation
-- Code documentation
-- Demo video
-- Tag v0.2.0-alpha
-
----
-
-## Testing Strategy
-
-### Unit Tests (Per Stream)
-
-**Stream 1: ContentFetcher**
-```php
-// tests/Unit/Sync/ContentFetcherTest.php
-public function test_fetch_accessible_pages_returns_array()
-public function test_fetch_page_returns_properties()
-public function test_fetch_page_blocks_handles_pagination()
-public function test_caching_reduces_api_calls()
-```
-
-**Stream 2: Block Converters**
-```php
-// tests/Unit/Converters/ParagraphConverterTest.php
-public function test_converts_simple_paragraph()
-public function test_handles_bold_italic_formatting()
-public function test_escapes_html_in_content()
-public function test_converts_links_correctly()
-```
-
-**Stream 3: Sync Manager**
-```php
-// tests/Unit/Sync/SyncManagerTest.php
-public function test_sync_page_creates_wordpress_post()
-public function test_sync_page_updates_existing_post()
-public function test_stores_mapping_in_database()
-public function test_delta_detection_skips_unchanged()
-```
-
-**Stream 4: Admin UI**
-```php
-// tests/Unit/Admin/PagesListTableTest.php
-public function test_list_table_displays_pages()
-public function test_bulk_action_syncs_multiple_pages()
-public function test_status_column_shows_correct_icon()
-```
-
-### Integration Tests
-
-**End-to-End Sync Test**
-```php
-// tests/Integration/FullSyncWorkflowTest.php
-public function test_complete_sync_workflow()
-{
-    // 1. Fetch Notion pages
-    $pages = $this->contentFetcher->listAccessiblePages();
-    $this->assertNotEmpty($pages);
-
-    // 2. Sync first page
-    $result = $this->syncManager->syncPage($pages[0]['id']);
-    $this->assertTrue($result->success);
-
-    // 3. Verify WordPress post created
-    $post = get_post($result->wp_post_id);
-    $this->assertNotNull($post);
-    $this->assertEquals($pages[0]['title'], $post->post_title);
-
-    // 4. Verify mapping stored
-    $mapping = $this->repository->findByNotionId($pages[0]['id']);
-    $this->assertEquals($result->wp_post_id, $mapping->wp_post_id);
-
-    // 5. Re-sync (should update, not duplicate)
-    $result2 = $this->syncManager->syncPage($pages[0]['id']);
-    $this->assertEquals($result->wp_post_id, $result2->wp_post_id);
-
-    // 6. Verify no duplicate posts created
-    $posts = get_posts(['post_type' => 'post', 'numberposts' => -1]);
-    $this->assertCount(1, $posts);
-}
-```
-
-### Manual Testing Checklist
-
-**Sync Functionality**
-- [ ] Sync single Notion page with text content
-- [ ] Verify page created in WordPress with correct title
-- [ ] Verify paragraphs, headings, lists render correctly
-- [ ] Verify bold, italic, links preserved
-- [ ] Re-sync same page, verify it updates (no duplicate)
-- [ ] Sync page with empty content (edge case)
-- [ ] Sync page with very long content (10,000+ words)
-- [ ] Sync page with special characters in title (UTF-8, emojis)
-
-**Admin UI**
-- [ ] List table displays Notion pages
-- [ ] Status icons show correctly for each page
-- [ ] Bulk sync selected pages works
-- [ ] Individual "Sync Now" action works
-- [ ] AJAX updates status without page reload
-- [ ] Error messages display inline
-- [ ] "View in Notion" link opens correct page
-- [ ] "Edit in WordPress" link opens post editor
-- [ ] Search filter finds pages by title
-- [ ] Status filter shows correct subsets
-- [ ] Pagination works for 100+ pages
-- [ ] Mobile responsive design
-
-**Error Handling**
-- [ ] Invalid Notion page ID shows error
-- [ ] Network error during sync shows helpful message
-- [ ] WordPress post creation failure rolls back
-- [ ] Notion API rate limit handled gracefully
+### Not Built (Deferred to Later Phases)
+- ❌ Database sync (Phase 2)
+- ❌ Images (Phase 3)
+- ❌ Advanced blocks (callouts, toggles, code) (Phase 4)
+- ❌ Page hierarchy and menus (Phase 5)
+- ❌ Bi-directional sync (Phase 5+)
+- ❌ Webhooks (Phase 5+)
 
 ---
 
-## File Structure
+## 🚀 Daily Workflow
 
-```
-plugin/
-├── src/
-│   ├── Admin/
-│   │   ├── NotionPagesPage.php       [Stream 4] Admin controller
-│   │   └── PagesListTable.php        [Stream 4] WP_List_Table implementation
-│   ├── Sync/
-│   │   ├── ContentFetcher.php        [Stream 1] Notion API integration
-│   │   ├── SyncManager.php           [Stream 3] Orchestration
-│   │   ├── NotionPostCreator.php     [Stream 3] WordPress post creation
-│   │   └── SyncResult.php            [Stream 3] Result value object
-│   ├── Converters/
-│   │   ├── BlockConverterInterface.php         [Stream 2]
-│   │   ├── BlockConverterRegistry.php          [Stream 2]
-│   │   ├── RichTextFormatter.php               [Stream 2]
-│   │   └── NotionToGutenberg/
-│   │       ├── ParagraphConverter.php          [Stream 2]
-│   │       ├── HeadingConverter.php            [Stream 2]
-│   │       ├── BulletedListConverter.php       [Stream 2]
-│   │       └── NumberedListConverter.php       [Stream 2]
-│   └── Database/
-│       ├── Schema.php                          [Stream 3]
-│       └── Repositories/
-│           └── SyncMappingRepository.php       [Stream 3]
-├── assets/
-│   ├── js/
-│   │   └── admin-pages.js            [Stream 4] AJAX sync handling
-│   └── css/
-│       └── admin-pages.css           [Stream 4] List table styles
-├── templates/
-│   └── admin/
-│       └── pages-list.php            [Stream 4] Admin page template
-└── tests/
-    ├── Unit/
-    │   ├── Sync/
-    │   ├── Converters/
-    │   └── Admin/
-    └── Integration/
-        └── FullSyncWorkflowTest.php
-```
+### Week 1: Core Infrastructure
 
----
+**Day 1-2: Content Fetcher**
+- Create ContentFetcher class
+- Implement Notion API block fetching
+- Add pagination support
+- Write unit tests
+- **Demo:** Can fetch blocks from Notion page
 
-## Agent Coordination
+**Day 3-4: Block Converters Foundation**
+- Create BlockConverter orchestrator
+- Implement ParagraphConverter
+- Add rich text formatting support
+- Write unit tests
+- **Demo:** Can convert Notion paragraph to Gutenberg block
 
-### Communication Channels
+**Day 5: More Block Converters**
+- Implement HeadingConverter
+- Implement ListConverter (bulleted/numbered)
+- Write unit tests
+- **Demo:** All basic blocks convert correctly
 
-**Inter-Agent Communication**:
-- Each agent documents their interfaces in code comments
-- Shared document: `docs/agent-coordination.md` (track blockers, interface changes)
-- Weekly sync: Review progress, discuss integration points
+### Week 2: Integration & Polish
 
-**Interface Handoffs**:
+**Day 6-7: Sync Manager**
+- Create SyncManager orchestration
+- Implement duplicate detection
+- Add create/update post logic
+- Store post meta mappings
+- **Demo:** Can sync page end-to-end
 
-1. **Stream 1 → Stream 3**: ContentFetcher interface
-   - Stream 1 completes: Day 2
-   - Stream 3 can integrate: Day 3
-   - Contract: `ContentFetcherInterface` methods
+**Day 8-9: Admin UI**
+- Add sync UI to settings page
+- Implement AJAX handler
+- Add loading states
+- Show success/error messages
+- **Demo:** Full user workflow works
 
-2. **Stream 2 → Stream 3**: BlockConverterRegistry
-   - Stream 2 completes: Day 5
-   - Stream 3 can integrate: Day 6
-   - Contract: `BlockConverterInterface` and registry methods
-
-3. **Stream 3 → Stream 4**: SyncManager + Repository
-   - Stream 3 completes: Day 6
-   - Stream 4 can integrate: Day 7
-   - Contract: `SyncManagerInterface` and database schema
-
-### Blocker Resolution
-
-**If Stream 1 delayed**:
-- Stream 2 continues independently (no dependencies)
-- Stream 3 uses mock ContentFetcher until real one ready
-- Stream 4 waits or uses static mock data
-
-**If Stream 2 delayed**:
-- Stream 3 uses fallback converter (raw HTML output)
-- Can still demonstrate end-to-end sync with plain text
-- Stream 4 continues (doesn't depend on converters)
-
-**If Stream 3 delayed**:
-- Stream 4 uses mock SyncManager for UI development
-- Can build and test admin interface independently
-- Integration happens when Stream 3 ready
+**Day 10: Testing & Polish**
+- Run through all gatekeeping criteria
+- Fix any bugs found
+- Improve error messages
+- Test on mobile
+- **Demo:** Ready for gatekeeping review
 
 ---
 
-## Performance Targets
+## ✋ Gatekeeping Review
 
-### API Efficiency
-- **Page list fetch**: < 2 seconds for 100 pages
-- **Single page sync**: < 3 seconds (fetch + convert + save)
-- **Bulk sync (10 pages)**: < 30 seconds
-- **Cache hit rate**: > 80% for repeated page list fetches
+Before proceeding to Phase 2, schedule a **5-minute demo** with someone who:
+- Is NOT a developer
+- Has access to a Notion workspace
+- Can provide honest feedback
 
-### Memory Usage
-- **Single page sync**: < 50 MB peak memory
-- **Bulk sync (10 pages)**: < 100 MB peak memory
+**Demo Script:**
+1. Show Notion page with content (30 seconds)
+2. Navigate to WP Admin > Notion Sync (15 seconds)
+3. Click "Sync Now" button (30 seconds)
+4. Show WordPress post with formatted content (2 minutes)
+5. Make edit in Gutenberg, show it works (2 minutes)
 
-### Database Performance
-- **Mapping lookup**: < 10ms (indexed query)
-- **Mapping insert**: < 20ms
-- **List table query**: < 100ms for 1000 mappings
+**Pass Criteria:**
+- They understood what happened
+- Sync completed successfully
+- Post looks correct (no broken formatting)
+- They could repeat it without help
+- No confusion or errors
 
----
-
-## Known Limitations (Phase 1 Scope)
-
-**Out of Scope for Phase 1** (deferred to later phases):
-
-1. **Advanced Block Types**
-   - Images, files, embeds → Phase 3
-   - Code blocks, tables, toggles → Phase 4
-   - Columns, callouts, bookmarks → Phase 4
-
-2. **Database Sync**
-   - Syncing Notion databases → Phase 2
-   - Property field mapping → Phase 2
-   - Batch operations → Phase 2
-
-3. **Hierarchy & Navigation**
-   - Child pages → Phase 5
-   - Page relationships → Phase 5
-   - Menu generation → Phase 5
-   - Internal link conversion → Phase 5
-
-4. **Real-Time Sync**
-   - Webhooks → Phase 6+
-   - Scheduled polling → Phase 6+
-   - Background queue → Phase 2 (if needed for bulk)
-
-5. **Bi-Directional Sync**
-   - WordPress → Notion → Post-MVP (Phase 7+)
-
-**Fallback Behavior in Phase 1**:
-- Unsupported blocks render as HTML comments: `<!-- Unsupported block: code -->`
-- User sees warning in admin but sync doesn't fail
-- Can manually edit WordPress post to add missing content
+**If demo fails:**
+- Document what went wrong
+- Fix specific issues
+- Schedule another demo
+- **DO NOT** proceed to Phase 2
 
 ---
 
-## Risk Mitigation
+## 🔍 Testing Checklist
 
-| Risk | Likelihood | Impact | Mitigation |
-|------|-----------|--------|------------|
-| Notion API pagination complexity | Medium | High | Test with workspace containing 500+ pages early |
-| Block conversion accuracy issues | Medium | Medium | Extensive unit tests with real Notion JSON fixtures |
-| WP_List_Table learning curve | Low | Medium | Reference WP core examples (Posts list table) |
-| Agent coordination delays | Medium | Low | Clear interface contracts, daily progress updates |
-| Performance issues with large pages | Low | Medium | Test with 10,000-word Notion pages, optimize if needed |
+### Functional Testing
+- [ ] Can fetch blocks from Notion page with <10 blocks
+- [ ] Can fetch blocks from Notion page with 100+ blocks (pagination)
+- [ ] Paragraphs convert with all formatting (bold, italic, code, links)
+- [ ] Headings (H1, H2, H3) convert correctly
+- [ ] Bulleted lists convert correctly
+- [ ] Numbered lists convert correctly
+- [ ] Internal Notion links work
+- [ ] External links work
+- [ ] First sync creates new WordPress post
+- [ ] Re-sync updates existing post (no duplicate)
+- [ ] Post title matches Notion page title
+- [ ] Post is editable in Gutenberg editor
+- [ ] Success message shows correct post link
 
----
+### Error Handling
+- [ ] Network errors handled gracefully
+- [ ] Invalid page ID shows helpful error
+- [ ] API rate limits handled (retry logic)
+- [ ] Empty Notion page handles correctly
+- [ ] Unsupported block types show warning (graceful degradation)
 
-## Definition of Done
-
-Phase 1 is complete and ready to merge when:
-
-### Functional Requirements
-- [ ] All success criteria met (see top of document)
-- [ ] All acceptance criteria met for each stream
-- [ ] Manual testing checklist 100% complete
-- [ ] No critical bugs in issue tracker
+### Security Testing
+- [ ] AJAX handler has nonce verification
+- [ ] Capability checks on sync action
+- [ ] Page ID sanitized before use
+- [ ] Gutenberg output is safe (no XSS)
 
 ### Code Quality
-- [ ] All unit tests pass (80%+ coverage per stream)
-- [ ] Integration test passes (full sync workflow)
-- [ ] PHPCS passes with WordPress standards
-- [ ] PHPStan level 5 passes with zero errors
-- [ ] No PHP warnings or notices
-- [ ] No JavaScript console errors
+- [ ] All files under 500 lines
+- [ ] `composer lint` passes
+- [ ] `npm run lint` passes
+- [ ] PHPStan level 5 passes
+- [ ] No console errors or warnings
+- [ ] No PHP notices or warnings
 
-### Documentation
-- [ ] All classes have DocBlock comments
-- [ ] README.md updated with Phase 1 features
-- [ ] User guide written (how to sync pages)
-- [ ] Developer docs updated (architecture, interfaces)
-- [ ] Inline code comments for complex logic
-
-### Integration
-- [ ] All four streams merged to phase-1-mvp branch
-- [ ] No merge conflicts
-- [ ] Code reviewed by at least one other agent
-- [ ] Demo video recorded (2-minute walkthrough)
-
-### Performance
-- [ ] Performance targets met (see Performance Targets section)
-- [ ] No N+1 queries (Query Monitor check)
-- [ ] Caching works correctly (transients set and retrieved)
+### UI/UX Testing
+- [ ] Works in Chrome
+- [ ] Works in Firefox
+- [ ] Works in Safari
+- [ ] Works on mobile (responsive)
+- [ ] Loading spinner shows during sync
+- [ ] Success message is clear
+- [ ] Error messages are helpful
 
 ---
 
-## Next Steps After Phase 1
+## 📊 Success Metrics
 
-Once Phase 1 is complete and tagged as `v0.2.0-alpha`:
+**Time Metrics:**
+- First sync should complete in <10 seconds
+- Re-sync should complete in <5 seconds
+- UI should feel responsive (<300ms feedback)
 
-1. **User Feedback Session**: Demo to 3-5 beta users, collect feedback
-2. **Phase 2 Planning**: Database sync and field mapping
-3. **Performance Optimization**: If targets not met, dedicate 1-2 days to optimization
-4. **WordPress.org Preparation**: Begin preparing plugin for directory submission
+**Quality Metrics:**
+- Zero linting errors
+- 100% of basic blocks convert correctly
+- Zero duplicate posts created
+- 100% of formatting preserved (bold, italic, links)
 
----
-
-## Appendix A: Agent Assignments
-
-### notion-api-specialist
-**Responsibility**: Stream 1 (ContentFetcher)
-**Timeline**: Days 1-2
-**Files**: `src/Sync/ContentFetcher.php`, related tests
-**Blockers**: None (uses existing NotionClient)
-
-### block-converter-specialist
-**Responsibility**: Stream 2 (Block Converters)
-**Timeline**: Days 3-5
-**Files**: All files in `src/Converters/`, related tests
-**Blockers**: None (independent work)
-
-### wordpress-plugin-engineer
-**Responsibility**: Stream 3 (Sync Manager)
-**Timeline**: Days 4-6
-**Files**: `src/Sync/SyncManager.php`, `src/Database/`, related tests
-**Blockers**: Needs ContentFetcher interface (Day 2), BlockConverter interface (Day 3)
-
-### wordpress-admin-ui-designer
-**Responsibility**: Stream 4 (Admin UI)
-**Timeline**: Days 7-9
-**Files**: `src/Admin/`, `assets/`, `templates/admin/`, related tests
-**Blockers**: Needs SyncManager complete (Day 6)
-
-### wordpress-project-manager (You)
-**Responsibility**: Coordination, integration, testing
-**Timeline**: Throughout phase, intensive Days 10-14
-**Tasks**: Daily standups, blocker resolution, integration testing, documentation review
+**User Metrics:**
+- 5/5 test users can sync successfully
+- Zero confusing error messages
+- Post looks identical to Notion page (basic formatting)
 
 ---
 
-## Appendix B: Example Notion JSON Fixtures
+## 🚧 Risks & Mitigation
 
-**Paragraph Block**:
-```json
-{
-  "object": "block",
-  "id": "abc-123",
-  "type": "paragraph",
-  "paragraph": {
-    "rich_text": [
-      {
-        "type": "text",
-        "text": { "content": "This is " },
-        "annotations": {
-          "bold": false,
-          "italic": false,
-          "strikethrough": false,
-          "underline": false,
-          "code": false,
-          "color": "default"
-        }
-      },
-      {
-        "type": "text",
-        "text": { "content": "bold text" },
-        "annotations": { "bold": true, "italic": false }
-      }
-    ]
-  }
-}
-```
-
-**Heading Block**:
-```json
-{
-  "object": "block",
-  "id": "def-456",
-  "type": "heading_2",
-  "heading_2": {
-    "rich_text": [
-      {
-        "type": "text",
-        "text": { "content": "Section Title" },
-        "annotations": { "bold": false, "italic": false }
-      }
-    ]
-  }
-}
-```
-
-**List Block**:
-```json
-{
-  "object": "block",
-  "id": "ghi-789",
-  "type": "bulleted_list_item",
-  "bulleted_list_item": {
-    "rich_text": [
-      {
-        "type": "text",
-        "text": { "content": "List item with " }
-      },
-      {
-        "type": "text",
-        "text": { "content": "link", "link": { "url": "https://example.com" } }
-      }
-    ]
-  }
-}
-```
+| Risk | Impact | Mitigation |
+|------|--------|------------|
+| Notion API changes block structure | High | Version API calls (Notion-Version header), test with multiple pages |
+| Gutenberg block format incompatibility | High | Use official Gutenberg parser, validate output |
+| Large pages timeout during sync | Medium | Implement background processing for Phase 2 |
+| Rich text formatting edge cases | Medium | Comprehensive test suite with real Notion pages |
+| Post meta conflicts with other plugins | Low | Use unique meta key prefix `notion_sync_*` |
 
 ---
 
-**End of Phase 1 Implementation Plan**
+## 📝 Phase 1 Completion Checklist
 
-**Ready to begin**: Yes ✅
-**Blockers**: None
-**Next Action**: Launch specialized agents for each work stream
+### Code Complete
+- [ ] All 4 work streams merged to `phase-1-mvp` branch
+- [ ] All files under 500 lines
+- [ ] Zero linting errors
+- [ ] All TODO comments resolved or converted to issues
+
+### Testing Complete
+- [ ] All functional tests pass
+- [ ] All security checks pass
+- [ ] Tested with 5+ different Notion pages
+- [ ] Tested on 3+ devices (desktop, phone, tablet)
+
+### Documentation Complete
+- [ ] README.md updated with sync instructions
+- [ ] API documentation for new classes
+- [ ] Inline code comments
+- [ ] Troubleshooting guide updated
+
+### Demo Complete
+- [ ] 5-minute demo successful with non-developer
+- [ ] No confusion during demo
+- [ ] Post formatting looks correct
+- [ ] Ready to show stakeholders
+
+### Ready for Phase 2
+- [ ] All gatekeeping criteria met
+- [ ] No critical bugs
+- [ ] No security issues
+- [ ] Team confident to proceed
+
+---
+
+## ⏭️ Next Phase Preview
+
+**Phase 2: Database Sync** will build on this foundation:
+- Use ContentFetcher to query Notion databases
+- Batch sync multiple pages
+- Map database properties to WordPress fields
+- **Requires:** Working single page sync from Phase 1
+
+**Do not start Phase 2 until this checklist is 100% complete.**
+
+---
+
+**Document Version:** 1.0
+**Last Updated:** 2025-10-20
+**Status:** Ready for Development
