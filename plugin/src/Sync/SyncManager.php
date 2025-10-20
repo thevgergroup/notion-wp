@@ -373,10 +373,10 @@ class SyncManager {
 	 *
 	 * @since 1.0.0
 	 *
-	 * @param array       $page_properties   Notion page properties from ContentFetcher.
-	 * @param string      $gutenberg_html    Converted Gutenberg HTML content.
-	 * @param string      $notion_page_id    Notion page ID.
-	 * @param int|null    $existing_post_id  Existing post ID if updating, null if creating.
+	 * @param array    $page_properties   Notion page properties from ContentFetcher.
+	 * @param string   $gutenberg_html    Converted Gutenberg HTML content.
+	 * @param string   $notion_page_id    Notion page ID.
+	 * @param int|null $existing_post_id  Existing post ID if updating, null if creating.
 	 * @return array WordPress post data array for wp_insert_post/wp_update_post.
 	 */
 	private function prepare_post_data(

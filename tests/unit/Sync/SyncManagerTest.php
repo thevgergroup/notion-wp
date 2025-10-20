@@ -89,7 +89,10 @@ class SyncManagerTest extends TestCase {
 
 		// Mock blocks from Notion.
 		$notion_blocks = array(
-			array( 'type' => 'paragraph', 'content' => 'Test content' ),
+			array(
+				'type'    => 'paragraph',
+				'content' => 'Test content',
+			),
 		);
 
 		// Mock converted Gutenberg HTML.
@@ -176,7 +179,10 @@ class SyncManagerTest extends TestCase {
 
 		// Mock blocks.
 		$notion_blocks = array(
-			array( 'type' => 'paragraph', 'content' => 'Updated content' ),
+			array(
+				'type'    => 'paragraph',
+				'content' => 'Updated content',
+			),
 		);
 
 		// Mock converted HTML.
@@ -358,31 +364,35 @@ class SyncManagerTest extends TestCase {
 		// Mock get_posts with meta_query verification.
 		Functions\expect( 'get_posts' )
 			->once()
-			->with( \Mockery::on( function ( $args ) use ( $normalized_id ) {
-				// Verify meta_query structure.
-				if ( ! isset( $args['meta_query'] ) || ! is_array( $args['meta_query'] ) ) {
-					return false;
-				}
+			->with(
+				\Mockery::on(
+					function ( $args ) use ( $normalized_id ) {
+						// Verify meta_query structure.
+						if ( ! isset( $args['meta_query'] ) || ! is_array( $args['meta_query'] ) ) {
+							return false;
+						}
 
-				$meta_query = $args['meta_query'][0];
+						$meta_query = $args['meta_query'][0];
 
-				// Verify meta key.
-				if ( $meta_query['key'] !== 'notion_page_id' ) {
-					return false;
-				}
+						// Verify meta key.
+						if ( '=' !== $meta_query['compare'] ) {
+							return false;
+						}
 
-				// Verify meta value (should be normalized).
-				if ( $meta_query['value'] !== $normalized_id ) {
-					return false;
-				}
+						// Verify meta value (should be normalized).
+						if ( $normalized_id !== $meta_query['value'] ) {
+							return false;
+						}
 
-				// Verify compare operator.
-				if ( $meta_query['compare'] !== '=' ) {
-					return false;
-				}
+						// Verify compare operator.
+						if ( 'notion_page_id' !== $meta_query['key'] ) {
+							return false;
+						}
 
-				return true;
-			} ) )
+						return true;
+					}
+				)
+			)
 			->andReturn( array() );
 
 		// Execute get_sync_status to trigger meta query.
@@ -428,7 +438,10 @@ class SyncManagerTest extends TestCase {
 
 		// Mock blocks and conversion.
 		$notion_blocks = array(
-			array( 'type' => 'paragraph', 'content' => 'Test' ),
+			array(
+				'type'    => 'paragraph',
+				'content' => 'Test',
+			),
 		);
 
 		$gutenberg_html = "<!-- wp:paragraph -->\n<p>Test</p>\n<!-- /wp:paragraph -->\n";

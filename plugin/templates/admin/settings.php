@@ -59,8 +59,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 							/* translators: %s: URL to Notion integrations page */
 							wp_kses(
 								__(
-									'Visit <a href="%s" target="_blank" rel="noopener noreferrer">' .
-									'Notion Integrations</a> and create a new integration.',
+								'Visit <a href="%s" target="_blank" rel="noopener noreferrer">Notion Integrations</a> and create a new integration.',
 									'notion-wp'
 								),
 								array(
@@ -164,11 +163,13 @@ if ( ! defined( 'ABSPATH' ) ) {
 					<button
 						type="submit"
 						class="button button-secondary"
-						onclick="return confirm('<?php
+					onclick="return confirm(
+						<?php
 						echo esc_js(
 							__( 'Are you sure you want to disconnect from Notion? This will remove your API token.', 'notion-wp' )
 						);
-					?>');"
+						?>
+					);"
 					>
 						<?php esc_html_e( 'Disconnect', 'notion-wp' ); ?>
 					</button>
@@ -195,7 +196,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 					<p class="description" style="margin-top: 15px;">
 						<?php
 						printf(
-							/* translators: %d: number of pages shown */
+							/* translators: 1: number of pages accessible to integration, 2: number of pages accessible to integration */
 							esc_html(
 								_n(
 									'Showing %d page. To access more pages, share them with your integration in Notion.',
