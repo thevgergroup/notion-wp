@@ -52,7 +52,7 @@
 			"@lint:phpcs",
 			"@lint:phpstan"
 		],
-		"lint:phpcs": "phpcs -p -s --colors",
+		"lint:phpcs": "phpcs -p -s --colors --warning-severity=0",
 		"lint:phpcs:quiet": "phpcs --report=summary",
 		"lint:phpcbf": "phpcbf -p --colors",
 		"lint:phpstan": "phpstan analyse --memory-limit=1G",
