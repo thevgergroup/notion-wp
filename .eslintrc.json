@@ -116,6 +116,13 @@
 	},
 	"overrides": [
 		{
+			// Admin files - allow confirm/alert for WordPress admin UI
+			"files": ["**/admin*.js"],
+			"rules": {
+				"no-alert": "off"
+			}
+		},
+		{
 			// React/JSX files
 			"files": ["*.jsx", "*.tsx"],
 			"extends": [

@@ -15,6 +15,7 @@
 	<exclude-pattern>*.asset.php</exclude-pattern>
 	<!-- Exclude example/sample files -->
 	<exclude-pattern>*/ENQUEUE-SNIPPET.php</exclude-pattern>
+	<exclude-pattern>tests/bootstrap.php</exclude-pattern>
 	<exclude-pattern>*/settings-sample.php</exclude-pattern>
 
 	<!-- How to scan -->
@@ -34,9 +35,9 @@
 		<!-- Allow short array syntax [] instead of array() -->
 		<exclude name="Generic.Arrays.DisallowShortArraySyntax"/>
 		<exclude name="Universal.Arrays.DisallowShortArraySyntax"/>
-		<!-- Exclude file naming rules - we use PSR-4 autoloading -->
-		<exclude name="WordPress.Files.FileName.InvalidClassFileName"/>
+		<!-- Disable file naming rules for PSR-4 autoloaded classes -->
 		<exclude name="WordPress.Files.FileName.NotHyphenatedLowercase"/>
+		<exclude name="WordPress.Files.FileName.InvalidClassFileName"/>
 	</rule>
 
 	<rule ref="WordPress-Docs"/>
@@ -66,8 +67,10 @@
 		</properties>
 	</rule>
 
-	<!-- Note: File size limit (500 lines) is enforced by GitHub Actions workflow -->
-	<!-- The Generic.Files.LineCount sniff is not available in PHPCS, so we use a separate check -->
+	<!-- Enforce maximum file size -->
+	<!-- Note: Generic.Files.LineCount doesn't exist in standard PHPCS -->
+	<!-- File size limit is enforced via GitHub Actions workflow instead -->
+	<!-- See .github/workflows/lint.yml file-size-check job -->
 
 	<!-- Additional strict rules for code quality -->
 	<rule ref="Generic.CodeAnalysis.EmptyStatement"/>
@@ -137,9 +140,10 @@
 			<property name="prefixes" type="array">
 				<element value="notion_wp"/>
 				<element value="NOTION_WP"/>
+				<element value="NotionSync"/>
+				<element value="NotionWP"/>
 				<element value="notion_sync"/>
 				<element value="NOTION_SYNC"/>
-				<element value="NotionSync"/>
 			</property>
 		</properties>
 	</rule>
