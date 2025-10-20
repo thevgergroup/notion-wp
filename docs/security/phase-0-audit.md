@@ -33,6 +33,7 @@
 **OWASP Category:** A02:2021 – Cryptographic Failures
 
 **Location:**
+
 - `/Users/patrick/Projects/thevgergroup/notion-wp/plugin/src/Admin/SettingsPage.php` (Lines 185-186)
 - `/Users/patrick/Projects/thevgergroup/notion-wp/plugin/notion-sync.php` (Lines 82-84)
 
@@ -162,12 +163,14 @@ $token = Crypto::decrypt( $encrypted_token, $key );
 **Verification:**
 
 After implementing encryption:
+
 1. Save a token through the admin interface
 2. Directly query the database: `SELECT option_value FROM wp_options WHERE option_name = 'notion_wp_token'`
 3. Verify the value is encrypted/unreadable
 4. Confirm the plugin can still decrypt and use the token successfully
 
 **References:**
+
 - WordPress Codex: Authentication Keys and Salts
 - OWASP: Cryptographic Storage Cheat Sheet
 - CWE-312: Cleartext Storage of Sensitive Information
@@ -184,6 +187,7 @@ After implementing encryption:
 **OWASP Category:** A02:2021 – Cryptographic Failures
 
 **Location:**
+
 - `/Users/patrick/Projects/thevgergroup/notion-wp/plugin/templates/admin/settings.php` (Lines 78-114)
 
 **Vulnerability Description:**
@@ -224,6 +228,7 @@ if ( ! is_ssl() && ! defined( 'WP_DEBUG' ) ) {
 2. **Use force_ssl_admin() in wp-config.php (recommended for users):**
 
 Add to documentation:
+
 ```php
 // In wp-config.php (recommend to users)
 define( 'FORCE_SSL_ADMIN', true );
@@ -236,6 +241,7 @@ define( 'FORCE_SSL_ADMIN', true );
 ```
 
 **Verification:**
+
 1. Access WordPress over HTTP (if possible in dev environment)
 2. Attempt to submit token form
 3. Verify HTTPS enforcement or warning is displayed
@@ -250,15 +256,17 @@ define( 'FORCE_SSL_ADMIN', true );
 **OWASP Category:** A07:2021 – Identification and Authentication Failures
 
 **Location:**
+
 - `/Users/patrick/Projects/thevgergroup/notion-wp/plugin/src/Admin/SettingsPage.php` (Lines 132-204)
 
 **Vulnerability Description:**
 
 The token connection handler lacks:
+
 1. **Rate limiting:** No restriction on connection attempts, allowing brute force testing of tokens
 2. **Account lockout:** No temporary lockout after failed attempts
 3. **Logging:** No security logging of connection attempts (failed or successful)
-4. **Token format validation depth:** Only checks for "secret_" prefix, not full format
+4. **Token format validation depth:** Only checks for "secret\_" prefix, not full format
 
 **Code Review:**
 
@@ -391,6 +399,7 @@ private function validate_token_format( $token ) {
 **OWASP Category:** A03:2021 – Injection (XSS)
 
 **Location:**
+
 - `/Users/patrick/Projects/thevgergroup/notion-wp/plugin/templates/admin/settings.php` (Lines 135, 142, 149, 190, 206)
 
 **Vulnerability Description:**
@@ -415,6 +424,7 @@ While the code correctly escapes most output using `esc_html()`, there is a trus
 **Current Mitigation:** All outputs use `esc_html()` or `esc_url()`, which provides good protection.
 
 **Residual Risk:**
+
 - If Notion API is compromised, malicious content could be injected
 - Page URLs could contain javascript: or data: URIs (though esc_url() should prevent this)
 - Bot IDs displayed in `<code>` tags could contain HTML entities
@@ -504,6 +514,7 @@ add_action( 'admin_head', function() {
 **OWASP Category:** A01:2021 – Broken Access Control
 
 **Location:**
+
 - All admin handlers in `/Users/patrick/Projects/thevgergroup/notion-wp/plugin/src/Admin/SettingsPage.php`
 
 **Vulnerability Description:**
@@ -581,12 +592,14 @@ add_action( 'notion_sync_disconnected', function( $user_id ) {
 **OWASP Category:** A04:2021 – Insecure Design
 
 **Location:**
+
 - `/Users/patrick/Projects/thevgergroup/notion-wp/plugin/src/API/NotionClient.php` (Lines 260-311)
 - `/Users/patrick/Projects/thevgergroup/notion-wp/plugin/src/Admin/SettingsPage.php` (Lines 107-111, 201-202)
 
 **Vulnerability Description:**
 
 Error messages returned from the Notion API and exception messages are displayed directly to users without sanitization or filtering. This could leak sensitive information about:
+
 - Internal system configuration
 - API implementation details
 - Token validation logic
@@ -738,20 +751,21 @@ header( "X-XSS-Protection: 1; mode=block" );
 
 ```javascript
 function isValidTokenFormat(token) {
-    if (!token || token.length < 10) {
-        return false;
-    }
+	if (!token || token.length < 10) {
+		return false;
+	}
 
-    if (!token.startsWith('secret_')) {
-        return false;
-    }
+	if (!token.startsWith('secret_')) {
+		return false;
+	}
 
-    const tokenBody = token.substring(7);
-    return /^[a-zA-Z0-9_]+$/.test(tokenBody);
+	const tokenBody = token.substring(7);
+	return /^[a-zA-Z0-9_]+$/.test(tokenBody);
 }
 ```
 
 **Issue:**
+
 - Allows very short tokens (11 characters)
 - Doesn't match actual Notion token format exactly
 
@@ -759,29 +773,29 @@ function isValidTokenFormat(token) {
 
 ```javascript
 function isValidTokenFormat(token) {
-    // Notion tokens are typically 50-60 characters
-    if (!token || token.length < 40 || token.length > 100) {
-        return false;
-    }
+	// Notion tokens are typically 50-60 characters
+	if (!token || token.length < 40 || token.length > 100) {
+		return false;
+	}
 
-    // Must start with "secret_"
-    if (!token.startsWith('secret_')) {
-        return false;
-    }
+	// Must start with "secret_"
+	if (!token.startsWith('secret_')) {
+		return false;
+	}
 
-    // Validate character set (alphanumeric, underscore, hyphen)
-    const tokenBody = token.substring(7);
-    if (!/^[a-zA-Z0-9_-]+$/.test(tokenBody)) {
-        return false;
-    }
+	// Validate character set (alphanumeric, underscore, hyphen)
+	const tokenBody = token.substring(7);
+	if (!/^[a-zA-Z0-9_-]+$/.test(tokenBody)) {
+		return false;
+	}
 
-    // Should have reasonable entropy (not all same character)
-    const uniqueChars = new Set(tokenBody).size;
-    if (uniqueChars < 10) {
-        return false;
-    }
+	// Should have reasonable entropy (not all same character)
+	const uniqueChars = new Set(tokenBody).size;
+	if (uniqueChars < 10) {
+		return false;
+	}
 
-    return true;
+	return true;
 }
 ```
 
@@ -863,6 +877,7 @@ private function token_has_valid_prefix( $token ) {
 - ✅ User authentication properly verified via WordPress core
 
 **Evidence:**
+
 ```php
 // SettingsPage.php:73-79
 if ( ! current_user_can( 'manage_options' ) ) {
@@ -878,6 +893,7 @@ if ( ! current_user_can( 'manage_options' ) ) {
 - ⚠️ **MEDIUM:** Notion API responses not additionally validated (see MEDIUM-001)
 
 **Evidence:**
+
 ```php
 // SettingsPage.php:153
 $token = isset( $_POST['notion_token'] ) ? sanitize_text_field( wp_unslash( $_POST['notion_token'] ) ) : '';
@@ -891,6 +907,7 @@ $token = isset( $_POST['notion_token'] ) ? sanitize_text_field( wp_unslash( $_PO
 - ✅ JSON output properly handled via `wp_json_encode()`
 
 **Evidence:**
+
 ```php
 // settings.php:135
 <td><strong><?php echo esc_html( $workspace_info['workspace_name'] ); ?></strong></td>
@@ -904,6 +921,7 @@ $token = isset( $_POST['notion_token'] ) ? sanitize_text_field( wp_unslash( $_PO
 - ✅ Proper nonce action names (`notion_sync_connect`, `notion_sync_disconnect`)
 
 **Evidence:**
+
 ```php
 // SettingsPage.php:143-144
 if ( ! isset( $_POST['notion_sync_connect_nonce'] ) ||
@@ -961,14 +979,15 @@ if ( ! isset( $_POST['notion_sync_connect_nonce'] ) ||
 - ✅ No console.log with sensitive information
 
 **Evidence:**
+
 ```javascript
 // admin.js:149-164 - Proper event handling
-button.addEventListener('click', function(event) {
-    const confirmed = confirm( /* ... */ );
-    if (!confirmed) {
-        event.preventDefault();
-        return;
-    }
+button.addEventListener('click', function (event) {
+	const confirmed = confirm(/* ... */);
+	if (!confirmed) {
+		event.preventDefault();
+		return;
+	}
 });
 ```
 
@@ -985,22 +1004,23 @@ button.addEventListener('click', function(event) {
 
 ### Required Standards
 
-| Standard | Status | Notes |
-|----------|--------|-------|
-| Nonce verification on all forms | ✅ PASS | All forms properly protected |
-| Capability checks on all admin pages | ✅ PASS | `manage_options` checked consistently |
-| All output escaped | ✅ PASS | Consistent use of esc_* functions |
-| All input sanitized | ✅ PASS | sanitize_* functions used |
-| No SQL injection vectors | ✅ PASS | Uses Options API only |
-| Secure credential storage | ❌ **FAIL** | Plaintext token storage (CRITICAL-001) |
-| HTTPS for sensitive operations | ⚠️ PARTIAL | No explicit enforcement (HIGH-001) |
-| Rate limiting for auth | ❌ **FAIL** | No rate limiting (HIGH-002) |
-| Security logging | ⚠️ PARTIAL | Minimal logging |
-| Error message sanitization | ⚠️ PARTIAL | Some information disclosure (MEDIUM-003) |
+| Standard                             | Status      | Notes                                    |
+| ------------------------------------ | ----------- | ---------------------------------------- |
+| Nonce verification on all forms      | ✅ PASS     | All forms properly protected             |
+| Capability checks on all admin pages | ✅ PASS     | `manage_options` checked consistently    |
+| All output escaped                   | ✅ PASS     | Consistent use of esc\_\* functions      |
+| All input sanitized                  | ✅ PASS     | sanitize\_\* functions used              |
+| No SQL injection vectors             | ✅ PASS     | Uses Options API only                    |
+| Secure credential storage            | ❌ **FAIL** | Plaintext token storage (CRITICAL-001)   |
+| HTTPS for sensitive operations       | ⚠️ PARTIAL  | No explicit enforcement (HIGH-001)       |
+| Rate limiting for auth               | ❌ **FAIL** | No rate limiting (HIGH-002)              |
+| Security logging                     | ⚠️ PARTIAL  | Minimal logging                          |
+| Error message sanitization           | ⚠️ PARTIAL  | Some information disclosure (MEDIUM-003) |
 
 **VIP Security Score:** 6/10 (FAIL - does not meet minimum standards)
 
 **Blocking Issues for VIP Approval:**
+
 1. Plaintext credential storage (CRITICAL-001)
 2. Missing rate limiting (HIGH-002)
 3. No HTTPS enforcement (HIGH-001)
@@ -1009,18 +1029,18 @@ button.addEventListener('click', function(event) {
 
 ## OWASP Top 10 (2021) Assessment
 
-| OWASP Category | Risk Level | Findings |
-|----------------|------------|----------|
-| A01: Broken Access Control | LOW | Good capability checks, minor IDOR concern (MEDIUM-002) |
-| A02: Cryptographic Failures | **CRITICAL** | Plaintext token storage (CRITICAL-001), HTTPS gaps (HIGH-001) |
-| A03: Injection | LOW | Good XSS protection, minor API data concern (MEDIUM-001) |
-| A04: Insecure Design | MEDIUM | Error message disclosure (MEDIUM-003) |
-| A05: Security Misconfiguration | LOW | Missing CSP headers (LOW-001) |
-| A06: Vulnerable Components | N/A | No third-party dependencies |
-| A07: Authentication Failures | **HIGH** | No rate limiting (HIGH-002) |
-| A08: Software/Data Integrity | LOW | Good nonce usage |
-| A09: Logging Failures | MEDIUM | Minimal security logging |
-| A10: SSRF | N/A | No user-controlled URLs |
+| OWASP Category                 | Risk Level   | Findings                                                      |
+| ------------------------------ | ------------ | ------------------------------------------------------------- |
+| A01: Broken Access Control     | LOW          | Good capability checks, minor IDOR concern (MEDIUM-002)       |
+| A02: Cryptographic Failures    | **CRITICAL** | Plaintext token storage (CRITICAL-001), HTTPS gaps (HIGH-001) |
+| A03: Injection                 | LOW          | Good XSS protection, minor API data concern (MEDIUM-001)      |
+| A04: Insecure Design           | MEDIUM       | Error message disclosure (MEDIUM-003)                         |
+| A05: Security Misconfiguration | LOW          | Missing CSP headers (LOW-001)                                 |
+| A06: Vulnerable Components     | N/A          | No third-party dependencies                                   |
+| A07: Authentication Failures   | **HIGH**     | No rate limiting (HIGH-002)                                   |
+| A08: Software/Data Integrity   | LOW          | Good nonce usage                                              |
+| A09: Logging Failures          | MEDIUM       | Minimal security logging                                      |
+| A10: SSRF                      | N/A          | No user-controlled URLs                                       |
 
 **OWASP Compliance:** FAIL (Critical issues in A02 and A07)
 
@@ -1031,46 +1051,46 @@ button.addEventListener('click', function(event) {
 ### IMMEDIATE (Required before gatekeeping):
 
 1. **CRITICAL-001:** Implement token encryption
-   - Estimated effort: 4 hours
-   - Priority: P0 (BLOCKING)
-   - Implement helper functions for encrypt/decrypt
-   - Update all token save/retrieve operations
-   - Test encryption/decryption workflow
-   - Verify encrypted storage in database
+    - Estimated effort: 4 hours
+    - Priority: P0 (BLOCKING)
+    - Implement helper functions for encrypt/decrypt
+    - Update all token save/retrieve operations
+    - Test encryption/decryption workflow
+    - Verify encrypted storage in database
 
 2. **HIGH-001:** Add HTTPS enforcement
-   - Estimated effort: 1 hour
-   - Priority: P0 (BLOCKING)
-   - Add SSL check in settings page render
-   - Force HTTPS in form actions
-   - Document FORCE_SSL_ADMIN requirement
+    - Estimated effort: 1 hour
+    - Priority: P0 (BLOCKING)
+    - Add SSL check in settings page render
+    - Force HTTPS in form actions
+    - Document FORCE_SSL_ADMIN requirement
 
 3. **HIGH-002:** Implement rate limiting
-   - Estimated effort: 2 hours
-   - Priority: P0 (BLOCKING)
-   - Add transient-based rate limiting
-   - Implement connection attempt tracking
-   - Add security event logging
+    - Estimated effort: 2 hours
+    - Priority: P0 (BLOCKING)
+    - Add transient-based rate limiting
+    - Implement connection attempt tracking
+    - Add security event logging
 
 ### SHORT-TERM (Before Phase 1):
 
 4. **MEDIUM-001:** Enhance Notion API data validation
-   - Estimated effort: 2 hours
-   - Priority: P1
-   - Add sanitization layer for API responses
-   - Implement allowlist for URL schemes
+    - Estimated effort: 2 hours
+    - Priority: P1
+    - Add sanitization layer for API responses
+    - Implement allowlist for URL schemes
 
 5. **MEDIUM-003:** Improve error message handling
-   - Estimated effort: 2 hours
-   - Priority: P1
-   - Generic user-facing error messages
-   - Detailed logging for administrators
+    - Estimated effort: 2 hours
+    - Priority: P1
+    - Generic user-facing error messages
+    - Detailed logging for administrators
 
 6. **MEDIUM-002:** Add admin activity logging
-   - Estimated effort: 1 hour
-   - Priority: P2
-   - Log connection/disconnection events
-   - Track which admin performed actions
+    - Estimated effort: 1 hour
+    - Priority: P2
+    - Log connection/disconnection events
+    - Track which admin performed actions
 
 ### LONG-TERM (Phase 1+):
 
@@ -1410,6 +1430,7 @@ wp db query "SELECT option_value FROM wp_options WHERE option_name = 'notion_wp_
 - 🔴 **PROCEED TO DEMO: NO**
 
 **Gate will PASS when:**
+
 1. All CRITICAL issues resolved
 2. All HIGH issues resolved
 3. Security audit re-run shows no blocking issues
@@ -1459,6 +1480,7 @@ Phase 0 demonstrates good security practices in many areas but contains **one cr
 **Security Gate Decision: DO NOT PROCEED**
 
 The plugin MUST NOT proceed to gatekeeping demo until:
+
 1. Token encryption is implemented and tested
 2. HTTPS enforcement is added
 3. Rate limiting is functional

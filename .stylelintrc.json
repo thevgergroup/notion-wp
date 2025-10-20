@@ -1,13 +1,7 @@
 {
 	"$schema": "https://json.schemastore.org/stylelintrc",
-	"extends": [
-		"stylelint-config-standard",
-		"stylelint-config-wordpress/scss"
-	],
-	"plugins": [
-		"stylelint-scss",
-		"stylelint-order"
-	],
+	"extends": ["stylelint-config-standard", "stylelint-config-wordpress/scss"],
+	"plugins": ["stylelint-scss", "stylelint-order"],
 	"rules": {
 		"comment-empty-line-before": [
 			"always",
@@ -76,12 +70,25 @@
 				{
 					"groupName": "Special",
 					"emptyLineBefore": "always",
-					"properties": ["composes", "@import", "@extend", "@mixin", "@at-root"]
+					"properties": [
+						"composes",
+						"@import",
+						"@extend",
+						"@mixin",
+						"@at-root"
+					]
 				},
 				{
 					"groupName": "Position",
 					"emptyLineBefore": "always",
-					"properties": ["position", "top", "right", "bottom", "left", "z-index"]
+					"properties": [
+						"position",
+						"top",
+						"right",
+						"bottom",
+						"left",
+						"z-index"
+					]
 				},
 				{
 					"groupName": "Box Model",

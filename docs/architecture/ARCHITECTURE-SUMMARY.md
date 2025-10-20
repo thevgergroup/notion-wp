@@ -15,6 +15,7 @@ This document provides a high-level summary of the Notion-WP sync plugin archite
 ### 1. WordPress VIP Compliance
 
 **Performance**:
+
 - Custom database tables for scalability (avoid post meta queries at scale)
 - Object caching via WordPress object cache API
 - Query optimization (proper indexes, batch operations, pagination)
@@ -22,6 +23,7 @@ This document provides a high-level summary of the Notion-WP sync plugin archite
 - Action Scheduler for background processing
 
 **Security**:
+
 - All inputs sanitized via `sanitize_*()` functions
 - All outputs escaped via `esc_*()` functions
 - Nonces for form submissions
@@ -29,6 +31,7 @@ This document provides a high-level summary of the Notion-WP sync plugin archite
 - Prepared statements for database queries (`$wpdb->prepare()`)
 
 **Code Quality**:
+
 - PSR-4 autoloading
 - Single Responsibility Principle
 - Dependency injection for testability
@@ -38,6 +41,7 @@ This document provides a high-level summary of the Notion-WP sync plugin archite
 ### 2. Extensibility
 
 **For Developers**:
+
 ```php
 // Register custom block converter
 add_filter('notion_sync_block_converters', function($converters) {
@@ -62,6 +66,7 @@ add_filter('notion_sync_field_mapping', function($mapping, $database_id) {
 ```
 
 **Configuration-Based Extensibility**:
+
 - JSON config files for block mappings (no code changes needed)
 - Field mapping UI for non-technical users
 - Sync strategy selection (add-only, add-update, full-mirror)
@@ -69,6 +74,7 @@ add_filter('notion_sync_field_mapping', function($mapping, $database_id) {
 ### 3. Git Worktree Optimization
 
 **What's Shared** (committed to Git):
+
 - Plugin source code (`plugin/src/`)
 - Asset source files (`plugin/assets/src/`)
 - Docker infrastructure (`docker/`)
@@ -76,6 +82,7 @@ add_filter('notion_sync_field_mapping', function($mapping, $database_id) {
 - Documentation (`docs/`)
 
 **What's Isolated** (gitignored, per worktree):
+
 - Environment config (`.env`)
 - Runtime configs (`plugin/config/*.json`)
 - Compiled assets (`plugin/assets/dist/`)
@@ -84,6 +91,7 @@ add_filter('notion_sync_field_mapping', function($mapping, $database_id) {
 - Docker volumes (database, WordPress files)
 
 **Benefits**:
+
 - Parallel feature development without branch switching
 - Isolated testing environments
 - No merge conflicts on generated files
@@ -94,12 +102,14 @@ add_filter('notion_sync_field_mapping', function($mapping, $database_id) {
 ### 1. Presentation Layer
 
 **Admin Interface** (`src/Admin/`):
+
 - Settings pages (WordPress Settings API)
 - Field mapping UI (drag-and-drop or dropdowns)
 - Sync dashboard (status, logs, manual triggers)
 - AJAX handlers for real-time updates
 
 **REST API** (`src/REST/`):
+
 - Webhook endpoint for Notion notifications
 - Manual sync triggers
 - Status endpoints for monitoring
@@ -107,6 +117,7 @@ add_filter('notion_sync_field_mapping', function($mapping, $database_id) {
 ### 2. Application Layer
 
 **Sync Orchestration** (`src/Sync/`):
+
 - `SyncOrchestrator`: Main coordinator
 - `NotionToWP`: Notion → WordPress logic
 - `WPToNotion`: WordPress → Notion logic (optional)
@@ -114,18 +125,21 @@ add_filter('notion_sync_field_mapping', function($mapping, $database_id) {
 - `BatchProcessor`: Pagination and chunking
 
 **Block Conversion** (`src/Converters/`):
+
 - Registry pattern for converter lookup
 - Interface-based design for consistency
 - Separate converters for each block type
 - Fallback converter for unsupported blocks
 
 **Media Management** (`src/Media/`):
+
 - Download from Notion's S3 URLs
 - Upload to WordPress Media Library
 - Deduplication via block ID mapping
 - Cache for avoiding re-downloads
 
 **Navigation** (`src/Navigation/`):
+
 - Build WordPress menu from Notion hierarchy
 - Convert internal Notion links to WP permalinks
 - Maintain page parent/child relationships
@@ -133,26 +147,30 @@ add_filter('notion_sync_field_mapping', function($mapping, $database_id) {
 ### 3. Infrastructure Layer
 
 **API Client** (`src/API/`):
+
 - `NotionClient`: Wraps Notion API with retry logic
 - `RateLimiter`: Enforces 50 req/sec limit
 - `RequestLogger`: Logs all API calls for debugging
 
 **Database** (`src/Database/`):
+
 - Repository pattern for data access
 - Custom tables for scalability:
-  - `wp_notion_sync_mappings`: Notion ID ↔ WP Post ID
-  - `wp_notion_sync_logs`: Sync history and errors
-  - `wp_notion_sync_field_maps`: Field mapping configurations
+    - `wp_notion_sync_mappings`: Notion ID ↔ WP Post ID
+    - `wp_notion_sync_logs`: Sync history and errors
+    - `wp_notion_sync_field_maps`: Field mapping configurations
 
 **Queue** (`src/Queue/`):
+
 - Action Scheduler integration
 - Job classes for background tasks:
-  - `ImportPageJob`: Import single Notion page
-  - `ImportImageJob`: Download and upload image
-  - `SyncDatabaseJob`: Sync entire Notion database
-  - `PollNotionJob`: Scheduled polling for updates
+    - `ImportPageJob`: Import single Notion page
+    - `ImportImageJob`: Download and upload image
+    - `SyncDatabaseJob`: Sync entire Notion database
+    - `PollNotionJob`: Scheduled polling for updates
 
 **Caching** (`src/Caching/`):
+
 - Object cache wrapper (uses WordPress object cache)
 - Transient cache for temporary data
 - Cache warming for frequently accessed data
@@ -180,6 +198,7 @@ $orchestrator = Container::get(SyncOrchestrator::class);
 ```
 
 **Benefits**:
+
 - Loose coupling
 - Easy testing (inject mocks)
 - Swappable implementations
@@ -207,6 +226,7 @@ class SyncMappingRepository implements SyncMappingRepositoryInterface {
 ```
 
 **Benefits**:
+
 - Data access abstraction
 - Easy to switch storage (e.g., Redis)
 - Centralized query logic
@@ -235,6 +255,7 @@ class FullMirrorStrategy implements SyncStrategyInterface {
 ```
 
 **Benefits**:
+
 - User-configurable behavior
 - Easy to add new strategies
 - Clear separation of concerns
@@ -259,6 +280,7 @@ class BlockConverterRegistry {
 ```
 
 **Benefits**:
+
 - Centralized converter management
 - Extensible via filters
 - Lazy loading of converters
@@ -326,6 +348,7 @@ update_post_meta($attachment_id, '_notion_file_url', $original_url);
 ### 1. Query Optimization
 
 **Bad** (N+1 queries):
+
 ```php
 $posts = get_posts(['post_type' => 'post']);
 foreach ($posts as $post) {
@@ -334,6 +357,7 @@ foreach ($posts as $post) {
 ```
 
 **Good** (single query):
+
 ```php
 global $wpdb;
 $mappings = $wpdb->get_results("
@@ -456,6 +480,7 @@ if (!isset($_POST['notion_sync_nonce']) ||
 ## Testing Strategy
 
 ### Unit Tests
+
 ```php
 class ParagraphConverterTest extends WP_UnitTestCase {
     public function test_converts_simple_paragraph() {
@@ -476,6 +501,7 @@ class ParagraphConverterTest extends WP_UnitTestCase {
 ```
 
 ### Integration Tests
+
 ```php
 class SyncWorkflowTest extends WP_UnitTestCase {
     public function test_full_sync_workflow() {
@@ -501,28 +527,28 @@ class SyncWorkflowTest extends WP_UnitTestCase {
 ### Production Checklist
 
 1. **Environment Setup**:
-   - Set production Notion token in `.env` or `wp-config.php`
-   - Configure Action Scheduler for background jobs
-   - Set up cron for scheduled polling
-   - Enable webhook endpoint (if using real-time sync)
+    - Set production Notion token in `.env` or `wp-config.php`
+    - Configure Action Scheduler for background jobs
+    - Set up cron for scheduled polling
+    - Enable webhook endpoint (if using real-time sync)
 
 2. **Performance**:
-   - Enable object caching (Redis/Memcached)
-   - Configure transient caching
-   - Set up CDN for media files
-   - Optimize database indexes
+    - Enable object caching (Redis/Memcached)
+    - Configure transient caching
+    - Set up CDN for media files
+    - Optimize database indexes
 
 3. **Security**:
-   - Encrypt Notion token at rest
-   - Use HTTPS for all API calls
-   - Implement webhook signature verification
-   - Set up rate limiting for REST endpoints
+    - Encrypt Notion token at rest
+    - Use HTTPS for all API calls
+    - Implement webhook signature verification
+    - Set up rate limiting for REST endpoints
 
 4. **Monitoring**:
-   - Log sync operations
-   - Set up error notifications
-   - Monitor Action Scheduler queue
-   - Track API rate limit usage
+    - Log sync operations
+    - Set up error notifications
+    - Monitor Action Scheduler queue
+    - Track API rate limit usage
 
 ## Further Reading
 

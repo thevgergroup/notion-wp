@@ -60,12 +60,9 @@
 	</rule>
 
 	<!-- Enforce maximum file size -->
-	<rule ref="Generic.Files.LineCount">
-		<properties>
-			<!-- Maximum 500 lines per file (from principles.md) -->
-			<property name="maxLineCount" value="500"/>
-		</properties>
-	</rule>
+	<!-- Note: Generic.Files.LineCount doesn't exist in standard PHPCS -->
+	<!-- File size limit is enforced via GitHub Actions workflow instead -->
+	<!-- See .github/workflows/lint.yml file-size-check job -->
 
 	<!-- Additional strict rules for code quality -->
 	<rule ref="Generic.CodeAnalysis.EmptyStatement"/>
@@ -88,7 +85,7 @@
 	<!-- Verify WordPress minimum version compatibility -->
 	<rule ref="WordPress.WP.DeprecatedFunctions">
 		<properties>
-			<property name="minimum_supported_version" value="6.0"/>
+			<property name="minimum_wp_version" value="6.0"/>
 		</properties>
 	</rule>
 

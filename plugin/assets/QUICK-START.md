@@ -55,6 +55,7 @@ public function register(): void {
 Open `plugin/templates/admin/settings-sample.php` and copy the relevant sections:
 
 ### For Disconnected State (Connection Form):
+
 ```php
 <div class="wrap notion-sync-settings">
     <div class="notion-sync-header">
@@ -90,6 +91,7 @@ Open `plugin/templates/admin/settings-sample.php` and copy the relevant sections
 ```
 
 ### For Connected State (Workspace Info):
+
 ```php
 <div class="wrap notion-sync-settings">
     <div class="notion-sync-workspace-info">
@@ -133,6 +135,7 @@ Open `plugin/templates/admin/settings-sample.php` and copy the relevant sections
 ## That's It!
 
 Your settings page now has:
+
 - ✅ Professional WordPress-native styling
 - ✅ Loading states during form submission
 - ✅ Token validation
@@ -143,11 +146,13 @@ Your settings page now has:
 ## Important Classes to Remember
 
 ### Required WordPress Classes:
+
 - `.wrap` - Always wrap your admin page
 - `.button-primary` - For primary actions
 - `.notice`, `.notice-success`, `.notice-error` - For admin notices
 
 ### Custom Classes (from our CSS):
+
 - `.notion-sync-settings` - Main container
 - `.notion-sync-connection-form` - Connection form wrapper
 - `.token-input` - Monospace token input
@@ -157,17 +162,20 @@ Your settings page now has:
 ## Troubleshooting
 
 **CSS not loading?**
+
 - Check `NOTION_SYNC_FILE` constant points to main plugin file
 - Verify hook suffix: `toplevel_page_notion-sync` (debug with var_dump)
 - Check browser Network tab for 404s
 
 **JavaScript not working?**
+
 - Check browser console for errors
 - Verify script is enqueued (view page source)
 - Ensure form has correct ID: `notion-sync-connection-form`
 - Ensure button is inside form
 
 **Styles look wrong?**
+
 - Make sure you have `.wrap` class on outer div
 - Check WordPress version (5.9+ recommended)
 - Try clearing browser cache
@@ -185,6 +193,7 @@ Once basic styling works:
 ## Need More Help?
 
 See detailed documentation:
+
 - `/plugin/assets/README-ADMIN-UI.md` - Full implementation guide
 - `/plugin/templates/admin/settings-sample.php` - Complete HTML examples
 - `/plugin/assets/ENQUEUE-SNIPPET.php` - Advanced enqueue options

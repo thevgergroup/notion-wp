@@ -1,34 +1,27 @@
 {
-  "mcpServers": {
-    "playwright-mcp": {
-      "command": "npx",
-      "args": [
-        "-y",
-        "@smithery/cli@latest",
-        "run",
-        "@microsoft/playwright-mcp",
-        "--key",
-        "dc8205c1-4826-4d7f-837f-56e8983c03f4"
-      ]
-    },
-    "shadcn-ui-server": {
-      "command": "npx",
-      "args": [
-        "-y",
-        "shadcn-ui-mcp-server"
-      ]
-    },
-    "context7": {
-      "type": "http",
-      "url": "https://mcp.context7.com/mcp"
-    },
-    "tmux": {
-      "command": "npx",
-      "args": [
-        "-y",
-        "tmux-mcp",
-        "--shell-type=fish"
-      ]
-    }
-  }
+	"mcpServers": {
+		"playwright-mcp": {
+			"command": "npx",
+			"args": [
+				"-y",
+				"@smithery/cli@latest",
+				"run",
+				"@microsoft/playwright-mcp",
+				"--key",
+				"dc8205c1-4826-4d7f-837f-56e8983c03f4"
+			]
+		},
+		"shadcn-ui-server": {
+			"command": "npx",
+			"args": ["-y", "shadcn-ui-mcp-server"]
+		},
+		"context7": {
+			"type": "http",
+			"url": "https://mcp.context7.com/mcp"
+		},
+		"tmux": {
+			"command": "npx",
+			"args": ["-y", "tmux-mcp", "--shell-type=fish"]
+		}
+	}
 }

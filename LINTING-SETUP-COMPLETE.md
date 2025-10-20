@@ -7,44 +7,53 @@ This document summarizes the complete linting and code quality infrastructure th
 ### Configuration Files Created
 
 #### PHP Linting
+
 - ✅ `phpcs.xml.dist` - WordPress Coding Standards configuration
 - ✅ `phpstan.neon` - PHPStan level 5 static analysis
 - ✅ `.php-cs-fixer.php` - Auto-formatting rules
 - ✅ `tests/bootstrap.php` - PHPStan WordPress stubs loader
 
 #### JavaScript/TypeScript Linting
+
 - ✅ `.eslintrc.json` - ESLint with WordPress preset
 - ✅ `.prettierrc` - Prettier code formatting
 - ✅ `.prettierignore` - Files to exclude from formatting
 
 #### CSS/SCSS Linting
+
 - ✅ `.stylelintrc.json` - Stylelint with WordPress standards
 
 #### Pre-commit Hooks
+
 - ✅ `.husky/pre-commit` - Runs all linters before commit
 - ✅ `.husky/commit-msg` - Enforces conventional commit format
 
 #### Dependency Management
+
 - ✅ `composer.json` - PHP dependencies and scripts
 - ✅ `package.json` - Node dependencies and scripts
 
 #### CI/CD
+
 - ✅ `.github/workflows/lint.yml` - GitHub Actions workflow
-  - Tests PHP 8.0, 8.1, 8.2, 8.3
-  - Runs all linters
-  - Checks 500-line file limit
-  - Blocks PRs on failures
+    - Tests PHP 8.0, 8.1, 8.2, 8.3
+    - Runs all linters
+    - Checks 500-line file limit
+    - Blocks PRs on failures
 
 #### IDE Integration
+
 - ✅ `.vscode/settings.json` - VS Code configuration
 - ✅ `.vscode/extensions.json` - Recommended extensions
 - ✅ `.editorconfig` - Cross-editor consistency
 
 #### Documentation
+
 - ✅ `docs/development/linting.md` - Comprehensive guide (18KB)
 - ✅ `LINTING-QUICKSTART.md` - Fast reference guide
 
 #### Other
+
 - ✅ `.gitignore` - Updated with linting caches
 
 ## 🚀 Getting Started
@@ -86,39 +95,41 @@ All linters will run automatically on commit. See `LINTING-QUICKSTART.md` for da
 
 ### PHP Tools
 
-| Tool | Purpose | Version |
-|------|---------|---------|
-| PHP_CodeSniffer | WordPress Coding Standards | ^3.8 |
-| WPCS | WordPress rulesets | ^3.0 |
-| PHPStan | Static analysis (Level 5) | ^1.10 |
-| PHP-CS-Fixer | Auto-formatting | ^3.40 |
-| PHPCompatibility | PHP 8.0+ compatibility | ^9.3 |
+| Tool             | Purpose                    | Version |
+| ---------------- | -------------------------- | ------- |
+| PHP_CodeSniffer  | WordPress Coding Standards | ^3.8    |
+| WPCS             | WordPress rulesets         | ^3.0    |
+| PHPStan          | Static analysis (Level 5)  | ^1.10   |
+| PHP-CS-Fixer     | Auto-formatting            | ^3.40   |
+| PHPCompatibility | PHP 8.0+ compatibility     | ^9.3    |
 
 ### JavaScript/CSS Tools
 
-| Tool | Purpose |
-|------|---------|
-| ESLint | JavaScript linting |
-| @wordpress/eslint-plugin | WordPress JS standards |
-| Prettier | Code formatting |
-| Stylelint | CSS/SCSS linting |
+| Tool                       | Purpose                 |
+| -------------------------- | ----------------------- |
+| ESLint                     | JavaScript linting      |
+| @wordpress/eslint-plugin   | WordPress JS standards  |
+| Prettier                   | Code formatting         |
+| Stylelint                  | CSS/SCSS linting        |
 | stylelint-config-wordpress | WordPress CSS standards |
 
 ### Pre-commit Tools
 
-| Tool | Purpose |
-|------|---------|
-| Husky | Git hooks manager |
+| Tool        | Purpose                     |
+| ----------- | --------------------------- |
+| Husky       | Git hooks manager           |
 | lint-staged | Run linters on staged files |
 
 ## 📏 Code Quality Standards Enforced
 
 ### File Size Limit
+
 - ✅ **Maximum 500 lines per file** (enforced in CI and locally)
 - ✅ Checked automatically in GitHub Actions
 - ✅ Configurable in `phpcs.xml.dist`
 
 ### PHP Standards
+
 - ✅ WordPress Coding Standards (Core, Docs, Extra)
 - ✅ PHPStan Level 5 static analysis
 - ✅ PHP 8.0+ compatibility
@@ -129,6 +140,7 @@ All linters will run automatically on commit. See `LINTING-QUICKSTART.md` for da
 - ✅ Global namespace prefixing (`notion_wp_`)
 
 ### JavaScript Standards
+
 - ✅ WordPress JavaScript coding standards
 - ✅ No `console.log` in production (only `console.error/warn`)
 - ✅ JSDoc comments required
@@ -137,6 +149,7 @@ All linters will run automatically on commit. See `LINTING-QUICKSTART.md` for da
 - ✅ Text domain required for i18n: `'notion-wp'`
 
 ### CSS Standards
+
 - ✅ WordPress CSS standards
 - ✅ Property ordering enforced
 - ✅ `!important` discouraged (warnings)
@@ -145,6 +158,7 @@ All linters will run automatically on commit. See `LINTING-QUICKSTART.md` for da
 - ✅ SCSS support included
 
 ### Commit Message Format
+
 - ✅ Conventional Commits enforced
 - ✅ Format: `type(scope): subject`
 - ✅ Types: feat, fix, docs, style, refactor, perf, test, chore, build, ci, revert
@@ -157,43 +171,43 @@ All linters will run automatically on commit. See `LINTING-QUICKSTART.md` for da
 When you run `git commit`, these checks run automatically:
 
 1. **PHP files:**
-   - PHP-CS-Fixer auto-fixes issues
-   - PHPCS checks WordPress standards
-   - PHPStan runs static analysis
-   - Fixed files are re-staged
+    - PHP-CS-Fixer auto-fixes issues
+    - PHPCS checks WordPress standards
+    - PHPStan runs static analysis
+    - Fixed files are re-staged
 
 2. **JavaScript files:**
-   - ESLint auto-fixes issues
-   - Prettier formats code
-   - Fixed files are re-staged
+    - ESLint auto-fixes issues
+    - Prettier formats code
+    - Fixed files are re-staged
 
 3. **CSS files:**
-   - Stylelint auto-fixes issues
-   - Prettier formats code
-   - Fixed files are re-staged
+    - Stylelint auto-fixes issues
+    - Prettier formats code
+    - Fixed files are re-staged
 
 4. **Commit blocked if errors remain**
 
 ### GitHub Actions (On Every PR)
 
 1. **PHP Linting Job:**
-   - Matrix test: PHP 8.0, 8.1, 8.2, 8.3
-   - Run PHPCS
-   - Run PHPStan
-   - Run PHP-CS-Fixer dry-run
+    - Matrix test: PHP 8.0, 8.1, 8.2, 8.3
+    - Run PHPCS
+    - Run PHPStan
+    - Run PHP-CS-Fixer dry-run
 
 2. **JavaScript/CSS Linting Job:**
-   - Run ESLint
-   - Run Stylelint
-   - Check Prettier formatting
+    - Run ESLint
+    - Run Stylelint
+    - Check Prettier formatting
 
 3. **File Size Check Job:**
-   - Find all files > 500 lines
-   - Fail if any found
+    - Find all files > 500 lines
+    - Fail if any found
 
 4. **Summary Job:**
-   - Aggregate results
-   - Block PR if any job failed
+    - Aggregate results
+    - Block PR if any job failed
 
 ## 📝 Available Commands
 
@@ -233,6 +247,7 @@ composer lint:fix && npm run lint:fix
 These issues are **automatically corrected** by the tools:
 
 ### PHP Auto-fixes (PHP-CS-Fixer + PHPCBF)
+
 - ✅ Indentation (tabs for PHP)
 - ✅ Line endings (Unix style)
 - ✅ Trailing whitespace
@@ -242,6 +257,7 @@ These issues are **automatically corrected** by the tools:
 - ✅ Array syntax (short `[]` vs `array()`)
 
 ### JavaScript Auto-fixes (ESLint + Prettier)
+
 - ✅ Indentation (tabs, 2-space equivalent)
 - ✅ Semicolons
 - ✅ Quote style (single quotes)
@@ -250,6 +266,7 @@ These issues are **automatically corrected** by the tools:
 - ✅ Import ordering
 
 ### CSS Auto-fixes (Stylelint + Prettier)
+
 - ✅ Property ordering (position → box model → typography → visual → animation)
 - ✅ Indentation
 - ✅ Color format normalization
@@ -276,6 +293,7 @@ Pull requests will be **blocked** in CI if:
 ### VS Code
 
 **Recommended Extensions** (`.vscode/extensions.json`):
+
 - PHP Intelephense
 - PHP Sniffer
 - PHPStan
@@ -286,6 +304,7 @@ Pull requests will be **blocked** in CI if:
 - EditorConfig
 
 **Auto-configured** (`.vscode/settings.json`):
+
 - Format on save enabled
 - ESLint auto-fix on save
 - Stylelint auto-fix on save
@@ -300,27 +319,32 @@ See `docs/development/linting.md` for PhpStorm setup instructions.
 ## 📚 Documentation
 
 ### Quick Reference
+
 - `LINTING-QUICKSTART.md` - Fast commands and common tasks
 
 ### Comprehensive Guide
+
 - `docs/development/linting.md` - Full documentation including:
-  - Common error solutions
-  - IDE setup guides (VS Code, PhpStorm)
-  - Troubleshooting
-  - Best practices
-  - Rule explanations
+    - Common error solutions
+    - IDE setup guides (VS Code, PhpStorm)
+    - Troubleshooting
+    - Best practices
+    - Rule explanations
 
 ### Principles
+
 - `docs/development/principles.md` - Development standards and requirements
 
 ## 🎓 Learning Resources
 
 ### WordPress Standards
+
 - [WordPress Coding Standards](https://developer.wordpress.org/coding-standards/)
 - [WordPress JavaScript Standards](https://developer.wordpress.org/coding-standards/wordpress-coding-standards/javascript/)
 - [WordPress CSS Standards](https://developer.wordpress.org/coding-standards/wordpress-coding-standards/css/)
 
 ### Tool Documentation
+
 - [PHPStan Documentation](https://phpstan.org/user-guide/getting-started)
 - [PHP-CS-Fixer Rules](https://github.com/PHP-CS-Fixer/PHP-CS-Fixer)
 - [ESLint Rules](https://eslint.org/docs/rules/)
@@ -332,25 +356,28 @@ See `docs/development/linting.md` for PhpStorm setup instructions.
 ### Common Issues
 
 1. **"Command not found: composer"**
-   ```bash
-   # Install Composer: https://getcomposer.org/
-   ```
+
+    ```bash
+    # Install Composer: https://getcomposer.org/
+    ```
 
 2. **"Command not found: phpcs"**
-   ```bash
-   composer install
-   ```
+
+    ```bash
+    composer install
+    ```
 
 3. **Pre-commit hooks not running**
-   ```bash
-   chmod +x .husky/pre-commit
-   npm run prepare
-   ```
+
+    ```bash
+    chmod +x .husky/pre-commit
+    npm run prepare
+    ```
 
 4. **PHPStan out of memory**
-   ```bash
-   composer lint:phpstan -- --memory-limit=2G
-   ```
+    ```bash
+    composer lint:phpstan -- --memory-limit=2G
+    ```
 
 See `docs/development/linting.md` for more troubleshooting.
 
@@ -370,22 +397,22 @@ After setup, verify everything works:
 ## 🎯 Next Steps
 
 1. **Start coding:**
-   - Create your first PHP file in `plugin/src/`
-   - Write code following WordPress standards
-   - Commit and watch linters work
+    - Create your first PHP file in `plugin/src/`
+    - Write code following WordPress standards
+    - Commit and watch linters work
 
 2. **Review examples:**
-   - See `docs/development/linting.md` for common error examples
-   - Learn how to fix typical issues
+    - See `docs/development/linting.md` for common error examples
+    - Learn how to fix typical issues
 
 3. **Configure IDE:**
-   - Install recommended VS Code extensions
-   - Or setup PhpStorm following the guide
+    - Install recommended VS Code extensions
+    - Or setup PhpStorm following the guide
 
 4. **Read principles:**
-   - Review `docs/development/principles.md`
-   - Understand the 500-line limit
-   - Learn the development workflow
+    - Review `docs/development/principles.md`
+    - Understand the 500-line limit
+    - Learn the development workflow
 
 ## 📞 Getting Help
 

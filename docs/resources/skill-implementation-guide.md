@@ -18,38 +18,47 @@ This guide provides practical instructions for creating and using the specialize
 There are three main approaches to implementing specialized expertise for this project:
 
 ### 1. Custom Skills (Recommended)
+
 Create reusable skills using the `skill-creator` skill that can be invoked with the `Skill` tool.
 
 **Pros:**
+
 - Reusable across sessions
 - Encapsulated expertise
 - Easy to share with team
 
 **Cons:**
+
 - Initial setup time
 - Requires planning skill structure
 
 ### 2. Slash Commands
+
 Create `.claude/commands/*.md` files for project-specific workflows.
 
 **Pros:**
+
 - Quick to create
 - Project-specific
 - Version controlled
 
 **Cons:**
+
 - Less portable
 - Simpler than full skills
 
 ### 3. MCP Servers
+
 Build custom MCP servers for WordPress or Notion-specific tools.
 
 **Pros:**
+
 - Provides actual tools, not just prompts
 - Can integrate with external services
 - Very powerful
 
 **Cons:**
+
 - Requires Node.js/Python development
 - More complex setup
 
@@ -90,13 +99,15 @@ Skill: "wordpress-plugin-dev"
 
 ### Template 1: WordPress Plugin Engineer Skill
 
-```markdown
+````markdown
 # WordPress Plugin Engineer Skill
 
 ## Description
+
 Expert WordPress plugin developer specializing in WordPress plugin architecture, hooks system, Gutenberg blocks, and WordPress coding standards.
 
 ## When to Use
+
 - Setting up plugin structure
 - Implementing WordPress hooks
 - Creating admin pages
@@ -104,6 +115,7 @@ Expert WordPress plugin developer specializing in WordPress plugin architecture,
 - Ensuring WordPress coding standards
 
 ## Expertise Areas
+
 - WordPress plugin architecture
 - Hooks and filters system
 - WordPress coding standards (WPCS)
@@ -113,6 +125,7 @@ Expert WordPress plugin developer specializing in WordPress plugin architecture,
 - Plugin security (nonces, capabilities)
 
 ## Available Tools
+
 - Read, Write, Edit for file operations
 - Bash for running wp scaffold and composer commands
 - Grep/Glob for searching WordPress codebases
@@ -121,27 +134,34 @@ Expert WordPress plugin developer specializing in WordPress plugin architecture,
 ## Example Prompts
 
 ### Plugin Setup
+
 "Create the initial WordPress plugin structure for notion-wp with:
+
 - Main plugin file with proper headers
 - Directory structure (includes, admin, public)
 - Composer.json with PSR-4 autoloading
 - Basic activation/deactivation hooks"
 
 ### Settings Page
+
 "Create a WordPress admin settings page for storing the Notion API token with:
+
 - Settings API implementation
 - Proper sanitization
 - Nonce verification
 - Capability checks"
 
 ### Custom Gutenberg Block
+
 "Create a custom Gutenberg block for displaying Notion sync status with:
+
 - Block registration
 - Block editor script
 - Block save function
 - Server-side rendering"
 
 ## Best Practices
+
 1. Follow WordPress Coding Standards (WPCS)
 2. Always sanitize inputs and escape outputs
 3. Use nonces for form submissions
@@ -154,6 +174,7 @@ Expert WordPress plugin developer specializing in WordPress plugin architecture,
 ## Common Patterns
 
 ### Plugin Main File Header
+
 ```php
 <?php
 /**
@@ -169,8 +190,10 @@ Expert WordPress plugin developer specializing in WordPress plugin architecture,
  * Domain Path: /languages
  */
 ```
+````
 
 ### Activation Hook
+
 ```php
 register_activation_hook( __FILE__, 'notion_wp_activate' );
 function notion_wp_activate() {
@@ -183,6 +206,7 @@ function notion_wp_activate() {
 ```
 
 ### Settings API
+
 ```php
 add_action( 'admin_init', 'notion_wp_register_settings' );
 function notion_wp_register_settings() {
@@ -198,11 +222,13 @@ function notion_wp_register_settings() {
 ```
 
 ## Resources to Use
+
 - context7 MCP: Fetch WordPress Codex and Developer Handbook
 - WordPress.org Developer Resources
 - WordPress Coding Standards (WPCS)
 - WordPress Plugin Handbook
-```
+
+````
 
 ### Template 2: Notion API Specialist Skill
 
@@ -282,9 +308,10 @@ Expert in Notion API integration, including all endpoints, block types, database
     ]
   }
 }
-```
+````
 
 ### Image Block
+
 ```json
 {
   "type": "image",
@@ -300,12 +327,14 @@ Expert in Notion API integration, including all endpoints, block types, database
 ```
 
 ## API Rate Limiting
+
 - Notion API: ~50 requests per second
 - Implement exponential backoff
 - Use retry-after header
 - Queue requests if needed
 
 ## Best Practices
+
 1. Cache API responses when possible
 2. Handle pagination properly (100 items max)
 3. Respect rate limits
@@ -316,10 +345,12 @@ Expert in Notion API integration, including all endpoints, block types, database
 8. Verify webhook signatures
 
 ## Resources
+
 - context7: Fetch latest Notion API docs
 - Notion Developer Portal: https://developers.notion.com
 - Notion API reference: https://developers.notion.com/reference
-```
+
+````
 
 ### Template 3: Block Converter Specialist Skill
 
@@ -435,7 +466,7 @@ Notion to-dos are interactive. WordPress doesn't have core support.
 - Gutenberg Block API: https://developer.wordpress.org/block-editor/
 - Notion block types: https://developers.notion.com/reference/block
 - HTML semantic elements: https://developer.mozilla.org/en-US/docs/Web/HTML/Element
-```
+````
 
 ---
 
@@ -446,11 +477,13 @@ Slash commands are simpler than full skills and great for project-specific workf
 ### Creating a Slash Command
 
 1. **Create the directory:**
+
 ```bash
 mkdir -p .claude/commands
 ```
 
 2. **Create a command file:**
+
 ```bash
 # .claude/commands/setup-plugin.md
 You are a WordPress plugin development expert. When invoked, help set up the WordPress plugin structure for notion-wp.
@@ -466,6 +499,7 @@ Follow WordPress Coding Standards (WPCS) and use proper sanitization and escapin
 ```
 
 3. **Use the command:**
+
 ```bash
 /setup-plugin
 ```
@@ -473,10 +507,12 @@ Follow WordPress Coding Standards (WPCS) and use proper sanitization and escapin
 ### Example Slash Commands for This Project
 
 #### .claude/commands/notion-client.md
+
 ```markdown
 You are a Notion API specialist. Help implement or improve the Notion API client for the notion-wp plugin.
 
 ## Tasks:
+
 - Implement Notion API endpoints (retrieve_block_children, query_database, etc.)
 - Handle pagination (100 items per request)
 - Implement rate limiting (~50 requests/second)
@@ -488,10 +524,12 @@ Use context7 to fetch latest Notion API documentation if needed.
 ```
 
 #### .claude/commands/test-converter.md
+
 ```markdown
 You are a block conversion testing expert. Help test block conversions between Notion and WordPress.
 
 ## Tasks:
+
 1. Review the block converter code
 2. Identify edge cases and potential issues
 3. Create test fixtures with various Notion block types
@@ -509,6 +547,7 @@ Focus on ensuring no data loss during conversion.
 ### Using Existing MCP Servers
 
 #### context7 for Documentation
+
 ```bash
 # Get WordPress documentation
 mcp__context7__resolve-library-id "WordPress"
@@ -520,6 +559,7 @@ mcp__context7__get-library-docs "/notion/api" "block types"
 ```
 
 #### Playwright for Testing
+
 ```bash
 # Test WordPress admin UI
 mcp__playwright-mcp__browser_navigate "http://localhost:8080/wp-admin"
@@ -720,21 +760,27 @@ Skill: "wordpress-testing-expert"
 ## Best Practices
 
 ### 1. Start with Architecture Skills
+
 Before implementing, use architect skills to plan structure.
 
 ### 2. Use Specific, Detailed Prompts
+
 Instead of "set up the plugin", provide detailed requirements.
 
 ### 3. Leverage context7 for Current Docs
+
 Always fetch latest WordPress and Notion API documentation.
 
 ### 4. Combine Skills for Complex Tasks
+
 Use architect → specialist → testing workflow.
 
 ### 5. Create Project-Specific Slash Commands
+
 For repeated workflows, create slash commands.
 
 ### 6. Build MCP Servers for Tools
+
 If you need specific tools (e.g., WP-CLI wrapper), create MCP server.
 
 ---
@@ -742,45 +788,48 @@ If you need specific tools (e.g., WP-CLI wrapper), create MCP server.
 ## Next Steps
 
 1. **Create Priority Skills First:**
-   - WordPress Plugin Engineer (`wordpress-plugin-dev`)
-   - Notion API Specialist (`notion-api-expert`)
-   - WordPress Architect (`wordpress-architect`)
+    - WordPress Plugin Engineer (`wordpress-plugin-dev`)
+    - Notion API Specialist (`notion-api-expert`)
+    - WordPress Architect (`wordpress-architect`)
 
 2. **Set Up Project Structure:**
-   - Use `wordpress-plugin-dev` skill to scaffold plugin
-   - Set up development environment (Docker/wp-env)
+    - Use `wordpress-plugin-dev` skill to scaffold plugin
+    - Set up development environment (Docker/wp-env)
 
 3. **Implement Core Features:**
-   - Use `notion-api-expert` for API client
-   - Use `block-mapping-expert` for converters
-   - Use `wordpress-security-expert` for security review
+    - Use `notion-api-expert` for API client
+    - Use `block-mapping-expert` for converters
+    - Use `wordpress-security-expert` for security review
 
 4. **Create Slash Commands for Common Workflows:**
-   - Plugin setup
-   - Running tests
-   - Code standard checks
-   - Deployment
+    - Plugin setup
+    - Running tests
+    - Code standard checks
+    - Deployment
 
 5. **Consider Building MCP Server:**
-   - WordPress-specific tools
-   - Notion API testing tools
-   - Automated testing helpers
+    - WordPress-specific tools
+    - Notion API testing tools
+    - Automated testing helpers
 
 ---
 
 ## Troubleshooting
 
 ### Skill Not Found
+
 - Verify skill was created successfully
 - Check skill name spelling
 - Try recreating the skill
 
 ### Skill Doesn't Have Expected Knowledge
+
 - Provide more detailed description when creating skill
 - Include specific resources and documentation
 - Add more example prompts
 
 ### Need More Specialized Skills
+
 - Break down into more granular skills
 - Create sub-skills for specific frameworks or APIs
 - Use skill-creator to generate variations

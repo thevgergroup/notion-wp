@@ -1,89 +1,84 @@
 {
-  "version": "1.0",
-  "description": "Synchronization strategies and scheduling configuration",
-  "strategies": {
-    "add_only": {
-      "name": "Add Only",
-      "description": "Import new Notion pages only, never update or delete existing WordPress posts",
-      "operations": {
-        "create": true,
-        "update": false,
-        "delete": false
-      }
-    },
-    "add_and_update": {
-      "name": "Add & Update",
-      "description": "Import new pages and update existing ones, never delete",
-      "operations": {
-        "create": true,
-        "update": true,
-        "delete": false
-      }
-    },
-    "full_mirror": {
-      "name": "Full Mirror",
-      "description": "Complete sync: add, update, and delete posts to match Notion",
-      "operations": {
-        "create": true,
-        "update": true,
-        "delete": true
-      },
-      "delete_behavior": "trash",
-      "warning": "This will delete WordPress posts that no longer exist in Notion"
-    }
-  },
-  "scheduling": {
-    "enabled": true,
-    "interval": "hourly",
-    "available_intervals": [
-      "every_15_minutes",
-      "hourly",
-      "twicedaily",
-      "daily"
-    ],
-    "retry_failed": true,
-    "max_retries": 3,
-    "retry_delay": 300
-  },
-  "webhooks": {
-    "enabled": false,
-    "endpoint": "/wp-json/notion-sync/v1/webhook",
-    "secret": "generated-webhook-secret",
-    "verify_signature": true,
-    "rate_limit": {
-      "max_requests": 100,
-      "per_minutes": 1
-    }
-  },
-  "performance": {
-    "batch_size": 10,
-    "max_execution_time": 300,
-    "concurrent_media_downloads": 5,
-    "use_action_scheduler": true,
-    "memory_limit": "256M"
-  },
-  "conflict_resolution": {
-    "strategy": "notion_wins",
-    "available_strategies": [
-      "notion_wins",
-      "wordpress_wins",
-      "newest_wins",
-      "manual"
-    ],
-    "check_timestamps": true,
-    "warn_on_conflict": true
-  },
-  "logging": {
-    "enabled": true,
-    "log_level": "info",
-    "available_levels": [
-      "debug",
-      "info",
-      "warning",
-      "error"
-    ],
-    "log_api_calls": true,
-    "log_block_conversions": false,
-    "retention_days": 30
-  }
+	"version": "1.0",
+	"description": "Synchronization strategies and scheduling configuration",
+	"strategies": {
+		"add_only": {
+			"name": "Add Only",
+			"description": "Import new Notion pages only, never update or delete existing WordPress posts",
+			"operations": {
+				"create": true,
+				"update": false,
+				"delete": false
+			}
+		},
+		"add_and_update": {
+			"name": "Add & Update",
+			"description": "Import new pages and update existing ones, never delete",
+			"operations": {
+				"create": true,
+				"update": true,
+				"delete": false
+			}
+		},
+		"full_mirror": {
+			"name": "Full Mirror",
+			"description": "Complete sync: add, update, and delete posts to match Notion",
+			"operations": {
+				"create": true,
+				"update": true,
+				"delete": true
+			},
+			"delete_behavior": "trash",
+			"warning": "This will delete WordPress posts that no longer exist in Notion"
+		}
+	},
+	"scheduling": {
+		"enabled": true,
+		"interval": "hourly",
+		"available_intervals": [
+			"every_15_minutes",
+			"hourly",
+			"twicedaily",
+			"daily"
+		],
+		"retry_failed": true,
+		"max_retries": 3,
+		"retry_delay": 300
+	},
+	"webhooks": {
+		"enabled": false,
+		"endpoint": "/wp-json/notion-sync/v1/webhook",
+		"secret": "generated-webhook-secret",
+		"verify_signature": true,
+		"rate_limit": {
+			"max_requests": 100,
+			"per_minutes": 1
+		}
+	},
+	"performance": {
+		"batch_size": 10,
+		"max_execution_time": 300,
+		"concurrent_media_downloads": 5,
+		"use_action_scheduler": true,
+		"memory_limit": "256M"
+	},
+	"conflict_resolution": {
+		"strategy": "notion_wins",
+		"available_strategies": [
+			"notion_wins",
+			"wordpress_wins",
+			"newest_wins",
+			"manual"
+		],
+		"check_timestamps": true,
+		"warn_on_conflict": true
+	},
+	"logging": {
+		"enabled": true,
+		"log_level": "info",
+		"available_levels": ["debug", "info", "warning", "error"],
+		"log_api_calls": true,
+		"log_block_conversions": false,
+		"retention_days": 30
+	}
 }

@@ -24,6 +24,7 @@ This checklist tracks all tasks, tests, and requirements for Phase 0 completion.
 ### Day 1: Foundation
 
 **Morning Tasks:**
+
 - [ ] Create `phase-0-auth` worktree
 - [ ] Set up development environment
 - [ ] Create `plugin/src/Admin/SettingsPage.php` skeleton
@@ -31,6 +32,7 @@ This checklist tracks all tasks, tests, and requirements for Phase 0 completion.
 - [ ] Run `composer install && npm install`
 
 **Afternoon Tasks:**
+
 - [ ] Build connection form UI in settings template
 - [ ] Add WordPress nonce verification
 - [ ] Test form submission (even if backend not ready)
@@ -38,6 +40,7 @@ This checklist tracks all tasks, tests, and requirements for Phase 0 completion.
 - [ ] Demo: Can access settings page and submit form
 
 **Evening Review:**
+
 - [ ] Settings page accessible at WP Admin > Notion Sync
 - [ ] Form renders without errors
 - [ ] All linting passes on created files
@@ -47,6 +50,7 @@ This checklist tracks all tasks, tests, and requirements for Phase 0 completion.
 ### Day 2: API Integration
 
 **Morning Tasks:**
+
 - [ ] Create `plugin/src/API/NotionClient.php`
 - [ ] Implement `__construct()` with token parameter
 - [ ] Implement `test_connection()` method
@@ -54,6 +58,7 @@ This checklist tracks all tasks, tests, and requirements for Phase 0 completion.
 - [ ] Test API connection with valid token
 
 **Afternoon Tasks:**
+
 - [ ] Implement `get_workspace_info()` method
 - [ ] Connect SettingsPage to NotionClient
 - [ ] Display workspace name on successful connection
@@ -61,6 +66,7 @@ This checklist tracks all tasks, tests, and requirements for Phase 0 completion.
 - [ ] Demo: Can connect and see workspace name
 
 **Evening Review:**
+
 - [ ] NotionClient makes successful API calls
 - [ ] Workspace information displays in admin
 - [ ] Error messages are user-friendly
@@ -71,6 +77,7 @@ This checklist tracks all tasks, tests, and requirements for Phase 0 completion.
 ### Day 3: Page Listing
 
 **Morning Tasks:**
+
 - [ ] Implement `list_pages()` method in NotionClient
 - [ ] Add pagination handling for Notion API
 - [ ] Display page list in settings template
@@ -78,6 +85,7 @@ This checklist tracks all tasks, tests, and requirements for Phase 0 completion.
 - [ ] Add "no pages found" empty state
 
 **Afternoon Tasks:**
+
 - [ ] Implement disconnect functionality
 - [ ] Add "Disconnect" button to UI
 - [ ] Clear token on disconnect
@@ -85,6 +93,7 @@ This checklist tracks all tasks, tests, and requirements for Phase 0 completion.
 - [ ] Demo: Full connection flow works
 
 **Evening Review:**
+
 - [ ] Page list displays correctly
 - [ ] Disconnect clears all connection data
 - [ ] Can reconnect after disconnect
@@ -95,6 +104,7 @@ This checklist tracks all tasks, tests, and requirements for Phase 0 completion.
 ### Day 4: Polish & Testing
 
 **Morning Tasks:**
+
 - [ ] Test on mobile devices (phone and tablet)
 - [ ] Fix responsive layout issues
 - [ ] Improve error messages for clarity
@@ -102,6 +112,7 @@ This checklist tracks all tasks, tests, and requirements for Phase 0 completion.
 - [ ] Test with invalid tokens
 
 **Afternoon Tasks:**
+
 - [ ] Run through complete testing checklist
 - [ ] Fix any linting issues
 - [ ] Address security checklist items
@@ -109,6 +120,7 @@ This checklist tracks all tasks, tests, and requirements for Phase 0 completion.
 - [ ] Demo: Ready for gatekeeping review
 
 **Evening Review:**
+
 - [ ] All tests pass
 - [ ] UI is polished and professional
 - [ ] No console errors or PHP warnings
@@ -119,6 +131,7 @@ This checklist tracks all tasks, tests, and requirements for Phase 0 completion.
 ### Day 5: Buffer & Documentation
 
 **Tasks:**
+
 - [ ] Address any issues from testing
 - [ ] Complete all documentation
 - [ ] Prepare gatekeeping demo script
@@ -126,6 +139,7 @@ This checklist tracks all tasks, tests, and requirements for Phase 0 completion.
 - [ ] Final review of all checklist items
 
 **Delivery:**
+
 - [ ] Schedule gatekeeping demo
 - [ ] Prepare demo environment
 - [ ] Document lessons learned
@@ -137,12 +151,14 @@ This checklist tracks all tasks, tests, and requirements for Phase 0 completion.
 ### Stream 1: Authentication System
 
 **File Creation:**
+
 - [ ] `plugin/src/Admin/SettingsPage.php` (<300 lines)
 - [ ] `plugin/src/API/NotionClient.php` (<400 lines)
 - [ ] `plugin/templates/admin/settings.php` (<200 lines)
 - [ ] `plugin/src/Admin/AdminNotices.php` (<150 lines)
 
 **Core Functionality:**
+
 - [ ] Settings menu page registration
 - [ ] Connection form with nonce
 - [ ] Token sanitization and validation
@@ -153,6 +169,7 @@ This checklist tracks all tasks, tests, and requirements for Phase 0 completion.
 - [ ] Disconnect functionality
 
 **Security:**
+
 - [ ] All output escaped (`esc_html`, `esc_attr`, `esc_url`)
 - [ ] All input sanitized (`sanitize_text_field`)
 - [ ] Nonce verification on POST requests
@@ -161,6 +178,7 @@ This checklist tracks all tasks, tests, and requirements for Phase 0 completion.
 - [ ] No XSS vulnerabilities
 
 **Error Handling:**
+
 - [ ] Invalid token error message
 - [ ] Network error handling
 - [ ] API timeout handling
@@ -172,6 +190,7 @@ This checklist tracks all tasks, tests, and requirements for Phase 0 completion.
 ### Stream 2: Development Environment
 
 **Linting Setup:**
+
 - [ ] Verify `phpcs.xml.dist` enforces 500-line limit
 - [ ] Verify `phpstan.neon` uses level 5
 - [ ] Verify `.eslintrc.json` blocks console.log
@@ -179,6 +198,7 @@ This checklist tracks all tasks, tests, and requirements for Phase 0 completion.
 - [ ] All dependencies installed
 
 **Linting Tests:**
+
 - [ ] `composer lint:phpcs` passes
 - [ ] `composer lint:phpstan` passes
 - [ ] `npm run lint:js` passes
@@ -186,6 +206,7 @@ This checklist tracks all tasks, tests, and requirements for Phase 0 completion.
 - [ ] Pre-commit hook runs automatically
 
 **IDE Integration:**
+
 - [ ] VS Code shows inline lint errors
 - [ ] PHP errors appear in editor
 - [ ] JavaScript errors appear in editor
@@ -196,10 +217,12 @@ This checklist tracks all tasks, tests, and requirements for Phase 0 completion.
 ### Stream 3: Basic Admin UI
 
 **File Creation:**
+
 - [ ] `plugin/assets/src/scss/admin.scss` (<200 lines)
 - [ ] `plugin/assets/src/js/admin.js` (<200 lines)
 
 **UI Components:**
+
 - [ ] Connection form layout
 - [ ] Token input field (monospace font)
 - [ ] Connect button with loading state
@@ -209,6 +232,7 @@ This checklist tracks all tasks, tests, and requirements for Phase 0 completion.
 - [ ] Error message styling
 
 **JavaScript Features:**
+
 - [ ] Show loading spinner during connection
 - [ ] Disable submit during API call
 - [ ] Clear token on disconnect (client-side)
@@ -216,6 +240,7 @@ This checklist tracks all tasks, tests, and requirements for Phase 0 completion.
 - [ ] Keyboard navigation support
 
 **Responsive Design:**
+
 - [ ] Works on desktop (1920px+)
 - [ ] Works on laptop (1366px)
 - [ ] Works on tablet (768px)
@@ -223,6 +248,7 @@ This checklist tracks all tasks, tests, and requirements for Phase 0 completion.
 - [ ] Touch-friendly on mobile
 
 **Accessibility:**
+
 - [ ] Keyboard navigation works
 - [ ] Focus states visible
 - [ ] ARIA labels on interactive elements
@@ -234,6 +260,7 @@ This checklist tracks all tasks, tests, and requirements for Phase 0 completion.
 ### Stream 4: Documentation
 
 **Files to Create/Update:**
+
 - [ ] `plugin/README.md` (user-focused)
 - [ ] `docs/getting-started.md` (detailed setup)
 - [ ] `docs/development/phase-0-checklist.md` (this file)
@@ -241,6 +268,7 @@ This checklist tracks all tasks, tests, and requirements for Phase 0 completion.
 - [ ] `docs/api/notion-client.md` (API reference)
 
 **Documentation Quality:**
+
 - [ ] Clear, non-technical language in user docs
 - [ ] Step-by-step instructions with numbers
 - [ ] Troubleshooting covers common issues
@@ -350,6 +378,7 @@ This checklist tracks all tasks, tests, and requirements for Phase 0 completion.
 ### Linting
 
 **PHP:**
+
 - [ ] `composer lint:phpcs` exits with 0
 - [ ] `composer lint:phpstan` exits with 0
 - [ ] PHPStan level 5 passes
@@ -357,6 +386,7 @@ This checklist tracks all tasks, tests, and requirements for Phase 0 completion.
 - [ ] PHP-CS-Fixer passes
 
 **JavaScript:**
+
 - [ ] `npm run lint:js` passes
 - [ ] No ESLint errors
 - [ ] No ESLint warnings
@@ -364,6 +394,7 @@ This checklist tracks all tasks, tests, and requirements for Phase 0 completion.
 - [ ] Prettier formatting applied
 
 **CSS:**
+
 - [ ] `npm run lint:css` passes
 - [ ] No Stylelint errors
 - [ ] No `!important` (except documented)
@@ -493,12 +524,14 @@ This checklist tracks all tasks, tests, and requirements for Phase 0 completion.
 ### Demo Script
 
 **Setup (Before Demo):**
+
 - [ ] WordPress logged in as admin
 - [ ] Browser cleared (no pre-filled forms)
 - [ ] Notion integration created
 - [ ] Token copied to clipboard
 
 **Demo Steps (2 minutes):**
+
 1. [ ] Show WordPress admin dashboard (15 seconds)
 2. [ ] Navigate to Notion Sync menu (15 seconds)
 3. [ ] Paste token and click Connect (30 seconds)
@@ -506,6 +539,7 @@ This checklist tracks all tasks, tests, and requirements for Phase 0 completion.
 5. [ ] Show list of pages (30 seconds)
 
 **Pass Criteria:**
+
 - [ ] Demo completed in under 2 minutes
 - [ ] Non-developer understood what happened
 - [ ] No confusion about error messages
@@ -515,6 +549,7 @@ This checklist tracks all tasks, tests, and requirements for Phase 0 completion.
 ### Demo Participant Profile
 
 Find someone who:
+
 - [ ] Is NOT a developer
 - [ ] Has never seen the plugin
 - [ ] Uses WordPress occasionally
@@ -566,15 +601,19 @@ These are explicitly NOT required for Phase 0:
 ## Lessons Learned
 
 **What Went Well:**
+
 - _To be filled during development_
 
 **What Was Challenging:**
+
 - _To be filled during development_
 
 **What to Improve for Phase 1:**
+
 - _To be filled during development_
 
 **Technical Debt Created:**
+
 - _Document any shortcuts taken_
 
 ---
@@ -582,16 +621,18 @@ These are explicitly NOT required for Phase 0:
 ## Sign-Off
 
 **Developer:**
+
 - [ ] I have completed all checklist items
 - [ ] I have tested the plugin thoroughly
 - [ ] I am confident this is ready for Phase 1
 
 **Reviewer:**
+
 - [ ] I have reviewed the implementation
 - [ ] I have verified the demo works
 - [ ] I approve moving to Phase 1
 
-**Date Completed:** _______________
+**Date Completed:** **\*\***\_\_\_**\*\***
 
 ---
 

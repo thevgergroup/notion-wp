@@ -23,11 +23,11 @@ Import Notion pages to WordPress as posts with basic text formatting. **This pha
 - [ ] Sync fetches page content from Notion API
 - [ ] Page title appears as WordPress post title
 - [ ] Basic blocks convert correctly:
-  - [ ] Paragraphs with text formatting (bold, italic, code)
-  - [ ] Headings (H1, H2, H3)
-  - [ ] Bulleted lists
-  - [ ] Numbered lists
-  - [ ] Links (internal and external)
+    - [ ] Paragraphs with text formatting (bold, italic, code)
+    - [ ] Headings (H1, H2, H3)
+    - [ ] Bulleted lists
+    - [ ] Numbered lists
+    - [ ] Links (internal and external)
 - [ ] Post is editable in WordPress Gutenberg editor
 - [ ] Re-syncing updates existing post (no duplicates created)
 - [ ] Success message shows link to created/updated post
@@ -38,6 +38,7 @@ Import Notion pages to WordPress as posts with basic text formatting. **This pha
 ## 📋 Dependencies
 
 **Required from Phase 0 (COMPLETED ✅):**
+
 - ✅ Working Notion API authentication
 - ✅ Admin settings page foundation
 - ✅ Development environment with Docker
@@ -47,11 +48,13 @@ Import Notion pages to WordPress as posts with basic text formatting. **This pha
 ## 🔀 Parallel Work Streams
 
 ### Stream 1: Content Fetcher (Backend Core)
+
 **Worktree:** `phase-1-mvp` (already created)
 **Duration:** 2-3 days
 **Files Created:** 1-2 files, all <300 lines
 
 **What This Builds:**
+
 - Fetch page content from Notion API
 - Retrieve all blocks with pagination support
 - Handle API errors gracefully
@@ -59,6 +62,7 @@ Import Notion pages to WordPress as posts with basic text formatting. **This pha
 **Technical Implementation:**
 
 **File 1:** `plugin/src/Sync/ContentFetcher.php` (<300 lines)
+
 ```php
 <?php
 namespace NotionSync\Sync;
@@ -83,6 +87,7 @@ class ContentFetcher {
 ```
 
 **Tasks:**
+
 1. Create ContentFetcher class with Notion API integration
 2. Implement `fetch_page_blocks()` with pagination
 3. Implement `fetch_page_properties()` for metadata
@@ -90,6 +95,7 @@ class ContentFetcher {
 5. Write unit tests for API responses
 
 **Definition of Done:**
+
 - [ ] Can fetch all blocks from a Notion page (even 100+ blocks)
 - [ ] Handles API errors gracefully (network issues, rate limits)
 - [ ] Returns structured data ready for conversion
@@ -98,11 +104,13 @@ class ContentFetcher {
 ---
 
 ### Stream 2: Block Converter (Core Logic)
+
 **Worktree:** `phase-1-mvp`
 **Duration:** 4-5 days
 **Files Created:** 4-5 files, all <300 lines
 
 **What This Builds:**
+
 - Convert Notion block format → WordPress Gutenberg blocks
 - Support for basic text formatting
 - Extensible architecture for future block types
@@ -110,6 +118,7 @@ class ContentFetcher {
 **Technical Implementation:**
 
 **File 1:** `plugin/src/Blocks/BlockConverter.php` (<250 lines)
+
 ```php
 <?php
 namespace NotionSync\Blocks;
@@ -130,6 +139,7 @@ class BlockConverter {
 ```
 
 **File 2:** `plugin/src/Blocks/BlockConverterInterface.php` (<100 lines)
+
 ```php
 <?php
 namespace NotionSync\Blocks;
@@ -141,6 +151,7 @@ interface BlockConverterInterface {
 ```
 
 **File 3:** `plugin/src/Blocks/Converters/ParagraphConverter.php` (<200 lines)
+
 ```php
 <?php
 namespace NotionSync\Blocks\Converters;
@@ -158,6 +169,7 @@ class ParagraphConverter implements BlockConverterInterface {
 **File 5:** `plugin/src/Blocks/Converters/ListConverter.php` (<200 lines)
 
 **Tasks:**
+
 1. Create BlockConverter orchestrator
 2. Implement ParagraphConverter with rich text support
 3. Implement HeadingConverter (H1, H2, H3)
@@ -166,6 +178,7 @@ class ParagraphConverter implements BlockConverterInterface {
 6. Write comprehensive unit tests for each converter
 
 **Definition of Done:**
+
 - [ ] Paragraphs convert with bold, italic, code, strikethrough
 - [ ] Headings (H1-H3) convert correctly
 - [ ] Bulleted and numbered lists work
@@ -176,11 +189,13 @@ class ParagraphConverter implements BlockConverterInterface {
 ---
 
 ### Stream 3: Sync Manager (Orchestration)
+
 **Worktree:** `phase-1-mvp`
 **Duration:** 3-4 days
 **Files Created:** 2 files, all <350 lines
 
 **What This Builds:**
+
 - Coordinates fetch → convert → create/update workflow
 - Stores mapping between Notion pages and WordPress posts
 - Prevents duplicates on re-sync
@@ -188,6 +203,7 @@ class ParagraphConverter implements BlockConverterInterface {
 **Technical Implementation:**
 
 **File 1:** `plugin/src/Sync/SyncManager.php` (<350 lines)
+
 ```php
 <?php
 namespace NotionSync\Sync;
@@ -216,6 +232,7 @@ class SyncManager {
 ```
 
 **File 2:** `plugin/src/Sync/SyncLogger.php` (<200 lines)
+
 ```php
 <?php
 namespace NotionSync\Sync;
@@ -228,6 +245,7 @@ class SyncLogger {
 ```
 
 **Tasks:**
+
 1. Create SyncManager orchestrator
 2. Implement sync workflow (fetch → convert → save)
 3. Add duplicate detection via post meta
@@ -236,6 +254,7 @@ class SyncLogger {
 6. Write integration tests
 
 **Definition of Done:**
+
 - [ ] Can sync a Notion page to WordPress post
 - [ ] Creates new post on first sync
 - [ ] Updates existing post on re-sync (no duplicates)
@@ -246,11 +265,13 @@ class SyncLogger {
 ---
 
 ### Stream 4: Admin UI with List Table & Bulk Actions
+
 **Worktree:** `phase-1-mvp`
 **Duration:** 3-4 days
 **Files Created:** 2 new files + extend existing SettingsPage
 
 **What Users See:**
+
 - WordPress-style list table showing all Notion pages
 - Columns: Checkbox, Page Title, Last Synced, WordPress Post, Status, Actions
 - Bulk actions dropdown: "Sync Selected"
@@ -261,6 +282,7 @@ class SyncLogger {
 **Technical Implementation:**
 
 **File 1:** `plugin/src/Admin/PagesListTable.php` (<400 lines)
+
 ```php
 <?php
 namespace NotionSync\Admin;
@@ -369,11 +391,13 @@ class PagesListTable extends \WP_List_Table {
 ```
 
 **Update:** `plugin/src/Admin/SettingsPage.php`
+
 - Create PagesListTable instance
 - Handle bulk action form submission
 - Add AJAX handlers for single and bulk sync
 
 **Update:** `plugin/templates/admin/settings.php`
+
 ```php
 <!-- After workspace info section -->
 <h3><?php esc_html_e( 'Sync Notion Pages', 'notion-wp' ); ?></h3>
@@ -385,6 +409,7 @@ class PagesListTable extends \WP_List_Table {
 ```
 
 **Update:** `plugin/assets/src/js/admin.js`
+
 ```javascript
 // Handle bulk sync
 document.querySelector('form').addEventListener('submit', function(e) {
@@ -450,6 +475,7 @@ function updateRowStatus(pageId, status, data) {
 ```
 
 **Add AJAX Handlers:** `plugin/src/Admin/SettingsPage.php`
+
 ```php
 public function register(): void {
     // ... existing code ...
@@ -521,6 +547,7 @@ public function ajax_sync_bulk(): void {
 ```
 
 **Tasks:**
+
 1. Create PagesListTable extending WP_List_Table
 2. Add columns for all metadata (title, last synced, WP post, status)
 3. Implement bulk actions dropdown
@@ -532,6 +559,7 @@ public function ajax_sync_bulk(): void {
 9. Display success/error summaries
 
 **Definition of Done:**
+
 - [ ] Pages display in WordPress-style list table
 - [ ] Table shows: title, last synced, WordPress post link, sync status
 - [ ] Can check multiple pages and use "Sync Selected" bulk action
@@ -548,6 +576,7 @@ public function ajax_sync_bulk(): void {
 ## 📦 Deliverables
 
 ### Visible to Users (What They Can Do)
+
 - ✅ Navigate to **WP Admin > Notion Sync**
 - ✅ See WordPress-style list table with all Notion pages
 - ✅ View metadata: page title, last synced, WordPress post link, sync status
@@ -561,6 +590,7 @@ public function ajax_sync_bulk(): void {
 - ✅ Re-sync updates post without creating duplicate
 
 ### Technical (What We Built)
+
 - ✅ `plugin/src/Sync/ContentFetcher.php` - Notion API integration
 - ✅ `plugin/src/Sync/SyncManager.php` - Sync orchestration
 - ✅ `plugin/src/Sync/SyncLogger.php` - Operation logging
@@ -577,6 +607,7 @@ public function ajax_sync_bulk(): void {
 - ✅ Integration tests for full sync workflow
 
 ### Not Built (Deferred to Later Phases)
+
 - ❌ Database sync (Phase 2)
 - ❌ Images (Phase 3)
 - ❌ Advanced blocks (callouts, toggles, code) (Phase 4)
@@ -591,6 +622,7 @@ public function ajax_sync_bulk(): void {
 ### Week 1: Core Infrastructure
 
 **Day 1-2: Content Fetcher**
+
 - Create ContentFetcher class
 - Implement Notion API block fetching
 - Add pagination support
@@ -598,6 +630,7 @@ public function ajax_sync_bulk(): void {
 - **Demo:** Can fetch blocks from Notion page
 
 **Day 3-4: Block Converters Foundation**
+
 - Create BlockConverter orchestrator
 - Implement ParagraphConverter
 - Add rich text formatting support
@@ -605,6 +638,7 @@ public function ajax_sync_bulk(): void {
 - **Demo:** Can convert Notion paragraph to Gutenberg block
 
 **Day 5: More Block Converters**
+
 - Implement HeadingConverter
 - Implement ListConverter (bulleted/numbered)
 - Write unit tests
@@ -613,6 +647,7 @@ public function ajax_sync_bulk(): void {
 ### Week 2: Integration & Polish
 
 **Day 6-7: Sync Manager**
+
 - Create SyncManager orchestration
 - Implement duplicate detection
 - Add create/update post logic
@@ -620,6 +655,7 @@ public function ajax_sync_bulk(): void {
 - **Demo:** Can sync page end-to-end
 
 **Day 8-9: Admin UI**
+
 - Add sync UI to settings page
 - Implement AJAX handler
 - Add loading states
@@ -627,6 +663,7 @@ public function ajax_sync_bulk(): void {
 - **Demo:** Full user workflow works
 
 **Day 10: Testing & Polish**
+
 - Run through all gatekeeping criteria
 - Fix any bugs found
 - Improve error messages
@@ -638,11 +675,13 @@ public function ajax_sync_bulk(): void {
 ## ✋ Gatekeeping Review
 
 Before proceeding to Phase 2, schedule a **5-minute demo** with someone who:
+
 - Is NOT a developer
 - Has access to a Notion workspace
 - Can provide honest feedback
 
 **Demo Script:**
+
 1. Show Notion page with content (30 seconds)
 2. Navigate to WP Admin > Notion Sync (15 seconds)
 3. Click "Sync Now" button (30 seconds)
@@ -650,6 +689,7 @@ Before proceeding to Phase 2, schedule a **5-minute demo** with someone who:
 5. Make edit in Gutenberg, show it works (2 minutes)
 
 **Pass Criteria:**
+
 - They understood what happened
 - Sync completed successfully
 - Post looks correct (no broken formatting)
@@ -657,6 +697,7 @@ Before proceeding to Phase 2, schedule a **5-minute demo** with someone who:
 - No confusion or errors
 
 **If demo fails:**
+
 - Document what went wrong
 - Fix specific issues
 - Schedule another demo
@@ -667,6 +708,7 @@ Before proceeding to Phase 2, schedule a **5-minute demo** with someone who:
 ## 🔍 Testing Checklist
 
 ### Functional Testing
+
 - [ ] Can fetch blocks from Notion page with <10 blocks
 - [ ] Can fetch blocks from Notion page with 100+ blocks (pagination)
 - [ ] Paragraphs convert with all formatting (bold, italic, code, links)
@@ -682,6 +724,7 @@ Before proceeding to Phase 2, schedule a **5-minute demo** with someone who:
 - [ ] Success message shows correct post link
 
 ### Error Handling
+
 - [ ] Network errors handled gracefully
 - [ ] Invalid page ID shows helpful error
 - [ ] API rate limits handled (retry logic)
@@ -689,12 +732,14 @@ Before proceeding to Phase 2, schedule a **5-minute demo** with someone who:
 - [ ] Unsupported block types show warning (graceful degradation)
 
 ### Security Testing
+
 - [ ] AJAX handler has nonce verification
 - [ ] Capability checks on sync action
 - [ ] Page ID sanitized before use
 - [ ] Gutenberg output is safe (no XSS)
 
 ### Code Quality
+
 - [ ] All files under 500 lines
 - [ ] `composer lint` passes
 - [ ] `npm run lint` passes
@@ -703,6 +748,7 @@ Before proceeding to Phase 2, schedule a **5-minute demo** with someone who:
 - [ ] No PHP notices or warnings
 
 ### UI/UX Testing
+
 - [ ] Works in Chrome
 - [ ] Works in Firefox
 - [ ] Works in Safari
@@ -716,17 +762,20 @@ Before proceeding to Phase 2, schedule a **5-minute demo** with someone who:
 ## 📊 Success Metrics
 
 **Time Metrics:**
+
 - First sync should complete in <10 seconds
 - Re-sync should complete in <5 seconds
 - UI should feel responsive (<300ms feedback)
 
 **Quality Metrics:**
+
 - Zero linting errors
 - 100% of basic blocks convert correctly
 - Zero duplicate posts created
 - 100% of formatting preserved (bold, italic, links)
 
 **User Metrics:**
+
 - 5/5 test users can sync successfully
 - Zero confusing error messages
 - Post looks identical to Notion page (basic formatting)
@@ -735,43 +784,48 @@ Before proceeding to Phase 2, schedule a **5-minute demo** with someone who:
 
 ## 🚧 Risks & Mitigation
 
-| Risk | Impact | Mitigation |
-|------|--------|------------|
-| Notion API changes block structure | High | Version API calls (Notion-Version header), test with multiple pages |
-| Gutenberg block format incompatibility | High | Use official Gutenberg parser, validate output |
-| Large pages timeout during sync | Medium | Implement background processing for Phase 2 |
-| Rich text formatting edge cases | Medium | Comprehensive test suite with real Notion pages |
-| Post meta conflicts with other plugins | Low | Use unique meta key prefix `notion_sync_*` |
+| Risk                                   | Impact | Mitigation                                                          |
+| -------------------------------------- | ------ | ------------------------------------------------------------------- |
+| Notion API changes block structure     | High   | Version API calls (Notion-Version header), test with multiple pages |
+| Gutenberg block format incompatibility | High   | Use official Gutenberg parser, validate output                      |
+| Large pages timeout during sync        | Medium | Implement background processing for Phase 2                         |
+| Rich text formatting edge cases        | Medium | Comprehensive test suite with real Notion pages                     |
+| Post meta conflicts with other plugins | Low    | Use unique meta key prefix `notion_sync_*`                          |
 
 ---
 
 ## 📝 Phase 1 Completion Checklist
 
 ### Code Complete
+
 - [ ] All 4 work streams merged to `phase-1-mvp` branch
 - [ ] All files under 500 lines
 - [ ] Zero linting errors
 - [ ] All TODO comments resolved or converted to issues
 
 ### Testing Complete
+
 - [ ] All functional tests pass
 - [ ] All security checks pass
 - [ ] Tested with 5+ different Notion pages
 - [ ] Tested on 3+ devices (desktop, phone, tablet)
 
 ### Documentation Complete
+
 - [ ] README.md updated with sync instructions
 - [ ] API documentation for new classes
 - [ ] Inline code comments
 - [ ] Troubleshooting guide updated
 
 ### Demo Complete
+
 - [ ] 5-minute demo successful with non-developer
 - [ ] No confusion during demo
 - [ ] Post formatting looks correct
 - [ ] Ready to show stakeholders
 
 ### Ready for Phase 2
+
 - [ ] All gatekeeping criteria met
 - [ ] No critical bugs
 - [ ] No security issues
@@ -782,6 +836,7 @@ Before proceeding to Phase 2, schedule a **5-minute demo** with someone who:
 ## ⏭️ Next Phase Preview
 
 **Phase 2: Database Sync** will build on this foundation:
+
 - Use ContentFetcher to query Notion databases
 - Batch sync multiple pages
 - Map database properties to WordPress fields

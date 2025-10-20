@@ -1,52 +1,52 @@
 {
-  "version": "1.0",
-  "description": "Block converter mappings for Notion → WordPress sync",
-  "converters": {
-    "notion_to_gutenberg": {
-      "paragraph": "NotionSync\\Converters\\NotionToGutenberg\\ParagraphConverter",
-      "heading_1": "NotionSync\\Converters\\NotionToGutenberg\\HeadingConverter",
-      "heading_2": "NotionSync\\Converters\\NotionToGutenberg\\HeadingConverter",
-      "heading_3": "NotionSync\\Converters\\NotionToGutenberg\\HeadingConverter",
-      "bulleted_list_item": "NotionSync\\Converters\\NotionToGutenberg\\ListConverter",
-      "numbered_list_item": "NotionSync\\Converters\\NotionToGutenberg\\ListConverter",
-      "to_do": "NotionSync\\Converters\\NotionToGutenberg\\ListConverter",
-      "toggle": "NotionSync\\Converters\\NotionToGutenberg\\ToggleConverter",
-      "code": "NotionSync\\Converters\\NotionToGutenberg\\CodeConverter",
-      "quote": "NotionSync\\Converters\\NotionToGutenberg\\QuoteConverter",
-      "callout": "NotionSync\\Converters\\NotionToGutenberg\\CalloutConverter",
-      "divider": "NotionSync\\Converters\\NotionToGutenberg\\DividerConverter",
-      "image": "NotionSync\\Converters\\NotionToGutenberg\\ImageConverter",
-      "video": "NotionSync\\Converters\\NotionToGutenberg\\EmbedConverter",
-      "embed": "NotionSync\\Converters\\NotionToGutenberg\\EmbedConverter",
-      "bookmark": "NotionSync\\Converters\\NotionToGutenberg\\EmbedConverter",
-      "table": "NotionSync\\Converters\\NotionToGutenberg\\TableConverter",
-      "column_list": "NotionSync\\Converters\\NotionToGutenberg\\ColumnConverter",
-      "child_page": "NotionSync\\Converters\\NotionToGutenberg\\ChildPageConverter"
-    },
-    "gutenberg_to_notion": {
-      "core/paragraph": "NotionSync\\Converters\\GutenbergToNotion\\ParagraphConverter",
-      "core/heading": "NotionSync\\Converters\\GutenbergToNotion\\HeadingConverter",
-      "core/list": "NotionSync\\Converters\\GutenbergToNotion\\ListConverter",
-      "core/code": "NotionSync\\Converters\\GutenbergToNotion\\CodeConverter",
-      "core/quote": "NotionSync\\Converters\\GutenbergToNotion\\QuoteConverter",
-      "core/separator": "NotionSync\\Converters\\GutenbergToNotion\\DividerConverter",
-      "core/image": "NotionSync\\Converters\\GutenbergToNotion\\ImageConverter",
-      "core/embed": "NotionSync\\Converters\\GutenbergToNotion\\EmbedConverter",
-      "core/table": "NotionSync\\Converters\\GutenbergToNotion\\TableConverter"
-    }
-  },
-  "fallback_strategy": "preserve_as_html",
-  "options": {
-    "preserve_unsupported_blocks": true,
-    "log_unsupported_blocks": true,
-    "convert_rich_text": true,
-    "preserve_formatting": {
-      "bold": true,
-      "italic": true,
-      "strikethrough": true,
-      "code": true,
-      "underline": true,
-      "color": false
-    }
-  }
+	"version": "1.0",
+	"description": "Block converter mappings for Notion → WordPress sync",
+	"converters": {
+		"notion_to_gutenberg": {
+			"paragraph": "NotionSync\\Converters\\NotionToGutenberg\\ParagraphConverter",
+			"heading_1": "NotionSync\\Converters\\NotionToGutenberg\\HeadingConverter",
+			"heading_2": "NotionSync\\Converters\\NotionToGutenberg\\HeadingConverter",
+			"heading_3": "NotionSync\\Converters\\NotionToGutenberg\\HeadingConverter",
+			"bulleted_list_item": "NotionSync\\Converters\\NotionToGutenberg\\ListConverter",
+			"numbered_list_item": "NotionSync\\Converters\\NotionToGutenberg\\ListConverter",
+			"to_do": "NotionSync\\Converters\\NotionToGutenberg\\ListConverter",
+			"toggle": "NotionSync\\Converters\\NotionToGutenberg\\ToggleConverter",
+			"code": "NotionSync\\Converters\\NotionToGutenberg\\CodeConverter",
+			"quote": "NotionSync\\Converters\\NotionToGutenberg\\QuoteConverter",
+			"callout": "NotionSync\\Converters\\NotionToGutenberg\\CalloutConverter",
+			"divider": "NotionSync\\Converters\\NotionToGutenberg\\DividerConverter",
+			"image": "NotionSync\\Converters\\NotionToGutenberg\\ImageConverter",
+			"video": "NotionSync\\Converters\\NotionToGutenberg\\EmbedConverter",
+			"embed": "NotionSync\\Converters\\NotionToGutenberg\\EmbedConverter",
+			"bookmark": "NotionSync\\Converters\\NotionToGutenberg\\EmbedConverter",
+			"table": "NotionSync\\Converters\\NotionToGutenberg\\TableConverter",
+			"column_list": "NotionSync\\Converters\\NotionToGutenberg\\ColumnConverter",
+			"child_page": "NotionSync\\Converters\\NotionToGutenberg\\ChildPageConverter"
+		},
+		"gutenberg_to_notion": {
+			"core/paragraph": "NotionSync\\Converters\\GutenbergToNotion\\ParagraphConverter",
+			"core/heading": "NotionSync\\Converters\\GutenbergToNotion\\HeadingConverter",
+			"core/list": "NotionSync\\Converters\\GutenbergToNotion\\ListConverter",
+			"core/code": "NotionSync\\Converters\\GutenbergToNotion\\CodeConverter",
+			"core/quote": "NotionSync\\Converters\\GutenbergToNotion\\QuoteConverter",
+			"core/separator": "NotionSync\\Converters\\GutenbergToNotion\\DividerConverter",
+			"core/image": "NotionSync\\Converters\\GutenbergToNotion\\ImageConverter",
+			"core/embed": "NotionSync\\Converters\\GutenbergToNotion\\EmbedConverter",
+			"core/table": "NotionSync\\Converters\\GutenbergToNotion\\TableConverter"
+		}
+	},
+	"fallback_strategy": "preserve_as_html",
+	"options": {
+		"preserve_unsupported_blocks": true,
+		"log_unsupported_blocks": true,
+		"convert_rich_text": true,
+		"preserve_formatting": {
+			"bold": true,
+			"italic": true,
+			"strikethrough": true,
+			"code": true,
+			"underline": true,
+			"color": false
+		}
+	}
 }

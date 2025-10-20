@@ -39,30 +39,32 @@ This project uses **git worktrees** with isolated Docker environments for parall
 ### Quick Start
 
 1. **Clone the repository**
-   ```bash
-   git clone <repository-url>
-   cd notion-wp
-   ```
+
+    ```bash
+    git clone <repository-url>
+    cd notion-wp
+    ```
 
 2. **Create your first worktree**
-   ```bash
-   ./scripts/setup-worktree.sh main 8080 3306
-   ```
 
-   This script:
-   - Creates a git worktree named `main`
-   - Sets up `.env` with unique ports (HTTP: 8080, DB: 3306)
-   - Starts Docker containers (WordPress, MariaDB, Traefik)
-   - Installs WordPress
-   - Installs Composer/NPM dependencies
-   - Builds assets
-   - Activates the plugin
+    ```bash
+    ./scripts/setup-worktree.sh main 8080 3306
+    ```
+
+    This script:
+    - Creates a git worktree named `main`
+    - Sets up `.env` with unique ports (HTTP: 8080, DB: 3306)
+    - Starts Docker containers (WordPress, MariaDB, Traefik)
+    - Installs WordPress
+    - Installs Composer/NPM dependencies
+    - Builds assets
+    - Activates the plugin
 
 3. **Access WordPress**
-   - URL: http://main.localtest.me
-   - Admin: http://main.localtest.me/wp-admin
-   - Username: `admin`
-   - Password: `admin`
+    - URL: http://main.localtest.me
+    - Admin: http://main.localtest.me/wp-admin
+    - Username: `admin`
+    - Password: `admin`
 
 ### Creating Additional Worktrees
 
@@ -81,6 +83,7 @@ cd ../feature-blocks
 ```
 
 Each worktree has:
+
 - Isolated WordPress installation
 - Separate database
 - Unique containers and volumes
@@ -216,26 +219,26 @@ Worktree-specific plugin configs (gitignored):
 ```json
 // plugin/config/block-maps.json
 {
-  "converters": {
-    "paragraph": "NotionSync\\Converters\\NotionToGutenberg\\ParagraphConverter",
-    "callout": "MyCustom\\CalloutConverter"
-  }
+	"converters": {
+		"paragraph": "NotionSync\\Converters\\NotionToGutenberg\\ParagraphConverter",
+		"callout": "MyCustom\\CalloutConverter"
+	}
 }
 ```
 
 ```json
 // plugin/config/field-maps.json
 {
-  "databases": {
-    "notion-db-id": {
-      "target_post_type": "post",
-      "property_mappings": {
-        "Name": "post_title",
-        "Tags": "post_tag",
-        "Meta Description": "_yoast_wpseo_metadesc"
-      }
-    }
-  }
+	"databases": {
+		"notion-db-id": {
+			"target_post_type": "post",
+			"property_mappings": {
+				"Name": "post_title",
+				"Tags": "post_tag",
+				"Meta Description": "_yoast_wpseo_metadesc"
+			}
+		}
+	}
 }
 ```
 
@@ -244,33 +247,36 @@ Worktree-specific plugin configs (gitignored):
 ### Daily Development
 
 1. **Start environment**
-   ```bash
-   cd ~/Projects/notion-wp/feature-x
-   make up
-   ```
+
+    ```bash
+    cd ~/Projects/notion-wp/feature-x
+    make up
+    ```
 
 2. **Watch assets** (auto-rebuild on changes)
-   ```bash
-   cd plugin
-   npm run watch
-   ```
+
+    ```bash
+    cd plugin
+    npm run watch
+    ```
 
 3. **Make code changes**
-   - Edit files in `plugin/src/`
-   - Changes reflect immediately in container
+    - Edit files in `plugin/src/`
+    - Changes reflect immediately in container
 
 4. **Test changes**
-   ```bash
-   make test           # PHPUnit tests
-   make phpcs          # Code standards check
-   ```
+
+    ```bash
+    make test           # PHPUnit tests
+    make phpcs          # Code standards check
+    ```
 
 5. **Commit and push**
-   ```bash
-   git add .
-   git commit -m "Descriptive message"
-   git push
-   ```
+    ```bash
+    git add .
+    git commit -m "Descriptive message"
+    git push
+    ```
 
 ### Testing
 
@@ -290,85 +296,92 @@ vendor/bin/phpcbf --standard=WordPress src/  # Auto-fix
 ### Debugging
 
 1. **View logs**
-   ```bash
-   make logs           # All containers
-   make logs-wp        # WordPress only
-   ```
+
+    ```bash
+    make logs           # All containers
+    make logs-wp        # WordPress only
+    ```
 
 2. **Access container shell**
-   ```bash
-   make shell          # WordPress container
-   make shell-db       # Database container
-   ```
+
+    ```bash
+    make shell          # WordPress container
+    make shell-db       # Database container
+    ```
 
 3. **WP-CLI commands**
-   ```bash
-   make wp ARGS="plugin list"
-   make wp ARGS="option get siteurl"
-   make wp ARGS="db query 'SELECT * FROM wp_posts LIMIT 5'"
-   ```
+
+    ```bash
+    make wp ARGS="plugin list"
+    make wp ARGS="option get siteurl"
+    make wp ARGS="db query 'SELECT * FROM wp_posts LIMIT 5'"
+    ```
 
 4. **Enable WordPress debug mode**
-   ```php
-   // Edit .env
-   WP_DEBUG=1
-   WP_DEBUG_LOG=1
-   WP_DEBUG_DISPLAY=0
 
-   // Restart containers
-   make restart
+    ```php
+    // Edit .env
+    WP_DEBUG=1
+    WP_DEBUG_LOG=1
+    WP_DEBUG_DISPLAY=0
 
-   // View logs
-   make shell
-   tail -f /var/www/html/wp-content/debug.log
-   ```
+    // Restart containers
+    make restart
+
+    // View logs
+    make shell
+    tail -f /var/www/html/wp-content/debug.log
+    ```
 
 ## Plugin Development
 
 ### Adding a New Block Converter
 
 1. **Create converter class**
-   ```php
-   // plugin/src/Converters/NotionToGutenberg/MyBlockConverter.php
-   namespace NotionSync\Converters\NotionToGutenberg;
 
-   class MyBlockConverter implements BlockConverterInterface {
-       public function convert(array $notion_block): string {
-           // Convert Notion block to Gutenberg HTML
-           return '<!-- wp:custom/block -->Content<!-- /wp:custom/block -->';
-       }
-   }
-   ```
+    ```php
+    // plugin/src/Converters/NotionToGutenberg/MyBlockConverter.php
+    namespace NotionSync\Converters\NotionToGutenberg;
+
+    class MyBlockConverter implements BlockConverterInterface {
+        public function convert(array $notion_block): string {
+            // Convert Notion block to Gutenberg HTML
+            return '<!-- wp:custom/block -->Content<!-- /wp:custom/block -->';
+        }
+    }
+    ```
 
 2. **Register converter via filter**
-   ```php
-   add_filter('notion_sync_block_converters', function($converters) {
-       $converters['my_block_type'] = MyBlockConverter::class;
-       return $converters;
-   });
-   ```
+    ```php
+    add_filter('notion_sync_block_converters', function($converters) {
+        $converters['my_block_type'] = MyBlockConverter::class;
+        return $converters;
+    });
+    ```
 
 ### Adding a Background Job
 
 1. **Create job class**
-   ```php
-   // plugin/src/Queue/Jobs/MyJob.php
-   namespace NotionSync\Queue\Jobs;
 
-   class MyJob {
-       public function execute($args) {
-           // Job logic
-       }
-   }
-   ```
+    ```php
+    // plugin/src/Queue/Jobs/MyJob.php
+    namespace NotionSync\Queue\Jobs;
+
+    class MyJob {
+        public function execute($args) {
+            // Job logic
+        }
+    }
+    ```
 
 2. **Dispatch job**
-   ```php
-   use NotionSync\Queue\JobDispatcher;
 
-   $dispatcher = Container::get(JobDispatcher::class);
-   $dispatcher->dispatch(MyJob::class, ['arg1' => 'value']);
-   ```
+    ```php
+    use NotionSync\Queue\JobDispatcher;
+
+    $dispatcher = Container::get(JobDispatcher::class);
+    $dispatcher->dispatch(MyJob::class, ['arg1' => 'value']);
+    ```
 
 ### Adding a REST Endpoint
 
@@ -467,6 +480,7 @@ Developed as a WordPress plugin architecture reference following enterprise best
 ## Support
 
 For questions or issues, please refer to:
+
 - [CLAUDE.md](CLAUDE.md) - Claude Code development instructions
 - [docs/](docs/) - Technical documentation
 - Project issue tracker (add GitHub/GitLab URL)

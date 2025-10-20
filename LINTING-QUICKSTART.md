@@ -182,6 +182,7 @@ git commit --no-verify -m "Emergency hotfix"
 ## 📚 Full Documentation
 
 See `docs/development/linting.md` for:
+
 - Detailed IDE setup (VS Code, PhpStorm)
 - Common error solutions
 - Rule explanations

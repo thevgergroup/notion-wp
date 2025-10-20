@@ -39,7 +39,7 @@ Each git worktree gets completely isolated:
 1. **Containers**: Unique names prefixed by `COMPOSE_PROJECT_NAME`
 2. **Networks**: Separate internal network + shared Traefik network
 3. **Volumes**: Named volumes for database and WordPress data
-4. **Hostnames**: Traefik routes by subdomain (*.localtest.me)
+4. **Hostnames**: Traefik routes by subdomain (\*.localtest.me)
 
 ### Services per Worktree
 
@@ -291,6 +291,7 @@ make logs
 ### Common Issues
 
 **Can't access site:**
+
 ```bash
 # Check Traefik is running
 docker ps | grep traefik
@@ -303,11 +304,13 @@ make logs-wp
 ```
 
 **WordPress not installed:**
+
 ```bash
 make install
 ```
 
 **Plugin not showing:**
+
 ```bash
 # Check mount
 docker compose -f docker/compose.yml exec wordpress \
@@ -315,6 +318,7 @@ docker compose -f docker/compose.yml exec wordpress \
 ```
 
 **Containers conflict:**
+
 ```bash
 # Verify unique project names
 grep COMPOSE_PROJECT_NAME */​.env
@@ -326,6 +330,7 @@ grep COMPOSE_PROJECT_NAME */​.env
 ```
 
 **Start fresh:**
+
 ```bash
 make clean
 make up install
@@ -359,6 +364,7 @@ make up install
 ### Plugin Source
 
 Mounted from worktree root:
+
 ```
 /var/www/html/wp-content/plugins/notion-sync
 ```
@@ -366,6 +372,7 @@ Mounted from worktree root:
 ### WordPress Core
 
 Inside container volume (persisted):
+
 ```
 /var/www/html
 ```
@@ -373,6 +380,7 @@ Inside container volume (persisted):
 ### Database Data
 
 Inside container volume (persisted):
+
 ```
 /var/lib/mysql
 ```
@@ -420,6 +428,7 @@ max_execution_time = 600
 ```
 
 Restart to apply:
+
 ```bash
 make restart
 ```
@@ -427,6 +436,7 @@ make restart
 ### Different WordPress Versions
 
 In .env:
+
 ```bash
 WP_VERSION=php8.2-apache  # WordPress with PHP 8.2
 WP_VERSION=php8.3-apache  # WordPress with PHP 8.3
@@ -476,7 +486,7 @@ make help                    # Show Makefile commands
 A: Yes! Each is completely isolated. Just ensure unique COMPOSE_PROJECT_NAME, WP_SITE_HOST, and DB_NAME.
 
 **Q: Do I need to edit /etc/hosts?**
-A: No. Using *.localtest.me domains provides automatic DNS resolution to 127.0.0.1.
+A: No. Using \*.localtest.me domains provides automatic DNS resolution to 127.0.0.1.
 
 **Q: What happens to my data when I run `make down`?**
 A: Data persists in Docker volumes. Use `make clean` to delete volumes.

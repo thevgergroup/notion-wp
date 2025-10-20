@@ -21,15 +21,15 @@ flowchart TD
     style P6 fill:#95e1d3
 ```
 
-| Phase | Goal | Complexity | Duration | Status |
-|-------|------|------------|----------|--------|
-| Phase 0 | Prove authentication and API access work | S | 3-5 days | Not Started |
-| Phase 1 | Import a single Notion page to WordPress | M | 1-2 weeks | Not Started |
-| Phase 2 | Sync Notion databases to WordPress posts | M | 1-2 weeks | Not Started |
-| Phase 3 | Download and manage images | M | 1 week | Not Started |
-| Phase 4 | Support advanced block types | L | 2 weeks | Not Started |
-| Phase 5 | Handle page hierarchy and menus | M | 1-2 weeks | Not Started |
-| Phase 6 | WordPress.org submission prep | M | 1 week | Not Started |
+| Phase   | Goal                                     | Complexity | Duration  | Status      |
+| ------- | ---------------------------------------- | ---------- | --------- | ----------- |
+| Phase 0 | Prove authentication and API access work | S          | 3-5 days  | Not Started |
+| Phase 1 | Import a single Notion page to WordPress | M          | 1-2 weeks | Not Started |
+| Phase 2 | Sync Notion databases to WordPress posts | M          | 1-2 weeks | Not Started |
+| Phase 3 | Download and manage images               | M          | 1 week    | Not Started |
+| Phase 4 | Support advanced block types             | L          | 2 weeks   | Not Started |
+| Phase 5 | Handle page hierarchy and menus          | M          | 1-2 weeks | Not Started |
+| Phase 6 | WordPress.org submission prep            | M          | 1 week    | Not Started |
 
 ---
 
@@ -53,31 +53,32 @@ None - this is the first phase.
 ### Parallel Work Streams
 
 1. **Authentication System** (main branch worktree)
-   - Admin settings page
-   - Secure token storage
-   - Notion API client class
-   - Token validation
+    - Admin settings page
+    - Secure token storage
+    - Notion API client class
+    - Token validation
 
 2. **Development Environment** (separate worktree)
-   - Docker Compose setup (WordPress + MySQL)
-   - Linting configuration (phpcs, eslint, stylelint)
-   - Pre-commit hooks setup
-   - Testing framework (PHPUnit)
+    - Docker Compose setup (WordPress + MySQL)
+    - Linting configuration (phpcs, eslint, stylelint)
+    - Pre-commit hooks setup
+    - Testing framework (PHPUnit)
 
 3. **Basic Admin UI** (separate worktree)
-   - Plugin menu structure
-   - Settings page layout
-   - WordPress admin styles
-   - Responsive design
+    - Plugin menu structure
+    - Settings page layout
+    - WordPress admin styles
+    - Responsive design
 
 4. **Documentation** (can run parallel)
-   - Installation instructions
-   - How to get Notion API token
-   - Troubleshooting guide
+    - Installation instructions
+    - How to get Notion API token
+    - Troubleshooting guide
 
 ### Deliverables
 
 **Visible to Users:**
+
 - Settings page at WP Admin > Notion Sync
 - Input field for API token
 - "Connect to Notion" button
@@ -86,6 +87,7 @@ None - this is the first phase.
 - "Disconnect" button
 
 **Technical:**
+
 - `includes/class-notion-client.php` - API wrapper
 - `admin/class-admin-settings.php` - Settings page
 - `admin/partials/settings-display.php` - UI template
@@ -99,6 +101,7 @@ This phase is intentionally simple to validate the fundamentals before proceedin
 ### Gatekeeping Criteria
 
 **DO NOT PROCEED to Phase 1 until:**
+
 - A non-developer can successfully authenticate
 - UI works on mobile devices
 - All linting passes
@@ -124,6 +127,7 @@ This phase is intentionally simple to validate the fundamentals before proceedin
 ### Dependencies
 
 **Required from Phase 0:**
+
 - Working Notion API authentication
 - Admin settings page foundation
 - Development environment with linting
@@ -131,31 +135,32 @@ This phase is intentionally simple to validate the fundamentals before proceedin
 ### Parallel Work Streams
 
 1. **Content Fetcher** (main functionality)
-   - Fetch page blocks from Notion API
-   - Handle pagination (100 blocks at a time)
-   - Error handling and retries
+    - Fetch page blocks from Notion API
+    - Handle pagination (100 blocks at a time)
+    - Error handling and retries
 
 2. **Block Converter** (core mapping)
-   - Map Notion blocks to Gutenberg blocks
-   - Support paragraph, heading, list blocks
-   - Preserve text formatting (bold, italic)
-   - Convert links
+    - Map Notion blocks to Gutenberg blocks
+    - Support paragraph, heading, list blocks
+    - Preserve text formatting (bold, italic)
+    - Convert links
 
 3. **Sync Manager** (orchestration)
-   - Coordinate fetch and import
-   - Store Notion page ID in post meta
-   - Update existing posts on re-sync
-   - Status logging
+    - Coordinate fetch and import
+    - Store Notion page ID in post meta
+    - Update existing posts on re-sync
+    - Status logging
 
 4. **Admin Interface** (user controls)
-   - Page selector dropdown
-   - "Sync Now" button
-   - Progress indicator
-   - Success/error messages
+    - Page selector dropdown
+    - "Sync Now" button
+    - Progress indicator
+    - Success/error messages
 
 ### Deliverables
 
 **Visible to Users:**
+
 - Dropdown showing Notion pages
 - "Sync to WordPress" button
 - Loading spinner during sync
@@ -163,25 +168,28 @@ This phase is intentionally simple to validate the fundamentals before proceedin
 - Post visible on frontend with correct content
 
 **Technical:**
+
 - `includes/class-content-fetcher.php` - Notion API calls
 - `includes/class-block-converter.php` - Block mapping
 - `includes/class-sync-manager.php` - Orchestration
 - `includes/blocks/` - Individual block handlers
-  - `class-paragraph-block.php`
-  - `class-heading-block.php`
-  - `class-list-block.php`
+    - `class-paragraph-block.php`
+    - `class-heading-block.php`
+    - `class-list-block.php`
 - Unit tests for block conversion
 - Integration test for full sync
 
 ### MVP Scope Definition
 
 **What's IN the MVP (v1.0):**
+
 - Single page sync (Notion → WordPress)
 - Basic block types (text, headings, lists, links)
 - Manual sync trigger
 - Update existing posts
 
 **What's OUT (post-1.0):**
+
 - Database sync (Phase 2)
 - Images (Phase 3)
 - Advanced blocks like callouts, toggles (Phase 4)
@@ -205,10 +213,10 @@ This is the critical phase that proves the core concept works.
 - [ ] User can select a Notion database (not just a page)
 - [ ] All database entries import as WordPress posts
 - [ ] Notion properties map to WordPress fields:
-  - Title property → Post title
-  - Date property → Post date
-  - Select property → Category
-  - Multi-select → Tags
+    - Title property → Post title
+    - Date property → Post date
+    - Select property → Category
+    - Multi-select → Tags
 - [ ] User can configure field mappings in admin UI
 - [ ] Batch import handles 100+ entries without timeout
 - [ ] Sync status shows progress (e.g., "Imported 15 of 42 posts")
@@ -216,6 +224,7 @@ This is the critical phase that proves the core concept works.
 ### Dependencies
 
 **Required from Phase 1:**
+
 - Working single page sync
 - Block converter system
 - Post creation and update logic
@@ -223,32 +232,33 @@ This is the critical phase that proves the core concept works.
 ### Parallel Work Streams
 
 1. **Database Querying** (API layer)
-   - Query database endpoint
-   - Handle pagination
-   - Fetch entry properties
-   - Fetch entry content blocks
+    - Query database endpoint
+    - Handle pagination
+    - Fetch entry properties
+    - Fetch entry content blocks
 
 2. **Field Mapping System** (metadata handling)
-   - Map Notion properties to WP fields
-   - Support common property types
-   - Admin UI for mapping configuration
-   - Save/load mapping configurations
+    - Map Notion properties to WP fields
+    - Support common property types
+    - Admin UI for mapping configuration
+    - Save/load mapping configurations
 
 3. **Batch Processing** (performance)
-   - Queue system for large imports
-   - Background processing (WP-Cron)
-   - Timeout protection
-   - Progress tracking
+    - Queue system for large imports
+    - Background processing (WP-Cron)
+    - Timeout protection
+    - Progress tracking
 
 4. **Admin Interface** (configuration)
-   - Database selector
-   - Field mapping UI (drag-drop or dropdowns)
-   - Batch sync controls
-   - Progress indicators
+    - Database selector
+    - Field mapping UI (drag-drop or dropdowns)
+    - Batch sync controls
+    - Progress indicators
 
 ### Deliverables
 
 **Visible to Users:**
+
 - Database selector in admin
 - Field mapping interface
 - "Sync All" button
@@ -256,6 +266,7 @@ This is the critical phase that proves the core concept works.
 - Bulk created posts visible in WP admin
 
 **Technical:**
+
 - `includes/class-database-sync.php` - Database operations
 - `includes/class-field-mapper.php` - Property mapping
 - `includes/class-batch-processor.php` - Queue handling
@@ -285,46 +296,50 @@ Builds on Phase 1 infrastructure but adds complexity around batch operations.
 ### Dependencies
 
 **Required from Phase 1:**
+
 - Block converter system
 - Sync manager
 
 **Optional from Phase 2:**
+
 - Batch processor (helpful for many images)
 
 ### Parallel Work Streams
 
 1. **Image Downloader** (core functionality)
-   - Download from Notion S3 URLs
-   - Handle time-limited URLs
-   - Retry failed downloads
-   - Support various image formats
+    - Download from Notion S3 URLs
+    - Handle time-limited URLs
+    - Retry failed downloads
+    - Support various image formats
 
 2. **Media Library Integration** (WordPress API)
-   - Upload to Media Library
-   - Set attachment metadata
-   - Generate thumbnails
-   - Track uploaded files
+    - Upload to Media Library
+    - Set attachment metadata
+    - Generate thumbnails
+    - Track uploaded files
 
 3. **Deduplication System** (optimization)
-   - Hash or ID-based tracking
-   - Avoid duplicate uploads
-   - Update references in content
-   - Clean up orphaned images
+    - Hash or ID-based tracking
+    - Avoid duplicate uploads
+    - Update references in content
+    - Clean up orphaned images
 
 4. **File Support** (bonus)
-   - Download PDFs, docs
-   - Upload to Media Library
-   - Link in post content
+    - Download PDFs, docs
+    - Upload to Media Library
+    - Link in post content
 
 ### Deliverables
 
 **Visible to Users:**
+
 - Images appear in synced posts
 - Images visible in Media Library
 - Correct alt text on images
 - File download links work
 
 **Technical:**
+
 - `includes/class-media-downloader.php` - Download logic
 - `includes/class-media-uploader.php` - WP Media Library
 - `includes/class-media-tracker.php` - Deduplication
@@ -355,44 +370,47 @@ Well-defined scope but requires careful handling of external resources.
 ### Dependencies
 
 **Required from Phase 1:**
+
 - Block converter infrastructure
 - Extensibility hooks
 
 ### Parallel Work Streams
 
 1. **Quote & Callout Blocks** (simpler blocks)
-   - Quote block converter
-   - Callout block converter (custom Gutenberg block)
-   - Icon support for callouts
-   - Styling
+    - Quote block converter
+    - Callout block converter (custom Gutenberg block)
+    - Icon support for callouts
+    - Styling
 
 2. **Code & Toggle Blocks** (medium complexity)
-   - Code block with syntax highlighting
-   - Toggle/accordion block
-   - Language detection for code
-   - Nested content in toggles
+    - Code block with syntax highlighting
+    - Toggle/accordion block
+    - Language detection for code
+    - Nested content in toggles
 
 3. **Tables & Columns** (complex layout)
-   - Table block converter
-   - Column layout handler
-   - Responsive tables
-   - Complex cell content
+    - Table block converter
+    - Column layout handler
+    - Responsive tables
+    - Complex cell content
 
 4. **Embeds & Fallbacks** (edge cases)
-   - Embed block detection
-   - YouTube, Twitter, etc. embeds
-   - Bookmark blocks
-   - Unsupported block warnings
+    - Embed block detection
+    - YouTube, Twitter, etc. embeds
+    - Bookmark blocks
+    - Unsupported block warnings
 
 ### Deliverables
 
 **Visible to Users:**
+
 - All Notion block types render correctly
 - Custom blocks for Notion-specific features
 - Code blocks with syntax highlighting
 - Tables with proper formatting
 
 **Technical:**
+
 - `includes/blocks/class-quote-block.php`
 - `includes/blocks/class-callout-block.php`
 - `includes/blocks/class-toggle-block.php`
@@ -426,44 +444,47 @@ Many block types with varying complexity.
 ### Dependencies
 
 **Required from Phase 1:**
+
 - Page sync functionality
 - Post meta storage (for page IDs)
 
 ### Parallel Work Streams
 
 1. **Hierarchy Detection** (structure mapping)
-   - Detect child pages in Notion
-   - Recursive page fetching
-   - Build page tree structure
-   - Depth limit handling
+    - Detect child pages in Notion
+    - Recursive page fetching
+    - Build page tree structure
+    - Depth limit handling
 
 2. **WordPress Hierarchy** (WP integration)
-   - Set parent page in WordPress
-   - Create page relationships
-   - Handle orphaned pages
-   - Page order/sequence
+    - Set parent page in WordPress
+    - Create page relationships
+    - Handle orphaned pages
+    - Page order/sequence
 
 3. **Menu Generation** (navigation)
-   - Create/update WP menus
-   - Add pages in correct order
-   - Handle nested items
-   - Menu item metadata
+    - Create/update WP menus
+    - Add pages in correct order
+    - Handle nested items
+    - Menu item metadata
 
 4. **Link Conversion** (internal links)
-   - Detect Notion page links
-   - Map to WordPress permalinks
-   - Update content after sync
-   - Handle broken links
+    - Detect Notion page links
+    - Map to WordPress permalinks
+    - Update content after sync
+    - Handle broken links
 
 ### Deliverables
 
 **Visible to Users:**
+
 - Nested pages appear correctly in WP admin
 - Navigation menu automatically created
 - Menu reflects Notion hierarchy
 - Internal links work between pages
 
 **Technical:**
+
 - `includes/class-hierarchy-sync.php` - Page tree handling
 - `includes/class-menu-generator.php` - Menu creation
 - `includes/class-link-converter.php` - Link transformation
@@ -494,6 +515,7 @@ Clear requirements but needs careful handling of relationships.
 ### Dependencies
 
 **Required from All Previous Phases:**
+
 - All core features working
 - No critical bugs
 - Linting passes
@@ -501,41 +523,43 @@ Clear requirements but needs careful handling of relationships.
 ### Parallel Work Streams
 
 1. **WordPress.org Compliance** (requirements)
-   - Security audit (nonces, sanitization, escaping)
-   - GPL licensing compliance
-   - readme.txt formatting
-   - Version number scheme
+    - Security audit (nonces, sanitization, escaping)
+    - GPL licensing compliance
+    - readme.txt formatting
+    - Version number scheme
 
 2. **Assets & Documentation** (presentation)
-   - Plugin banner (772x250, 1544x500)
-   - Plugin icon (128x128, 256x256)
-   - Screenshots (1200px wide)
-   - Video demo (optional)
-   - User guide
-   - FAQ section
+    - Plugin banner (772x250, 1544x500)
+    - Plugin icon (128x128, 256x256)
+    - Screenshots (1200px wide)
+    - Video demo (optional)
+    - User guide
+    - FAQ section
 
 3. **Internationalization** (i18n)
-   - Text domain setup
-   - All strings wrapped in translation functions
-   - POT file generation
-   - RTL support testing
+    - Text domain setup
+    - All strings wrapped in translation functions
+    - POT file generation
+    - RTL support testing
 
 4. **Testing & QA** (quality assurance)
-   - Beta testing with real users
-   - WordPress version compatibility (6.0+)
-   - PHP version compatibility (7.4+)
-   - Theme compatibility testing
-   - Performance benchmarking
-   - Security scanning
+    - Beta testing with real users
+    - WordPress version compatibility (6.0+)
+    - PHP version compatibility (7.4+)
+    - Theme compatibility testing
+    - Performance benchmarking
+    - Security scanning
 
 ### Deliverables
 
 **Visible to Users:**
+
 - Polished admin interface
 - Complete documentation
 - Professional plugin listing
 
 **Technical:**
+
 - readme.txt (WordPress.org format)
 - LICENSE.txt (GPL v2+)
 - assets/ directory (banners, icons, screenshots)
@@ -558,6 +582,7 @@ The critical path through the phases is:
 **Phase 0 → Phase 1 → Phase 3 → Phase 6**
 
 This is the minimum viable path to a releasable v1.0:
+
 1. Prove it works (Phase 0)
 2. Sync basic content (Phase 1)
 3. Handle images (Phase 3)
@@ -570,6 +595,7 @@ Phases 2, 4, and 5 can be deferred to v1.1+ if needed.
 ## MVP Definition
 
 **Minimum Viable Product (v1.0) includes:**
+
 - Single page sync (Notion → WordPress)
 - Basic blocks: paragraphs, headings, lists, links, images
 - Manual sync trigger
@@ -578,6 +604,7 @@ Phases 2, 4, and 5 can be deferred to v1.1+ if needed.
 - WordPress.org compliant
 
 **Can be deferred to v1.x:**
+
 - Database sync (Phase 2)
 - Advanced blocks (Phase 4)
 - Hierarchy/menus (Phase 5)
@@ -586,6 +613,7 @@ Phases 2, 4, and 5 can be deferred to v1.1+ if needed.
 - SEO plugin integration
 
 **Can be deferred to v2.0+:**
+
 - Bi-directional sync (WordPress → Notion)
 - Webhook support
 - Real-time sync
@@ -597,6 +625,7 @@ Phases 2, 4, and 5 can be deferred to v1.1+ if needed.
 ## Development Principles Reminder
 
 ### Each Phase Must:
+
 - Produce working, visible UI (no backend-only phases)
 - Be completable in 1-2 weeks maximum
 - Pass all linting before moving forward
@@ -604,6 +633,7 @@ Phases 2, 4, and 5 can be deferred to v1.1+ if needed.
 - Have clear, testable acceptance criteria
 
 ### Each Phase Should NOT:
+
 - Build entire infrastructure before using it
 - Have files over 500 lines
 - Skip testing "to save time"
@@ -611,6 +641,7 @@ Phases 2, 4, and 5 can be deferred to v1.1+ if needed.
 - Block all other work (use parallel streams)
 
 ### Definition of Done (Every Phase):
+
 - [ ] Code written and linted
 - [ ] Tests written and passing
 - [ ] UI functional and tested
@@ -625,13 +656,13 @@ Phases 2, 4, and 5 can be deferred to v1.1+ if needed.
 
 1. **Start Phase 0 immediately**
 2. Set up three parallel worktrees:
-   - `main/phase-0-auth` - Authentication system
-   - `main/phase-0-environment` - Dev environment
-   - `main/phase-0-admin` - Admin UI
+    - `main/phase-0-auth` - Authentication system
+    - `main/phase-0-environment` - Dev environment
+    - `main/phase-0-admin` - Admin UI
 3. Daily standups focusing on:
-   - What shipped yesterday?
-   - What ships today?
-   - Any blockers?
+    - What shipped yesterday?
+    - What ships today?
+    - Any blockers?
 4. **Do not proceed to Phase 1 until Phase 0 gatekeeping criteria are met**
 
 ---

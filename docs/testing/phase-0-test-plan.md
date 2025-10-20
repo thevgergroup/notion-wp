@@ -41,11 +41,13 @@ This document outlines the comprehensive testing strategy for Phase 0 of the Not
 ### Test Data Requirements
 
 #### Valid Notion Tokens
+
 - **Valid Token 1:** Fresh internal integration token (create new)
 - **Valid Token 2:** Token with multiple shared pages (5-10 pages)
 - **Valid Token 3:** Token with no shared pages (for empty state)
 
 #### Invalid Test Data
+
 - **Invalid Token 1:** Random string not starting with `secret_`
 - **Invalid Token 2:** Expired/revoked token
 - **Invalid Token 3:** Token with typo (modified valid token)
@@ -53,24 +55,24 @@ This document outlines the comprehensive testing strategy for Phase 0 of the Not
 
 ### Browser Matrix
 
-| Browser | Version | Operating System | Priority |
-|---------|---------|-----------------|----------|
-| Chrome | Latest | macOS/Windows | High |
-| Firefox | Latest | macOS/Windows | High |
-| Safari | Latest | macOS | High |
-| Edge | Latest | Windows | Medium |
-| Safari Mobile | Latest | iOS | High |
-| Chrome Mobile | Latest | Android | High |
+| Browser       | Version | Operating System | Priority |
+| ------------- | ------- | ---------------- | -------- |
+| Chrome        | Latest  | macOS/Windows    | High     |
+| Firefox       | Latest  | macOS/Windows    | High     |
+| Safari        | Latest  | macOS            | High     |
+| Edge          | Latest  | Windows          | Medium   |
+| Safari Mobile | Latest  | iOS              | High     |
+| Chrome Mobile | Latest  | Android          | High     |
 
 ### Device Matrix
 
-| Device Type | Screen Size | Priority |
-|-------------|-------------|----------|
-| Desktop | 1920x1080 | High |
-| Laptop | 1366x768 | High |
-| Tablet | 768x1024 | Medium |
-| Mobile (Large) | 414x896 | High |
-| Mobile (Small) | 375x667 | High |
+| Device Type    | Screen Size | Priority |
+| -------------- | ----------- | -------- |
+| Desktop        | 1920x1080   | High     |
+| Laptop         | 1366x768    | High     |
+| Tablet         | 768x1024    | Medium   |
+| Mobile (Large) | 414x896     | High     |
+| Mobile (Small) | 375x667     | High     |
 
 ---
 
@@ -83,10 +85,12 @@ This document outlines the comprehensive testing strategy for Phase 0 of the Not
 **Prerequisites:** Plugin activated, no existing Notion connection
 
 **Steps:**
+
 1. Navigate to WordPress Admin > Notion Sync
 2. Observe page content
 
 **Expected Results:**
+
 - Page loads without errors
 - Heading displays "Notion Sync"
 - Connection form is visible
@@ -102,6 +106,7 @@ This document outlines the comprehensive testing strategy for Phase 0 of the Not
 **Test Result:** [ ] Pass [ ] Fail [ ] Blocked
 
 **Notes:**
+
 ```
 Tester:
 Date:
@@ -116,16 +121,19 @@ Issues Found:
 **Objective:** User can connect with a valid Notion token
 
 **Prerequisites:**
+
 - Valid Notion internal integration token ready
 - At least 1 page shared with integration
 
 **Steps:**
+
 1. Navigate to Notion Sync settings page
 2. Paste valid token into "Notion API Token" field
 3. Click "Connect to Notion" button
 4. Wait for page to reload
 
 **Expected Results:**
+
 - Page redirects with success message
 - Green success notice appears
 - Message includes workspace name
@@ -143,6 +151,7 @@ Issues Found:
 **Test Result:** [ ] Pass [ ] Fail [ ] Blocked
 
 **Notes:**
+
 ```
 Tester:
 Date:
@@ -155,18 +164,20 @@ Issues Found:
 
 ### TC-F003: Invalid Token Format
 
-**Objective:** Clear error for tokens not starting with "secret_"
+**Objective:** Clear error for tokens not starting with "secret\_"
 
 **Prerequisites:** Settings page loaded, not connected
 
 **Steps:**
+
 1. Enter invalid token: `invalid_token_123`
 2. Click "Connect to Notion"
 3. Observe error message
 
 **Expected Results:**
+
 - Error notice appears (red)
-- Error message: "Invalid token format. Notion API tokens should start with 'secret_'."
+- Error message: "Invalid token format. Notion API tokens should start with 'secret\_'."
 - User remains on settings page (no redirect)
 - Token field is cleared or preserved (check which is better UX)
 - No connection is saved
@@ -176,6 +187,7 @@ Issues Found:
 **Test Result:** [ ] Pass [ ] Fail [ ] Blocked
 
 **Notes:**
+
 ```
 Tester:
 Date:
@@ -193,10 +205,12 @@ Issues Found:
 **Prerequisites:** Settings page loaded, not connected
 
 **Steps:**
+
 1. Leave token field empty
 2. Try to click "Connect to Notion"
 
 **Expected Results:**
+
 - HTML5 validation prevents submission (field marked `required`)
 - Browser shows "Please fill out this field" message
 - OR JavaScript prevents submission with inline error
@@ -208,6 +222,7 @@ Issues Found:
 **Test Result:** [ ] Pass [ ] Fail [ ] Blocked
 
 **Notes:**
+
 ```
 Tester:
 Date:
@@ -224,11 +239,13 @@ Issues Found:
 **Prerequisites:** Token that has been revoked or is invalid
 
 **Steps:**
+
 1. Paste invalid/revoked token
 2. Click "Connect to Notion"
 3. Observe error
 
 **Expected Results:**
+
 - Error notice appears
 - Message: "Authentication failed. Please check that your API token is correct and has not been revoked."
 - No connection saved
@@ -240,6 +257,7 @@ Issues Found:
 **Test Result:** [ ] Pass [ ] Fail [ ] Blocked
 
 **Notes:**
+
 ```
 Tester:
 Date:
@@ -254,15 +272,18 @@ Issues Found:
 **Objective:** Handle network failures gracefully
 
 **Prerequisites:**
+
 - Ability to simulate network issues
 - OR test on slow/unreliable connection
 
 **Steps:**
+
 1. Simulate network timeout (disconnect WiFi briefly, or use browser dev tools)
 2. Try to connect with valid token
 3. Observe error handling
 
 **Expected Results:**
+
 - Error message appears within 30 seconds (timeout limit)
 - Message indicates network issue, not user error
 - Suggestion to try again
@@ -274,6 +295,7 @@ Issues Found:
 **Test Result:** [ ] Pass [ ] Fail [ ] Blocked
 
 **Notes:**
+
 ```
 Tester:
 Date:
@@ -289,15 +311,18 @@ Issues Found:
 **Objective:** Display list of pages user has shared with integration
 
 **Prerequisites:**
+
 - Valid connection established
 - 5-10 pages shared with integration in Notion
 
 **Steps:**
+
 1. Connect to Notion (from TC-F002)
 2. Scroll to "Accessible Pages" section
 3. Verify page list
 
 **Expected Results:**
+
 - Section heading "Accessible Pages" visible
 - Table with columns: Page Title, Last Edited, Actions
 - At least 5 pages listed
@@ -313,6 +338,7 @@ Issues Found:
 **Test Result:** [ ] Pass [ ] Fail [ ] Blocked
 
 **Notes:**
+
 ```
 Tester:
 Date:
@@ -328,14 +354,17 @@ Issues Found:
 **Objective:** Show helpful message when no pages shared
 
 **Prerequisites:**
+
 - Valid connection
 - Integration has NO pages shared with it
 
 **Steps:**
+
 1. Connect with token that has no shared pages
 2. Observe pages section
 
 **Expected Results:**
+
 - "No Pages Found" heading displayed
 - Explanation: "No pages are currently accessible by this integration."
 - Instructions on how to share pages (4-step list)
@@ -347,6 +376,7 @@ Issues Found:
 **Test Result:** [ ] Pass [ ] Fail [ ] Blocked
 
 **Notes:**
+
 ```
 Tester:
 Date:
@@ -363,28 +393,31 @@ Issues Found:
 **Prerequisites:** Valid connection established
 
 **Steps:**
+
 1. Click "Disconnect" button
 2. Confirm in dialog (if present)
 3. Wait for page reload
 
 **Expected Results:**
+
 - Confirmation dialog appears: "Are you sure you want to disconnect from Notion? This will remove your API token."
 - If user clicks OK:
-  - Page reloads
-  - Success message: "Successfully disconnected from Notion."
-  - Connection form shown again (disconnected state)
-  - Token cleared from database
-  - Workspace info cleared
-  - No cached data remains
+    - Page reloads
+    - Success message: "Successfully disconnected from Notion."
+    - Connection form shown again (disconnected state)
+    - Token cleared from database
+    - Workspace info cleared
+    - No cached data remains
 - If user clicks Cancel:
-  - Dialog closes
-  - Connection remains intact
+    - Dialog closes
+    - Connection remains intact
 
 **Pass Criteria:** Clean disconnection, all data removed
 
 **Test Result:** [ ] Pass [ ] Fail [ ] Blocked
 
 **Notes:**
+
 ```
 Tester:
 Date:
@@ -401,12 +434,14 @@ Issues Found:
 **Prerequisites:** Valid token available
 
 **Steps:**
+
 1. Establish connection (TC-F002)
 2. Disconnect (TC-F009)
 3. Reconnect with same token
 4. Verify connection
 
 **Expected Results:**
+
 - Connection succeeds
 - Workspace info matches previous connection
 - Pages list repopulates
@@ -419,6 +454,7 @@ Issues Found:
 **Test Result:** [ ] Pass [ ] Fail [ ] Blocked
 
 **Notes:**
+
 ```
 Tester:
 Date:
@@ -434,6 +470,7 @@ Issues Found:
 **Prerequisites:** Two different valid Notion tokens
 
 **Steps:**
+
 1. Connect with Token A
 2. Note workspace name
 3. Disconnect
@@ -441,6 +478,7 @@ Issues Found:
 5. Verify workspace info
 
 **Expected Results:**
+
 - Previous workspace info completely replaced
 - New workspace name shown
 - New pages list shown
@@ -452,6 +490,7 @@ Issues Found:
 **Test Result:** [ ] Pass [ ] Fail [ ] Blocked
 
 **Notes:**
+
 ```
 Tester:
 Date:
@@ -467,6 +506,7 @@ Issues Found:
 **Prerequisites:** Valid connection
 
 **Steps:**
+
 1. Connect to Notion
 2. Note page load time
 3. Refresh the settings page
@@ -475,6 +515,7 @@ Issues Found:
 6. Refresh again
 
 **Expected Results:**
+
 - First load: API call made, data fetched
 - Subsequent refreshes within 1 hour: Cached data used (faster load)
 - After 1 hour: Fresh API call made (cache expired)
@@ -487,6 +528,7 @@ Issues Found:
 **Test Result:** [ ] Pass [ ] Fail [ ] Blocked
 
 **Notes:**
+
 ```
 Tester:
 Date:
@@ -507,6 +549,7 @@ Issues Found:
 **Prerequisites:** Settings page loaded
 
 **Steps:**
+
 1. Open browser dev tools > Network tab
 2. Inspect connect form HTML
 3. Verify nonce field present
@@ -514,6 +557,7 @@ Issues Found:
 5. Attempt to replay request without valid nonce
 
 **Expected Results:**
+
 - Form includes hidden input `notion_sync_connect_nonce`
 - Nonce value is unique per page load
 - Request without valid nonce fails with security error
@@ -526,6 +570,7 @@ Issues Found:
 **Test Result:** [ ] Pass [ ] Fail [ ] Blocked
 
 **Notes:**
+
 ```
 Tester:
 Date:
@@ -543,11 +588,13 @@ Issues Found:
 **Prerequisites:** Valid connection
 
 **Steps:**
+
 1. Inspect disconnect form
 2. Verify nonce present
 3. Attempt to submit without nonce or with invalid nonce
 
 **Expected Results:**
+
 - Form includes `notion_sync_disconnect_nonce`
 - Invalid nonce rejected
 - Security error displayed
@@ -558,6 +605,7 @@ Issues Found:
 **Test Result:** [ ] Pass [ ] Fail [ ] Blocked
 
 **Notes:**
+
 ```
 Tester:
 Date:
@@ -571,10 +619,12 @@ Issues Found:
 **Objective:** Only admins can access settings and submit forms
 
 **Prerequisites:**
+
 - Admin user
 - Editor user (or lower role)
 
 **Steps:**
+
 1. Log in as Editor
 2. Try to access `/wp-admin/admin.php?page=notion-sync`
 3. Try to submit connect form (if accessible via direct POST)
@@ -582,6 +632,7 @@ Issues Found:
 5. Verify access granted
 
 **Expected Results:**
+
 - Non-admin users: Access denied (403)
 - Error: "You do not have sufficient permissions to access this page."
 - Form submissions from non-admins rejected
@@ -592,6 +643,7 @@ Issues Found:
 **Test Result:** [ ] Pass [ ] Fail [ ] Blocked
 
 **Notes:**
+
 ```
 Tester:
 Date:
@@ -609,22 +661,25 @@ Issues Found:
 **Prerequisites:** Settings page
 
 **Steps:**
+
 1. Enter token with spaces: `  secret_test123  `
 2. Enter token with special characters: `secret_<script>alert('xss')</script>`
 3. Submit each and check database
 
 **Expected Results:**
+
 - Spaces trimmed from token before storage
 - Special characters properly sanitized
 - No XSS payloads stored
 - Tokens processed through `sanitize_text_field()`
-- No unsanitized $_POST data used directly
+- No unsanitized $\_POST data used directly
 
 **Pass Criteria:** All input sanitized, no XSS possible
 
 **Test Result:** [ ] Pass [ ] Fail [ ] Blocked
 
 **Notes:**
+
 ```
 Tester:
 Date:
@@ -641,11 +696,13 @@ Issues Found:
 **Prerequisites:** Valid connection with workspace name containing special characters
 
 **Steps:**
+
 1. Review template file source code
 2. Check all dynamic outputs use escaping functions
 3. Test with workspace name: `Test <script>alert('xss')</script> Workspace`
 
 **Expected Results:**
+
 - Workspace names: `esc_html()`
 - URLs: `esc_url()`
 - Attributes: `esc_attr()`
@@ -658,6 +715,7 @@ Issues Found:
 **Test Result:** [ ] Pass [ ] Fail [ ] Blocked
 
 **Notes:**
+
 ```
 Tester:
 Date:
@@ -674,6 +732,7 @@ Issues Found:
 **Prerequisites:** Settings page
 
 **Test Payloads:**
+
 ```
 secret_<script>alert('XSS')</script>
 secret_"><img src=x onerror=alert('XSS')>
@@ -682,12 +741,14 @@ secret_<svg/onload=alert('XSS')>
 ```
 
 **Steps:**
+
 1. Submit each payload as token
 2. Check if JavaScript executes
 3. Check database storage
 4. Check display on settings page
 
 **Expected Results:**
+
 - No JavaScript executes
 - Payloads rendered as text (visible but not executed)
 - Proper HTML entity encoding
@@ -699,6 +760,7 @@ secret_<svg/onload=alert('XSS')>
 **Test Result:** [ ] Pass [ ] Fail [ ] Blocked
 
 **Notes:**
+
 ```
 Tester:
 Date:
@@ -716,17 +778,21 @@ Issues Found:
 **Prerequisites:** Valid connection
 
 **Steps:**
+
 1. Create malicious form on different site:
+
 ```html
 <form action="http://your-wp-site.test/wp-admin/admin-post.php" method="POST">
-  <input type="hidden" name="action" value="notion_sync_disconnect">
-  <input type="submit" value="Click Me">
+	<input type="hidden" name="action" value="notion_sync_disconnect" />
+	<input type="submit" value="Click Me" />
 </form>
 ```
+
 2. Submit form while logged in to WordPress
 3. Check if disconnection occurs
 
 **Expected Results:**
+
 - Request fails (no valid nonce)
 - User remains connected
 - Error displayed
@@ -737,6 +803,7 @@ Issues Found:
 **Test Result:** [ ] Pass [ ] Fail [ ] Blocked
 
 **Notes:**
+
 ```
 Tester:
 Date:
@@ -755,11 +822,13 @@ Issues Found:
 **Note:** Plugin doesn't use custom SQL queries, relies on WordPress options API
 
 **Steps:**
+
 1. Review code for any custom SQL
 2. Verify all database operations use WordPress functions
 3. Test with SQL injection payloads in token field (should have no effect)
 
 **Expected Results:**
+
 - All database operations via `update_option()`, `get_option()`, `delete_option()`
 - No raw SQL queries
 - WordPress handles sanitization internally
@@ -770,6 +839,7 @@ Issues Found:
 **Test Result:** [ ] Pass [ ] Fail [ ] Blocked
 
 **Notes:**
+
 ```
 Tester:
 Date:
@@ -786,12 +856,14 @@ Issues Found:
 **Prerequisites:** Valid connection
 
 **Steps:**
+
 1. Connect with valid token
 2. Check database table `wp_options`
 3. Query: `SELECT * FROM wp_options WHERE option_name = 'notion_wp_token'`
 4. Verify token storage
 
 **Expected Results:**
+
 - Token stored in `wp_options` table
 - Option name: `notion_wp_token`
 - Token value stored as-is (plaintext in DB is acceptable for API tokens)
@@ -805,6 +877,7 @@ Issues Found:
 **Test Result:** [ ] Pass [ ] Fail [ ] Blocked
 
 **Notes:**
+
 ```
 Tester:
 Date:
@@ -822,6 +895,7 @@ Issues Found:
 **Prerequisites:** Debug logging enabled
 
 **Steps:**
+
 1. Enable WordPress debug logging
 2. Connect with token
 3. Check debug.log file
@@ -829,8 +903,9 @@ Issues Found:
 5. Check logs again
 
 **Expected Results:**
+
 - Token value NOT in debug.log
-- API calls logged without full token (e.g., "secret_***")
+- API calls logged without full token (e.g., "secret\_\*\*\*")
 - Error messages don't include token
 - Stack traces safe
 
@@ -839,6 +914,7 @@ Issues Found:
 **Test Result:** [ ] Pass [ ] Fail [ ] Blocked
 
 **Notes:**
+
 ```
 Tester:
 Date:
@@ -857,12 +933,14 @@ Issues Found:
 **Prerequisites:** iPhone or iOS simulator
 
 **Steps:**
+
 1. Access settings page on iPhone (375x667)
 2. Test connection flow
 3. View workspace info
 4. Scroll through pages list
 
 **Expected Results:**
+
 - Page renders without horizontal scrolling
 - Form elements sized appropriately for touch
 - Button min-height: 44px (Apple touch target)
@@ -877,6 +955,7 @@ Issues Found:
 **Test Result:** [ ] Pass [ ] Fail [ ] Blocked
 
 **Notes:**
+
 ```
 Tester:
 Date:
@@ -894,12 +973,14 @@ Issues Found:
 **Prerequisites:** Android device or simulator
 
 **Steps:**
+
 1. Access settings page on Android device
 2. Test full connection workflow
 3. Test disconnect
 4. Verify all interactions work
 
 **Expected Results:**
+
 - Similar to TC-U001
 - Touch targets adequate
 - Forms functional
@@ -911,6 +992,7 @@ Issues Found:
 **Test Result:** [ ] Pass [ ] Fail [ ] Blocked
 
 **Notes:**
+
 ```
 Tester:
 Date:
@@ -928,11 +1010,13 @@ Issues Found:
 **Prerequisites:** Tablet or simulator
 
 **Steps:**
+
 1. Access settings page
 2. Test in portrait and landscape
 3. Verify layout adapts
 
 **Expected Results:**
+
 - Layout optimized for tablet width
 - Not just stretched mobile view
 - Not cramped desktop view
@@ -943,6 +1027,7 @@ Issues Found:
 **Test Result:** [ ] Pass [ ] Fail [ ] Blocked
 
 **Notes:**
+
 ```
 Tester:
 Date:
@@ -959,12 +1044,14 @@ Issues Found:
 **Prerequisites:** Settings page in browser
 
 **Steps:**
+
 1. Press Tab key repeatedly
 2. Navigate through all interactive elements
 3. Submit form using keyboard only
 4. Dismiss notices with keyboard
 
 **Expected Results:**
+
 - Tab order logical (top to bottom, left to right)
 - Focus indicators visible on all elements
 - Can reach all buttons, links, inputs
@@ -977,6 +1064,7 @@ Issues Found:
 **Test Result:** [ ] Pass [ ] Fail [ ] Blocked
 
 **Notes:**
+
 ```
 Tester:
 Date:
@@ -994,11 +1082,13 @@ Issues Found:
 **Prerequisites:** Settings page
 
 **Steps:**
+
 1. Click "Connect to Notion"
 2. Observe button during API call
 3. Test on slow connection if possible
 
 **Expected Results:**
+
 - Button shows loading spinner
 - Button text changes to "Connecting..."
 - Button disabled during load
@@ -1011,6 +1101,7 @@ Issues Found:
 **Test Result:** [ ] Pass [ ] Fail [ ] Blocked
 
 **Notes:**
+
 ```
 Tester:
 Date:
@@ -1028,11 +1119,13 @@ Issues Found:
 **Prerequisites:** Settings page
 
 **Steps:**
+
 1. Trigger each error scenario (invalid token, network error, etc.)
 2. Read error messages
 3. Assess clarity
 
 **Expected Results:**
+
 - Errors in plain language (not technical jargon)
 - No HTTP codes shown (e.g., "Error 401")
 - Specific guidance on what to do
@@ -1045,6 +1138,7 @@ Issues Found:
 **Test Result:** [ ] Pass [ ] Fail [ ] Blocked
 
 **Notes:**
+
 ```
 Tester:
 Date:
@@ -1065,11 +1159,13 @@ Issues Found:
 **Prerequisites:** Valid token
 
 **Steps:**
+
 1. Connect successfully
 2. Disconnect successfully
 3. Read success messages
 
 **Expected Results:**
+
 - Green success notices
 - Positive language
 - Includes workspace name (for connection)
@@ -1081,6 +1177,7 @@ Issues Found:
 **Test Result:** [ ] Pass [ ] Fail [ ] Blocked
 
 **Notes:**
+
 ```
 Tester:
 Date:
@@ -1097,12 +1194,14 @@ Issues Found:
 **Prerequisites:** WordPress admin access
 
 **Steps:**
+
 1. Locate plugin in admin menu
 2. Check menu icon
 3. Verify page styling
 4. Compare to other admin pages
 
 **Expected Results:**
+
 - Menu item: "Notion Sync"
 - Icon: Cloud dashicon (dashicons-cloud)
 - Menu position appropriate (around Settings area)
@@ -1116,6 +1215,7 @@ Issues Found:
 **Test Result:** [ ] Pass [ ] Fail [ ] Blocked
 
 **Notes:**
+
 ```
 Tester:
 Date:
@@ -1132,12 +1232,14 @@ Issues Found:
 **Prerequisites:** Valid connection
 
 **Steps:**
+
 1. Measure initial page load time (disconnected state)
 2. Measure connected state load time
 3. Measure with 10 pages
 4. Measure with 100 pages (if possible)
 
 **Expected Results:**
+
 - Disconnected state: < 2 seconds
 - Connected state (cached): < 2 seconds
 - Connected state (fresh): < 5 seconds
@@ -1150,6 +1252,7 @@ Issues Found:
 **Test Result:** [ ] Pass [ ] Fail [ ] Blocked
 
 **Notes:**
+
 ```
 Tester:
 Date:
@@ -1169,6 +1272,7 @@ Issues Found:
 **Prerequisites:** Settings page
 
 **Steps:**
+
 1. Navigate to settings page
 2. Connect
 3. Click browser back button
@@ -1176,6 +1280,7 @@ Issues Found:
 5. Refresh page
 
 **Expected Results:**
+
 - Back button doesn't break connection
 - Forward button works
 - Page state consistent
@@ -1187,6 +1292,7 @@ Issues Found:
 **Test Result:** [ ] Pass [ ] Fail [ ] Blocked
 
 **Notes:**
+
 ```
 Tester:
 Date:
@@ -1204,10 +1310,12 @@ Issues Found:
 **Prerequisites:** Development environment with composer installed
 
 **Steps:**
+
 1. Run: `composer lint:phpcs`
 2. Review output
 
 **Expected Results:**
+
 - Zero errors
 - Zero warnings (or only documented exceptions)
 - All files scanned
@@ -1218,6 +1326,7 @@ Issues Found:
 **Test Result:** [ ] Pass [ ] Fail [ ] Blocked
 
 **Command Output:**
+
 ```
 Tester:
 Date:
@@ -1236,10 +1345,12 @@ Warnings:
 **Prerequisites:** Development environment
 
 **Steps:**
+
 1. Run: `composer lint:phpstan`
 2. Review output
 
 **Expected Results:**
+
 - Zero errors at level 5
 - All type hints correct
 - No undefined variables
@@ -1251,6 +1362,7 @@ Warnings:
 **Test Result:** [ ] Pass [ ] Fail [ ] Blocked
 
 **Command Output:**
+
 ```
 Tester:
 Date:
@@ -1268,10 +1380,12 @@ Errors Found:
 **Prerequisites:** Development environment with npm installed
 
 **Steps:**
+
 1. Run: `npm run lint:js`
 2. Review output
 
 **Expected Results:**
+
 - Zero errors
 - Zero warnings
 - No console.log statements
@@ -1283,6 +1397,7 @@ Errors Found:
 **Test Result:** [ ] Pass [ ] Fail [ ] Blocked
 
 **Command Output:**
+
 ```
 Tester:
 Date:
@@ -1301,10 +1416,12 @@ Warnings:
 **Prerequisites:** Development environment
 
 **Steps:**
+
 1. Run: `npm run lint:css`
 2. Review output
 
 **Expected Results:**
+
 - Zero errors
 - Warnings for !important usage (if any) documented
 - Property ordering correct
@@ -1316,6 +1433,7 @@ Warnings:
 **Test Result:** [ ] Pass [ ] Fail [ ] Blocked
 
 **Command Output:**
+
 ```
 Tester:
 Date:
@@ -1334,11 +1452,13 @@ Warnings:
 **Prerequisites:** All source files
 
 **Steps:**
+
 1. Run: `find plugin/src plugin/templates -name "*.php" -exec wc -l {} + | sort -rn`
 2. Check JavaScript files: `wc -l plugin/assets/src/js/*.js`
 3. Check CSS files: `wc -l plugin/assets/src/css/*.css`
 
 **Expected Results:**
+
 - SettingsPage.php: < 500 lines (currently 276)
 - NotionClient.php: < 500 lines (currently 313)
 - AdminNotices.php: < 500 lines (currently 88)
@@ -1351,6 +1471,7 @@ Warnings:
 **Test Result:** [ ] Pass [ ] Fail [ ] Blocked
 
 **File Sizes:**
+
 ```
 Tester:
 Date:
@@ -1364,20 +1485,23 @@ Files Over 500 Lines: (none expected)
 **Objective:** Code runs without PHP warnings
 
 **Prerequisites:**
+
 - WordPress with WP_DEBUG enabled
 - WP_DEBUG_LOG enabled
 
 **Steps:**
+
 1. Enable debugging in wp-config.php:
-   ```php
-   define('WP_DEBUG', true);
-   define('WP_DEBUG_LOG', true);
-   define('WP_DEBUG_DISPLAY', false);
-   ```
+    ```php
+    define('WP_DEBUG', true);
+    define('WP_DEBUG_LOG', true);
+    define('WP_DEBUG_DISPLAY', false);
+    ```
 2. Perform all functional tests
 3. Check debug.log
 
 **Expected Results:**
+
 - Zero PHP notices
 - Zero PHP warnings
 - Zero PHP errors
@@ -1389,6 +1513,7 @@ Files Over 500 Lines: (none expected)
 **Test Result:** [ ] Pass [ ] Fail [ ] Blocked
 
 **Debug Log:**
+
 ```
 Tester:
 Date:
@@ -1404,12 +1529,14 @@ Issues in Log: (paste any)
 **Prerequisites:** Settings page in browser
 
 **Steps:**
+
 1. Open browser DevTools > Console
 2. Clear console
 3. Perform all user actions (connect, disconnect, etc.)
 4. Monitor console output
 
 **Expected Results:**
+
 - Zero errors
 - Zero warnings
 - No deprecated API warnings
@@ -1421,6 +1548,7 @@ Issues in Log: (paste any)
 **Test Result:** [ ] Pass [ ] Fail [ ] Blocked
 
 **Console Output:**
+
 ```
 Tester:
 Date:
@@ -1437,11 +1565,13 @@ Errors Found: (paste)
 **Prerequisites:** Source files
 
 **Steps:**
+
 1. Review PHP files for DocBlocks
 2. Review JavaScript for JSDoc
 3. Check function documentation
 
 **Expected Results:**
+
 - All classes have DocBlocks
 - All methods documented with @param and @return
 - All functions have description
@@ -1453,6 +1583,7 @@ Errors Found: (paste)
 **Test Result:** [ ] Pass [ ] Fail [ ] Blocked
 
 **Notes:**
+
 ```
 Tester:
 Date:
@@ -1468,18 +1599,19 @@ TODO Comments Found: (list)
 
 For each browser, run core functional tests (TC-F001 through TC-F012)
 
-| Browser | Version | OS | TC-F002 | TC-F003 | TC-F007 | TC-F009 | Status |
-|---------|---------|----|---------|---------|---------|---------| -------|
-| Chrome | Latest | macOS | [ ] | [ ] | [ ] | [ ] | [ ] Pass |
-| Chrome | Latest | Windows | [ ] | [ ] | [ ] | [ ] | [ ] Pass |
-| Firefox | Latest | macOS | [ ] | [ ] | [ ] | [ ] | [ ] Pass |
-| Firefox | Latest | Windows | [ ] | [ ] | [ ] | [ ] | [ ] Pass |
-| Safari | Latest | macOS | [ ] | [ ] | [ ] | [ ] | [ ] Pass |
-| Edge | Latest | Windows | [ ] | [ ] | [ ] | [ ] | [ ] Pass |
-| Safari | Mobile | iOS | [ ] | [ ] | [ ] | [ ] | [ ] Pass |
-| Chrome | Mobile | Android | [ ] | [ ] | [ ] | [ ] | [ ] Pass |
+| Browser | Version | OS      | TC-F002 | TC-F003 | TC-F007 | TC-F009 | Status   |
+| ------- | ------- | ------- | ------- | ------- | ------- | ------- | -------- |
+| Chrome  | Latest  | macOS   | [ ]     | [ ]     | [ ]     | [ ]     | [ ] Pass |
+| Chrome  | Latest  | Windows | [ ]     | [ ]     | [ ]     | [ ]     | [ ] Pass |
+| Firefox | Latest  | macOS   | [ ]     | [ ]     | [ ]     | [ ]     | [ ] Pass |
+| Firefox | Latest  | Windows | [ ]     | [ ]     | [ ]     | [ ]     | [ ] Pass |
+| Safari  | Latest  | macOS   | [ ]     | [ ]     | [ ]     | [ ]     | [ ] Pass |
+| Edge    | Latest  | Windows | [ ]     | [ ]     | [ ]     | [ ]     | [ ] Pass |
+| Safari  | Mobile  | iOS     | [ ]     | [ ]     | [ ]     | [ ]     | [ ] Pass |
+| Chrome  | Mobile  | Android | [ ]     | [ ]     | [ ]     | [ ]     | [ ] Pass |
 
 **Notes:**
+
 - Focus testing on browsers with "High" priority
 - Report any browser-specific issues
 - Visual differences acceptable if functional
@@ -1490,17 +1622,17 @@ For each browser, run core functional tests (TC-F001 through TC-F012)
 
 ### Completion Tracking
 
-**Test Execution Date:** _____________
+**Test Execution Date:** **\*\***\_**\*\***
 
-**Tester Name:** _____________
+**Tester Name:** **\*\***\_**\*\***
 
-| Category | Total Tests | Passed | Failed | Blocked | Pass Rate |
-|----------|-------------|--------|--------|---------|-----------|
-| Functional | 12 | ___ | ___ | ___ | ___% |
-| Security | 10 | ___ | ___ | ___ | ___% |
-| UI/UX | 10 | ___ | ___ | ___ | ___% |
-| Code Quality | 8 | ___ | ___ | ___ | ___% |
-| **Total** | **40** | ___ | ___ | ___ | ___% |
+| Category     | Total Tests | Passed | Failed | Blocked | Pass Rate |
+| ------------ | ----------- | ------ | ------ | ------- | --------- |
+| Functional   | 12          | \_\_\_ | \_\_\_ | \_\_\_  | \_\_\_%   |
+| Security     | 10          | \_\_\_ | \_\_\_ | \_\_\_  | \_\_\_%   |
+| UI/UX        | 10          | \_\_\_ | \_\_\_ | \_\_\_  | \_\_\_%   |
+| Code Quality | 8           | \_\_\_ | \_\_\_ | \_\_\_  | \_\_\_%   |
+| **Total**    | **40**      | \_\_\_ | \_\_\_ | \_\_\_  | \_\_\_%   |
 
 ### Pass Criteria for Gatekeeping
 
@@ -1516,12 +1648,13 @@ For each browser, run core functional tests (TC-F001 through TC-F012)
 ### Critical Issues Found
 
 | Issue ID | Severity | Description | Test Case | Status |
-|----------|----------|-------------|-----------|--------|
-| | | | | |
-| | | | | |
-| | | | | |
+| -------- | -------- | ----------- | --------- | ------ |
+|          |          |             |           |        |
+|          |          |             |           |        |
+|          |          |             |           |        |
 
 **Severity Levels:**
+
 - **Critical:** Blocks release, must fix
 - **High:** Should fix before release
 - **Medium:** Can defer to next phase
@@ -1535,7 +1668,7 @@ When logging bugs, use this format:
 
 ```markdown
 **Bug ID:** BUG-P0-###
-**Test Case:** TC-____
+**Test Case:** TC-\_\_\_\_
 **Severity:** Critical/High/Medium/Low
 **Browser/Device:**
 **Reproducible:** Yes/No/Sometimes
@@ -1544,6 +1677,7 @@ When logging bugs, use this format:
 [Clear description of the bug]
 
 **Steps to Reproduce:**
+
 1.
 2.
 3.
@@ -1570,15 +1704,18 @@ If any code changes are made after initial testing:
 ### Re-test Priority
 
 **High Priority (Must Re-test):**
+
 - Any test case related to changed code
 - Security tests
 - Core connection flow (TC-F002)
 
 **Medium Priority (Should Re-test):**
+
 - UI tests if styling changed
 - Full functional suite
 
 **Low Priority (Spot Check):**
+
 - Browser compatibility
 - Code quality (automated)
 
@@ -1601,13 +1738,14 @@ After testing completes:
 
 ### Test Completion
 
-**Test Lead:** _________________________
-**Signature:** _________________________
-**Date:** _________________________
+**Test Lead:** \***\*\*\*\*\*\*\***\_\***\*\*\*\*\*\*\***
+**Signature:** \***\*\*\*\*\*\*\***\_\***\*\*\*\*\*\*\***
+**Date:** \***\*\*\*\*\*\*\***\_\***\*\*\*\*\*\*\***
 
 **Result:** [ ] PASS - Ready for Gatekeeping Demo [ ] FAIL - Fixes Required
 
 **Notes:**
+
 ```
 
 
@@ -1646,17 +1784,20 @@ tail -f wp-content/debug.log
 ## Appendix B: Test Data
 
 ### Valid Notion Token Template
+
 ```
 secret_XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
 ```
 
 ### Test Workspace Names
+
 - Simple: "My Workspace"
 - With Special Chars: "Test & Dev <Workspace>"
 - Unicode: "Test Workspace 🚀"
 - Long: "Very Long Workspace Name That Tests Truncation And Display"
 
 ### Test Page Titles
+
 - Simple: "Test Page"
 - Empty: "(Untitled)"
 - Special: "<script>alert('test')</script>"

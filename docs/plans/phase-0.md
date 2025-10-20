@@ -29,6 +29,7 @@ Prove that authentication works and users can connect their Notion account. **Th
 **None** - This is the first phase.
 
 **Infrastructure Already Ready (from setup):**
+
 - ✅ Docker environment with worktree support
 - ✅ Linting configuration (phpcs, eslint, stylelint, pre-commit hooks)
 - ✅ Makefile commands
@@ -37,11 +38,13 @@ Prove that authentication works and users can connect their Notion account. **Th
 ## 🔀 Parallel Work Streams
 
 ### Stream 1: Authentication System (Main Priority)
+
 **Worktree:** `phase-0-auth`
 **Duration:** 3-4 days
 **Files Created:** 3-4 files, all <500 lines
 
 **What Users See:**
+
 - Settings page at **WP Admin > Notion Sync**
 - Input field for Notion API token
 - "Connect to Notion" button
@@ -52,6 +55,7 @@ Prove that authentication works and users can connect their Notion account. **Th
 **Technical Implementation:**
 
 **File 1:** `plugin/src/Admin/SettingsPage.php` (<300 lines)
+
 ```php
 <?php
 namespace NotionSync\Admin;
@@ -93,6 +97,7 @@ class SettingsPage {
 ```
 
 **File 2:** `plugin/src/API/NotionClient.php` (<400 lines)
+
 ```php
 <?php
 namespace NotionSync\API;
@@ -129,6 +134,7 @@ class NotionClient {
 ```
 
 **File 3:** `plugin/templates/admin/settings.php` (<200 lines)
+
 ```php
 <?php
 // Template for settings page
@@ -138,6 +144,7 @@ class NotionClient {
 ```
 
 **File 4:** `plugin/src/Admin/AdminNotices.php` (<150 lines)
+
 ```php
 <?php
 namespace NotionSync\Admin;
@@ -154,6 +161,7 @@ class AdminNotices {
 ```
 
 **Tasks:**
+
 1. ✅ Create settings menu page (Day 1)
 2. ✅ Build connection form with nonce (Day 1)
 3. ✅ Implement NotionClient API wrapper (Day 2)
@@ -164,6 +172,7 @@ class AdminNotices {
 8. ✅ Test on mobile (Day 4)
 
 **Definition of Done:**
+
 - [ ] Can connect with valid token in <30 seconds
 - [ ] Invalid token shows helpful error
 - [ ] See workspace name and 5+ pages
@@ -176,16 +185,19 @@ class AdminNotices {
 ---
 
 ### Stream 2: Development Environment (Supporting)
+
 **Worktree:** `phase-0-linting` (or work in main)
 **Duration:** 1-2 days
 **Note:** Much of this is already done from project setup
 
 **What This Provides:**
+
 - All code must pass linting before commit
 - Pre-commit hooks block bad code
 - CI/CD runs on every push
 
 **Tasks:**
+
 1. ✅ Verify linting config works (Day 1)
 2. ✅ Install dependencies: `composer install && npm install` (Day 1)
 3. ✅ Test pre-commit hooks (Day 1)
@@ -193,12 +205,14 @@ class AdminNotices {
 5. ✅ Document linting workflow (Day 2)
 
 **Files to Verify/Adjust:**
+
 - `phpcs.xml.dist` - Ensure 500-line limit enforced
 - `phpstan.neon` - WordPress stubs loaded
 - `.eslintrc.json` - No console.log allowed
 - `.husky/pre-commit` - All linters run
 
 **Definition of Done:**
+
 - [ ] `composer lint` passes on all code
 - [ ] `npm run lint` passes on all code
 - [ ] Pre-commit hook blocks bad commits
@@ -208,11 +222,13 @@ class AdminNotices {
 ---
 
 ### Stream 3: Basic Admin UI (Design)
+
 **Worktree:** `phase-0-admin-ui`
 **Duration:** 2-3 days
 **Files:** CSS and JS for admin interface
 
 **What Users See:**
+
 - Clean, modern admin interface
 - WordPress-native styling
 - Loading states during API calls
@@ -221,33 +237,35 @@ class AdminNotices {
 **Technical Implementation:**
 
 **File 1:** `plugin/assets/src/scss/admin.scss` (<200 lines)
+
 ```scss
 .notion-sync-settings {
-  max-width: 800px;
+	max-width: 800px;
 
-  .connection-form {
-    background: white;
-    padding: 20px;
-    border: 1px solid #ddd;
-    border-radius: 4px;
-  }
+	.connection-form {
+		background: white;
+		padding: 20px;
+		border: 1px solid #ddd;
+		border-radius: 4px;
+	}
 
-  .token-input {
-    width: 100%;
-    font-family: monospace;
-  }
+	.token-input {
+		width: 100%;
+		font-family: monospace;
+	}
 
-  .workspace-info {
-    // Success state styles
-  }
+	.workspace-info {
+		// Success state styles
+	}
 
-  @media (max-width: 782px) {
-    // Mobile responsive
-  }
+	@media (max-width: 782px) {
+		// Mobile responsive
+	}
 }
 ```
 
 **File 2:** `plugin/assets/src/js/admin.js` (<200 lines)
+
 ```javascript
 // Show loading spinner during connection test
 // Clear sensitive data on disconnect
@@ -256,6 +274,7 @@ class AdminNotices {
 ```
 
 **Tasks:**
+
 1. ✅ Design connection form layout (Day 1)
 2. ✅ Add loading states (Day 2)
 3. ✅ Style workspace info display (Day 2)
@@ -263,6 +282,7 @@ class AdminNotices {
 5. ✅ Add helpful empty states (Day 3)
 
 **Definition of Done:**
+
 - [ ] Looks professional (matches WordPress admin)
 - [ ] Loading spinner during API calls
 - [ ] Works on phones/tablets
@@ -272,16 +292,19 @@ class AdminNotices {
 ---
 
 ### Stream 4: Documentation (Can run anytime)
+
 **Worktree:** Can work directly in main
 **Duration:** 1-2 days
 
 **What This Provides:**
+
 - Users know how to get started
 - Developers know how to contribute
 
 **Files to Create/Update:**
 
 **File 1:** `plugin/README.md` (User-focused)
+
 ```markdown
 # Notion Sync for WordPress
 
@@ -301,17 +324,20 @@ class AdminNotices {
 ```
 
 **File 2:** `docs/getting-started.md` (Detailed setup)
+
 - Step-by-step with screenshots (placeholders for now)
 - How to get Notion API token
 - How to share pages with integration
 - Troubleshooting common issues
 
 **File 3:** `docs/development/phase-0-checklist.md`
+
 - Daily checklist for Phase 0 tasks
 - Testing checklist
 - Pre-launch checklist
 
 **Definition of Done:**
+
 - [ ] User can set up plugin without asking questions
 - [ ] Screenshots show key steps (or placeholders)
 - [ ] Troubleshooting section covers common errors
@@ -322,6 +348,7 @@ class AdminNotices {
 ## 📦 Deliverables
 
 ### Visible to Users (What They Can Do)
+
 - ✅ Navigate to **WP Admin > Notion Sync**
 - ✅ Enter Notion API token
 - ✅ Click "Connect to Notion"
@@ -330,6 +357,7 @@ class AdminNotices {
 - ✅ Click "Disconnect" to remove connection
 
 ### Technical (What We Built)
+
 - ✅ `plugin/src/Admin/SettingsPage.php` - Settings page registration
 - ✅ `plugin/src/API/NotionClient.php` - Notion API wrapper
 - ✅ `plugin/templates/admin/settings.php` - UI template
@@ -340,6 +368,7 @@ class AdminNotices {
 - ✅ Pre-commit hooks working
 
 ### Not Built (Deferred to Phase 1+)
+
 - ❌ Actual sync functionality (that's Phase 1)
 - ❌ Database schema (not needed yet)
 - ❌ Block converters (Phase 1)
@@ -352,51 +381,64 @@ class AdminNotices {
 ## 🚀 Daily Workflow
 
 ### Day 1: Foundation
+
 **Morning:**
+
 - Create worktrees: `./scripts/create-worktree.sh phase-0-auth phase-0-auth`
 - Start Stream 1: Create `SettingsPage.php` skeleton
 - Start Stream 2: Verify linting works
 
 **Afternoon:**
+
 - Build connection form UI
 - Add nonce verification
 - Test form submission
 - **Demo:** Can submit form (even if nothing happens yet)
 
 ### Day 2: API Integration
+
 **Morning:**
+
 - Create `NotionClient.php`
 - Implement `test_connection()` method
 - Handle API errors gracefully
 
 **Afternoon:**
+
 - Implement `get_workspace_info()`
 - Display workspace name on success
 - **Demo:** Can connect and see workspace name
 
 ### Day 3: Page Listing
+
 **Morning:**
+
 - Implement `list_pages()` method
 - Display page list in UI
 - Add disconnect button
 
 **Afternoon:**
+
 - Polish error messages
 - Add loading states
 - **Demo:** Full connection flow works
 
 ### Day 4: Polish & Testing
+
 **Morning:**
+
 - Test on mobile devices
 - Fix responsive issues
 - Improve error messages
 
 **Afternoon:**
+
 - Run through full checklist
 - Fix any linting issues
 - **Demo:** Ready for gatekeeping review
 
 ### Day 5: Buffer & Documentation
+
 - Address any issues found
 - Complete documentation
 - Prepare for Phase 1
@@ -406,23 +448,27 @@ class AdminNotices {
 ## ✋ Gatekeeping Review
 
 Before proceeding to Phase 1, schedule a **2-minute demo** with someone who:
+
 - Is NOT a developer
 - Has never seen the plugin before
 - Can provide honest feedback
 
 **Demo Script:**
+
 1. Show them WordPress admin (30 seconds)
 2. Navigate to Notion Sync (15 seconds)
 3. Paste API token and connect (45 seconds)
 4. Show workspace and pages list (30 seconds)
 
 **Pass Criteria:**
+
 - They understood what happened
 - No confusion or questions about errors
 - UI felt responsive and professional
 - They could repeat it without help
 
 **If demo fails:**
+
 - Document what confused them
 - Fix those specific issues
 - Schedule another demo
@@ -433,6 +479,7 @@ Before proceeding to Phase 1, schedule a **2-minute demo** with someone who:
 ## 🔍 Testing Checklist
 
 ### Functional Testing
+
 - [ ] Can connect with valid token
 - [ ] Invalid token shows clear error
 - [ ] Network errors handled gracefully
@@ -443,6 +490,7 @@ Before proceeding to Phase 1, schedule a **2-minute demo** with someone who:
 - [ ] Nonce verification works on all forms
 
 ### Security Testing
+
 - [ ] All output escaped (`esc_html`, `esc_attr`, etc.)
 - [ ] All input sanitized (`sanitize_text_field`, etc.)
 - [ ] Nonces verified on POST requests
@@ -452,6 +500,7 @@ Before proceeding to Phase 1, schedule a **2-minute demo** with someone who:
 - [ ] No SQL injection vectors (none expected yet)
 
 ### Code Quality
+
 - [ ] All files under 500 lines
 - [ ] `composer lint` passes
 - [ ] `npm run lint` passes
@@ -461,6 +510,7 @@ Before proceeding to Phase 1, schedule a **2-minute demo** with someone who:
 - [ ] Pre-commit hooks work
 
 ### UI/UX Testing
+
 - [ ] Works in Chrome
 - [ ] Works in Firefox
 - [ ] Works in Safari
@@ -475,17 +525,20 @@ Before proceeding to Phase 1, schedule a **2-minute demo** with someone who:
 ## 📊 Success Metrics
 
 **Time Metrics:**
+
 - Setup should take user <5 minutes
 - Connection should complete <10 seconds
 - Page load should be <2 seconds
 
 **Quality Metrics:**
+
 - Zero linting errors
 - Zero security vulnerabilities
 - 100% of forms have nonce verification
 - 100% of output is escaped
 
 **User Metrics:**
+
 - 5/5 test users can connect without help
 - Zero confusing error messages reported
 - Works on all tested devices
@@ -494,43 +547,48 @@ Before proceeding to Phase 1, schedule a **2-minute demo** with someone who:
 
 ## 🚧 Risks & Mitigation
 
-| Risk | Impact | Mitigation |
-|------|--------|------------|
-| Notion API rate limiting | Medium | Cache workspace info, limit API calls |
-| Invalid/expired tokens | High | Clear error messages, test connection flow |
-| Network timeouts | Medium | Set reasonable timeout limits (30s) |
-| WordPress version compatibility | Low | Test on WP 6.0+ |
-| PHP version issues | Low | Require PHP 8.0+, test on 8.0-8.3 |
+| Risk                            | Impact | Mitigation                                 |
+| ------------------------------- | ------ | ------------------------------------------ |
+| Notion API rate limiting        | Medium | Cache workspace info, limit API calls      |
+| Invalid/expired tokens          | High   | Clear error messages, test connection flow |
+| Network timeouts                | Medium | Set reasonable timeout limits (30s)        |
+| WordPress version compatibility | Low    | Test on WP 6.0+                            |
+| PHP version issues              | Low    | Require PHP 8.0+, test on 8.0-8.3          |
 
 ---
 
 ## 📝 Phase 0 Completion Checklist
 
 ### Code Complete
+
 - [ ] All 4 work streams merged to main
 - [ ] All files under 500 lines
 - [ ] Zero linting errors
 - [ ] All TODO comments resolved or converted to issues
 
 ### Testing Complete
+
 - [ ] All functional tests pass
 - [ ] All security checks pass
 - [ ] Tested on 3+ devices (desktop, phone, tablet)
 - [ ] Tested in 3+ browsers
 
 ### Documentation Complete
+
 - [ ] README.md updated
 - [ ] Getting started guide written
 - [ ] Troubleshooting guide covers common issues
 - [ ] Code has inline comments
 
 ### Demo Complete
+
 - [ ] 2-minute demo successful with non-developer
 - [ ] No confusion during demo
 - [ ] Positive feedback received
 - [ ] Ready to show stakeholders
 
 ### Ready for Phase 1
+
 - [ ] All gatekeeping criteria met
 - [ ] No critical bugs
 - [ ] No security issues
@@ -541,6 +599,7 @@ Before proceeding to Phase 1, schedule a **2-minute demo** with someone who:
 ## ⏭️ Next Phase Preview
 
 **Phase 1: MVP Core** will build on this foundation:
+
 - Use `NotionClient` to fetch page content
 - Convert Notion blocks to WordPress blocks
 - Create WordPress posts from Notion pages

@@ -13,30 +13,30 @@ When designing or implementing WordPress admin interfaces, you will:
 1. **Follow WordPress Design Language**: Ensure all UI components align with WordPress's established design system, using native components, color schemes, spacing, and typography that feel at home in the WordPress admin.
 
 2. **Implement Accessibility First**: Every interface element must meet WCAG 2.1 AA standards minimum, including:
-   - Proper ARIA labels and roles
-   - Keyboard navigation support
-   - Sufficient color contrast ratios
-   - Screen reader compatibility
-   - Focus indicators and logical tab order
+    - Proper ARIA labels and roles
+    - Keyboard navigation support
+    - Sufficient color contrast ratios
+    - Screen reader compatibility
+    - Focus indicators and logical tab order
 
 3. **Leverage WordPress APIs and Components**:
-   - Use Settings API for configuration pages
-   - Employ WordPress UI components (WP_List_Table, admin notices, metaboxes)
-   - Utilize Gutenberg components for React-based interfaces
-   - Follow WordPress coding standards for admin markup
+    - Use Settings API for configuration pages
+    - Employ WordPress UI components (WP_List_Table, admin notices, metaboxes)
+    - Utilize Gutenberg components for React-based interfaces
+    - Follow WordPress coding standards for admin markup
 
 4. **Design for User Experience**:
-   - Provide clear, actionable feedback through admin notices
-   - Show progress indicators for long-running operations
-   - Use appropriate form controls with inline validation
-   - Implement intuitive navigation and information hierarchy
-   - Create helpful tooltips and contextual help
+    - Provide clear, actionable feedback through admin notices
+    - Show progress indicators for long-running operations
+    - Use appropriate form controls with inline validation
+    - Implement intuitive navigation and information hierarchy
+    - Create helpful tooltips and contextual help
 
 5. **Handle Error States Gracefully**:
-   - Design clear, non-technical error messages
-   - Provide actionable solutions to problems
-   - Use appropriate notice types (error, warning, success, info)
-   - Include debugging information when relevant for advanced users
+    - Design clear, non-technical error messages
+    - Provide actionable solutions to problems
+    - Use appropriate notice types (error, warning, success, info)
+    - Include debugging information when relevant for advanced users
 
 ## Project-Specific Context
 
@@ -52,24 +52,28 @@ For this Notion-WordPress sync plugin, focus on:
 ## Technical Implementation Guidelines
 
 **For Settings API Implementations**:
+
 - Use `add_settings_section()` and `add_settings_field()` appropriately
 - Implement proper sanitization callbacks
 - Group related settings logically
 - Provide default values and reset options
 
 **For React-Based Admin Interfaces**:
+
 - Use `@wordpress/components` package for UI elements
 - Leverage `@wordpress/element` for React compatibility
 - Follow WordPress's JavaScript coding standards
 - Ensure proper enqueueing of scripts and styles
 
 **For Dynamic UI Updates**:
+
 - Use AJAX for asynchronous operations
 - Implement proper nonce verification
 - Show loading states during operations
 - Update UI immediately upon success/failure
 
 **For Admin Notices**:
+
 - Use appropriate classes: `notice-error`, `notice-warning`, `notice-success`, `notice-info`
 - Make notices dismissible when appropriate
 - Position notices contextually (inline vs. admin-wide)
@@ -90,6 +94,7 @@ For this Notion-WordPress sync plugin, focus on:
 ## Decision-Making Framework
 
 **When choosing between implementation approaches**:
+
 1. Prefer native WordPress solutions over custom implementations
 2. Choose React-based components for complex, interactive UIs
 3. Use traditional PHP rendering for simple, static settings pages
@@ -97,6 +102,7 @@ For this Notion-WordPress sync plugin, focus on:
 5. Optimize for clarity and usability over feature density
 
 **When handling edge cases**:
+
 - Provide fallback UI states for loading, empty data, and errors
 - Include helpful context when technical operations fail
 - Offer manual override options for automated processes

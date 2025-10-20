@@ -213,18 +213,18 @@ graph LR
 
 ### Independence Score (Higher = More Parallelizable)
 
-| Component | Independence | Can Start After | Blocks |
-|-----------|-------------|-----------------|--------|
-| **Database Schema** | 10/10 | Immediate | All repositories |
-| **Rate Limiter** | 10/10 | Immediate | API Client |
-| **Logger** | 10/10 | Immediate | Everything |
-| **Notion API Client** | 7/10 | Week 1 | Sync engines, Media |
-| **Block Converters** | 9/10 | Week 2 | Sync engines |
-| **Media Importer** | 8/10 | Week 2 | Image converter |
-| **Repositories** | 8/10 | Week 1 | All business logic |
-| **Sync Orchestrator** | 3/10 | Week 5 | Admin UI, Jobs |
-| **Navigation** | 7/10 | Week 5 | Menu generation |
-| **Admin UI** | 6/10 | Week 6 | Nothing (top layer) |
+| Component             | Independence | Can Start After | Blocks              |
+| --------------------- | ------------ | --------------- | ------------------- |
+| **Database Schema**   | 10/10        | Immediate       | All repositories    |
+| **Rate Limiter**      | 10/10        | Immediate       | API Client          |
+| **Logger**            | 10/10        | Immediate       | Everything          |
+| **Notion API Client** | 7/10         | Week 1          | Sync engines, Media |
+| **Block Converters**  | 9/10         | Week 2          | Sync engines        |
+| **Media Importer**    | 8/10         | Week 2          | Image converter     |
+| **Repositories**      | 8/10         | Week 1          | All business logic  |
+| **Sync Orchestrator** | 3/10         | Week 5          | Admin UI, Jobs      |
+| **Navigation**        | 7/10         | Week 5          | Menu generation     |
+| **Admin UI**          | 6/10         | Week 6          | Nothing (top layer) |
 
 ---
 
@@ -254,6 +254,7 @@ graph LR
 **Critical Path Duration**: 47 days (~9.4 weeks)
 
 **Parallel Path Opportunities**:
+
 - Block Converters can develop alongside Sync Orchestrator (Week 2-5)
 - Media Importer can develop alongside Sync Orchestrator (Week 2-5)
 - Navigation can develop alongside Admin UI foundation (Week 6-7)
@@ -314,57 +315,60 @@ pie title Test Coverage by Component Type
 ### Testing Phases
 
 1. **Unit Tests** (Continuous)
-   - Each component has 80%+ coverage
-   - Run on every commit (CI pipeline)
-   - Fast execution (< 2 minutes full suite)
+    - Each component has 80%+ coverage
+    - Run on every commit (CI pipeline)
+    - Fast execution (< 2 minutes full suite)
 
 2. **Integration Tests** (Weekly)
-   - Test component interactions
-   - Require WordPress test environment
-   - Run before merging to `develop`
+    - Test component interactions
+    - Require WordPress test environment
+    - Run before merging to `develop`
 
 3. **Performance Tests** (Milestones)
-   - Run at end of Week 4, 6, 8
-   - Benchmark sync time for 100/500/1000 pages
-   - Memory profiling
+    - Run at end of Week 4, 6, 8
+    - Benchmark sync time for 100/500/1000 pages
+    - Memory profiling
 
 4. **Manual Testing** (Pre-release)
-   - Full checklist (see technical-architecture.md)
-   - Cross-browser testing
-   - Accessibility audit
+    - Full checklist (see technical-architecture.md)
+    - Cross-browser testing
+    - Accessibility audit
 
 ---
 
 ## Risk Mitigation Matrix
 
-| Risk | Probability | Impact | Mitigation Strategy | Owner |
-|------|-------------|--------|---------------------|-------|
-| Notion API rate limiting during development | High | Medium | Mock API responses for tests, use test workspace with limited data | Stream A Lead |
-| Block converter complexity underestimated | Medium | High | Start with core 6 converters, defer advanced types to Phase 2 | Stream B Lead |
-| WordPress timeout on large syncs | High | Critical | Implement background jobs early (Week 5), test with 500+ pages | Stream D Lead |
-| Merge conflicts between streams | Medium | Medium | Weekly integration meetings, clear interface contracts | Project Manager |
-| Performance targets not met | Medium | High | Performance testing at Week 4, 6 milestones with time to optimize | All Leads |
-| Action Scheduler compatibility issues | Low | High | Test integration in Week 3, have WP-Cron fallback plan | Stream D Lead |
-| Notion API changes during development | Low | Medium | Subscribe to Notion API changelog, version API calls | Stream A Lead |
+| Risk                                        | Probability | Impact   | Mitigation Strategy                                                | Owner           |
+| ------------------------------------------- | ----------- | -------- | ------------------------------------------------------------------ | --------------- |
+| Notion API rate limiting during development | High        | Medium   | Mock API responses for tests, use test workspace with limited data | Stream A Lead   |
+| Block converter complexity underestimated   | Medium      | High     | Start with core 6 converters, defer advanced types to Phase 2      | Stream B Lead   |
+| WordPress timeout on large syncs            | High        | Critical | Implement background jobs early (Week 5), test with 500+ pages     | Stream D Lead   |
+| Merge conflicts between streams             | Medium      | Medium   | Weekly integration meetings, clear interface contracts             | Project Manager |
+| Performance targets not met                 | Medium      | High     | Performance testing at Week 4, 6 milestones with time to optimize  | All Leads       |
+| Action Scheduler compatibility issues       | Low         | High     | Test integration in Week 3, have WP-Cron fallback plan             | Stream D Lead   |
+| Notion API changes during development       | Low         | Medium   | Subscribe to Notion API changelog, version API calls               | Stream A Lead   |
 
 ---
 
 ## Communication Protocol
 
 ### Daily Standups (Async - Slack)
+
 - What did you complete yesterday?
 - What are you working on today?
 - Any blockers?
 
 ### Weekly Integration Meeting (Sync - 1 hour)
+
 - **Monday 10am**: Review previous week, merge plans
 - **Agenda**:
-  1. Demo completed features
-  2. Discuss integration points
-  3. Resolve merge conflicts
-  4. Update roadmap
+    1. Demo completed features
+    2. Discuss integration points
+    3. Resolve merge conflicts
+    4. Update roadmap
 
 ### Ad-Hoc Pair Programming Sessions
+
 - Schedule when interface contracts need clarification
 - Cross-stream code reviews for integration points
 
@@ -373,6 +377,7 @@ pie title Test Coverage by Component Type
 ## Definition of Done Checklist
 
 ### Component-Level DoD
+
 - [ ] Unit tests written (80%+ coverage)
 - [ ] Code passes PHPCS (WordPress standards)
 - [ ] Inline documentation (DocBlocks)
@@ -381,6 +386,7 @@ pie title Test Coverage by Component Type
 - [ ] Security review (sanitization, escaping)
 
 ### Stream-Level DoD
+
 - [ ] All component DoDs met
 - [ ] Integration tests pass
 - [ ] Code review by peer developer
@@ -389,6 +395,7 @@ pie title Test Coverage by Component Type
 - [ ] Demo recorded or presented
 
 ### Release DoD
+
 - [ ] All stream DoDs met
 - [ ] Manual testing checklist 100% complete
 - [ ] Performance benchmarks met
