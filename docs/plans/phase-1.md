@@ -7,16 +7,20 @@
 
 ## 🎯 Goal
 
-Import a single Notion page to WordPress as a post with basic text formatting. **This phase proves the core sync functionality works end-to-end.**
+Import Notion pages to WordPress as posts with basic text formatting. **This phase proves the core sync functionality works end-to-end.**
 
-**User Story:** "As a WordPress admin, I can select a Notion page from a dropdown, click 'Sync Now', and see it appear as a WordPress post with all basic formatting preserved."
+**User Story:** "As a WordPress admin, I can see all my Notion pages in a table with sync status, select one or more pages, click 'Sync', and see them appear as WordPress posts with all basic formatting preserved."
 
 ## ✅ Success Criteria (Gatekeeping)
 
 **DO NOT PROCEED to Phase 2 until ALL criteria are met:**
 
-- [ ] User can select a Notion page from dropdown in admin UI
-- [ ] Clicking "Sync Now" fetches page content from Notion API
+- [ ] User sees Notion pages in a WordPress-style list table
+- [ ] Table shows metadata: page title, last synced, WordPress post link, sync status
+- [ ] User can select individual pages or use "Select All"
+- [ ] Clicking "Sync Selected" syncs one or more pages
+- [ ] Clicking individual "Sync" action syncs single page
+- [ ] Sync fetches page content from Notion API
 - [ ] Page title appears as WordPress post title
 - [ ] Basic blocks convert correctly:
   - [ ] Paragraphs with text formatting (bold, italic, code)
@@ -241,84 +245,223 @@ class SyncLogger {
 
 ---
 
-### Stream 4: Admin UI Updates (User Interface)
+### Stream 4: Admin UI with List Table & Bulk Actions
 **Worktree:** `phase-1-mvp`
-**Duration:** 2-3 days
-**Files Created:** Extend existing SettingsPage
+**Duration:** 3-4 days
+**Files Created:** 2 new files + extend existing SettingsPage
 
 **What Users See:**
-- Dropdown showing available Notion pages
-- "Sync to WordPress" button next to each page
-- Loading spinner during sync
-- Success message with link to WordPress post
-- Error messages if sync fails
+- WordPress-style list table showing all Notion pages
+- Columns: Checkbox, Page Title, Last Synced, WordPress Post, Status, Actions
+- Bulk actions dropdown: "Sync Selected"
+- Individual "Sync" row action for each page
+- Real-time status updates during sync
+- Success messages with links to created/updated posts
 
 **Technical Implementation:**
 
+**File 1:** `plugin/src/Admin/PagesListTable.php` (<400 lines)
+```php
+<?php
+namespace NotionSync\Admin;
+
+if ( ! class_exists( 'WP_List_Table' ) ) {
+    require_once ABSPATH . 'wp-admin/includes/class-wp-list-table.php';
+}
+
+class PagesListTable extends \WP_List_Table {
+    public function __construct() {
+        parent::__construct([
+            'singular' => 'notion-page',
+            'plural'   => 'notion-pages',
+            'ajax'     => true,
+        ]);
+    }
+
+    public function get_columns(): array {
+        return [
+            'cb'          => '<input type="checkbox" />',
+            'title'       => __( 'Page Title', 'notion-wp' ),
+            'last_synced' => __( 'Last Synced', 'notion-wp' ),
+            'wp_post'     => __( 'WordPress Post', 'notion-wp' ),
+            'status'      => __( 'Status', 'notion-wp' ),
+        ];
+    }
+
+    public function get_bulk_actions(): array {
+        return [
+            'sync' => __( 'Sync Selected', 'notion-wp' ),
+        ];
+    }
+
+    public function column_cb( $item ): string {
+        return sprintf(
+            '<input type="checkbox" name="notion_pages[]" value="%s" />',
+            esc_attr( $item['id'] )
+        );
+    }
+
+    public function column_title( $item ): string {
+        $actions = [
+            'sync' => sprintf(
+                '<a href="#" class="sync-page" data-page-id="%s">%s</a>',
+                esc_attr( $item['id'] ),
+                esc_html__( 'Sync', 'notion-wp' )
+            ),
+        ];
+
+        if ( ! empty( $item['wp_post_id'] ) ) {
+            $actions['edit'] = sprintf(
+                '<a href="%s">%s</a>',
+                esc_url( get_edit_post_link( $item['wp_post_id'] ) ),
+                esc_html__( 'Edit Post', 'notion-wp' )
+            );
+            $actions['view'] = sprintf(
+                '<a href="%s">%s</a>',
+                esc_url( get_permalink( $item['wp_post_id'] ) ),
+                esc_html__( 'View Post', 'notion-wp' )
+            );
+        }
+
+        return sprintf(
+            '<strong>%s</strong> %s',
+            esc_html( $item['title'] ),
+            $this->row_actions( $actions )
+        );
+    }
+
+    public function column_wp_post( $item ): string {
+        if ( empty( $item['wp_post_id'] ) ) {
+            return '<span class="dashicons dashicons-minus"></span> ' .
+                   esc_html__( 'Not synced', 'notion-wp' );
+        }
+
+        return sprintf(
+            '<a href="%s">#%d</a>',
+            esc_url( get_edit_post_link( $item['wp_post_id'] ) ),
+            $item['wp_post_id']
+        );
+    }
+
+    public function column_status( $item ): string {
+        $status = $item['sync_status'] ?? 'never';
+
+        $statuses = [
+            'synced'   => '<span class="dashicons dashicons-yes-alt" style="color: #46b450;"></span> ' .
+                         __( 'Synced', 'notion-wp' ),
+            'modified' => '<span class="dashicons dashicons-info" style="color: #ffb900;"></span> ' .
+                         __( 'Modified', 'notion-wp' ),
+            'never'    => '<span class="dashicons dashicons-marker" style="color: #999;"></span> ' .
+                         __( 'Never synced', 'notion-wp' ),
+            'error'    => '<span class="dashicons dashicons-warning" style="color: #dc3232;"></span> ' .
+                         __( 'Error', 'notion-wp' ),
+        ];
+
+        return $statuses[ $status ] ?? $statuses['never'];
+    }
+
+    public function prepare_items(): void {
+        // Get Notion pages from API or cache
+        // Check WordPress post meta for existing syncs
+        // Set $this->items with enriched data
+    }
+}
+```
+
 **Update:** `plugin/src/Admin/SettingsPage.php`
-- Add page selector dropdown (use existing `list_pages()` data)
-- Add "Sync" button with AJAX handler
-- Show sync progress indicator
-- Display success/error messages
+- Create PagesListTable instance
+- Handle bulk action form submission
+- Add AJAX handlers for single and bulk sync
 
 **Update:** `plugin/templates/admin/settings.php`
 ```php
 <!-- After workspace info section -->
 <h3><?php esc_html_e( 'Sync Notion Pages', 'notion-wp' ); ?></h3>
-<table class="wp-list-table widefat fixed striped">
-    <thead>
-        <tr>
-            <th><?php esc_html_e( 'Page Title', 'notion-wp' ); ?></th>
-            <th><?php esc_html_e( 'Last Synced', 'notion-wp' ); ?></th>
-            <th><?php esc_html_e( 'Actions', 'notion-wp' ); ?></th>
-        </tr>
-    </thead>
-    <tbody>
-        <?php foreach ( $pages as $page ) : ?>
-        <tr>
-            <td><?php echo esc_html( $page['title'] ); ?></td>
-            <td><?php echo esc_html( $page['last_synced'] ?? 'Never' ); ?></td>
-            <td>
-                <button class="button sync-page-btn" data-page-id="<?php echo esc_attr( $page['id'] ); ?>">
-                    <?php esc_html_e( 'Sync Now', 'notion-wp' ); ?>
-                </button>
-            </td>
-        </tr>
-        <?php endforeach; ?>
-    </tbody>
-</table>
+
+<form method="post" action="">
+    <?php wp_nonce_field( 'notion_sync_bulk_action', 'notion_sync_bulk_nonce' ); ?>
+    <?php $pages_table->display(); ?>
+</form>
 ```
 
 **Update:** `plugin/assets/src/js/admin.js`
 ```javascript
-// AJAX handler for sync button
-document.querySelectorAll('.sync-page-btn').forEach(button => {
-    button.addEventListener('click', function() {
+// Handle bulk sync
+document.querySelector('form').addEventListener('submit', function(e) {
+    const bulkAction = document.querySelector('[name="action"]').value;
+    if (bulkAction === 'sync') {
+        e.preventDefault();
+        const selectedPages = Array.from(
+            document.querySelectorAll('input[name="notion_pages[]"]:checked')
+        ).map(cb => cb.value);
+
+        if (selectedPages.length === 0) {
+            alert('Please select at least one page to sync.');
+            return;
+        }
+
+        syncMultiplePages(selectedPages);
+    }
+});
+
+// Handle individual sync
+document.querySelectorAll('.sync-page').forEach(link => {
+    link.addEventListener('click', function(e) {
+        e.preventDefault();
         const pageId = this.dataset.pageId;
-        syncPage(pageId);
+        syncSinglePage(pageId);
     });
 });
 
-async function syncPage(pageId) {
-    // Show loading spinner
-    // Call WordPress AJAX endpoint
-    // Handle success/error
-    // Update UI
+async function syncSinglePage(pageId) {
+    updateRowStatus(pageId, 'syncing');
+
+    try {
+        const response = await fetch(ajaxurl, {
+            method: 'POST',
+            body: new FormData(...)
+        });
+
+        const data = await response.json();
+
+        if (data.success) {
+            updateRowStatus(pageId, 'success', data.data);
+        } else {
+            updateRowStatus(pageId, 'error', data.data);
+        }
+    } catch (error) {
+        updateRowStatus(pageId, 'error', error.message);
+    }
+}
+
+async function syncMultiplePages(pageIds) {
+    // Show progress bar
+    // Sync pages one at a time (or in parallel batches)
+    // Update UI as each completes
+    // Show final summary
+}
+
+function updateRowStatus(pageId, status, data) {
+    const row = document.querySelector(`tr[data-page-id="${pageId}"]`);
+    // Update status column with spinner/success/error icon
+    // Update WordPress post column if post created
+    // Update last synced timestamp
 }
 ```
 
-**Add AJAX Handler:** `plugin/src/Admin/SettingsPage.php`
+**Add AJAX Handlers:** `plugin/src/Admin/SettingsPage.php`
 ```php
 public function register(): void {
     // ... existing code ...
-    add_action( 'wp_ajax_notion_sync_page', array( $this, 'ajax_sync_page' ) );
+    add_action( 'wp_ajax_notion_sync_single', array( $this, 'ajax_sync_single' ) );
+    add_action( 'wp_ajax_notion_sync_bulk', array( $this, 'ajax_sync_bulk' ) );
 }
 
-public function ajax_sync_page(): void {
+public function ajax_sync_single(): void {
     check_ajax_referer( 'notion_sync_ajax' );
 
     if ( ! current_user_can( 'manage_options' ) ) {
-        wp_send_json_error( 'Unauthorized' );
+        wp_send_json_error( __( 'Unauthorized', 'notion-wp' ) );
     }
 
     $page_id = sanitize_text_field( $_POST['page_id'] ?? '' );
@@ -327,32 +470,78 @@ public function ajax_sync_page(): void {
         $sync_manager = new SyncManager();
         $post_id = $sync_manager->sync_page( $page_id );
 
+        // Update last synced timestamp
+        update_option( "notion_page_{$page_id}_last_synced", current_time( 'mysql' ) );
+
         wp_send_json_success([
-            'post_id' => $post_id,
-            'edit_url' => get_edit_post_link( $post_id, 'raw' ),
-            'view_url' => get_permalink( $post_id ),
+            'post_id'   => $post_id,
+            'edit_url'  => get_edit_post_link( $post_id, 'raw' ),
+            'view_url'  => get_permalink( $post_id ),
+            'synced_at' => current_time( 'mysql' ),
         ]);
     } catch ( Exception $e ) {
         wp_send_json_error( $e->getMessage() );
     }
 }
+
+public function ajax_sync_bulk(): void {
+    check_ajax_referer( 'notion_sync_ajax' );
+
+    if ( ! current_user_can( 'manage_options' ) ) {
+        wp_send_json_error( __( 'Unauthorized', 'notion-wp' ) );
+    }
+
+    $page_ids = $_POST['page_ids'] ?? [];
+    $page_ids = array_map( 'sanitize_text_field', $page_ids );
+
+    $results = [
+        'success' => [],
+        'errors'  => [],
+    ];
+
+    $sync_manager = new SyncManager();
+
+    foreach ( $page_ids as $page_id ) {
+        try {
+            $post_id = $sync_manager->sync_page( $page_id );
+            $results['success'][] = [
+                'page_id' => $page_id,
+                'post_id' => $post_id,
+            ];
+        } catch ( Exception $e ) {
+            $results['errors'][] = [
+                'page_id' => $page_id,
+                'error'   => $e->getMessage(),
+            ];
+        }
+    }
+
+    wp_send_json_success( $results );
+}
 ```
 
 **Tasks:**
-1. Add page list table to settings template
-2. Add "Sync Now" button for each page
-3. Implement AJAX sync handler
-4. Add loading spinner during sync
-5. Show success message with link to post
-6. Handle and display error messages
+1. Create PagesListTable extending WP_List_Table
+2. Add columns for all metadata (title, last synced, WP post, status)
+3. Implement bulk actions dropdown
+4. Add individual row actions (Sync, Edit Post, View Post)
+5. Implement single page AJAX sync
+6. Implement bulk page AJAX sync
+7. Add real-time status updates in table
+8. Show progress indicator during bulk sync
+9. Display success/error summaries
 
 **Definition of Done:**
-- [ ] Can select any Notion page from list
-- [ ] Click "Sync Now" triggers AJAX request
-- [ ] Loading spinner shows during sync
-- [ ] Success message shows link to WordPress post
-- [ ] Error messages are helpful
-- [ ] UI is responsive on mobile
+- [ ] Pages display in WordPress-style list table
+- [ ] Table shows: title, last synced, WordPress post link, sync status
+- [ ] Can check multiple pages and use "Sync Selected" bulk action
+- [ ] Can click individual "Sync" row action
+- [ ] Status column updates in real-time during sync
+- [ ] Success shows links to WordPress posts
+- [ ] Bulk sync shows progress (e.g., "Syncing 3 of 10...")
+- [ ] Error messages are specific and helpful
+- [ ] Table is responsive on mobile
+- [ ] Follows WordPress admin design patterns
 
 ---
 
@@ -360,10 +549,13 @@ public function ajax_sync_page(): void {
 
 ### Visible to Users (What They Can Do)
 - ✅ Navigate to **WP Admin > Notion Sync**
-- ✅ See list of accessible Notion pages
-- ✅ Click "Sync Now" button for any page
-- ✅ Watch progress indicator during sync
-- ✅ See success message: "Page synced! [Edit Post] [View Post]"
+- ✅ See WordPress-style list table with all Notion pages
+- ✅ View metadata: page title, last synced, WordPress post link, sync status
+- ✅ Select multiple pages using checkboxes
+- ✅ Use "Sync Selected" bulk action to sync multiple pages
+- ✅ Click individual "Sync" row action for single page
+- ✅ Watch real-time status updates during sync
+- ✅ See links to WordPress posts (Edit/View)
 - ✅ Open WordPress post and see content formatted correctly
 - ✅ Make edits in Gutenberg editor
 - ✅ Re-sync updates post without creating duplicate
@@ -377,9 +569,10 @@ public function ajax_sync_page(): void {
 - ✅ `plugin/src/Blocks/Converters/ParagraphConverter.php`
 - ✅ `plugin/src/Blocks/Converters/HeadingConverter.php`
 - ✅ `plugin/src/Blocks/Converters/ListConverter.php`
-- ✅ Updated `plugin/src/Admin/SettingsPage.php` with AJAX handler
-- ✅ Updated `plugin/templates/admin/settings.php` with sync UI
-- ✅ Updated `plugin/assets/src/js/admin.js` with sync logic
+- ✅ `plugin/src/Admin/PagesListTable.php` - WP_List_Table for pages
+- ✅ Updated `plugin/src/Admin/SettingsPage.php` with single & bulk AJAX handlers
+- ✅ Updated `plugin/templates/admin/settings.php` with list table UI
+- ✅ Updated `plugin/assets/src/js/admin.js` with single & bulk sync logic
 - ✅ Unit tests for all converters
 - ✅ Integration tests for full sync workflow
 
