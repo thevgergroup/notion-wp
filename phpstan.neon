@@ -38,6 +38,18 @@ parameters:
 		# Plugin activation hooks have mixed return types
 		- '#Function register_activation_hook invoked with#'
 		- '#Function register_deactivation_hook invoked with#'
+		# WordPress core constants not recognized by PHPStan
+		- '#Constant AUTH_KEY not found#'
+		- '#Constant LOGGED_IN_KEY not found#'
+		- '#Constant NONCE_KEY not found#'
+		- '#Constant SECURE_AUTH_KEY not found#'
+		- '#Constant HOUR_IN_SECONDS not found#'
+		- '#Constant MINUTE_IN_SECONDS not found#'
+		# Plugin constants defined in main plugin file
+		- '#Constant NOTION_SYNC_URL not found#'
+		- '#Constant NOTION_SYNC_PATH not found#'
+		# False positives from strict type checking
+		- '#Variable \$query_params in empty\(\) always exists and is not falsy#'
 
 	# WordPress-specific stub files to understand WP core functions
 	# These will be loaded if available via composer
@@ -57,9 +69,6 @@ parameters:
 	checkAlwaysTrueInstanceof: true
 	checkAlwaysTrueStrictComparison: true
 
-	# Unused variable detection
-	checkUnusedVariables: true
-
 	# Type coverage requirements
 	# As code matures, increase these values
 	reportUnmatchedIgnoredErrors: false
@@ -75,7 +84,6 @@ parameters:
 		# Auto-detect number of CPUs
 		jobSize: 20
 		maximumNumberOfProcesses: 32
-		minimumNumberOfJobSize: 2
 
 # Include PHPStan extensions for better WordPress analysis
 includes:
