@@ -75,8 +75,11 @@ jobs:
             - name: Run PHPStan
               run: composer lint:phpstan
 
-            - name: Run PHP-CS-Fixer (dry-run)
-              run: composer lint:php-cs-fixer
+            # Disabled: PHP-CS-Fixer conflicts with WordPress Coding Standards
+            # WordPress uses spaces in parentheses, PHP-CS-Fixer (PSR) doesn't
+            # PHPCS already enforces WordPress standards
+            # - name: Run PHP-CS-Fixer (dry-run)
+            #   run: composer lint:php-cs-fixer
 
     javascript-lint:
         name: JavaScript/CSS Linting
