@@ -403,7 +403,7 @@ class PagesListTable extends \WP_List_Table {
 		check_admin_referer( 'bulk-' . $this->_args['plural'] );
 
 		// Get selected page IDs.
-		$page_ids = isset( $_REQUEST['page_ids'] ) ? (array) $_REQUEST['page_ids'] : array();
+		$page_ids = isset( $_REQUEST['page_ids'] ) ? array_map( 'sanitize_text_field', wp_unslash( (array) $_REQUEST['page_ids'] ) ) : array();
 
 		// Delegate to bulk sync processor.
 		$processor = new BulkSyncProcessor( $this->manager );

@@ -122,12 +122,15 @@ class SettingsPage {
 		}
 
 		// Require HTTPS for security (except in development environments).
-		$is_local = in_array( $_SERVER['HTTP_HOST'] ?? '', array( 'localhost', '127.0.0.1' ), true ) ||
-					strpos( $_SERVER['HTTP_HOST'] ?? '', '.localtest.me' ) !== false;
+		$http_host = isset( $_SERVER['HTTP_HOST'] ) ? sanitize_text_field( wp_unslash( $_SERVER['HTTP_HOST'] ) ) : '';
+		$is_local  = in_array( $http_host, array( 'localhost', '127.0.0.1' ), true ) ||
+					false !== strpos( $http_host, '.localtest.me' );
 
 		if ( ! is_ssl() && ! defined( 'WP_DEBUG' ) && ! $is_local ) {
+			$message = __( 'HTTPS is required to configure Notion Sync. ', 'notion-wp' );
+			$message .= __( 'Please enable SSL/TLS or add "define( \'FORCE_SSL_ADMIN\', true );" to wp-config.php.', 'notion-wp' );
 			wp_die(
-				esc_html__( 'HTTPS is required to configure Notion Sync. Please enable SSL/TLS or add "define( \'FORCE_SSL_ADMIN\', true );" to wp-config.php.', 'notion-wp' ),
+				esc_html( $message ),
 				esc_html__( 'HTTPS Required', 'notion-wp' ),
 				array(
 					'response'  => 403,

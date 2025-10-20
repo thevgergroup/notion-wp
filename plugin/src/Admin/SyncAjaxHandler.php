@@ -129,7 +129,7 @@ class SyncAjaxHandler {
 		}
 
 		// Get and validate page IDs.
-		$page_ids = isset( $_POST['page_ids'] ) ? (array) $_POST['page_ids'] : array();
+		$page_ids = isset( $_POST['page_ids'] ) ? (array) wp_unslash( $_POST['page_ids'] ) : array();
 		$page_ids = array_map( 'sanitize_text_field', $page_ids );
 
 		if ( empty( $page_ids ) ) {
@@ -174,7 +174,7 @@ class SyncAjaxHandler {
 		}
 
 		// Build response message.
-		if ( $success_count > 0 && $error_count === 0 ) {
+		if ( 0 < $success_count && 0 === $error_count ) {
 			$message = sprintf(
 				/* translators: %d: number of successfully synced pages */
 				_n(
