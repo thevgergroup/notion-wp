@@ -274,40 +274,40 @@
 ### WordPress Plugin/Theme Specific
 
 1. **Unauthenticated AJAX Calls**
-   - Handler: `wp_ajax_nopriv_{action}`
-   - Fix: Always check capabilities in AJAX handlers
+    - Handler: `wp_ajax_nopriv_{action}`
+    - Fix: Always check capabilities in AJAX handlers
 
 2. **Privilege Escalation**
-   - Checking `is_admin()` instead of capabilities
-   - Fix: Use `current_user_can('capability')`
+    - Checking `is_admin()` instead of capabilities
+    - Fix: Use `current_user_can('capability')`
 
 3. **Arbitrary File Upload**
-   - Not validating file MIME types
-   - Fix: Use `wp_check_filetype()` and validate MIME type
+    - Not validating file MIME types
+    - Fix: Use `wp_check_filetype()` and validate MIME type
 
 4. **SQL Injection in ORDER BY**
-   - `ORDER BY {$_GET['orderby']}`
-   - Fix: Whitelist allowed column names
+    - `ORDER BY {$_GET['orderby']}`
+    - Fix: Whitelist allowed column names
 
 5. **XSS in Admin Area**
-   - Assuming admin area is safe
-   - Fix: Escape all output, even in admin
+    - Assuming admin area is safe
+    - Fix: Escape all output, even in admin
 
 6. **CSRF in Settings**
-   - Not using nonces
-   - Fix: Add `wp_nonce_field()` and verify
+    - Not using nonces
+    - Fix: Add `wp_nonce_field()` and verify
 
 7. **Path Traversal in File Inclusion**
-   - `include($_GET['file']);`
-   - Fix: Validate against whitelist, use absolute paths
+    - `include($_GET['file']);`
+    - Fix: Validate against whitelist, use absolute paths
 
 8. **Open Redirect**
-   - `wp_redirect($_GET['redirect']);`
-   - Fix: Validate URL, use `wp_safe_redirect()`
+    - `wp_redirect($_GET['redirect']);`
+    - Fix: Validate URL, use `wp_safe_redirect()`
 
 9. **Plaintext Password Storage**
-   - `update_option('password', $password);`
-   - Fix: Use `wp_hash_password()`, encrypt if API token
+    - `update_option('password', $password);`
+    - Fix: Use `wp_hash_password()`, encrypt if API token
 
 10. **Information Disclosure via Comments**
     - Exposing sensitive info in HTML comments

@@ -18,15 +18,13 @@
 			"jsx": true
 		}
 	},
-	"plugins": [
-		"@wordpress",
-		"prettier"
-	],
+	"plugins": ["@wordpress", "prettier"],
 	"globals": {
 		"wp": "readonly",
 		"jQuery": "readonly",
 		"_": "readonly",
-		"notionWP": "readonly"
+		"notionWP": "readonly",
+		"notionSyncAdmin": "readonly"
 	},
 	"rules": {
 		// Prettier integration
@@ -151,6 +149,13 @@
 			"files": [".eslintrc.js", "webpack.config.js", "*.config.js"],
 			"env": {
 				"node": true
+			}
+		},
+		{
+			// Admin files - allow confirm/alert for WordPress admin UI
+			"files": ["**/admin*.js"],
+			"rules": {
+				"no-alert": "off"
 			}
 		}
 	],

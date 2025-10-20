@@ -3,16 +3,25 @@
  *
  * Handles connection form submission, token validation, and disconnect functionality.
  *
- * @package NotionSync
+ * @package
  */
 
-import { showLoadingState, showInlineError, clearInlineError } from './admin-ui.js';
+/**
+ * Internal dependencies
+ */
+import {
+	showLoadingState,
+	showInlineError,
+	clearInlineError,
+} from './admin-ui.js';
 
 /**
  * Initialize connection form handling
  */
 export function initConnectionForm() {
-	const connectionForm = document.getElementById('notion-sync-connection-form');
+	const connectionForm = document.getElementById(
+		'notion-sync-connection-form'
+	);
 	const disconnectButton = document.getElementById('notion-sync-disconnect');
 
 	if (connectionForm) {
@@ -43,7 +52,7 @@ function handleConnectionForm(form) {
 	});
 
 	// Handle form submission
-	form.addEventListener('submit', function (event) {
+	form.addEventListener('submit', (event) => {
 		const token = tokenInput.value.trim();
 
 		// Basic validation
@@ -66,7 +75,7 @@ function handleConnectionForm(form) {
 /**
  * Validate token format and update button state
  *
- * @param {HTMLInputElement} input - Token input element
+ * @param {HTMLInputElement}  input  - Token input element
  * @param {HTMLButtonElement} button - Submit button element
  */
 function validateTokenFormat(input, button) {
@@ -111,7 +120,7 @@ function isValidTokenFormat(token) {
  * @param {HTMLButtonElement} button - Disconnect button element
  */
 function handleDisconnectButton(button) {
-	button.addEventListener('click', function (event) {
+	button.addEventListener('click', (event) => {
 		// Show confirmation dialog
 		const confirmed = confirm(
 			'Are you sure you want to disconnect from Notion?\n\nYour settings will be removed and you will need to reconnect.'

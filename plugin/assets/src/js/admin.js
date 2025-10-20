@@ -7,9 +7,12 @@
  * - Sync operations (admin-sync.js)
  * - UI utilities (admin-ui.js)
  *
- * @package NotionSync
+ * @package
  */
 
+/**
+ * Internal dependencies
+ */
 import { initConnectionForm } from './modules/admin-connection.js';
 import { initSyncFunctionality } from './modules/admin-sync.js';
 import {

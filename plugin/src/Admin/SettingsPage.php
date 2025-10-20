@@ -229,7 +229,10 @@ class SettingsPage {
 
 		// Validate token format (Notion tokens start with "secret_" or "ntn_").
 		if ( strpos( $token, 'secret_' ) !== 0 && strpos( $token, 'ntn_' ) !== 0 ) {
-			$this->redirect_with_message( 'error', __( 'Invalid token format. Notion API tokens should start with "secret_" or "ntn_".', 'notion-wp' ) );
+			$this->redirect_with_message(
+				'error',
+				__( 'Invalid token format. Notion API tokens should start with "secret_" or "ntn_".', 'notion-wp' )
+			);
 			return;
 		}
 

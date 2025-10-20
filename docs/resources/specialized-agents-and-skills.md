@@ -13,9 +13,11 @@ This document outlines the specialized agents, skills, and expertise areas neede
 ## Technical Development Agents
 
 ### 1. WordPress Plugin Engineer
+
 **Skill Name:** `wordpress-plugin-dev`
 
 **Expertise:**
+
 - WordPress plugin architecture and best practices
 - Hooks system (actions and filters)
 - WordPress coding standards (WPCS)
@@ -26,6 +28,7 @@ This document outlines the specialized agents, skills, and expertise areas neede
 - Plugin security (nonces, capability checks, sanitization)
 
 **Use Cases for This Project:**
+
 - Setting up initial plugin boilerplate structure
 - Implementing proper WordPress hooks for extensibility
 - Creating admin settings pages
@@ -34,6 +37,7 @@ This document outlines the specialized agents, skills, and expertise areas neede
 - Managing plugin lifecycle (activation, updates, deactivation)
 
 **Tools/Resources:**
+
 - WordPress Plugin Handbook
 - WP-CLI for scaffolding
 - WordPress coding standards (phpcs)
@@ -42,9 +46,11 @@ This document outlines the specialized agents, skills, and expertise areas neede
 ---
 
 ### 2. Notion API Specialist
+
 **Skill Name:** `notion-api-expert`
 
 **Expertise:**
+
 - Complete knowledge of Notion API endpoints and capabilities
 - Notion block types and their structure
 - Notion database properties and filtering
@@ -54,6 +60,7 @@ This document outlines the specialized agents, skills, and expertise areas neede
 - Notion's block child hierarchy patterns
 
 **Use Cases for This Project:**
+
 - Implementing Notion API client library
 - Handling pagination for large databases (100 items per request)
 - Converting Notion block JSON to intermediate format
@@ -62,6 +69,7 @@ This document outlines the specialized agents, skills, and expertise areas neede
 - Troubleshooting Notion API authentication issues
 
 **Tools/Resources:**
+
 - Notion API documentation (developers.notion.com)
 - Notion API SDKs (official JavaScript SDK as reference)
 - Block type examples and schemas
@@ -70,9 +78,11 @@ This document outlines the specialized agents, skills, and expertise areas neede
 ---
 
 ### 3. Block Converter Specialist
+
 **Skill Name:** `block-mapping-expert`
 
 **Expertise:**
+
 - Deep understanding of Notion block types (70+ types)
 - WordPress Gutenberg block structure
 - HTML/Markdown conversion strategies
@@ -82,6 +92,7 @@ This document outlines the specialized agents, skills, and expertise areas neede
 - Special block types (callouts, toggles, synced blocks, databases)
 
 **Use Cases for This Project:**
+
 - Designing the block converter architecture
 - Implementing converters for each Notion block type
 - Handling edge cases (unsupported blocks, malformed data)
@@ -90,6 +101,7 @@ This document outlines the specialized agents, skills, and expertise areas neede
 - Testing block conversion accuracy
 
 **Tools/Resources:**
+
 - Notion block type reference documentation
 - WordPress block editor handbook
 - Gutenberg block examples
@@ -98,9 +110,11 @@ This document outlines the specialized agents, skills, and expertise areas neede
 ---
 
 ### 4. PHP Backend Developer
+
 **Skill Name:** `php-backend-dev`
 
 **Expertise:**
+
 - Modern PHP 8+ development practices
 - Object-oriented programming patterns
 - PSR standards (PSR-4 autoloading, PSR-12 coding style)
@@ -111,6 +125,7 @@ This document outlines the specialized agents, skills, and expertise areas neede
 - Memory management for large operations
 
 **Use Cases for This Project:**
+
 - Implementing core sync engine logic
 - Building background processing for large imports
 - Creating queue system for image downloads
@@ -119,6 +134,7 @@ This document outlines the specialized agents, skills, and expertise areas neede
 - Optimizing performance for large syncs
 
 **Tools/Resources:**
+
 - PHP 8 documentation
 - Composer for dependency management
 - PHPStan or Psalm for static analysis
@@ -127,9 +143,11 @@ This document outlines the specialized agents, skills, and expertise areas neede
 ---
 
 ### 5. API Integration Engineer
+
 **Skill Name:** `api-integration-expert`
 
 **Expertise:**
+
 - REST API design patterns
 - Authentication and authorization (OAuth, tokens)
 - API error handling and retry strategies
@@ -139,6 +157,7 @@ This document outlines the specialized agents, skills, and expertise areas neede
 - API versioning strategies
 
 **Use Cases for This Project:**
+
 - Designing the Notion API client interface
 - Implementing secure token storage
 - Building webhook receiver endpoint
@@ -147,6 +166,7 @@ This document outlines the specialized agents, skills, and expertise areas neede
 - Handling API version updates gracefully
 
 **Tools/Resources:**
+
 - REST API best practices
 - WordPress HTTP API documentation
 - Webhook security patterns (signature verification)
@@ -156,9 +176,11 @@ This document outlines the specialized agents, skills, and expertise areas neede
 ## Architecture & Design Agents
 
 ### 6. WordPress Architect
+
 **Skill Name:** `wordpress-architect`
 
 **Expertise:**
+
 - WordPress plugin architecture patterns (MVC, DI containers)
 - Extensibility design (hooks, filters, action scheduler)
 - Performance optimization strategies
@@ -168,6 +190,7 @@ This document outlines the specialized agents, skills, and expertise areas neede
 - Code organization and namespacing
 
 **Use Cases for This Project:**
+
 - Designing overall plugin architecture
 - Defining class structure and dependency injection
 - Planning extensibility points for developers
@@ -176,6 +199,7 @@ This document outlines the specialized agents, skills, and expertise areas neede
 - Ensuring compatibility with multisite installations
 
 **Tools/Resources:**
+
 - WordPress VIP coding standards
 - Query Monitor plugin for performance analysis
 - Action Scheduler library documentation
@@ -183,9 +207,11 @@ This document outlines the specialized agents, skills, and expertise areas neede
 ---
 
 ### 7. Database Designer
+
 **Skill Name:** `wordpress-database-expert`
 
 **Expertise:**
+
 - WordPress database schema and tables
 - Custom post types and taxonomies
 - Post meta and term meta design
@@ -195,6 +221,7 @@ This document outlines the specialized agents, skills, and expertise areas neede
 - Relationship mapping between systems
 
 **Use Cases for This Project:**
+
 - Designing meta field structure for storing Notion IDs
 - Creating custom post types for synced content
 - Implementing field mapping database schema
@@ -203,6 +230,7 @@ This document outlines the specialized agents, skills, and expertise areas neede
 - Planning database migrations for plugin updates
 
 **Tools/Resources:**
+
 - WordPress database schema reference
 - MySQL optimization guides
 - WordPress wpdb class documentation
@@ -210,9 +238,11 @@ This document outlines the specialized agents, skills, and expertise areas neede
 ---
 
 ### 8. Security Specialist
+
 **Skill Name:** `wordpress-security-expert`
 
 **Expertise:**
+
 - WordPress security best practices
 - Secure credential storage (wp_options encryption)
 - Input sanitization and validation
@@ -224,6 +254,7 @@ This document outlines the specialized agents, skills, and expertise areas neede
 - CSRF protection
 
 **Use Cases for This Project:**
+
 - Implementing secure Notion token storage
 - Sanitizing all user inputs in admin UI
 - Escaping outputs in settings pages
@@ -233,6 +264,7 @@ This document outlines the specialized agents, skills, and expertise areas neede
 - Preventing malicious content injection from Notion
 
 **Tools/Resources:**
+
 - WordPress security handbook
 - OWASP top 10 for web applications
 - WordPress VIP security standards
@@ -242,9 +274,11 @@ This document outlines the specialized agents, skills, and expertise areas neede
 ## Testing & Quality Agents
 
 ### 9. WordPress Testing Engineer
+
 **Skill Name:** `wordpress-testing-expert`
 
 **Expertise:**
+
 - PHPUnit testing for WordPress
 - WP-CLI test scaffolding
 - Integration testing with WordPress test framework
@@ -254,6 +288,7 @@ This document outlines the specialized agents, skills, and expertise areas neede
 - Code coverage analysis
 
 **Use Cases for This Project:**
+
 - Setting up PHPUnit test environment
 - Writing unit tests for block converters
 - Creating integration tests for sync operations
@@ -262,6 +297,7 @@ This document outlines the specialized agents, skills, and expertise areas neede
 - Achieving high code coverage
 
 **Tools/Resources:**
+
 - WordPress unit testing documentation
 - PHPUnit documentation
 - WP-CLI test command
@@ -270,9 +306,11 @@ This document outlines the specialized agents, skills, and expertise areas neede
 ---
 
 ### 10. QA Automation Engineer
+
 **Skill Name:** `wordpress-qa-automation`
 
 **Expertise:**
+
 - End-to-end testing strategies
 - WordPress test environments (wp-env, Local, Docker)
 - Automated UI testing (Playwright, Selenium)
@@ -282,6 +320,7 @@ This document outlines the specialized agents, skills, and expertise areas neede
 - Regression testing
 
 **Use Cases for This Project:**
+
 - Creating end-to-end test scenarios for sync workflows
 - Testing various Notion block types conversion
 - Validating media import functionality
@@ -290,6 +329,7 @@ This document outlines the specialized agents, skills, and expertise areas neede
 - Testing conflict resolution scenarios
 
 **Tools/Resources:**
+
 - Playwright (available via MCP)
 - WordPress test environments (wp-env)
 - Postman for API testing
@@ -299,9 +339,11 @@ This document outlines the specialized agents, skills, and expertise areas neede
 ## UI/UX & Documentation Agents
 
 ### 11. WordPress Admin UI Designer
+
 **Skill Name:** `wordpress-admin-ui-expert`
 
 **Expertise:**
+
 - WordPress admin design patterns
 - Settings API implementation
 - WordPress UI components (buttons, notices, tables)
@@ -311,6 +353,7 @@ This document outlines the specialized agents, skills, and expertise areas neede
 - Admin notices and feedback
 
 **Use Cases for This Project:**
+
 - Designing plugin settings page UI
 - Creating field mapping interface
 - Building sync status dashboard
@@ -320,6 +363,7 @@ This document outlines the specialized agents, skills, and expertise areas neede
 - Building dry-run preview interface
 
 **Tools/Resources:**
+
 - WordPress design handbook
 - WordPress admin UI components
 - React for WordPress admin (Gutenberg components)
@@ -327,9 +371,11 @@ This document outlines the specialized agents, skills, and expertise areas neede
 ---
 
 ### 12. Technical Writer
+
 **Skill Name:** `wordpress-technical-writer`
 
 **Expertise:**
+
 - Developer documentation writing
 - User guide creation
 - API reference documentation
@@ -339,6 +385,7 @@ This document outlines the specialized agents, skills, and expertise areas neede
 - Hook and filter documentation
 
 **Use Cases for This Project:**
+
 - Writing plugin installation guide
 - Documenting Notion integration setup process
 - Creating developer hooks and filters reference
@@ -348,6 +395,7 @@ This document outlines the specialized agents, skills, and expertise areas neede
 - Writing changelog and version notes
 
 **Tools/Resources:**
+
 - WordPress plugin readme validator
 - Markdown best practices
 - API documentation generators (phpDocumentor)
@@ -355,9 +403,11 @@ This document outlines the specialized agents, skills, and expertise areas neede
 ---
 
 ### 13. UX Researcher
+
 **Skill Name:** `wordpress-ux-researcher`
 
 **Expertise:**
+
 - User research methodologies
 - Workflow analysis
 - User journey mapping
@@ -367,6 +417,7 @@ This document outlines the specialized agents, skills, and expertise areas neede
 - User feedback collection
 
 **Use Cases for This Project:**
+
 - Analyzing Notion-to-WordPress content workflows
 - Identifying pain points in existing solutions
 - Designing intuitive sync configuration flow
@@ -375,6 +426,7 @@ This document outlines the specialized agents, skills, and expertise areas neede
 - Validating admin interface designs
 
 **Tools/Resources:**
+
 - User testing platforms
 - Workflow diagramming tools
 - Competitor analysis frameworks
@@ -384,9 +436,11 @@ This document outlines the specialized agents, skills, and expertise areas neede
 ## Project Management Agents
 
 ### 14. WordPress Project Manager
+
 **Skill Name:** `wordpress-project-manager`
 
 **Expertise:**
+
 - WordPress plugin development lifecycle
 - WordPress.org plugin repository requirements
 - Version management and release planning
@@ -396,6 +450,7 @@ This document outlines the specialized agents, skills, and expertise areas neede
 - WordPress compatibility requirements
 
 **Use Cases for This Project:**
+
 - Planning development phases
 - Prioritizing block type support
 - Managing feature scope
@@ -405,6 +460,7 @@ This document outlines the specialized agents, skills, and expertise areas neede
 - Planning backward compatibility
 
 **Tools/Resources:**
+
 - WordPress plugin developer handbook
 - WordPress.org SVN repository
 - WordPress release cycle calendar
@@ -412,9 +468,11 @@ This document outlines the specialized agents, skills, and expertise areas neede
 ---
 
 ### 15. DevOps Engineer
+
 **Skill Name:** `wordpress-devops`
 
 **Expertise:**
+
 - CI/CD pipeline setup
 - GitHub Actions for WordPress
 - Automated testing pipelines
@@ -424,6 +482,7 @@ This document outlines the specialized agents, skills, and expertise areas neede
 - Build and release automation
 
 **Use Cases for This Project:**
+
 - Setting up GitHub Actions for automated testing
 - Creating Docker development environment
 - Automating WordPress.org deployments
@@ -432,6 +491,7 @@ This document outlines the specialized agents, skills, and expertise areas neede
 - Creating release build scripts
 
 **Tools/Resources:**
+
 - GitHub Actions
 - Docker and docker-compose
 - WordPress.org SVN deployment scripts
@@ -442,9 +502,11 @@ This document outlines the specialized agents, skills, and expertise areas neede
 ## Additional Specialized Skills Needed
 
 ### 16. Media Processing Specialist
+
 **Skill Name:** `wordpress-media-expert`
 
 **Expertise:**
+
 - WordPress Media Library API
 - Image processing and optimization
 - File upload handling
@@ -453,6 +515,7 @@ This document outlines the specialized agents, skills, and expertise areas neede
 - Image resizing and thumbnail generation
 
 **Use Cases:**
+
 - Implementing image download from Notion's S3 URLs
 - Avoiding duplicate media imports
 - Handling various file types (images, PDFs, videos)
@@ -462,9 +525,11 @@ This document outlines the specialized agents, skills, and expertise areas neede
 ---
 
 ### 17. WordPress CLI Expert
+
 **Skill Name:** `wp-cli-expert`
 
 **Expertise:**
+
 - WP-CLI command development
 - Command arguments and flags
 - Progress bars and output formatting
@@ -472,6 +537,7 @@ This document outlines the specialized agents, skills, and expertise areas neede
 - Error handling in CLI context
 
 **Use Cases:**
+
 - Creating `wp notion-sync run` command
 - Implementing dry-run CLI flag
 - Building bulk sync commands
@@ -483,23 +549,27 @@ This document outlines the specialized agents, skills, and expertise areas neede
 ## Priority Recommendations
 
 ### Phase 1: Foundation (Immediate Need)
+
 1. **WordPress Plugin Engineer** - Set up plugin structure
 2. **WordPress Architect** - Define architecture
 3. **Notion API Specialist** - Implement API client
 4. **Security Specialist** - Secure token storage
 
 ### Phase 2: Core Features
+
 5. **Block Converter Specialist** - Implement block mapping
 6. **PHP Backend Developer** - Build sync engine
 7. **Database Designer** - Design data structures
 8. **Media Processing Specialist** - Handle images/files
 
 ### Phase 3: Interface & Testing
+
 9. **WordPress Admin UI Designer** - Create admin interface
 10. **WordPress Testing Engineer** - Set up test framework
 11. **QA Automation Engineer** - End-to-end testing
 
 ### Phase 4: Documentation & Launch
+
 12. **Technical Writer** - Create documentation
 13. **WordPress Project Manager** - Plan release
 14. **DevOps Engineer** - Set up CI/CD
@@ -509,6 +579,7 @@ This document outlines the specialized agents, skills, and expertise areas neede
 ## How to Implement These Skills
 
 ### Option 1: Create Custom Claude Code Skills
+
 Use the `skill-creator` skill (available in example-skills) to develop custom skills for each specialization:
 
 ```bash
@@ -518,11 +589,14 @@ Use Skill tool with command: "skill-creator"
 ```
 
 ### Option 2: Use MCP Servers
+
 Leverage existing MCP servers or build custom ones:
+
 - **context7** - Already available for fetching WordPress and Notion API docs
 - **Custom WordPress MCP** - Could create a server with WordPress-specific tools
 
 ### Option 3: Prompt Engineering
+
 Create detailed prompts in `.claude/commands/` for each specialization:
 
 ```bash
@@ -539,12 +613,14 @@ Create detailed prompts in `.claude/commands/` for each specialization:
 ## Skills Already Available (From Current Installation)
 
 ### Relevant Existing Skills:
+
 1. **webapp-testing** - Can be used for testing WordPress admin UI with Playwright
 2. **mcp-builder** - Could create custom MCP server for WordPress-specific tools
 3. **skill-creator** - Use to build custom skills outlined in this document
 4. **docx/pdf** - Useful for creating documentation and user guides
 
 ### MCP Servers Already Available:
+
 1. **playwright-mcp** - For browser-based testing of admin interface
 2. **context7** - For fetching up-to-date WordPress and Notion documentation
 3. **tmux** - For managing multiple development sessions
@@ -555,19 +631,19 @@ Create detailed prompts in `.claude/commands/` for each specialization:
 ## Next Steps
 
 1. **Create foundational skills first:**
-   - WordPress Plugin Engineer skill
-   - Notion API Specialist skill
-   - Block Converter Specialist skill
+    - WordPress Plugin Engineer skill
+    - Notion API Specialist skill
+    - Block Converter Specialist skill
 
 2. **Set up development environment:**
-   - WordPress local development setup
-   - Notion test workspace and integration
-   - Testing framework
+    - WordPress local development setup
+    - Notion test workspace and integration
+    - Testing framework
 
 3. **Begin implementation with architectural foundation:**
-   - Plugin boilerplate structure
-   - Notion API client
-   - Basic block converter framework
+    - Plugin boilerplate structure
+    - Notion API client
+    - Basic block converter framework
 
 4. **Iterate and add specialized skills as needed** during development
 

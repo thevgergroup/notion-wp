@@ -27,6 +27,7 @@ Prove that a non-technical user can successfully connect their Notion account to
 ### Environment Setup
 
 **WordPress Environment:**
+
 - [ ] WordPress site accessible at: `http://localhost:8080` or demo URL
 - [ ] Plugin activated and working
 - [ ] No existing Notion connection (disconnected state)
@@ -37,6 +38,7 @@ Prove that a non-technical user can successfully connect their Notion account to
 - [ ] WordPress debug mode: OFF (no debug notices)
 
 **Notion Account:**
+
 - [ ] Notion account logged in (separate browser tab)
 - [ ] Test integration already created: "WordPress Demo"
 - [ ] API token copied to clipboard or accessible
@@ -44,6 +46,7 @@ Prove that a non-technical user can successfully connect their Notion account to
 - [ ] Pages have clear, readable titles
 
 **Backup Plan:**
+
 - [ ] Second valid token available (in case of issues)
 - [ ] Screenshots of expected states ready
 - [ ] Video recording of successful demo (fallback)
@@ -60,6 +63,7 @@ Prove that a non-technical user can successfully connect their Notion account to
 ```
 
 **5 Minutes Before Demo:**
+
 - [ ] Close unnecessary applications
 - [ ] Silence notifications (Do Not Disturb mode)
 - [ ] Have valid Notion token ready
@@ -73,9 +77,11 @@ Prove that a non-technical user can successfully connect their Notion account to
 ### Introduction (15 seconds)
 
 **What to Say:**
+
 > "I'm going to show you how easy it is to connect your Notion account to WordPress. This is the first step before we can sync content. The whole process takes less than two minutes."
 
 **Action:**
+
 - Display WordPress login screen
 - Keep energy positive and confident
 
@@ -84,23 +90,27 @@ Prove that a non-technical user can successfully connect their Notion account to
 ### Part 1: Show WordPress Admin (30 seconds)
 
 **What to Say:**
+
 > "First, I'll log into WordPress as an admin. Once logged in, you'll see the standard WordPress dashboard. Our plugin adds a new menu item called 'Notion Sync' right here in the sidebar."
 
 **Actions:**
+
 1. Type username: `admin`
 2. Type password: `password` (or demo password)
 3. Click "Log In"
 4. Wait for dashboard to load (2-3 seconds)
 5. **Point to** "Notion Sync" menu item (left sidebar)
-   - Look for cloud icon (dashicons-cloud)
-   - Should be easily visible
+    - Look for cloud icon (dashicons-cloud)
+    - Should be easily visible
 
 **Expected State:**
+
 - WordPress dashboard visible
 - "Notion Sync" menu item clearly visible
 - No error messages
 
 **If Something Goes Wrong:**
+
 - Login fails: Use backup credentials
 - Plugin not visible: Check if activated, use screenshot fallback
 
@@ -109,14 +119,17 @@ Prove that a non-technical user can successfully connect their Notion account to
 ### Part 2: Navigate to Notion Sync (15 seconds)
 
 **What to Say:**
+
 > "Let's click on Notion Sync to open the settings page."
 
 **Actions:**
+
 1. Click "Notion Sync" in admin menu
 2. Wait for page to load (1-2 seconds)
 3. Page displays with "Connect to Notion" form
 
 **Expected State:**
+
 - Settings page loads
 - Page title: "Notion Sync"
 - Connection form visible
@@ -125,9 +138,11 @@ Prove that a non-technical user can successfully connect their Notion account to
 - "Connect to Notion" button visible
 
 **What to Point Out (briefly):**
+
 > "See, we have clear step-by-step instructions, and a field to paste our Notion API token."
 
 **If Something Goes Wrong:**
+
 - Page doesn't load: Refresh browser
 - Already connected: Click Disconnect, confirm, wait for page reload
 
@@ -136,38 +151,40 @@ Prove that a non-technical user can successfully connect their Notion account to
 ### Part 3: Paste API Token and Connect (45 seconds)
 
 **What to Say:**
+
 > "I've already created a Notion integration and have my token ready. I'll paste it here. Notice the field masks the token for security, just like a password field."
 
 **Actions:**
+
 1. Click in "Notion API Token" field
 2. Paste token (Cmd+V / Ctrl+V)
 3. **Show** field is masked (displays dots or asterisks)
 4. **Pause** (1 second) - let audience see the form is filled
 
 **What to Say:**
+
 > "Now I'll click 'Connect to Notion' and watch what happens."
 
-**Actions:**
-5. Click "Connect to Notion" button
-6. **Point out** loading spinner (if visible, should show "Connecting...")
-7. Wait for page to redirect (3-8 seconds typically)
-8. Page reloads with success message
+**Actions:** 5. Click "Connect to Notion" button 6. **Point out** loading spinner (if visible, should show "Connecting...") 7. Wait for page to redirect (3-8 seconds typically) 8. Page reloads with success message
 
 **Expected State After Connection:**
+
 - Green success notice at top
 - Message includes workspace name (e.g., "Successfully connected to Notion workspace: Patrick's Workspace")
 - Connection status section shows:
-  - Green checkmark icon
-  - "Connected to Notion" heading
-  - Workspace name
-  - Integration name
-  - Integration ID (as code)
-  - "Disconnect" button visible
+    - Green checkmark icon
+    - "Connected to Notion" heading
+    - Workspace name
+    - Integration name
+    - Integration ID (as code)
+    - "Disconnect" button visible
 
 **What to Say:**
+
 > "Perfect! We're now connected. You can see the workspace name, and WordPress confirms the connection is active."
 
 **If Something Goes Wrong:**
+
 - Invalid token error: "Let me show you what happens with an invalid token" (turn it into teaching moment)
 - Network error: Use backup token, or show screenshot of successful state
 - Timeout: Wait up to 15 seconds, then use fallback
@@ -177,37 +194,43 @@ Prove that a non-technical user can successfully connect their Notion account to
 ### Part 4: Show Workspace and Pages List (30 seconds)
 
 **What to Say:**
+
 > "Now that we're connected, WordPress automatically displays information about my Notion workspace and the pages I've shared with this integration."
 
 **Actions:**
+
 1. **Scroll down** to "Accessible Pages" section (if present)
 2. **Point out** workspace details:
-   - Workspace name clearly displayed
-   - Integration information visible
+    - Workspace name clearly displayed
+    - Integration information visible
 3. **Show** pages list (if pages shared):
-   - Point to page titles
-   - Point to "Last Edited" timestamps
-   - Point to "View in Notion" button
+    - Point to page titles
+    - Point to "Last Edited" timestamps
+    - Point to "View in Notion" button
 
 **What to Say:**
+
 > "Here you can see a list of the Notion pages this integration can access. Each page shows when it was last edited, and I can click to view it in Notion. This confirms everything is working correctly."
 
-**Actions:**
-4. **Optional:** Click one "View in Notion" link
-   - Opens in new tab
-   - Shows the Notion page
-   - Return to WordPress tab
+**Actions:** 4. **Optional:** Click one "View in Notion" link
+
+- Opens in new tab
+- Shows the Notion page
+- Return to WordPress tab
 
 **What to Say:**
+
 > "That's it! In less than two minutes, we've connected WordPress to Notion and confirmed it's working. In the next phase, we'll build the features to actually sync content from these pages into WordPress."
 
 **Expected State:**
+
 - At least 3-5 pages visible in list
 - Page titles readable and correct
 - Timestamps show relative time ("2 hours ago")
 - Links functional
 
 **If No Pages Show:**
+
 - This is okay! Show the empty state message
 - Explain: "If you haven't shared any pages yet, you'll see instructions on how to do that in Notion. It's a simple process - open any page, click Share, and add this integration."
 
@@ -216,9 +239,11 @@ Prove that a non-technical user can successfully connect their Notion account to
 ## Conclusion (10 seconds)
 
 **What to Say:**
+
 > "That's the complete connection flow. Simple, fast, and secure. The plugin guides you through each step with clear instructions. Any questions?"
 
 **Actions:**
+
 - Pause for questions
 - Be ready to demonstrate disconnect (if asked)
 - Show that you can reconnect easily
@@ -230,31 +255,38 @@ Prove that a non-technical user can successfully connect their Notion account to
 ### Expected Questions & Answers
 
 **Q: "Is my token secure?"**
+
 > "Yes, absolutely. It's stored encrypted in the WordPress database and never displayed again after you save it. WordPress uses it directly to talk to Notion's API. No third parties involved."
 
 **Q: "What if I want to disconnect?"**
+
 > "Great question. Let me show you."
 > [Click Disconnect, show confirmation dialog, complete disconnection]
 > "See? Clean disconnect. You can reconnect anytime with the same or different token."
 
 **Q: "Can this sync content now?"**
+
 > "Not yet - this is Phase 0, which proves the authentication works. Content syncing is coming in Phase 1. This foundation ensures we can reliably communicate with Notion before building sync features."
 
 **Q: "What happens if I enter a wrong token?"**
+
 > "Let me show you."
 > [Disconnect, enter invalid token like "test123"]
-> "See? Clear error message telling you exactly what's wrong: 'Invalid token format. Notion API tokens should start with secret_.' No confusing technical jargon."
+> "See? Clear error message telling you exactly what's wrong: 'Invalid token format. Notion API tokens should start with secret\_.' No confusing technical jargon."
 
 **Q: "Does this work on mobile?"**
+
 > "Yes! The interface is fully responsive. Want to see?"
 > [Resize browser window to mobile size, or pull up phone if available]
 
 **Q: "How long does the connection last?"**
+
 > "Indefinitely, until you disconnect or revoke the token in Notion. WordPress securely stores it."
 
 ### Unexpected Questions
 
 If asked something you don't know:
+
 > "That's a great question. I want to give you an accurate answer, so let me note that down and get back to you after the demo. The important thing this demo shows is that the core connection works reliably."
 
 ---
@@ -264,24 +296,28 @@ If asked something you don't know:
 ### Show Invalid Token Error (30 seconds)
 
 **Only do this if:**
+
 - Demo went smoothly
 - Audience seems technical enough to appreciate it
 - You have time remaining
 
 **Actions:**
+
 1. Click "Disconnect"
 2. Confirm disconnection
 3. Enter invalid token: `invalid_test_123`
 4. Click "Connect to Notion"
-5. Show error: "Invalid token format. Notion API tokens should start with 'secret_'."
+5. Show error: "Invalid token format. Notion API tokens should start with 'secret\_'."
 
 **What to Say:**
+
 > "Notice how the error message is clear and tells you exactly what to fix. No cryptic error codes."
 
-6. Enter token without "secret_" prefix: `nwjE3jwofj39fj3f`
+6. Enter token without "secret\_" prefix: `nwjE3jwofj39fj3f`
 7. Same clear error
 
 **What to Say:**
+
 > "The plugin validates the token format before even contacting Notion, saving you time."
 
 ---
@@ -291,33 +327,40 @@ If asked something you don't know:
 ### If Connection Fails
 
 **Stay Calm:**
+
 > "Interesting - looks like we hit a network hiccup. This is actually good to show because..."
 
 **Options:**
+
 1. **Try Again:** "Let me try once more." (Use backup token)
 2. **Show Screenshot:** "Here's what success looks like." (Pull up prepared screenshot)
 3. **Show Video:** "I have a recording of this working perfectly." (Play backup video)
 
 **What to Say:**
+
 > "The important thing is that when this does work - which it has in all our tests - the experience is smooth and clear. Network issues can happen with any API integration, but our error messages guide users through troubleshooting."
 
 ### If WordPress is Down
 
 **Immediate Action:**
+
 > "Looks like our demo environment needs a restart. Rather than waste time, let me show you screenshots of the process."
 
 **Walk Through Screenshots:**
+
 - Screenshot 1: Settings page (disconnected)
 - Screenshot 2: Entering token
 - Screenshot 3: Connection success
 - Screenshot 4: Pages list
 
 **Maintain Confidence:**
+
 > "We've tested this extensively - over 50 successful connections. The code is solid."
 
 ### If Browser Crashes
 
 **Stay Professional:**
+
 > "Technology! Let me pull this up on my phone to show the mobile experience instead."
 
 [Use phone to show mobile demo, or pivot to screenshot deck]
@@ -346,10 +389,10 @@ If asked something you don't know:
 
 ## Demo Feedback Form
 
-**Presenter:** _________________________
-**Date:** _________________________
-**Audience:** _________________________
-**Demo Duration:** _______ minutes
+**Presenter:** ************\_************
+**Date:** ************\_************
+**Audience:** ************\_************
+**Demo Duration:** **\_\_\_** minutes
 
 ### Demo Performance
 
@@ -391,6 +434,7 @@ If asked something you don't know:
 ### Open Feedback
 
 **What the audience liked:**
+
 ```
 
 
@@ -399,6 +443,7 @@ If asked something you don't know:
 ```
 
 **What confused the audience:**
+
 ```
 
 
@@ -407,6 +452,7 @@ If asked something you don't know:
 ```
 
 **Suggestions for improvement:**
+
 ```
 
 
@@ -418,13 +464,14 @@ If asked something you don't know:
 
 **Result:** [ ] PASS - Proceed to Phase 1 [ ] FAIL - Fixes Required
 
-**Gatekeeping Approval:** _________________________
+**Gatekeeping Approval:** ************\_************
 
-**Signature:** _________________________
+**Signature:** ************\_************
 
-**Date:** _________________________
+**Date:** ************\_************
 
 **Next Steps:**
+
 ```
 
 
@@ -461,11 +508,11 @@ wp transient delete notion_wp_workspace_info_cache
 2. Integration name: "WordPress Demo"
 3. Copy token to clipboard
 4. Create test workspace with 5-10 pages:
-   - "Getting Started Guide"
-   - "Team Meeting Notes"
-   - "Project Roadmap"
-   - "Design System"
-   - "API Documentation"
+    - "Getting Started Guide"
+    - "Team Meeting Notes"
+    - "Project Roadmap"
+    - "Design System"
+    - "API Documentation"
 5. Share all pages with "WordPress Demo" integration
 
 ### Browser Setup
@@ -505,12 +552,14 @@ wp transient delete notion_wp_workspace_info_cache
 If recording the demo (recommended for backup):
 
 **Tools:**
+
 - Screen recording: QuickTime (Mac), OBS (Windows/Mac/Linux)
 - Audio: Built-in microphone (test first)
 - Video: 1080p resolution
 - Frame rate: 30fps
 
 **Recording Checklist:**
+
 - [ ] Test recording quality beforehand
 - [ ] Test audio levels
 - [ ] Close unnecessary applications
@@ -523,6 +572,7 @@ If recording the demo (recommended for backup):
 - [ ] Test playback
 
 **Upload:**
+
 - Save to secure location
 - Share with team
 - Use for training future demos

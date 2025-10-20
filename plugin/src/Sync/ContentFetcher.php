@@ -169,7 +169,7 @@ class ContentFetcher {
 				// Check if there are more blocks to fetch.
 				$has_more = $batch_result['has_more'] ?? false;
 				$cursor   = $batch_result['next_cursor'] ?? null;
-				$batch_count++;
+				++$batch_count;
 			}
 
 			if ( $batch_count >= $max_batches && $has_more ) {

@@ -55,21 +55,25 @@ if ( ! defined( 'ABSPATH' ) ) {
 				<ol style="margin-left: 20px; line-height: 1.8;">
 					<li>
 						<?php
-					printf(
+						printf(
 						/* translators: %s: URL to Notion integrations page */
-						wp_kses(
+							wp_kses(
 							/* translators: %s: URL to Notion integrations page */
-							__( 'Visit <a href="%s" target="_blank" rel="noopener noreferrer">Notion Integrations</a> and create a new integration.', 'notion-wp' ),
-							array(
-								'a' => array(
-									'href'   => array(),
-									'target' => array(),
-									'rel'    => array(),
+								__(
+									// phpcs:ignore Generic.Files.LineLength.MaxExceeded
+									'Visit <a href="%s" target="_blank" rel="noopener noreferrer">Notion Integrations</a> and create a new integration.',
+									'notion-wp'
 								),
-							)
-						),
-						esc_url( 'https://www.notion.com/my-integrations' )
-					);
+								array(
+									'a' => array(
+										'href'   => array(),
+										'target' => array(),
+										'rel'    => array(),
+									),
+								)
+							),
+							esc_url( 'https://www.notion.com/my-integrations' )
+						);
 
 						?>
 					</li>
@@ -195,8 +199,8 @@ if ( ! defined( 'ABSPATH' ) ) {
 					<p class="description" style="margin-top: 15px;">
 						<?php
 						printf(
-							/* translators: 1: number of pages accessible to integration, 2: number of pages accessible to integration */
 							esc_html(
+								/* translators: %d: number of pages accessible to integration */
 								_n(
 									'Showing %d page. To access more pages, share them with your integration in Notion.',
 									'Showing %d pages. To access more pages, share them with your integration in Notion.',

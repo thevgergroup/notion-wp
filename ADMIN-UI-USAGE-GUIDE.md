@@ -7,7 +7,9 @@ After completing Stream 4, you now have a fully functional admin interface for s
 ## What Was Built
 
 ### 1. Pages List Table
+
 A WordPress-native table showing all accessible Notion pages with:
+
 - **Checkbox**: Select pages for bulk sync
 - **Page Title**: Name of the Notion page with row actions
 - **Notion ID**: First 8 characters with copy-to-clipboard button
@@ -18,6 +20,7 @@ A WordPress-native table showing all accessible Notion pages with:
 ### 2. Sync Actions
 
 **Individual Sync:**
+
 - Click "Sync Now" in row actions
 - Watch the status badge change to yellow "Syncing..."
 - On success, badge turns green "Synced"
@@ -25,6 +28,7 @@ A WordPress-native table showing all accessible Notion pages with:
 - Edit/View Post actions become available
 
 **Bulk Sync:**
+
 - Check boxes next to desired pages
 - Select "Sync Selected" from bulk actions dropdown
 - Click "Apply"
@@ -32,6 +36,7 @@ A WordPress-native table showing all accessible Notion pages with:
 - Page reloads when complete
 
 ### 3. Real-Time Updates
+
 - Status badges update during sync operations
 - Success/error notices appear dynamically
 - No page reload needed for individual syncs
@@ -40,6 +45,7 @@ A WordPress-native table showing all accessible Notion pages with:
 ## File Locations
 
 ### PHP Files
+
 ```
 /plugin/src/Admin/PagesListTable.php    (435 lines) - List table implementation
 /plugin/src/Admin/SettingsPage.php      (568 lines) - AJAX handlers & integration
@@ -47,11 +53,13 @@ A WordPress-native table showing all accessible Notion pages with:
 ```
 
 ### JavaScript
+
 ```
 /plugin/assets/src/js/admin.js          (792 lines) - AJAX sync functionality
 ```
 
 ### CSS
+
 ```
 /plugin/assets/src/css/admin.css        (782 lines) - Table styling & badges
 ```
@@ -59,6 +67,7 @@ A WordPress-native table showing all accessible Notion pages with:
 ## Testing the Implementation
 
 ### 1. View the Admin Page
+
 ```bash
 # Navigate to: wp-admin/admin.php?page=notion-sync
 ```
@@ -66,46 +75,52 @@ A WordPress-native table showing all accessible Notion pages with:
 ### 2. Expected Behavior
 
 **When Disconnected:**
+
 - Shows connection form
 - Prompts for Notion API token
 
 **When Connected:**
+
 - Shows workspace info
 - Displays "Notion Pages" card
 - Lists all accessible Notion pages in table
 - Shows current sync status for each page
 
 ### 3. Test Individual Sync
+
 1. Find a page with gray "Not Synced" badge
 2. Click "Sync Now" under the page title
 3. Watch for:
-   - Button text changes to "Syncing..."
-   - Status badge turns yellow with spinner
-   - Success notice appears at top
-   - Badge turns green "Synced"
-   - WordPress Post column shows post ID
-   - Last Synced column shows "Just now"
+    - Button text changes to "Syncing..."
+    - Status badge turns yellow with spinner
+    - Success notice appears at top
+    - Badge turns green "Synced"
+    - WordPress Post column shows post ID
+    - Last Synced column shows "Just now"
 4. Click the post ID to edit the synced post
 5. Verify Notion content was converted correctly
 
 ### 4. Test Bulk Sync
+
 1. Check boxes next to 2-3 pages
 2. Select "Sync Selected" from bulk actions dropdown
 3. Click "Apply"
 4. Confirm in dialog
 5. Watch for:
-   - Info notice: "Syncing X pages..."
-   - Form controls disabled during sync
-   - Success notice with results
-   - Page reload after 1.5 seconds
+    - Info notice: "Syncing X pages..."
+    - Form controls disabled during sync
+    - Success notice with results
+    - Page reload after 1.5 seconds
 6. After reload, all selected pages should show green "Synced" badges
 
 ### 5. Test Copy Notion ID
+
 1. Click the copy icon next to any Notion ID
 2. Button should briefly turn green
 3. Paste in a text editor to verify full ID copied
 
 ### 6. Test Error Handling
+
 1. Disconnect from internet (or pause network in DevTools)
 2. Try to sync a page
 3. Should see red error badge and error notice
@@ -114,6 +129,7 @@ A WordPress-native table showing all accessible Notion pages with:
 ## Accessibility Testing
 
 ### Keyboard Navigation
+
 ```bash
 # Test these keyboard interactions:
 1. Tab through all interactive elements
@@ -124,6 +140,7 @@ A WordPress-native table showing all accessible Notion pages with:
 ```
 
 ### Screen Reader Testing
+
 ```bash
 # If you have VoiceOver (Mac) or NVDA (Windows):
 1. Navigate through the table
@@ -134,7 +151,9 @@ A WordPress-native table showing all accessible Notion pages with:
 ```
 
 ### Color Contrast
+
 All color combinations meet WCAG AA standards (4.5:1 minimum):
+
 - Green badges: ✓ Passes
 - Gray badges: ✓ Passes
 - Yellow badges: ✓ Passes
@@ -146,12 +165,14 @@ All color combinations meet WCAG AA standards (4.5:1 minimum):
 ### Making Changes
 
 **To PHP files:**
+
 ```bash
 # Edit files directly - no build process needed
 vim /plugin/src/Admin/PagesListTable.php
 ```
 
 **To JavaScript:**
+
 ```bash
 # Edit source file
 vim /plugin/assets/src/js/admin.js
@@ -161,6 +182,7 @@ vim /plugin/assets/src/js/admin.js
 ```
 
 **To CSS:**
+
 ```bash
 # Edit source file
 vim /plugin/assets/src/css/admin.css
@@ -172,6 +194,7 @@ vim /plugin/assets/src/css/admin.css
 ### Debugging
 
 **PHP Errors:**
+
 ```bash
 # Enable WordPress debug mode in wp-config.php
 define('WP_DEBUG', true);
@@ -183,6 +206,7 @@ tail -f wp-content/debug.log
 ```
 
 **JavaScript Errors:**
+
 ```bash
 # Open browser DevTools (F12)
 # Check Console tab for errors
@@ -191,19 +215,22 @@ tail -f wp-content/debug.log
 ```
 
 **AJAX Debugging:**
+
 ```javascript
 // Add this to admin.js for detailed logging:
 console.log('AJAX request:', {
-    action: 'notion_sync_page',
-    page_id: pageId,
-    nonce: notionSyncAdmin.nonce
+	action: 'notion_sync_page',
+	page_id: pageId,
+	nonce: notionSyncAdmin.nonce,
 });
 ```
 
 ## Common Customizations
 
 ### Change Sync Button Text
+
 In `PagesListTable.php`, line ~152:
+
 ```php
 esc_html__( 'Sync Now', 'notion-wp' )
 // Change to:
@@ -211,24 +238,29 @@ esc_html__( 'Import to WordPress', 'notion-wp' )
 ```
 
 ### Change Badge Colors
+
 In `admin.css`, lines 464-505:
+
 ```css
 .notion-sync-badge-synced {
-    background-color: #d5f5e3;  /* Light green */
-    color: #00712e;             /* Dark green */
-    border: 1px solid #00a32a;  /* Medium green */
+	background-color: #d5f5e3; /* Light green */
+	color: #00712e; /* Dark green */
+	border: 1px solid #00a32a; /* Medium green */
 }
 ```
 
 ### Add New Column
+
 In `PagesListTable.php`:
 
 1. Add column to `get_columns()`:
+
 ```php
 'created_date' => __( 'Created', 'notion-wp' ),
 ```
 
 2. Add render method:
+
 ```php
 protected function column_created_date( $item ) {
     if ( ! empty( $item['created_time'] ) ) {
@@ -241,14 +273,17 @@ protected function column_created_date( $item ) {
 ```
 
 3. Add CSS width in `admin.css`:
+
 ```css
 .column-created_date {
-    width: 12%;
+	width: 12%;
 }
 ```
 
 ### Modify Success Message
+
 In `SettingsPage.php`, line ~427:
+
 ```php
 'message' => __( 'Page synced successfully!', 'notion-wp' ),
 // Change to:
@@ -260,18 +295,21 @@ In `SettingsPage.php`, line ~427:
 ### How It Works with Other Streams
 
 **Stream 1 (ContentFetcher):**
+
 ```php
 // PagesListTable::prepare_items() calls:
 $pages = $this->fetcher->fetch_pages_list( 100 );
 ```
 
 **Stream 2 (BlockConverter):**
+
 ```php
 // SyncManager calls BlockConverter automatically
 // No direct integration needed in UI layer
 ```
 
 **Stream 3 (SyncManager):**
+
 ```php
 // Get sync status for each table row:
 $sync_status = $this->manager->get_sync_status( $notion_page_id );
@@ -283,6 +321,7 @@ $result = $manager->sync_page( $notion_page_id );
 ## API Endpoints
 
 ### Individual Sync
+
 ```
 POST /wp-admin/admin-ajax.php
 action: notion_sync_page
@@ -303,6 +342,7 @@ Response:
 ```
 
 ### Bulk Sync
+
 ```
 POST /wp-admin/admin-ajax.php
 action: notion_bulk_sync
@@ -328,17 +368,20 @@ Response:
 ## Performance Notes
 
 ### Expected Response Times
+
 - **Page load**: <2 seconds (fetching 100 pages from Notion)
 - **Individual sync**: 2-5 seconds (Notion API + block conversion + WP insert)
 - **Bulk sync**: 2-5 seconds per page (sequential processing)
 
 ### Optimization Tips
+
 1. Sync during low-traffic hours for bulk operations
 2. Limit to 10-20 pages per bulk sync
 3. Notion API has 50 requests/second limit (we're well under)
 4. Consider using WP-Cron for very large syncs (Phase 2)
 
 ### Caching
+
 - Workspace info cached for 1 hour (transient)
 - Page list fetched fresh on each load
 - Sync status queried per page (uses WP_Query)
@@ -346,39 +389,49 @@ Response:
 ## Troubleshooting
 
 ### Pages Not Showing
+
 **Problem**: Table shows "No Notion pages found"
 **Solutions**:
+
 1. Share pages with integration in Notion
 2. Check connection status
 3. Verify API token is valid
 4. Check WordPress debug.log for errors
 
 ### Sync Button Does Nothing
+
 **Problem**: Click "Sync Now" but nothing happens
 **Solutions**:
+
 1. Check browser console for JavaScript errors
 2. Verify admin.js is loaded (view page source)
 3. Check nonce is being generated (view notionSyncAdmin object)
 4. Disable other plugins that might conflict
 
 ### Error: "Insufficient Permissions"
+
 **Problem**: 403 error when syncing
 **Solutions**:
+
 1. Ensure you're logged in as Administrator
 2. Check current_user_can('manage_options') returns true
 3. Clear WordPress cache and try again
 
 ### Status Doesn't Update
+
 **Problem**: Badge stays gray after sync
 **Solutions**:
+
 1. Check browser console for AJAX errors
 2. Verify response includes success: true
 3. Check updateStatusBadge() function is called
 4. Try refreshing the page
 
 ### Bulk Sync Fails
+
 **Problem**: Error during bulk sync
 **Solutions**:
+
 1. Try smaller batch (3-5 pages at a time)
 2. Check individual page sync works
 3. Look for specific error messages in notices
@@ -387,38 +440,41 @@ Response:
 ## Next Steps
 
 ### Ready for Integration Testing
+
 The admin UI is now complete and ready to test with real Notion content:
 
 1. **Connect to Your Notion Workspace**
-   - Use a test workspace if possible
-   - Share test pages with integration
+    - Use a test workspace if possible
+    - Share test pages with integration
 
 2. **Test Core Workflows**
-   - Sync individual pages
-   - Verify content accuracy
-   - Test bulk sync
-   - Check error handling
+    - Sync individual pages
+    - Verify content accuracy
+    - Test bulk sync
+    - Check error handling
 
 3. **Test Edge Cases**
-   - Empty pages
-   - Pages with many blocks
-   - Pages with images
-   - Pages with tables, code blocks, etc.
+    - Empty pages
+    - Pages with many blocks
+    - Pages with images
+    - Pages with tables, code blocks, etc.
 
 4. **Accessibility Review**
-   - Test keyboard navigation
-   - Try with screen reader
-   - Verify color contrast
-   - Check focus indicators
+    - Test keyboard navigation
+    - Try with screen reader
+    - Verify color contrast
+    - Check focus indicators
 
 5. **Browser Testing**
-   - Chrome/Edge
-   - Firefox
-   - Safari
-   - Mobile browsers
+    - Chrome/Edge
+    - Firefox
+    - Safari
+    - Mobile browsers
 
 ### Phase 2 Enhancements
+
 After Phase 1 MVP testing, consider:
+
 - Pagination for >100 pages
 - Column sorting
 - Filtering by status
@@ -431,6 +487,7 @@ After Phase 1 MVP testing, consider:
 ## Support
 
 For issues or questions:
+
 1. Check debug.log for PHP errors
 2. Check browser console for JavaScript errors
 3. Review STREAM-4-IMPLEMENTATION.md for technical details

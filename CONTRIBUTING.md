@@ -35,23 +35,23 @@ Before contributing, ensure you have:
 - **Node.js 18+** (for asset building)
 - **Composer** (for PHP dependencies)
 - **Basic understanding of**:
-  - WordPress plugin development
-  - PHP 8.0+
-  - Modern JavaScript (ES6+)
-  - Notion API basics
+    - WordPress plugin development
+    - PHP 8.0+
+    - Modern JavaScript (ES6+)
+    - Notion API basics
 
 ### First Steps
 
 1. **Fork the repository** on GitHub
 2. **Clone your fork**:
-   ```bash
-   git clone https://github.com/YOUR-USERNAME/notion-wp.git
-   cd notion-wp
-   ```
+    ```bash
+    git clone https://github.com/YOUR-USERNAME/notion-wp.git
+    cd notion-wp
+    ```
 3. **Add upstream remote**:
-   ```bash
-   git remote add upstream https://github.com/thevgergroup/notion-wp.git
-   ```
+    ```bash
+    git remote add upstream https://github.com/thevgergroup/notion-wp.git
+    ```
 
 ## Development Environment Setup
 
@@ -60,27 +60,28 @@ This project uses **git worktrees** with isolated Docker environments for parall
 ### Quick Setup
 
 1. **Create your first worktree**:
-   ```bash
-   ./scripts/setup-worktree.sh main 8080 3306
-   ```
 
-   This creates a worktree named `main` with:
-   - HTTP port: 8080
-   - Database port: 3306
-   - URL: http://main.localtest.me
+    ```bash
+    ./scripts/setup-worktree.sh main 8080 3306
+    ```
+
+    This creates a worktree named `main` with:
+    - HTTP port: 8080
+    - Database port: 3306
+    - URL: http://main.localtest.me
 
 2. **Access WordPress**:
-   - Admin: http://main.localtest.me/wp-admin
-   - Username: `admin`
-   - Password: `admin`
+    - Admin: http://main.localtest.me/wp-admin
+    - Username: `admin`
+    - Password: `admin`
 
 3. **Install dependencies**:
-   ```bash
-   cd ../main/plugin
-   composer install
-   npm install
-   npm run build
-   ```
+    ```bash
+    cd ../main/plugin
+    composer install
+    npm install
+    npm run build
+    ```
 
 ### Creating Feature Worktrees
 
@@ -97,6 +98,7 @@ cd ../feature-my-feature
 ```
 
 Each worktree is completely isolated:
+
 - Separate WordPress installation
 - Separate database
 - Unique Docker containers
@@ -121,42 +123,47 @@ make test              # Run tests (when available)
 ### Creating a Feature Branch
 
 1. **Sync with upstream**:
-   ```bash
-   git fetch upstream
-   git checkout main
-   git merge upstream/main
-   ```
+
+    ```bash
+    git fetch upstream
+    git checkout main
+    git merge upstream/main
+    ```
 
 2. **Create feature worktree**:
-   ```bash
-   ./scripts/setup-worktree.sh feature-block-converter 8082 3308
-   cd ../feature-block-converter
-   ```
+
+    ```bash
+    ./scripts/setup-worktree.sh feature-block-converter 8082 3308
+    cd ../feature-block-converter
+    ```
 
 3. **Make changes**:
-   ```bash
-   # Edit files
-   vim plugin/src/Converters/MyConverter.php
 
-   # Check linting
-   cd plugin
-   composer lint
-   npm run lint
+    ```bash
+    # Edit files
+    vim plugin/src/Converters/MyConverter.php
 
-   # Test changes in browser
-   # Visit http://feature-block-converter.localtest.me
-   ```
+    # Check linting
+    cd plugin
+    composer lint
+    npm run lint
+
+    # Test changes in browser
+    # Visit http://feature-block-converter.localtest.me
+    ```
 
 4. **Commit changes**:
-   ```bash
-   git add plugin/src/Converters/MyConverter.php
-   git commit -m "Add custom block converter for callouts"
-   ```
+
+    ```bash
+    git add plugin/src/Converters/MyConverter.php
+    git commit -m "Add custom block converter for callouts"
+    ```
 
 5. **Push to your fork**:
-   ```bash
-   git push origin feature-block-converter
-   ```
+
+    ```bash
+    git push origin feature-block-converter
+    ```
 
 6. **Create pull request** on GitHub
 
@@ -178,6 +185,7 @@ We follow strict coding standards to maintain code quality and consistency.
 **Maximum 500 lines per file** (including comments and whitespace)
 
 If you hit this limit:
+
 - Refactor into smaller, focused files
 - Split responsibilities
 - Extract helper functions
@@ -187,12 +195,14 @@ If you hit this limit:
 ### PHP Standards
 
 **WordPress Coding Standards (WPCS)**
+
 - Follow https://developer.wordpress.org/coding-standards/wordpress-coding-standards/php/
 - Use tabs for indentation (not spaces)
 - PSR-4 autoloading for namespaces
 - PHPDoc comments for all classes and methods
 
 **Type Declarations**
+
 ```php
 // Always use type declarations (PHP 8.0+)
 public function convert(array $block): string {
@@ -206,12 +216,14 @@ public function getData(): ?array {
 ```
 
 **Naming Conventions**
+
 - Classes: `PascalCase` (e.g., `NotionClient`)
 - Methods: `snake_case` (e.g., `get_workspace_info`)
 - Variables: `snake_case` (e.g., `$notion_token`)
 - Constants: `SCREAMING_SNAKE_CASE` (e.g., `NOTION_API_VERSION`)
 
 **Security**
+
 - Escape all output: `esc_html()`, `esc_attr()`, `esc_url()`
 - Sanitize all input: `sanitize_text_field()`, etc.
 - Verify nonces on form submissions
@@ -220,52 +232,56 @@ public function getData(): ?array {
 ### JavaScript Standards
 
 **ESLint with WordPress Preset**
+
 - ES6+ syntax
 - No `console.log` in production code
 - Use `const` and `let` (not `var`)
 - Prettier for formatting
 
 **Example**:
+
 ```javascript
 // Good
 const connectButton = document.querySelector('.connect-button');
 
 connectButton.addEventListener('click', async (event) => {
-    event.preventDefault();
-    await handleConnection();
+	event.preventDefault();
+	await handleConnection();
 });
 
 // Bad
-var button = document.querySelector('.connect-button');  // Use const
-button.onclick = handleConnection;  // Use addEventListener
-console.log('clicked');  // No console.log
+var button = document.querySelector('.connect-button'); // Use const
+button.onclick = handleConnection; // Use addEventListener
+console.log('clicked'); // No console.log
 ```
 
 ### CSS Standards
 
 **Stylelint with WordPress Config**
+
 - BEM naming convention preferred
 - Mobile-first responsive design
 - No `!important` unless documented
 
 **Example**:
+
 ```scss
 .notion-sync {
-    &__settings {
-        padding: 20px;
+	&__settings {
+		padding: 20px;
 
-        @media (max-width: 782px) {
-            padding: 10px;
-        }
-    }
+		@media (max-width: 782px) {
+			padding: 10px;
+		}
+	}
 
-    &__button {
-        background: #2271b1;
+	&__button {
+		background: #2271b1;
 
-        &:hover {
-            background: #135e96;
-        }
-    }
+		&:hover {
+			background: #135e96;
+		}
+	}
 }
 ```
 
@@ -330,6 +346,7 @@ git commit -m "Your message"
 ```
 
 **To bypass hooks** (not recommended):
+
 ```bash
 git commit --no-verify -m "Emergency fix"
 ```
@@ -341,6 +358,7 @@ git commit --no-verify -m "Emergency fix"
 Phase 0 testing is primarily manual. Automated tests will be added in future phases.
 
 **Manual Testing Checklist:**
+
 1. Can connect with valid Notion token
 2. Invalid token shows clear error
 3. Workspace name displays correctly
@@ -351,6 +369,7 @@ Phase 0 testing is primarily manual. Automated tests will be added in future pha
 ### Future Testing
 
 As the project grows, we'll add:
+
 - PHPUnit for unit tests
 - Integration tests with WordPress
 - E2E tests with Playwright
@@ -386,26 +405,32 @@ test: Add unit tests for block converter
 
 ```markdown
 ## Description
+
 Brief description of what this PR does.
 
 ## Type of Change
+
 - [ ] Bug fix
 - [ ] New feature
 - [ ] Breaking change
 - [ ] Documentation update
 
 ## Changes Made
+
 - Bullet list of specific changes
 - Include file names if helpful
 
 ## Testing
+
 - How you tested these changes
 - What browsers/devices tested on
 
 ## Screenshots (if applicable)
+
 Add screenshots for UI changes
 
 ## Checklist
+
 - [ ] Linters pass
 - [ ] Code follows standards
 - [ ] Security best practices followed
@@ -424,17 +449,19 @@ Add screenshots for UI changes
 ### After Your PR is Merged
 
 1. **Sync your fork**:
-   ```bash
-   git checkout main
-   git fetch upstream
-   git merge upstream/main
-   git push origin main
-   ```
+
+    ```bash
+    git checkout main
+    git fetch upstream
+    git merge upstream/main
+    git push origin main
+    ```
 
 2. **Clean up**:
-   ```bash
-   ./scripts/teardown-worktree.sh your-feature-branch --delete-branch
-   ```
+
+    ```bash
+    ./scripts/teardown-worktree.sh your-feature-branch --delete-branch
+    ```
 
 3. **Celebrate!** You've contributed to the project.
 
@@ -522,16 +549,19 @@ namespace NotionWP\Converters; // Block converters
 ### Key Classes (Phase 0)
 
 **NotionWP\Admin\SettingsPage**
+
 - Registers admin menu page
 - Handles connection form
 - Displays workspace info
 
 **NotionWP\API\NotionClient**
+
 - Wraps Notion API requests
 - Handles authentication
 - Returns parsed responses
 
 **NotionWP\Admin\AdminNotices**
+
 - Shows success/error messages
 - Provides user feedback
 
@@ -540,11 +570,13 @@ namespace NotionWP\Converters; // Block converters
 We use WordPress hooks extensively. Familiarize yourself with:
 
 **Actions:**
+
 - `admin_menu` - Register admin pages
 - `admin_post_{action}` - Handle form submissions
 - `admin_enqueue_scripts` - Enqueue assets
 
 **Filters:**
+
 - `notion_wp_api_timeout` - Customize API timeout
 - `notion_wp_api_headers` - Modify API headers
 - More filters added in future phases
@@ -554,16 +586,17 @@ We use WordPress hooks extensively. Familiarize yourself with:
 **Example: Adding a New Block Converter (Phase 1+)**
 
 1. Create converter class:
-   ```php
-   // plugin/src/Converters/CalloutConverter.php
-   namespace NotionWP\Converters;
 
-   class CalloutConverter implements BlockConverterInterface {
-       public function convert(array $notion_block): string {
-           // Conversion logic
-       }
-   }
-   ```
+    ```php
+    // plugin/src/Converters/CalloutConverter.php
+    namespace NotionWP\Converters;
+
+    class CalloutConverter implements BlockConverterInterface {
+        public function convert(array $notion_block): string {
+            // Conversion logic
+        }
+    }
+    ```
 
 2. Keep file under 500 lines
 3. Add PHPDoc comments

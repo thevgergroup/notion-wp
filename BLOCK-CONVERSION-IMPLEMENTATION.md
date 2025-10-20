@@ -13,29 +13,30 @@ The Block Conversion System has been successfully implemented with 4 core conver
 
 ### 1. Core Implementation (6 files)
 
-| File | Lines | Status | Description |
-|------|-------|--------|-------------|
-| `plugin/src/Blocks/BlockConverterInterface.php` | 52 | ✓ Complete | Interface contract for converters |
-| `plugin/src/Blocks/BlockConverter.php` | 201 | ✓ Complete | Registry and orchestrator |
-| `plugin/src/Blocks/Converters/ParagraphConverter.php` | 204 | ✓ Complete | Paragraph with rich text |
-| `plugin/src/Blocks/Converters/HeadingConverter.php` | 206 | ✓ Complete | H1, H2, H3 support |
-| `plugin/src/Blocks/Converters/BulletedListConverter.php` | 218 | ✓ Complete | Bulleted lists |
-| `plugin/src/Blocks/Converters/NumberedListConverter.php` | 218 | ✓ Complete | Numbered lists |
+| File                                                     | Lines | Status     | Description                       |
+| -------------------------------------------------------- | ----- | ---------- | --------------------------------- |
+| `plugin/src/Blocks/BlockConverterInterface.php`          | 52    | ✓ Complete | Interface contract for converters |
+| `plugin/src/Blocks/BlockConverter.php`                   | 201   | ✓ Complete | Registry and orchestrator         |
+| `plugin/src/Blocks/Converters/ParagraphConverter.php`    | 204   | ✓ Complete | Paragraph with rich text          |
+| `plugin/src/Blocks/Converters/HeadingConverter.php`      | 206   | ✓ Complete | H1, H2, H3 support                |
+| `plugin/src/Blocks/Converters/BulletedListConverter.php` | 218   | ✓ Complete | Bulleted lists                    |
+| `plugin/src/Blocks/Converters/NumberedListConverter.php` | 218   | ✓ Complete | Numbered lists                    |
 
 **Total**: 1,099 lines (all files under 250-line requirement)
 
 ### 2. Test Suite (5 files + 1 integration)
 
-| Test File | Test Cases | Status |
-|-----------|------------|--------|
-| `BlockConverterTest.php` | 10 tests | ✓ Complete |
-| `ParagraphConverterTest.php` | 11 tests | ✓ Complete |
-| `HeadingConverterTest.php` | 8 tests | ✓ Complete |
-| `BulletedListConverterTest.php` | 8 tests | ✓ Complete |
-| `NumberedListConverterTest.php` | 9 tests | ✓ Complete |
-| `IntegrationTest.php` | 6 tests | ✓ Complete |
+| Test File                       | Test Cases | Status     |
+| ------------------------------- | ---------- | ---------- |
+| `BlockConverterTest.php`        | 10 tests   | ✓ Complete |
+| `ParagraphConverterTest.php`    | 11 tests   | ✓ Complete |
+| `HeadingConverterTest.php`      | 8 tests    | ✓ Complete |
+| `BulletedListConverterTest.php` | 8 tests    | ✓ Complete |
+| `NumberedListConverterTest.php` | 9 tests    | ✓ Complete |
+| `IntegrationTest.php`           | 6 tests    | ✓ Complete |
 
 **Total**: 52 test cases covering:
+
 - Unit tests for each converter
 - Security tests (XSS prevention, HTML escaping)
 - Integration tests (complete document conversion)
@@ -45,6 +46,7 @@ The Block Conversion System has been successfully implemented with 4 core conver
 ### 3. Test Fixtures (7 JSON files)
 
 Real Notion API response fixtures:
+
 - `paragraph-simple.json` - Plain text paragraph
 - `paragraph-formatted.json` - Bold, italic, code formatting
 - `paragraph-with-link.json` - Paragraph with hyperlink
@@ -56,29 +58,32 @@ Real Notion API response fixtures:
 ### 4. Documentation
 
 - `docs/implementation/block-conversion-system.md` (450+ lines)
-  - Architecture overview
-  - Usage examples
-  - Security details
-  - Extension guide
-  - Performance benchmarks
-  - Known limitations
+    - Architecture overview
+    - Usage examples
+    - Security details
+    - Extension guide
+    - Performance benchmarks
+    - Known limitations
 
 ## Features Implemented
 
 ### Block Type Support
 
 ✓ **Paragraph** (`paragraph`)
+
 - Rich text formatting (bold, italic, code, strikethrough, underline)
 - Hyperlinks
 - Empty paragraph handling
 - Security: HTML escaping, URL validation
 
 ✓ **Headings** (`heading_1`, `heading_2`, `heading_3`)
+
 - All three heading levels
 - Rich text formatting in headings
 - Links in headings
 
 ✓ **Lists** (`bulleted_list_item`, `numbered_list_item`)
+
 - Bulleted lists (unordered)
 - Numbered lists (ordered)
 - Rich text in list items
@@ -86,39 +91,44 @@ Real Notion API response fixtures:
 
 ### Rich Text Annotation Support
 
-| Annotation | HTML Output | Status |
-|------------|-------------|--------|
-| **bold** | `<strong>` | ✓ |
-| **italic** | `<em>` | ✓ |
-| **code** | `<code>` | ✓ |
-| **strikethrough** | `<s>` | ✓ |
-| **underline** | `<u>` | ✓ |
-| **link** | `<a href="">` | ✓ |
+| Annotation        | HTML Output   | Status |
+| ----------------- | ------------- | ------ |
+| **bold**          | `<strong>`    | ✓      |
+| **italic**        | `<em>`        | ✓      |
+| **code**          | `<code>`      | ✓      |
+| **strikethrough** | `<s>`         | ✓      |
+| **underline**     | `<u>`         | ✓      |
+| **link**          | `<a href="">` | ✓      |
 
 ### Security Features
 
 ✓ **HTML Escaping**
+
 - All text content escaped with `esc_html()`
 - Prevents XSS attacks
 - Test coverage: 100%
 
 ✓ **URL Validation**
+
 - All URLs sanitized with `esc_url()`
 - Dangerous protocols stripped (javascript:, data:)
 - Test coverage: 100%
 
 ✓ **No Raw Output**
+
 - Zero instances of unescaped content
 - All user input properly sanitized
 
 ### Extensibility
 
 ✓ **Plugin Architecture**
+
 - `BlockConverterInterface` for custom converters
 - `notion_sync_block_converters` WordPress filter
 - Direct registration via `register_converter()`
 
 ✓ **Unsupported Block Handling**
+
 - Graceful degradation with HTML comments
 - Error logging for investigation
 - No crashes on unknown block types
@@ -126,16 +136,19 @@ Real Notion API response fixtures:
 ### Error Handling
 
 ✓ **Missing Fields**
+
 - Default to empty arrays/strings
 - No exceptions thrown
 - Proper null coalescing
 
 ✓ **Malformed Data**
+
 - Validation at each step
 - Logging for debugging
 - Graceful recovery
 
 ✓ **Empty Content**
+
 - Non-breaking space preservation
 - Maintains block structure
 
@@ -212,19 +225,19 @@ Based on implementation design:
 As documented, the following are intentional limitations for Phase 1:
 
 1. **List Grouping**: Individual list items not merged into single `<ul>`/`<ol>`
-   - WordPress renders correctly anyway
-   - Phase 2 will implement grouping algorithm
+    - WordPress renders correctly anyway
+    - Phase 2 will implement grouping algorithm
 
 2. **Nested Lists**: Basic support (1 level)
-   - Sufficient for MVP
-   - Phase 2 will support arbitrary nesting
+    - Sufficient for MVP
+    - Phase 2 will support arbitrary nesting
 
 3. **No Block Metadata**: Notion IDs not stored in WordPress yet
-   - Phase 2 will add block attributes
+    - Phase 2 will add block attributes
 
 4. **Limited Block Types**: Only 4 block types (paragraph, heading, lists)
-   - Sufficient for MVP testing
-   - Phase 2+ will add: images, videos, callouts, toggles, etc.
+    - Sufficient for MVP testing
+    - Phase 2+ will add: images, videos, callouts, toggles, etc.
 
 ## Dependencies
 
@@ -233,6 +246,7 @@ As documented, the following are intentional limitations for Phase 1:
 - **PHPUnit**: 9.0+ (testing framework)
 
 No external PHP libraries required. Uses WordPress core functions only:
+
 - `esc_html()`
 - `esc_url()`
 - `apply_filters()`
@@ -296,34 +310,37 @@ docs/implementation/
 Stream 3 can now:
 
 1. **Import the BlockConverter**:
-   ```php
-   use NotionSync\Blocks\BlockConverter;
-   ```
+
+    ```php
+    use NotionSync\Blocks\BlockConverter;
+    ```
 
 2. **Initialize in SyncManager**:
-   ```php
-   private BlockConverter $block_converter;
 
-   public function __construct() {
-       $this->block_converter = new BlockConverter();
-   }
-   ```
+    ```php
+    private BlockConverter $block_converter;
+
+    public function __construct() {
+        $this->block_converter = new BlockConverter();
+    }
+    ```
 
 3. **Use in sync process**:
-   ```php
-   // After fetching blocks from Notion API
-   $notion_blocks = $content_fetcher->fetch_page_blocks($page_id);
 
-   // Convert to Gutenberg
-   $post_content = $this->block_converter->convert_blocks($notion_blocks);
+    ```php
+    // After fetching blocks from Notion API
+    $notion_blocks = $content_fetcher->fetch_page_blocks($page_id);
 
-   // Create WordPress post
-   wp_insert_post([
-       'post_content' => $post_content,
-       'post_title' => $page_title,
-       'post_status' => 'publish'
-   ]);
-   ```
+    // Convert to Gutenberg
+    $post_content = $this->block_converter->convert_blocks($notion_blocks);
+
+    // Create WordPress post
+    wp_insert_post([
+        'post_content' => $post_content,
+        'post_title' => $page_title,
+        'post_status' => 'publish'
+    ]);
+    ```
 
 ## Testing Instructions
 
@@ -373,6 +390,7 @@ The Block Conversion System is **production-ready** for Phase 1 MVP. All require
 ## Contact
 
 For questions or issues with the Block Conversion System:
+
 - Review `docs/implementation/block-conversion-system.md` for detailed information
 - Check test cases in `tests/unit/Blocks/` for usage examples
 - Consult test fixtures in `tests/fixtures/notion-blocks/` for Notion JSON format

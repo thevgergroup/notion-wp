@@ -148,7 +148,7 @@ Each worktree has:
 - **Isolated containers**: Separate WordPress, database, WP-CLI
 - **Isolated networks**: No communication between worktrees
 - **Isolated volumes**: Separate database and WordPress data
-- **Unique hostname**: Traefik routes by hostname (*.localtest.me)
+- **Unique hostname**: Traefik routes by hostname (\*.localtest.me)
 - **Shared plugin code**: Mounted from worktree directory
 
 ## Next Steps

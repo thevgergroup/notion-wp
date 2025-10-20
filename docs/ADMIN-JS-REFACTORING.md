@@ -7,9 +7,11 @@
 ## Module Structure
 
 ### 1. `modules/admin-connection.js` (~130 lines)
+
 **Purpose:** Handle authentication and connection management
 
 **Functions:**
+
 - `initConnectionForm()` - Main initialization
 - `handleConnectionForm()` - Form submission handling
 - `validateTokenFormat()` - Input validation
@@ -19,9 +21,11 @@
 **Dependencies:** Imports `showLoadingState`, `showInlineError`, `clearInlineError` from admin-ui.js
 
 ### 2. `modules/admin-sync.js` (~350 lines)
+
 **Purpose:** Sync operations, bulk actions, table updates
 
 **Functions:**
+
 - `initSyncFunctionality()` - Main initialization
 - `handleSyncNow()` - Individual page sync via AJAX
 - `handleBulkActions()` - Bulk sync form handling
@@ -34,9 +38,11 @@
 **Dependencies:** Imports `showAdminNotice`, `showCopyFeedback` from admin-ui.js
 
 ### 3. `modules/admin-ui.js` (~200 lines)
+
 **Purpose:** UI utilities, notices, keyboard navigation
 
 **Functions:**
+
 - `showLoadingState()` - Button loading states
 - `showInlineError()` - Inline error display
 - `clearInlineError()` - Error clearing
@@ -53,9 +59,11 @@
 **Exports:** All functions (used by other modules)
 
 ### 4. `admin.js` (~80 lines)
+
 **Purpose:** Main coordinator and initialization
 
 **Functions:**
+
 - `init()` - Main initialization
 - DOM ready event handling
 - Module coordination

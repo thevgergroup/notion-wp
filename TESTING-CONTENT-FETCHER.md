@@ -27,6 +27,7 @@ php test-content-fetcher.php
 ```
 
 This will test all ContentFetcher methods:
+
 - `fetch_pages_list()` - List accessible pages
 - `fetch_page_properties()` - Get page metadata
 - `fetch_page_blocks()` - Fetch all blocks with pagination
@@ -75,12 +76,14 @@ Then visit: `https://your-site.test/?test_fetcher`
 ### Test Case 1: Fetch Pages List
 
 **Expected Behavior:**
+
 - Returns array of page objects
 - Each page has: id, title, last_edited_time, created_time, url
 - Respects limit parameter (max 100)
 - Returns empty array on error (not exception)
 
 **Test:**
+
 ```php
 $pages = $fetcher->fetch_pages_list(10);
 assert(is_array($pages));
@@ -90,6 +93,7 @@ assert(count($pages) <= 10);
 ### Test Case 2: Fetch Page Properties
 
 **Expected Behavior:**
+
 - Returns page metadata for valid page ID
 - Includes: id, title, created_time, last_edited_time, url, properties
 - Handles both dashed and non-dashed page IDs
@@ -97,6 +101,7 @@ assert(count($pages) <= 10);
 - Logs errors to PHP error log
 
 **Test:**
+
 ```php
 $props = $fetcher->fetch_page_properties('valid-page-id');
 assert(!empty($props));
@@ -110,12 +115,14 @@ assert(empty($invalid));
 ### Test Case 3: Fetch Page Blocks (< 100 blocks)
 
 **Expected Behavior:**
+
 - Returns all blocks from page
 - Blocks in Notion's native JSON format
 - Single API request for pages with <100 blocks
 - Returns empty array if page has no content
 
 **Test:**
+
 ```php
 $blocks = $fetcher->fetch_page_blocks('page-with-few-blocks');
 assert(is_array($blocks));
@@ -129,12 +136,14 @@ foreach ($blocks as $block) {
 ### Test Case 4: Fetch Page Blocks (> 100 blocks) - Pagination
 
 **Expected Behavior:**
+
 - Makes multiple API requests automatically
 - Combines all blocks into single array
 - Respects safety limit (5000 blocks max)
 - Logs warning if safety limit reached
 
 **Test:**
+
 ```php
 // Use a Notion page with 150+ blocks
 $blocks = $fetcher->fetch_page_blocks('large-page-id');
@@ -145,12 +154,14 @@ assert(count($blocks) <= 5000);
 ### Test Case 5: Error Handling
 
 **Expected Behavior:**
+
 - Invalid page ID returns empty array
 - Network errors return empty array
 - Errors logged to error_log
 - No exceptions thrown to calling code
 
 **Test:**
+
 ```php
 $result = $fetcher->fetch_page_blocks('definitely-not-a-valid-id');
 assert(is_array($result));
@@ -193,6 +204,7 @@ assert(isset($first_block[$first_block['type']]));
 ## Common Block Types to Test
 
 Create a test page with these block types:
+
 - `paragraph` - Basic text
 - `heading_1`, `heading_2`, `heading_3` - Headings
 - `bulleted_list_item` - Bullet lists
@@ -210,12 +222,12 @@ Create a test page with these block types:
 
 Test with pages of varying sizes:
 
-| Page Size | Expected Behavior |
-|-----------|-------------------|
-| Empty (0 blocks) | Returns `[]` immediately |
-| Small (1-50 blocks) | Single API call, <1 second |
-| Medium (51-100 blocks) | Single API call, <2 seconds |
-| Large (101-500 blocks) | 2-5 API calls, <5 seconds |
+| Page Size                    | Expected Behavior           |
+| ---------------------------- | --------------------------- |
+| Empty (0 blocks)             | Returns `[]` immediately    |
+| Small (1-50 blocks)          | Single API call, <1 second  |
+| Medium (51-100 blocks)       | Single API call, <2 seconds |
+| Large (101-500 blocks)       | 2-5 API calls, <5 seconds   |
 | Very Large (501-1000 blocks) | 6-10 API calls, <10 seconds |
 
 ## Error Log Monitoring
@@ -228,6 +240,7 @@ define('WP_DEBUG_LOG', true);
 ```
 
 Monitor `/wp-content/debug.log` for:
+
 - `NotionSync: fetch_pages_list returned non-array response`
 - `NotionSync: fetch_page_properties called with empty page_id`
 - `NotionSync: Failed to fetch page properties for [ID]`
@@ -261,21 +274,21 @@ foreach ($pages as $page_summary) {
 ## Known Limitations
 
 1. **Maximum blocks per page**: 5,000 (50 batches × 100 blocks)
-   - Safety limit to prevent infinite loops
-   - Logs warning if limit reached
-   - Typical Notion pages have <1,000 blocks
+    - Safety limit to prevent infinite loops
+    - Logs warning if limit reached
+    - Typical Notion pages have <1,000 blocks
 
 2. **Nested blocks**: Not automatically fetched
-   - `has_children` flag indicates nested content
-   - Stream 2 (BlockConverter) may need recursive fetching
+    - `has_children` flag indicates nested content
+    - Stream 2 (BlockConverter) may need recursive fetching
 
 3. **API rate limits**: ~50 requests/second
-   - ContentFetcher does not implement throttling
-   - Stream 3 (SyncManager) should handle rate limiting
+    - ContentFetcher does not implement throttling
+    - Stream 3 (SyncManager) should handle rate limiting
 
 4. **Media URLs**: Time-limited S3 URLs
-   - Image/file URLs expire after ~1 hour
-   - Download immediately in Stream 4 (MediaImporter)
+    - Image/file URLs expire after ~1 hour
+    - Download immediately in Stream 4 (MediaImporter)
 
 ## Success Criteria
 
@@ -291,6 +304,7 @@ foreach ($pages as $page_summary) {
 ## Next Steps for Stream 3
 
 Stream 3 (SyncManager) can now:
+
 1. Use `fetch_pages_list()` to discover pages
 2. Use `fetch_page_properties()` to get metadata
 3. Use `fetch_page_blocks()` to get content

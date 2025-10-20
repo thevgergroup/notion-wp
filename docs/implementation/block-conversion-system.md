@@ -13,19 +13,19 @@ The Block Conversion System transforms Notion blocks into WordPress Gutenberg-co
 ### Components
 
 1. **BlockConverterInterface** (`plugin/src/Blocks/BlockConverterInterface.php`)
-   - Defines the contract for all block converters
-   - Two methods: `supports()` and `convert()`
+    - Defines the contract for all block converters
+    - Two methods: `supports()` and `convert()`
 
 2. **BlockConverter** (`plugin/src/Blocks/BlockConverter.php`)
-   - Registry and orchestrator for block converters
-   - Routes blocks to appropriate converter
-   - Handles unsupported block types gracefully
+    - Registry and orchestrator for block converters
+    - Routes blocks to appropriate converter
+    - Handles unsupported block types gracefully
 
 3. **Converters** (`plugin/src/Blocks/Converters/`)
-   - **ParagraphConverter**: Handles paragraph blocks with rich text
-   - **HeadingConverter**: Handles heading_1, heading_2, heading_3
-   - **BulletedListConverter**: Handles bulleted_list_item blocks
-   - **NumberedListConverter**: Handles numbered_list_item blocks
+    - **ParagraphConverter**: Handles paragraph blocks with rich text
+    - **HeadingConverter**: Handles heading_1, heading_2, heading_3
+    - **BulletedListConverter**: Handles bulleted_list_item blocks
+    - **NumberedListConverter**: Handles numbered_list_item blocks
 
 ### Data Flow
 
@@ -48,27 +48,27 @@ Complete Gutenberg HTML (ready for post_content)
 
 ### Phase 1 MVP Support
 
-| Notion Block Type | Gutenberg Block | Rich Text | Links | Status |
-|-------------------|-----------------|-----------|-------|--------|
-| paragraph | wp:paragraph | ✓ | ✓ | Complete |
-| heading_1 | wp:heading (level 1) | ✓ | ✓ | Complete |
-| heading_2 | wp:heading (level 2) | ✓ | ✓ | Complete |
-| heading_3 | wp:heading (level 3) | ✓ | ✓ | Complete |
-| bulleted_list_item | wp:list | ✓ | ✓ | Complete |
-| numbered_list_item | wp:list (ordered) | ✓ | ✓ | Complete |
+| Notion Block Type  | Gutenberg Block      | Rich Text | Links | Status   |
+| ------------------ | -------------------- | --------- | ----- | -------- |
+| paragraph          | wp:paragraph         | ✓         | ✓     | Complete |
+| heading_1          | wp:heading (level 1) | ✓         | ✓     | Complete |
+| heading_2          | wp:heading (level 2) | ✓         | ✓     | Complete |
+| heading_3          | wp:heading (level 3) | ✓         | ✓     | Complete |
+| bulleted_list_item | wp:list              | ✓         | ✓     | Complete |
+| numbered_list_item | wp:list (ordered)    | ✓         | ✓     | Complete |
 
 ### Rich Text Formatting Support
 
 All converters support the following Notion annotations:
 
-| Annotation | HTML Tag | Example |
-|------------|----------|---------|
-| bold | `<strong>` | `<strong>text</strong>` |
-| italic | `<em>` | `<em>text</em>` |
-| code | `<code>` | `<code>text</code>` |
-| strikethrough | `<s>` | `<s>text</s>` |
-| underline | `<u>` | `<u>text</u>` |
-| link | `<a href="">` | `<a href="url">text</a>` |
+| Annotation    | HTML Tag      | Example                  |
+| ------------- | ------------- | ------------------------ |
+| bold          | `<strong>`    | `<strong>text</strong>`  |
+| italic        | `<em>`        | `<em>text</em>`          |
+| code          | `<code>`      | `<code>text</code>`      |
+| strikethrough | `<s>`         | `<s>text</s>`            |
+| underline     | `<u>`         | `<u>text</u>`            |
+| link          | `<a href="">` | `<a href="url">text</a>` |
 
 ## Security
 
@@ -191,6 +191,7 @@ Annotations are applied in a specific order to ensure proper HTML nesting:
 6. **link** (wraps all formatting)
 
 Example:
+
 ```php
 // Input: bold + italic + link
 // Output: <a href="url"><strong><em>text</em></strong></a>
@@ -459,6 +460,7 @@ When adding new converters:
 ## Support
 
 For issues or questions:
+
 - Check test cases for usage examples
 - Review existing converters for patterns
 - Consult Notion API documentation: https://developers.notion.com/reference/block

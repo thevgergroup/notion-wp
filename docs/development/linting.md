@@ -18,29 +18,33 @@ This document explains how to use the linting and code quality tools for the Not
 ### Initial Setup
 
 1. **Install PHP dependencies:**
-   ```bash
-   composer install
-   ```
+
+    ```bash
+    composer install
+    ```
 
 2. **Install Node dependencies:**
-   ```bash
-   npm install
-   ```
+
+    ```bash
+    npm install
+    ```
 
 3. **Setup pre-commit hooks:**
-   ```bash
-   npm run prepare
-   ```
+    ```bash
+    npm run prepare
+    ```
 
 ### Running Linters
 
 **Check all code:**
+
 ```bash
 composer lint        # Check all PHP code
 npm run lint         # Check all JS/CSS code
 ```
 
 **Auto-fix issues:**
+
 ```bash
 composer lint:fix    # Fix all PHP issues
 npm run lint:fix     # Fix all JS/CSS issues
@@ -87,6 +91,7 @@ composer lint:fix:quiet
 #### 1. File Size Limit (500 lines)
 
 **Error:**
+
 ```
 FILE: plugin/src/SomeClass.php
 ----------------------------------------------------------------------
@@ -115,11 +120,13 @@ class NotionSync {
 #### 2. Missing Nonce Verification
 
 **Error:**
+
 ```
 Processing form data without nonce verification.
 ```
 
 **Solution:**
+
 ```php
 // Add nonce verification
 if ( ! isset( $_POST['notion_wp_nonce'] ) ||
@@ -131,11 +138,13 @@ if ( ! isset( $_POST['notion_wp_nonce'] ) ||
 #### 3. Unsanitized Input
 
 **Error:**
+
 ```
 Detected usage of a non-sanitized input variable
 ```
 
 **Solution:**
+
 ```php
 // Before
 $api_key = $_POST['api_key'];
@@ -147,11 +156,13 @@ $api_key = sanitize_text_field( wp_unslash( $_POST['api_key'] ) );
 #### 4. Missing Text Domain
 
 **Error:**
+
 ```
 Text strings must be translatable
 ```
 
 **Solution:**
+
 ```php
 // Before
 echo 'Settings saved';
@@ -163,11 +174,13 @@ echo esc_html__( 'Settings saved', 'notion-wp' );
 #### 5. Global Namespace Pollution
 
 **Error:**
+
 ```
 All functions and classes must be prefixed
 ```
 
 **Solution:**
+
 ```php
 // Before
 function get_settings() { }
@@ -186,11 +199,13 @@ function get_settings() { }
 #### 1. Undefined Variables
 
 **Error:**
+
 ```
 Variable $wpdb might not be defined.
 ```
 
 **Solution:**
+
 ```php
 // Add proper type hints and checks
 global $wpdb;
@@ -206,11 +221,13 @@ $wpdb->query( '...' );
 #### 2. Missing Return Types
 
 **Error:**
+
 ```
 Method has no return type specified
 ```
 
 **Solution:**
+
 ```php
 // Before
 public function get_api_key() {
@@ -226,11 +243,13 @@ public function get_api_key(): string {
 #### 3. Mixed Types
 
 **Error:**
+
 ```
 Parameter type expects string, mixed given
 ```
 
 **Solution:**
+
 ```php
 // Add type validation
 $value = get_option( 'some_option' );
@@ -279,33 +298,37 @@ npm run format           # Format with Prettier
 #### 1. Console Statements in Production
 
 **Error:**
+
 ```
 Unexpected console statement (no-console)
 ```
 
 **Solution:**
+
 ```javascript
 // Before
 console.log('Debug info');
 
 // After (if needed for debugging)
 if (process.env.NODE_ENV === 'development') {
-    console.log('Debug info');
+	console.log('Debug info');
 }
 
 // Or use allowed methods
-console.error('Error occurred');  // Allowed
-console.warn('Warning');           // Allowed
+console.error('Error occurred'); // Allowed
+console.warn('Warning'); // Allowed
 ```
 
 #### 2. Missing JSDoc
 
 **Error:**
+
 ```
 Missing JSDoc comment
 ```
 
 **Solution:**
+
 ```javascript
 /**
  * Fetches pages from Notion API.
@@ -315,34 +338,38 @@ Missing JSDoc comment
  * @return {Promise<Array>} Array of Notion pages.
  */
 async function fetchPages(apiKey, limit = 10) {
-    // Implementation
+	// Implementation
 }
 ```
 
 #### 3. Unused Variables
 
 **Error:**
+
 ```
 'response' is defined but never used
 ```
 
 **Solution:**
+
 ```javascript
 // If intentionally unused, prefix with underscore
 async function fetchData() {
-    const _response = await fetch(url);  // Intentionally unused
-    // Or remove it if truly not needed
+	const _response = await fetch(url); // Intentionally unused
+	// Or remove it if truly not needed
 }
 ```
 
 #### 4. Missing Text Domain in i18n
 
 **Error:**
+
 ```
 Missing text domain in translation function
 ```
 
 **Solution:**
+
 ```javascript
 // Before
 const message = __('Save settings');
@@ -376,32 +403,35 @@ npm run lint:css:fix
 #### 1. Using !important
 
 **Warning:**
+
 ```
 Avoid using !important (declaration-no-important)
 ```
 
 **Solution:**
+
 ```css
 /* Before */
 .element {
-    color: red !important;
+	color: red !important;
 }
 
 /* After - Increase specificity instead */
 .parent .element {
-    color: red;
+	color: red;
 }
 
 /* Or document why !important is necessary */
 .element {
-    /* !important required to override inline styles from third-party plugin */
-    color: red !important;
+	/* !important required to override inline styles from third-party plugin */
+	color: red !important;
 }
 ```
 
 #### 2. Property Order
 
 **Error:**
+
 ```
 Expected "display" to come before "color"
 ```
@@ -411,52 +441,58 @@ Expected "display" to come before "color"
 ```css
 /* Auto-fixed order */
 .element {
-    /* Position */
-    position: relative;
-    top: 0;
-    z-index: 10;
+	/* Position */
+	position: relative;
+	top: 0;
+	z-index: 10;
 
-    /* Box Model */
-    display: flex;
-    width: 100%;
-    padding: 1rem;
+	/* Box Model */
+	display: flex;
+	width: 100%;
+	padding: 1rem;
 
-    /* Typography */
-    color: #333;
-    font-size: 1rem;
+	/* Typography */
+	color: #333;
+	font-size: 1rem;
 
-    /* Visual */
-    background: white;
-    border: 1px solid #ccc;
+	/* Visual */
+	background: white;
+	border: 1px solid #ccc;
 }
 ```
 
 #### 3. Too Deep Nesting
 
 **Warning:**
+
 ```
 Expected nesting depth to be no more than 3 (max-nesting-depth)
 ```
 
 **Solution:**
+
 ```scss
 // Before - 4 levels deep
 .parent {
-    .child {
-        .grandchild {
-            .great-grandchild {  // Too deep!
-                color: red;
-            }
-        }
-    }
+	.child {
+		.grandchild {
+			.great-grandchild {
+				// Too deep!
+				color: red;
+			}
+		}
+	}
 }
 
 // After - Use BEM naming
-.parent { }
-.parent__child { }
-.parent__grandchild { }
+.parent {
+}
+.parent__child {
+}
+.parent__grandchild {
+}
 .parent__great-grandchild {
-    color: red;
+	color: red;
 }
 ```
 
@@ -469,9 +505,9 @@ Pre-commit hooks automatically run linters before each commit and auto-fix what 
 1. You run `git commit`
 2. Husky triggers the pre-commit hook
 3. Staged files are linted:
-   - PHP files: PHP-CS-Fixer → PHPCS → PHPStan
-   - JS files: ESLint → Prettier
-   - CSS files: Stylelint → Prettier
+    - PHP files: PHP-CS-Fixer → PHPCS → PHPStan
+    - JS files: ESLint → Prettier
+    - CSS files: Stylelint → Prettier
 4. Auto-fixable issues are corrected and re-staged
 5. If any errors remain, the commit is blocked
 6. You fix the errors and commit again
@@ -514,15 +550,15 @@ Install these extensions:
 
 ```json
 {
-    "recommendations": [
-        "bmewburn.vscode-intelephense-client",
-        "wongjn.php-sniffer",
-        "swordev.phpstan",
-        "junstyle.php-cs-fixer",
-        "dbaeumer.vscode-eslint",
-        "esbenp.prettier-vscode",
-        "stylelint.vscode-stylelint"
-    ]
+	"recommendations": [
+		"bmewburn.vscode-intelephense-client",
+		"wongjn.php-sniffer",
+		"swordev.phpstan",
+		"junstyle.php-cs-fixer",
+		"dbaeumer.vscode-eslint",
+		"esbenp.prettier-vscode",
+		"stylelint.vscode-stylelint"
+	]
 }
 ```
 
@@ -532,36 +568,36 @@ Create `.vscode/settings.json`:
 
 ```json
 {
-    // PHP Settings
-    "php.validate.executablePath": "/usr/bin/php",
-    "phpSniffer.standard": "WordPress",
-    "phpSniffer.autoDetect": true,
-    "phpstan.enabled": true,
-    "phpstan.level": "5",
+	// PHP Settings
+	"php.validate.executablePath": "/usr/bin/php",
+	"phpSniffer.standard": "WordPress",
+	"phpSniffer.autoDetect": true,
+	"phpstan.enabled": true,
+	"phpstan.level": "5",
 
-    // Format on Save
-    "editor.formatOnSave": true,
-    "editor.codeActionsOnSave": {
-        "source.fixAll.eslint": true,
-        "source.fixAll.stylelint": true
-    },
+	// Format on Save
+	"editor.formatOnSave": true,
+	"editor.codeActionsOnSave": {
+		"source.fixAll.eslint": true,
+		"source.fixAll.stylelint": true
+	},
 
-    // ESLint
-    "eslint.validate": [
-        "javascript",
-        "javascriptreact",
-        "typescript",
-        "typescriptreact"
-    ],
+	// ESLint
+	"eslint.validate": [
+		"javascript",
+		"javascriptreact",
+		"typescript",
+		"typescriptreact"
+	],
 
-    // Prettier
-    "prettier.requireConfig": true,
-    "prettier.useEditorConfig": false,
+	// Prettier
+	"prettier.requireConfig": true,
+	"prettier.useEditorConfig": false,
 
-    // Stylelint
-    "stylelint.validate": ["css", "scss", "sass"],
-    "css.validate": false,
-    "scss.validate": false
+	// Stylelint
+	"stylelint.validate": ["css", "scss", "sass"],
+	"css.validate": false,
+	"scss.validate": false
 }
 ```
 
@@ -571,11 +607,11 @@ Add to `.vscode/keybindings.json`:
 
 ```json
 [
-    {
-        "key": "cmd+shift+l",
-        "command": "workbench.action.tasks.runTask",
-        "args": "Lint All"
-    }
+	{
+		"key": "cmd+shift+l",
+		"command": "workbench.action.tasks.runTask",
+		"args": "Lint All"
+	}
 ]
 ```
 
@@ -584,28 +620,29 @@ Add to `.vscode/keybindings.json`:
 #### Configuration
 
 1. **PHPCS:**
-   - Settings → PHP → Quality Tools → PHP_CodeSniffer
-   - Configuration: `/path/to/project/vendor/bin/phpcs`
-   - Coding standard: WordPress
+    - Settings → PHP → Quality Tools → PHP_CodeSniffer
+    - Configuration: `/path/to/project/vendor/bin/phpcs`
+    - Coding standard: WordPress
 
 2. **PHPStan:**
-   - Settings → PHP → Quality Tools → PHPStan
-   - Configuration: `/path/to/project/vendor/bin/phpstan`
-   - Configuration file: `phpstan.neon`
+    - Settings → PHP → Quality Tools → PHPStan
+    - Configuration: `/path/to/project/vendor/bin/phpstan`
+    - Configuration file: `phpstan.neon`
 
 3. **ESLint:**
-   - Settings → Languages & Frameworks → JavaScript → Code Quality Tools → ESLint
-   - Automatic ESLint configuration
-   - Run eslint --fix on save: ✓
+    - Settings → Languages & Frameworks → JavaScript → Code Quality Tools → ESLint
+    - Automatic ESLint configuration
+    - Run eslint --fix on save: ✓
 
 4. **Prettier:**
-   - Settings → Languages & Frameworks → JavaScript → Prettier
-   - Prettier package: `./node_modules/prettier`
-   - Run on save: ✓
+    - Settings → Languages & Frameworks → JavaScript → Prettier
+    - Prettier package: `./node_modules/prettier`
+    - Run on save: ✓
 
 #### File Watchers
 
 Set up file watchers for auto-formatting:
+
 - Settings → Tools → File Watchers
 - Add: PHP CS Fixer, ESLint, Stylelint
 
@@ -614,6 +651,7 @@ Set up file watchers for auto-formatting:
 ### "Command not found: composer"
 
 **Solution:**
+
 ```bash
 # Install Composer globally
 # macOS/Linux:
@@ -628,6 +666,7 @@ composer --version
 ### "Command not found: phpcs"
 
 **Solution:**
+
 ```bash
 # Install Composer dependencies
 composer install
@@ -639,6 +678,7 @@ composer install
 ### "npm install fails"
 
 **Solution:**
+
 ```bash
 # Clear npm cache
 npm cache clean --force
@@ -653,6 +693,7 @@ npm install
 ### "Pre-commit hook not executing"
 
 **Solution:**
+
 ```bash
 # Make hooks executable
 chmod +x .husky/pre-commit
@@ -665,11 +706,13 @@ npm run prepare
 ### "PHPStan out of memory"
 
 **Error:**
+
 ```
 Fatal error: Allowed memory size exhausted
 ```
 
 **Solution:**
+
 ```bash
 # Increase memory limit
 composer lint:phpstan -- --memory-limit=2G
@@ -680,6 +723,7 @@ composer lint:phpstan -- --memory-limit=2G
 ### "PHPCS taking too long"
 
 **Solution:**
+
 ```bash
 # Run on specific files only
 ./vendor/bin/phpcs plugin/src/SpecificFile.php
@@ -691,6 +735,7 @@ composer lint:phpstan -- --memory-limit=2G
 ### "ESLint cache issues"
 
 **Solution:**
+
 ```bash
 # Clear ESLint cache
 rm -rf node_modules/.cache
@@ -836,9 +881,9 @@ If you encounter issues not covered here:
 2. Search existing GitHub issues in the tool's repository
 3. Ask in the team's development channel
 4. File an issue in this repository with:
-   - Full error message
-   - Steps to reproduce
-   - Your environment (PHP version, Node version, OS)
+    - Full error message
+    - Steps to reproduce
+    - Your environment (PHP version, Node version, OS)
 
 ---
 

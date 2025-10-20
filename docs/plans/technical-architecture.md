@@ -30,6 +30,7 @@ This document defines the technical architecture for a bi-directional Notion-Wor
 - **Maintainability**: Clean separation of concerns, PSR-4 autoloading, dependency injection
 
 **Key Architectural Decisions**:
+
 - Custom database tables for mapping storage (post meta doesn't scale)
 - Action Scheduler for reliable background processing
 - Repository pattern for data access layer
@@ -135,18 +136,18 @@ graph TB
 
 ### Component Dependency Matrix
 
-| Component | Depends On | Depended On By |
-|-----------|-----------|----------------|
-| **Notion API Client** | Rate Limiter, Auth Handler | Sync Orchestrator, Webhook Controller |
-| **Sync Orchestrator** | Notion API Client, Queue Manager, Repositories | Admin Controller, REST Controllers |
-| **Block Converter Registry** | Individual Converters | Sync Engines (N→WP, WP→N) |
-| **Media Importer** | Notion API Client, Media Cache Repository | Block Converters (Image, File) |
-| **Navigation Generator** | Sync Mapping Repository, Page Tree Builder | Sync Orchestrator |
-| **Queue Manager** | Action Scheduler | Sync Orchestrator, Webhook Controller |
-| **Repositories** | wpdb, Database Schema | All components needing persistence |
-| **Cache Manager** | WordPress Object Cache API | Notion API Client, Repositories |
-| **Admin UI** | All components (reads state) | None (top-level) |
-| **REST API Controllers** | Sync Orchestrator | External webhooks, AJAX calls |
+| Component                    | Depends On                                     | Depended On By                        |
+| ---------------------------- | ---------------------------------------------- | ------------------------------------- |
+| **Notion API Client**        | Rate Limiter, Auth Handler                     | Sync Orchestrator, Webhook Controller |
+| **Sync Orchestrator**        | Notion API Client, Queue Manager, Repositories | Admin Controller, REST Controllers    |
+| **Block Converter Registry** | Individual Converters                          | Sync Engines (N→WP, WP→N)             |
+| **Media Importer**           | Notion API Client, Media Cache Repository      | Block Converters (Image, File)        |
+| **Navigation Generator**     | Sync Mapping Repository, Page Tree Builder     | Sync Orchestrator                     |
+| **Queue Manager**            | Action Scheduler                               | Sync Orchestrator, Webhook Controller |
+| **Repositories**             | wpdb, Database Schema                          | All components needing persistence    |
+| **Cache Manager**            | WordPress Object Cache API                     | Notion API Client, Repositories       |
+| **Admin UI**                 | All components (reads state)                   | None (top-level)                      |
+| **REST API Controllers**     | Sync Orchestrator                              | External webhooks, AJAX calls         |
 
 ---
 
@@ -157,57 +158,57 @@ graph TB
 These components have zero or minimal internal dependencies and can be developed independently:
 
 1. **Database Schema** (`Database/Schema/DatabaseSchema.php`)
-   - Creates custom tables on plugin activation
-   - Zero dependencies beyond wpdb
-   - **Why First**: All repositories depend on table structure
+    - Creates custom tables on plugin activation
+    - Zero dependencies beyond wpdb
+    - **Why First**: All repositories depend on table structure
 
 2. **Rate Limiter** (`API/RateLimiter.php`)
-   - Enforces 50 req/sec Notion API limit
-   - Uses WordPress Transients API
-   - **Why Early**: Prevents API throttling during development
+    - Enforces 50 req/sec Notion API limit
+    - Uses WordPress Transients API
+    - **Why Early**: Prevents API throttling during development
 
 3. **Logger** (`Utilities/Logger.php`)
-   - Wraps error_log or WP debug.log
-   - No internal dependencies
-   - **Why Early**: Needed for debugging all other components
+    - Wraps error_log or WP debug.log
+    - No internal dependencies
+    - **Why Early**: Needed for debugging all other components
 
 4. **Sanitizer/Validator** (`Utilities/`)
-   - Input sanitization and validation
-   - WordPress sanitization function wrappers
-   - **Why Early**: Used across admin UI and API handling
+    - Input sanitization and validation
+    - WordPress sanitization function wrappers
+    - **Why Early**: Used across admin UI and API handling
 
 ### Core Infrastructure Layer (Foundation Dependency)
 
 Components that depend only on foundation layer:
 
 5. **Repository Base Classes** (`Database/Repositories/`)
-   - Abstract repository pattern implementation
-   - Depends: Database Schema
-   - **Why Second**: Data access layer for everything else
+    - Abstract repository pattern implementation
+    - Depends: Database Schema
+    - **Why Second**: Data access layer for everything else
 
 6. **Cache Manager** (`Caching/CacheInterface.php`, `Caching/ObjectCache.php`)
-   - WordPress object cache wrapper
-   - Depends: Logger
-   - **Why Second**: Used by API client and repositories
+    - WordPress object cache wrapper
+    - Depends: Logger
+    - **Why Second**: Used by API client and repositories
 
 7. **Container** (`Container.php`)
-   - Dependency injection container
-   - Depends: Nothing (uses reflection)
-   - **Why Second**: Enables loose coupling for all components
+    - Dependency injection container
+    - Depends: Nothing (uses reflection)
+    - **Why Second**: Enables loose coupling for all components
 
 ### Integration Layer (Core Dependencies)
 
 Components integrating external services:
 
 8. **Authentication Handler** (`API/NotionAuth.php`)
-   - Validates Notion integration tokens
-   - Depends: Sanitizer, Logger
-   - **Why Third**: Required before API calls
+    - Validates Notion integration tokens
+    - Depends: Sanitizer, Logger
+    - **Why Third**: Required before API calls
 
 9. **Notion API Client** (`API/NotionClient.php`)
-   - Wraps Notion API endpoints
-   - Depends: Auth Handler, Rate Limiter, Cache Manager, Logger
-   - **Why Third**: Central integration point for all sync operations
+    - Wraps Notion API endpoints
+    - Depends: Auth Handler, Rate Limiter, Cache Manager, Logger
+    - **Why Third**: Central integration point for all sync operations
 
 10. **Queue Adapter** (`Queue/ActionSchedulerQueue.php`)
     - Wraps Action Scheduler plugin
@@ -307,11 +308,13 @@ graph LR
 ```
 
 **Deliverables**:
+
 1. Custom tables created: `wp_notion_sync_mappings`, `wp_notion_sync_logs`
 2. Notion API client with rate limiting and caching
 3. Repository pattern implemented for all data access
 
 **Testing Requirements**:
+
 - Unit tests for repositories (CRUD operations)
 - Integration test: Authenticate with real Notion API
 - Integration test: Rate limiter enforces 50 req/sec
@@ -332,11 +335,13 @@ graph LR
 ```
 
 **Deliverables**:
+
 1. Registry system for extensible block converters
 2. Core converters: paragraph, headings, lists, images, code, quotes, tables
 3. Media importer with deduplication
 
 **Testing Requirements**:
+
 - Unit tests for each converter (Notion JSON → Gutenberg blocks)
 - Integration test: Download image from Notion, upload to WP Media Library
 - Test fallback converter for unsupported blocks
@@ -356,12 +361,14 @@ graph LR
 ```
 
 **Deliverables**:
+
 1. Notion → WordPress sync engine
 2. Pagination handling (100 entries per query)
 3. Background job system via Action Scheduler
 4. Delta detection (only sync changed pages)
 
 **Testing Requirements**:
+
 - Integration test: Sync 10 Notion pages to WordPress
 - Integration test: Sync Notion database with 100+ entries
 - Performance test: Measure time for 500 page sync
@@ -379,11 +386,13 @@ graph LR
 ```
 
 **Deliverables**:
+
 1. Page hierarchy detection from Notion
 2. WordPress menu generation
 3. Internal link conversion (Notion page links → WP permalinks)
 
 **Testing Requirements**:
+
 - Integration test: Sync nested Notion pages (3 levels deep)
 - Verify WordPress parent_post relationships
 - Verify menu structure matches Notion sidebar
@@ -394,12 +403,14 @@ graph LR
 **Goal**: User interface for configuration and monitoring
 
 **Deliverables**:
+
 1. Settings page (token input, connection test)
 2. Sync dashboard (trigger sync, view logs)
 3. Field mapping UI (drag-and-drop property mapping)
 4. Error handling and user feedback
 
 **Testing Requirements**:
+
 - Manual testing of all admin screens
 - Accessibility audit (WCAG 2.1 AA)
 - Cross-browser testing
@@ -415,6 +426,7 @@ graph LR
 **Duration**: Weeks 1-2
 
 **Scope**:
+
 - Database schema and migrations
 - Repository pattern implementation
 - Notion API client with rate limiting
@@ -422,6 +434,7 @@ graph LR
 - Logger and utilities
 
 **Key Files**:
+
 - `src/Database/Schema/DatabaseSchema.php`
 - `src/Database/Repositories/BaseRepository.php`
 - `src/API/NotionClient.php`
@@ -429,6 +442,7 @@ graph LR
 - `src/Caching/CacheManager.php`
 
 **Exit Criteria**:
+
 - All unit tests pass (90%+ coverage)
 - Can successfully call Notion API: `pages.retrieve`, `databases.query`
 - Rate limiter prevents exceeding 50 req/sec under load test
@@ -445,21 +459,25 @@ graph LR
 **Duration**: Weeks 2-4 (starts after Week 2)
 
 **Dependencies**:
+
 - Requires: `NotionClient` interface (can mock initially)
 - Requires: `BlockConverterInterface` contract
 
 **Scope**:
+
 - Registry pattern for converter management
 - Converters for: paragraph, heading, list, image, quote, code, table, callout, toggle
 - Fallback converter for unsupported types
 - Extensibility hooks for custom converters
 
 **Key Files**:
+
 - `src/Converters/BlockConverterRegistry.php`
 - `src/Converters/BlockConverterInterface.php`
 - `src/Converters/NotionToGutenberg/*Converter.php` (10+ files)
 
 **Exit Criteria**:
+
 - Each converter has unit tests with Notion JSON fixtures
 - Registry allows runtime registration via WordPress filters
 - Unsupported blocks preserve content as HTML comments
@@ -476,10 +494,12 @@ graph LR
 **Duration**: Weeks 2-4 (starts after Week 2)
 
 **Dependencies**:
+
 - Requires: `NotionClient` (for downloading images)
 - Requires: `SyncMappingRepository` (for deduplication)
 
 **Scope**:
+
 - Image downloader from Notion's S3 URLs
 - WordPress Media Library uploader
 - Duplication checker (Notion block ID → WP attachment ID mapping)
@@ -487,6 +507,7 @@ graph LR
 - Support for file attachments (PDFs, docs)
 
 **Key Files**:
+
 - `src/Media/MediaImporter.php`
 - `src/Media/ImageDownloader.php`
 - `src/Media/FileUploader.php`
@@ -494,6 +515,7 @@ graph LR
 - `src/Media/DuplicationChecker.php`
 
 **Exit Criteria**:
+
 - Can download image from Notion time-limited URL
 - Can upload to WordPress Media Library with correct metadata
 - Re-syncing same page doesn't duplicate images
@@ -511,11 +533,13 @@ graph LR
 **Duration**: Weeks 3-6
 
 **Dependencies**:
+
 - Requires: All of Stream A complete
 - Requires: Block Converter Registry interface (can integrate Stream B later)
 - Requires: Media Importer interface (can integrate Stream C later)
 
 **Scope**:
+
 - Sync orchestrator
 - Notion → WP sync engine
 - Batch processor (pagination handling)
@@ -524,6 +548,7 @@ graph LR
 - Background jobs: ImportPageJob, SyncDatabaseJob, PollNotionJob
 
 **Key Files**:
+
 - `src/Sync/SyncOrchestrator.php`
 - `src/Sync/NotionToWP.php`
 - `src/Sync/BatchProcessor.php`
@@ -532,6 +557,7 @@ graph LR
 - `src/Queue/Jobs/*.php`
 
 **Exit Criteria**:
+
 - Can sync single Notion page to WordPress
 - Can sync Notion database with 100+ entries
 - Handles pagination correctly
@@ -549,10 +575,12 @@ graph LR
 **Duration**: Weeks 5-8
 
 **Dependencies**:
+
 - Requires: Sync engine complete (Stream D)
 - Requires: Repositories (Stream A)
 
 **Scope**:
+
 - Menu generator (Notion hierarchy → WP menus)
 - Link converter (internal Notion links → WP permalinks)
 - Admin settings page
@@ -561,6 +589,7 @@ graph LR
 - REST API endpoints (webhook receiver, sync trigger)
 
 **Key Files**:
+
 - `src/Navigation/MenuGenerator.php`
 - `src/Navigation/LinkConverter.php`
 - `src/Admin/SettingsPage.php`
@@ -569,6 +598,7 @@ graph LR
 - `src/REST/WebhookController.php`
 
 **Exit Criteria**:
+
 - WordPress menu reflects Notion page hierarchy
 - Internal Notion links converted to WP permalinks
 - Admin can configure sync via UI (no code changes)
@@ -617,6 +647,7 @@ docker compose up -d
 5. **Demo**: Weekly demo of integrated functionality
 
 **Merge Strategy**:
+
 ```bash
 # Example: Integrating Stream B into Stream D (Week 4)
 cd ../notion-wp-sync      # Stream D worktree
@@ -670,12 +701,14 @@ interface BlockConverterInterface {
 ```
 
 **Usage Contract**:
+
 - Converters MUST handle malformed Notion data gracefully (return fallback, not throw)
 - Converters MUST escape all user content (use `esc_html`, `wp_kses_post`)
 - Converters MAY return Gutenberg block comment format or raw HTML
 - Converters SHOULD log warnings for partial conversions
 
 **Extension Point**:
+
 ```php
 // Third-party plugin registers custom converter
 add_filter('notion_sync_block_converters', function($converters) {
@@ -741,6 +774,7 @@ interface RepositoryInterface {
 ```
 
 **Implementation Contract**:
+
 - Repositories MUST use `$wpdb->prepare()` for all queries (SQL injection prevention)
 - Repositories MUST validate data types before database operations
 - Repositories SHOULD cache frequently accessed entities (use object cache)
@@ -796,6 +830,7 @@ interface QueueInterface {
 ```
 
 **Implementation Notes**:
+
 - Default implementation wraps Action Scheduler plugin
 - Alternative implementation could use WP-Cron (less reliable) or external queue (Redis)
 - Jobs MUST be idempotent (safe to run multiple times)
@@ -849,6 +884,7 @@ interface SyncEngineInterface {
 ```
 
 **Contract Guarantees**:
+
 - MUST check for existing mapping before creating duplicates
 - MUST respect WordPress capability checks (current_user_can)
 - SHOULD fire action hooks before/after sync (`before_notion_sync`, `after_notion_sync`)
@@ -897,6 +933,7 @@ interface MediaImporterInterface {
 ```
 
 **Implementation Requirements**:
+
 - MUST validate image URL before download (prevent SSRF attacks)
 - MUST handle download timeouts gracefully (retry with exponential backoff)
 - MUST check WordPress upload directory permissions before attempting upload
@@ -982,6 +1019,7 @@ CREATE TABLE wp_notion_sync_mappings (
 ```
 
 **Performance Comparison**:
+
 - Post Meta Query (1000 posts): ~500ms
 - Custom Table Query (1000 posts): ~15ms
 - **33x faster** with proper indexing
@@ -1027,19 +1065,19 @@ graph TD
 **Cache Layers**:
 
 1. **Object Cache** (Memcached/Redis via WordPress)
-   - TTL: 5 minutes
-   - Use for: Notion API responses, block conversions
-   - Invalidation: On manual sync trigger
+    - TTL: 5 minutes
+    - Use for: Notion API responses, block conversions
+    - Invalidation: On manual sync trigger
 
 2. **Transient Cache** (Database-backed)
-   - TTL: 1 hour
-   - Use for: Notion page metadata, database queries
-   - Invalidation: On webhook notification
+    - TTL: 1 hour
+    - Use for: Notion page metadata, database queries
+    - Invalidation: On webhook notification
 
 3. **Persistent Cache** (Custom table)
-   - TTL: Indefinite (until delta detected)
-   - Use for: Sync mappings, last_edited timestamps
-   - Invalidation: On successful sync
+    - TTL: Indefinite (until delta detected)
+    - Use for: Sync mappings, last_edited timestamps
+    - Invalidation: On successful sync
 
 **Implementation**:
 
@@ -1142,6 +1180,7 @@ class ImportPageBatchJob {
 ```
 
 **Performance Characteristics**:
+
 - **No PHP timeouts**: Jobs run in 30-second chunks
 - **Reliable**: Action Scheduler retries failed jobs
 - **Scalable**: Can process 1000s of pages without blocking user
@@ -1232,6 +1271,7 @@ class DeltaDetector {
 ```
 
 **Performance Impact**:
+
 - Initial sync: 1000 pages = 1000 API calls + processing
 - Incremental sync (10 changed): 1000 metadata calls + 10 full syncs
 - **90% reduction** in processing time for incremental syncs
@@ -1320,6 +1360,7 @@ class ParagraphConverterTest extends TestCase {
 ```
 
 **Test Organization**:
+
 - `tests/Unit/Converters/` - Block converter tests
 - `tests/Unit/Sync/` - Sync engine tests
 - `tests/Unit/Database/` - Repository tests
@@ -1332,6 +1373,7 @@ class ParagraphConverterTest extends TestCase {
 **Scope**: Test interactions between components and external services
 
 **Requirements**:
+
 - WordPress test environment (separate database)
 - Test Notion workspace with known data
 - Action Scheduler plugin installed
@@ -1469,23 +1511,23 @@ class NotionAPIMock {
 
 ```json
 {
-  "object": "page",
-  "id": "abc-123-def-456",
-  "created_time": "2025-10-01T10:00:00.000Z",
-  "last_edited_time": "2025-10-15T14:30:00.000Z",
-  "properties": {
-    "title": {
-      "id": "title",
-      "type": "title",
-      "title": [
-        {
-          "type": "text",
-          "text": {"content": "Test Page Title"},
-          "plain_text": "Test Page Title"
-        }
-      ]
-    }
-  }
+	"object": "page",
+	"id": "abc-123-def-456",
+	"created_time": "2025-10-01T10:00:00.000Z",
+	"last_edited_time": "2025-10-15T14:30:00.000Z",
+	"properties": {
+		"title": {
+			"id": "title",
+			"type": "title",
+			"title": [
+				{
+					"type": "text",
+					"text": { "content": "Test Page Title" },
+					"plain_text": "Test Page Title"
+				}
+			]
+		}
+	}
 }
 ```
 
@@ -1515,6 +1557,7 @@ add_filter('pre_http_request', function($response, $args, $url) {
 ### 4. Performance Testing
 
 **Metrics to Track**:
+
 - Sync time for 100, 500, 1000 pages
 - API calls per sync (should use delta detection)
 - Memory usage during large syncs
@@ -1567,6 +1610,7 @@ assert($average < 300, "Sync took too long (> 5 minutes)");
 ```
 
 **Performance Targets**:
+
 - 100 pages: < 30 seconds
 - 500 pages: < 2 minutes
 - 1000 pages: < 5 minutes
@@ -1579,12 +1623,14 @@ assert($average < 300, "Sync took too long (> 5 minutes)");
 **Pre-Release Testing Protocol**:
 
 #### Setup Phase
+
 - [ ] Fresh WordPress installation (latest version)
 - [ ] Activate plugin, no PHP warnings/notices
 - [ ] Connect to test Notion workspace
 - [ ] Verify connection status shows "Connected"
 
 #### Basic Sync Tests
+
 - [ ] Sync single Notion page with text content
 - [ ] Verify page created in WordPress with correct title
 - [ ] Verify content matches Notion (paragraphs, headings)
@@ -1594,6 +1640,7 @@ assert($average < 300, "Sync took too long (> 5 minutes)");
 - [ ] Re-sync same page, verify no duplicate images created
 
 #### Advanced Content Tests
+
 - [ ] Sync page with code blocks (verify syntax highlighting)
 - [ ] Sync page with tables (verify table structure)
 - [ ] Sync page with lists (bullet, numbered, to-do)
@@ -1601,6 +1648,7 @@ assert($average < 300, "Sync took too long (> 5 minutes)");
 - [ ] Sync page with embeds (YouTube, Twitter)
 
 #### Database Sync Tests
+
 - [ ] Sync Notion database with 10 entries
 - [ ] Verify 10 WordPress posts created
 - [ ] Verify category/tag mapping from Notion properties
@@ -1608,6 +1656,7 @@ assert($average < 300, "Sync took too long (> 5 minutes)");
 - [ ] Verify database sync respects filters (if implemented)
 
 #### Hierarchy & Navigation Tests
+
 - [ ] Sync parent page with 3 child pages (2 levels deep)
 - [ ] Verify WordPress parent/child relationships correct
 - [ ] Verify navigation menu auto-generated
@@ -1615,12 +1664,14 @@ assert($average < 300, "Sync took too long (> 5 minutes)");
 - [ ] Verify internal Notion links converted to WP permalinks
 
 #### Performance Tests
+
 - [ ] Sync database with 100+ entries
 - [ ] Verify background jobs process without timeout
 - [ ] Verify progress updates visible in admin dashboard
 - [ ] Verify error logging for failed items
 
 #### Edge Cases
+
 - [ ] Sync page with 0 content blocks (empty page)
 - [ ] Sync page with very long content (10,000+ words)
 - [ ] Sync page with special characters in title (UTF-8, emojis)
@@ -1628,11 +1679,13 @@ assert($average < 300, "Sync took too long (> 5 minutes)");
 - [ ] Sync with invalid Notion token (verify error message)
 
 #### Webhook Tests (if implemented)
+
 - [ ] Configure Notion webhook pointing to WP endpoint
 - [ ] Edit Notion page, verify WordPress updates automatically
 - [ ] Delete Notion page, verify WordPress handles gracefully
 
 #### Admin UI Tests
+
 - [ ] Test field mapper UI (drag-and-drop properties)
 - [ ] Test sync dashboard refresh (AJAX updates)
 - [ ] Test manual sync trigger button
@@ -1640,6 +1693,7 @@ assert($average < 300, "Sync took too long (> 5 minutes)");
 - [ ] Test settings persistence (save/reload)
 
 #### Compatibility Tests
+
 - [ ] Test with WordPress 6.0, 6.1, 6.2 (latest 3 major versions)
 - [ ] Test with PHP 8.1, 8.2, 8.3
 - [ ] Test with common themes (Twenty Twenty-Four, GeneratePress)
@@ -1651,9 +1705,11 @@ assert($average < 300, "Sync took too long (> 5 minutes)");
 ## Implementation Roadmap
 
 ### Week 1-2: Foundation Phase
+
 **Goal**: Establish core infrastructure for all other components
 
 **Deliverables**:
+
 - Database schema with migrations
 - Repository pattern base classes
 - Notion API client with rate limiting
@@ -1661,6 +1717,7 @@ assert($average < 300, "Sync took too long (> 5 minutes)");
 - Logger and utility helpers
 
 **Definition of Done**:
+
 - All unit tests pass (90%+ coverage)
 - Can authenticate with Notion API
 - Can query Notion database (basic call)
@@ -1670,15 +1727,18 @@ assert($average < 300, "Sync took too long (> 5 minutes)");
 ---
 
 ### Week 3-4: Content Processing Phase
+
 **Goal**: Transform Notion blocks to WordPress content
 
 **Deliverables**:
+
 - Block converter registry with extensibility hooks
 - Converters: paragraph, heading, list, image, quote, code, table
 - Media importer with deduplication
 - Fallback converter for unsupported types
 
 **Definition of Done**:
+
 - Each converter has unit tests with fixtures
 - Can convert common Notion blocks to Gutenberg
 - Can download image from Notion, upload to WP
@@ -1688,9 +1748,11 @@ assert($average < 300, "Sync took too long (> 5 minutes)");
 ---
 
 ### Week 5-6: Sync Engine Phase
+
 **Goal**: End-to-end sync from Notion to WordPress
 
 **Deliverables**:
+
 - Sync orchestrator
 - Notion → WP sync engine
 - Batch processor (pagination handling)
@@ -1699,6 +1761,7 @@ assert($average < 300, "Sync took too long (> 5 minutes)");
 - Background jobs: ImportPageJob, SyncDatabaseJob
 
 **Definition of Done**:
+
 - Can sync single Notion page to WordPress
 - Can sync Notion database with 100+ entries
 - Background jobs process without timeout
@@ -1708,14 +1771,17 @@ assert($average < 300, "Sync took too long (> 5 minutes)");
 ---
 
 ### Week 7: Navigation Phase
+
 **Goal**: Handle page hierarchy and internal links
 
 **Deliverables**:
+
 - Page tree builder (Notion hierarchy extraction)
 - Menu generator (WordPress nav menu creation)
 - Link converter (Notion links → WP permalinks)
 
 **Definition of Done**:
+
 - Syncing nested pages preserves hierarchy in WordPress
 - WordPress menu reflects Notion sidebar structure
 - Internal Notion links converted to WP permalinks
@@ -1724,9 +1790,11 @@ assert($average < 300, "Sync took too long (> 5 minutes)");
 ---
 
 ### Week 8: Polish & Release Phase
+
 **Goal**: Production-ready plugin
 
 **Deliverables**:
+
 - Admin settings page (token input, connection test)
 - Sync dashboard (trigger, logs, status)
 - Field mapping UI (property → WP field mapping)
@@ -1734,6 +1802,7 @@ assert($average < 300, "Sync took too long (> 5 minutes)");
 - Documentation (README, inline docs)
 
 **Definition of Done**:
+
 - All manual testing checklist items pass
 - Performance benchmarks met (1000 pages < 5 min)
 - WordPress.org plugin guidelines compliance
@@ -1747,38 +1816,40 @@ assert($average < 300, "Sync took too long (> 5 minutes)");
 **Future Features** (prioritized backlog):
 
 1. **Reverse Sync (WP → Notion)** - Weeks 9-11
-   - Gutenberg → Notion block converters
-   - Push to Notion API
-   - Conflict resolution UI
+    - Gutenberg → Notion block converters
+    - Push to Notion API
+    - Conflict resolution UI
 
 2. **Advanced Field Mapping** - Week 12
-   - ACF integration
-   - SEO plugin support (Yoast, RankMath)
-   - Custom post type targeting
+    - ACF integration
+    - SEO plugin support (Yoast, RankMath)
+    - Custom post type targeting
 
 3. **Webhook Real-Time Sync** - Week 13
-   - Notion webhook subscription management
-   - Near-instant updates from Notion changes
+    - Notion webhook subscription management
+    - Near-instant updates from Notion changes
 
 4. **CLI Commands** - Week 14
-   - WP-CLI integration: `wp notion-sync run`
-   - Bulk operations for large migrations
+    - WP-CLI integration: `wp notion-sync run`
+    - Bulk operations for large migrations
 
 5. **Multisite Support** - Week 15
-   - Network-wide vs per-site activation
-   - Cross-site sync capabilities
+    - Network-wide vs per-site activation
+    - Cross-site sync capabilities
 
 ---
 
 ## Appendix A: Technology Stack
 
 **Core Dependencies**:
+
 - PHP 8.1+ (constructor property promotion, enums)
 - WordPress 6.0+ (block editor API)
 - Composer (PSR-4 autoloading, dependency management)
 - Action Scheduler plugin (background jobs)
 
 **Development Dependencies**:
+
 - PHPUnit 10.x (testing framework)
 - PHP CodeSniffer (WordPress coding standards)
 - Node.js 18+ (asset build pipeline)
@@ -1786,6 +1857,7 @@ assert($average < 300, "Sync took too long (> 5 minutes)");
 - Docker Compose (local development environment)
 
 **External Services**:
+
 - Notion API v1 (https://developers.notion.com)
 - WordPress.org Plugin Repository (distribution)
 
@@ -1794,6 +1866,7 @@ assert($average < 300, "Sync took too long (> 5 minutes)");
 ## Appendix B: WordPress VIP Compliance
 
 **Critical Standards**:
+
 - ✅ No direct database queries without `$wpdb->prepare()`
 - ✅ All output escaped (`esc_html`, `wp_kses_post`)
 - ✅ All input sanitized (`sanitize_text_field`, etc.)
@@ -1807,6 +1880,7 @@ assert($average < 300, "Sync took too long (> 5 minutes)");
 - ✅ Internationalization ready (text domain, translatable strings)
 
 **Performance Requirements**:
+
 - ✅ No queries in loops (use batch operations)
 - ✅ Custom tables for scalable data (not post meta for large datasets)
 - ✅ Cache expensive operations (WordPress object cache)
@@ -1818,31 +1892,37 @@ assert($average < 300, "Sync took too long (> 5 minutes)");
 ## Appendix C: Security Considerations
 
 **Authentication**:
+
 - Store Notion token encrypted in database (use `wp_salt()` for encryption key)
 - Validate token format before storage (regex pattern check)
 - Never expose token in JavaScript or HTML
 
 **Authorization**:
+
 - Require `manage_options` capability for admin pages
 - Require `edit_posts` for manual sync triggers
 - Webhook endpoint validates signature (if Notion supports)
 
 **Input Validation**:
+
 - Sanitize all Notion API responses before database storage
 - Escape all output to prevent XSS
 - Validate image URLs before download (prevent SSRF)
 - Whitelist allowed HTML tags in content conversion
 
 **SQL Injection Prevention**:
+
 - Always use `$wpdb->prepare()` for queries
 - Never concatenate user input into SQL strings
 - Use parameterized queries for custom tables
 
 **CSRF Protection**:
+
 - Nonces for all form submissions (`wp_nonce_field`, `check_admin_referer`)
 - Verify nonces on AJAX endpoints (`check_ajax_referer`)
 
 **Rate Limiting**:
+
 - Limit sync triggers per user (prevent DoS)
 - Respect Notion API rate limits (50 req/sec)
 - Exponential backoff on errors
@@ -1851,30 +1931,31 @@ assert($average < 300, "Sync took too long (> 5 minutes)");
 
 ## Appendix D: Glossary
 
-**Term** | **Definition**
----------|---------------
-**Notion Page** | Single document in Notion containing blocks
-**Notion Database** | Collection of pages with structured properties (like spreadsheet rows)
-**Notion Block** | Individual content element (paragraph, image, heading, etc.)
-**Block Converter** | Class that transforms Notion block type to WordPress block
-**Sync Mapping** | Database record linking Notion page ID to WordPress post ID
-**Delta Detection** | Comparing timestamps to determine if sync needed
-**Action Scheduler** | WordPress plugin providing reliable background job processing
-**Repository Pattern** | Data access layer abstracting database operations
-**PSR-4** | PHP autoloading standard (namespace to file path mapping)
-**Gutenberg** | WordPress block editor (introduced in WP 5.0)
-**Transient** | WordPress temporary cached value (stored in database)
-**Object Cache** | WordPress memory-based cache (Memcached/Redis)
-**WP-CLI** | Command-line interface for WordPress
-**wpdb** | WordPress database abstraction class
-**Custom Post Type** | WordPress content type beyond posts/pages
-**Git Worktree** | Multiple working directories for same Git repository
+| **Term**               | **Definition**                                                         |
+| ---------------------- | ---------------------------------------------------------------------- |
+| **Notion Page**        | Single document in Notion containing blocks                            |
+| **Notion Database**    | Collection of pages with structured properties (like spreadsheet rows) |
+| **Notion Block**       | Individual content element (paragraph, image, heading, etc.)           |
+| **Block Converter**    | Class that transforms Notion block type to WordPress block             |
+| **Sync Mapping**       | Database record linking Notion page ID to WordPress post ID            |
+| **Delta Detection**    | Comparing timestamps to determine if sync needed                       |
+| **Action Scheduler**   | WordPress plugin providing reliable background job processing          |
+| **Repository Pattern** | Data access layer abstracting database operations                      |
+| **PSR-4**              | PHP autoloading standard (namespace to file path mapping)              |
+| **Gutenberg**          | WordPress block editor (introduced in WP 5.0)                          |
+| **Transient**          | WordPress temporary cached value (stored in database)                  |
+| **Object Cache**       | WordPress memory-based cache (Memcached/Redis)                         |
+| **WP-CLI**             | Command-line interface for WordPress                                   |
+| **wpdb**               | WordPress database abstraction class                                   |
+| **Custom Post Type**   | WordPress content type beyond posts/pages                              |
+| **Git Worktree**       | Multiple working directories for same Git repository                   |
 
 ---
 
 **End of Document**
 
 For questions or clarifications, refer to:
+
 - Project structure: `/docs/architecture/project-structure.md`
 - PRD: `/docs/product/prd.md`
 - Requirements: `/docs/requirements/requirements.md`

@@ -82,24 +82,24 @@ composer lint:fix && npm run lint:fix
 
 ### PHP Configuration
 
-| File | Purpose | Key Settings |
-|------|---------|--------------|
-| `phpcs.xml.dist` | PHP_CodeSniffer rules | WordPress Coding Standards, 500-line file limit |
-| `phpstan.neon` | PHPStan static analysis | Level 5, WordPress stubs |
-| `.php-cs-fixer.dist.php` | PHP-CS-Fixer formatting | PSR-12, WordPress compatibility |
+| File                     | Purpose                 | Key Settings                                    |
+| ------------------------ | ----------------------- | ----------------------------------------------- |
+| `phpcs.xml.dist`         | PHP_CodeSniffer rules   | WordPress Coding Standards, 500-line file limit |
+| `phpstan.neon`           | PHPStan static analysis | Level 5, WordPress stubs                        |
+| `.php-cs-fixer.dist.php` | PHP-CS-Fixer formatting | PSR-12, WordPress compatibility                 |
 
 ### JavaScript/CSS Configuration
 
-| File | Purpose | Key Settings |
-|------|---------|--------------|
-| `.eslintrc.json` | ESLint rules | WordPress preset, no console.log |
-| `.stylelintrc.json` | Stylelint rules | WordPress CSS standards |
-| `.prettierrc.json` | Prettier formatting | WordPress defaults |
+| File                | Purpose             | Key Settings                     |
+| ------------------- | ------------------- | -------------------------------- |
+| `.eslintrc.json`    | ESLint rules        | WordPress preset, no console.log |
+| `.stylelintrc.json` | Stylelint rules     | WordPress CSS standards          |
+| `.prettierrc.json`  | Prettier formatting | WordPress defaults               |
 
 ### Git Hooks
 
-| File | Purpose |
-|------|---------|
+| File                | Purpose                         |
+| ------------------- | ------------------------------- |
 | `.husky/pre-commit` | Runs linters before each commit |
 | `.husky/commit-msg` | Validates commit message format |
 
@@ -119,6 +119,7 @@ composer lint:fix && npm run lint:fix
 ```
 
 **Solution:**
+
 1. Extract classes/functions into separate files
 2. Use proper PSR-4 autoloading
 3. Keep one class per file
@@ -154,6 +155,7 @@ echo '<a href="' . esc_url( $link ) . '">' . esc_html( $text ) . '</a>';
 ```
 
 **Fix:** Use appropriate escaping functions:
+
 - `esc_html()` - For HTML content
 - `esc_attr()` - For HTML attributes
 - `esc_url()` - For URLs
@@ -173,6 +175,7 @@ update_option( 'my_option', sanitize_text_field( wp_unslash( $_POST['value'] ) )
 ```
 
 **Fix:** Use appropriate sanitization functions:
+
 - `sanitize_text_field()` - For text inputs
 - `sanitize_email()` - For email addresses
 - `sanitize_url()` - For URLs
@@ -236,21 +239,21 @@ console.warn('Warning message');
 
 ```javascript
 // ❌ Bad
-jQuery(document).ready(function() {
-    // 'jQuery' might not be defined
+jQuery(document).ready(function () {
+	// 'jQuery' might not be defined
 });
 
 // ✅ Good
 /* global jQuery */
-jQuery(document).ready(function($) {
-    // Now jQuery is recognized
+jQuery(document).ready(function ($) {
+	// Now jQuery is recognized
 });
 
 // ✅ Better - Use WordPress wrapper
-(function($) {
-    $(document).ready(function() {
-        // Safe to use $
-    });
+(function ($) {
+	$(document).ready(function () {
+		// Safe to use $
+	});
 })(jQuery);
 ```
 
@@ -261,7 +264,7 @@ jQuery(document).ready(function($) {
 ```javascript
 // ❌ Bad
 function calculateTotal(price, tax) {
-    return price + tax;
+	return price + tax;
 }
 
 // ✅ Good
@@ -273,7 +276,7 @@ function calculateTotal(price, tax) {
  * @return {number} The total price.
  */
 function calculateTotal(price, tax) {
-    return price + tax;
+	return price + tax;
 }
 ```
 
@@ -286,18 +289,18 @@ function calculateTotal(price, tax) {
 ```css
 /* ❌ Bad */
 .my-class {
-    color: red !important;
+	color: red !important;
 }
 
 /* ✅ Good - Document why !important is needed */
 .my-class {
-    /* !important needed to override WordPress core styles */
-    color: red !important;
+	/* !important needed to override WordPress core styles */
+	color: red !important;
 }
 
 /* ✅ Best - Avoid !important by increasing specificity */
 .parent .my-class {
-    color: red;
+	color: red;
 }
 ```
 
@@ -308,12 +311,12 @@ function calculateTotal(price, tax) {
 ```css
 /* ❌ Bad */
 #my-id {
-    color: red;
+	color: red;
 }
 
 /* ✅ Good - Use classes */
 .my-class {
-    color: red;
+	color: red;
 }
 ```
 
@@ -338,11 +341,13 @@ git commit --no-verify -m "Emergency fix: Brief description"
 ```
 
 **When to use:**
+
 - Critical production bug fix
 - Hotfix that must be deployed immediately
 - Reverting a broken commit
 
 **Requirements:**
+
 1. Document why bypass was needed in commit message
 2. Create a follow-up issue to fix linting
 3. Fix linting issues in the next commit
@@ -408,25 +413,25 @@ Create `.vscode/settings.json`:
 
 ```json
 {
-  "php.validate.enable": true,
-  "php.validate.run": "onType",
-  "phpcs.enable": true,
-  "phpcs.standard": "phpcs.xml.dist",
-  "eslint.enable": true,
-  "eslint.validate": [
-    "javascript",
-    "javascriptreact",
-    "typescript",
-    "typescriptreact"
-  ],
-  "editor.formatOnSave": true,
-  "editor.defaultFormatter": "esbenp.prettier-vscode",
-  "[php]": {
-    "editor.defaultFormatter": "wongjn.php-sniffer"
-  },
-  "stylelint.enable": true,
-  "css.validate": false,
-  "scss.validate": false
+	"php.validate.enable": true,
+	"php.validate.run": "onType",
+	"phpcs.enable": true,
+	"phpcs.standard": "phpcs.xml.dist",
+	"eslint.enable": true,
+	"eslint.validate": [
+		"javascript",
+		"javascriptreact",
+		"typescript",
+		"typescriptreact"
+	],
+	"editor.formatOnSave": true,
+	"editor.defaultFormatter": "esbenp.prettier-vscode",
+	"[php]": {
+		"editor.defaultFormatter": "wongjn.php-sniffer"
+	},
+	"stylelint.enable": true,
+	"css.validate": false,
+	"scss.validate": false
 }
 ```
 
@@ -460,10 +465,10 @@ Create `.vscode/settings.json`:
 
 1. Open Package Control (`Cmd+Shift+P` or `Ctrl+Shift+P`)
 2. Install these packages:
-   - **SublimeLinter**
-   - **SublimeLinter-phpcs**
-   - **SublimeLinter-eslint**
-   - **SublimeLinter-stylelint**
+    - **SublimeLinter**
+    - **SublimeLinter-phpcs**
+    - **SublimeLinter-eslint**
+    - **SublimeLinter-stylelint**
 
 ---
 
@@ -531,6 +536,7 @@ ls -la .husky/
 **Cause:** Composer dependencies not installed.
 
 **Fix:**
+
 ```bash
 composer install
 ```
@@ -540,6 +546,7 @@ composer install
 **Cause:** npm dependencies not installed.
 
 **Fix:**
+
 ```bash
 npm install
 ```
@@ -549,26 +556,29 @@ npm install
 **Possible causes:**
 
 1. **Not a Git repository**
-   ```bash
-   git init
-   ```
+
+    ```bash
+    git init
+    ```
 
 2. **Husky not installed**
-   ```bash
-   npm run prepare
-   ```
+
+    ```bash
+    npm run prepare
+    ```
 
 3. **Hook not executable**
-   ```bash
-   chmod +x .husky/pre-commit
-   ```
+
+    ```bash
+    chmod +x .husky/pre-commit
+    ```
 
 4. **Wrong directory**
-   ```bash
-   # Hooks only run at repository root
-   cd /path/to/notion-wp
-   git commit
-   ```
+    ```bash
+    # Hooks only run at repository root
+    cd /path/to/notion-wp
+    git commit
+    ```
 
 ### "PHPStan: Out of memory"
 
@@ -582,9 +592,9 @@ Or update `composer.json`:
 
 ```json
 {
-  "scripts": {
-    "lint:phpstan": "phpstan analyse --memory-limit=2G"
-  }
+	"scripts": {
+		"lint:phpstan": "phpstan analyse --memory-limit=2G"
+	}
 }
 ```
 
@@ -608,16 +618,16 @@ vendor/bin/phpcs plugin/src/Admin/SettingsPage.php
 **Possible causes:**
 
 1. **Different PHP/Node versions**
-   - Local: PHP 8.2, CI: PHP 8.0
-   - Fix: Use Docker for consistent environment
+    - Local: PHP 8.2, CI: PHP 8.0
+    - Fix: Use Docker for consistent environment
 
 2. **Dependencies not committed**
-   - composer.lock or package-lock.json out of sync
-   - Fix: Commit lock files
+    - composer.lock or package-lock.json out of sync
+    - Fix: Commit lock files
 
 3. **Files not committed**
-   - Configuration files missing
-   - Fix: Ensure all config files are tracked
+    - Configuration files missing
+    - Fix: Ensure all config files are tracked
 
 ### "VS Code not showing lint errors inline"
 

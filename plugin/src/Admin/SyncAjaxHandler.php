@@ -129,8 +129,7 @@ class SyncAjaxHandler {
 		}
 
 		// Get and validate page IDs.
-		$page_ids = isset( $_POST['page_ids'] ) ? (array) wp_unslash( $_POST['page_ids'] ) : array();
-		$page_ids = array_map( 'sanitize_text_field', $page_ids );
+		$page_ids = isset( $_POST['page_ids'] ) ? array_map( 'sanitize_text_field', wp_unslash( (array) $_POST['page_ids'] ) ) : array();
 
 		if ( empty( $page_ids ) ) {
 			wp_send_json_error(

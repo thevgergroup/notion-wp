@@ -38,6 +38,7 @@ array(
 ```
 
 **Success Example**:
+
 ```php
 if ( $result['success'] ) {
     $post_id = $result['post_id'];
@@ -47,6 +48,7 @@ if ( $result['success'] ) {
 ```
 
 **Error Example**:
+
 ```php
 if ( ! $result['success'] ) {
     echo '<div class="notice notice-error">';
@@ -69,6 +71,7 @@ array(
 ```
 
 **Display Example**:
+
 ```php
 if ( $status['is_synced'] ) {
     printf(
@@ -154,24 +157,26 @@ add_action( 'wp_ajax_notion_sync_page', function() {
 ```
 
 **JavaScript Handler**:
-```javascript
-jQuery('.sync-button').on('click', function() {
-    const pageId = jQuery(this).data('page-id');
 
-    jQuery.post(ajaxurl, {
-        action: 'notion_sync_page',
-        page_id: pageId,
-        _ajax_nonce: notionSync.nonce
-    })
-    .done(function(response) {
-        if (response.success) {
-            alert('Synced! Post ID: ' + response.data.post_id);
-            window.location.href = response.data.edit_url;
-        }
-    })
-    .fail(function(xhr) {
-        alert('Error: ' + xhr.responseJSON.data.message);
-    });
+```javascript
+jQuery('.sync-button').on('click', function () {
+	const pageId = jQuery(this).data('page-id');
+
+	jQuery
+		.post(ajaxurl, {
+			action: 'notion_sync_page',
+			page_id: pageId,
+			_ajax_nonce: notionSync.nonce,
+		})
+		.done(function (response) {
+			if (response.success) {
+				alert('Synced! Post ID: ' + response.data.post_id);
+				window.location.href = response.data.edit_url;
+			}
+		})
+		.fail(function (xhr) {
+			alert('Error: ' + xhr.responseJSON.data.message);
+		});
 });
 ```
 
@@ -272,18 +277,22 @@ class Notion_Pages_List_Table extends WP_List_Table {
 All errors are returned in `$result['error']` with descriptive messages.
 
 **1. Validation Errors**:
+
 - "Notion page ID cannot be empty."
 - "Notion page ID contains invalid characters..."
 - "Notion page ID exceeds maximum length..."
 
 **2. API Errors**:
+
 - "Failed to fetch page properties from Notion. The page may not exist..."
 - "Failed to fetch page blocks from Notion API."
 
 **3. Conversion Errors**:
+
 - "Block conversion failed: [specific error]"
 
 **4. WordPress Errors**:
+
 - "WordPress post creation failed: [WP error message]"
 
 ### User-Friendly Error Display
@@ -346,11 +355,11 @@ function display_sync_error( $error_message ) {
 
 Each synced post has three meta fields:
 
-| Meta Key | Type | Example Value | Purpose |
-|----------|------|---------------|---------|
-| `notion_page_id` | string | `abc123def456` | Mapping & duplicate detection |
-| `notion_last_synced` | string | `2025-10-20 10:00:00` | Sync history tracking |
-| `notion_last_edited` | string | `2025-10-20T10:00:00.000Z` | Future conflict detection |
+| Meta Key             | Type   | Example Value              | Purpose                       |
+| -------------------- | ------ | -------------------------- | ----------------------------- |
+| `notion_page_id`     | string | `abc123def456`             | Mapping & duplicate detection |
+| `notion_last_synced` | string | `2025-10-20 10:00:00`      | Sync history tracking         |
+| `notion_last_edited` | string | `2025-10-20T10:00:00.000Z` | Future conflict detection     |
 
 ### Querying Synced Posts
 
@@ -491,29 +500,32 @@ add_action( 'admin_notices', function() {
 ### Progress Indicator (JavaScript)
 
 ```javascript
-jQuery('.bulk-sync-button').on('click', function() {
-    const pageIds = getSelectedPageIds(); // Your implementation
-    let completed = 0;
+jQuery('.bulk-sync-button').on('click', function () {
+	const pageIds = getSelectedPageIds(); // Your implementation
+	let completed = 0;
 
-    jQuery('#sync-progress').show();
+	jQuery('#sync-progress').show();
 
-    pageIds.forEach(function(pageId) {
-        jQuery.post(ajaxurl, {
-            action: 'notion_sync_page',
-            page_id: pageId,
-            _ajax_nonce: notionSync.nonce
-        })
-        .always(function() {
-            completed++;
-            const percent = (completed / pageIds.length) * 100;
-            jQuery('#progress-bar').css('width', percent + '%');
-            jQuery('#progress-text').text(completed + ' / ' + pageIds.length);
+	pageIds.forEach(function (pageId) {
+		jQuery
+			.post(ajaxurl, {
+				action: 'notion_sync_page',
+				page_id: pageId,
+				_ajax_nonce: notionSync.nonce,
+			})
+			.always(function () {
+				completed++;
+				const percent = (completed / pageIds.length) * 100;
+				jQuery('#progress-bar').css('width', percent + '%');
+				jQuery('#progress-text').text(
+					completed + ' / ' + pageIds.length
+				);
 
-            if (completed === pageIds.length) {
-                location.reload(); // Refresh to show updated status
-            }
-        });
-    });
+				if (completed === pageIds.length) {
+					location.reload(); // Refresh to show updated status
+				}
+			});
+	});
 });
 ```
 
@@ -556,6 +568,7 @@ if ( $result['success'] ) {
 **Solution**: This is automatic. SyncManager queries post meta before creating.
 
 **Verification**:
+
 ```php
 // First sync
 $result1 = $manager->sync_page( 'abc123' );

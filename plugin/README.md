@@ -106,6 +106,7 @@ The plugin is currently in its first development phase. You can:
 **Problem:** You see an error saying "Invalid token" or "Unauthorized"
 
 **Solutions:**
+
 1. Double-check you copied the entire token (starts with `secret_`)
 2. Make sure there are no extra spaces before or after the token
 3. Verify the token is from an Internal Integration (not a public integration)
@@ -116,6 +117,7 @@ The plugin is currently in its first development phase. You can:
 **Problem:** Connection succeeds but you don't see any pages
 
 **Solutions:**
+
 1. Make sure you've shared at least one page with your integration
 2. In Notion, go to the page, click Share, and verify your integration is listed
 3. Wait a few seconds after sharing and refresh the WordPress page
@@ -126,6 +128,7 @@ The plugin is currently in its first development phase. You can:
 **Problem:** You see "Network error" or "Could not connect to Notion"
 
 **Solutions:**
+
 1. Check your internet connection
 2. Verify your WordPress site can make outbound HTTPS requests
 3. Check if your hosting provider blocks external API calls

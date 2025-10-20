@@ -109,7 +109,7 @@ class Encryption {
 	 */
 	public static function is_available() {
 		return function_exists( 'openssl_encrypt' ) &&
-			   function_exists( 'openssl_decrypt' ) &&
-			   in_array( self::CIPHER, openssl_get_cipher_methods(), true );
+				function_exists( 'openssl_decrypt' ) &&
+				in_array( self::CIPHER, openssl_get_cipher_methods(), true );
 	}
 }

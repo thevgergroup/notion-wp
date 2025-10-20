@@ -127,7 +127,7 @@ class BulkSyncProcessor {
 	 * @return void
 	 */
 	private function add_result_notice( $success_count, $error_count, $errors ) {
-		if ( $success_count > 0 && $error_count === 0 ) {
+		if ( 0 < $success_count && 0 === $error_count ) {
 			// All succeeded.
 			add_settings_error(
 				'notion_sync',

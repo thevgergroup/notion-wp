@@ -28,16 +28,18 @@ Phase 0 security audit identified **1 CRITICAL** and **2 HIGH** severity vulnera
 
 1. Create `/Users/patrick/Projects/thevgergroup/notion-wp/plugin/src/Security/Encryption.php` (see audit report)
 2. Update `SettingsPage.php`:
-   - Encrypt token before saving: `update_option( 'notion_wp_token', Encryption::encrypt( $token ) )`
-   - Decrypt token when retrieving: `$token = Encryption::decrypt( get_option( 'notion_wp_token' ) )`
+    - Encrypt token before saving: `update_option( 'notion_wp_token', Encryption::encrypt( $token ) )`
+    - Decrypt token when retrieving: `$token = Encryption::decrypt( get_option( 'notion_wp_token' ) )`
 3. Test encryption/decryption workflow
 4. Verify encrypted data in database
 
 **Files to Modify:**
+
 - `/Users/patrick/Projects/thevgergroup/notion-wp/plugin/src/Admin/SettingsPage.php` (lines 82-87, 153, 185-186, 232-234)
 - Create new: `/Users/patrick/Projects/thevgergroup/notion-wp/plugin/src/Security/Encryption.php`
 
 **Testing:**
+
 ```bash
 # After fix, verify:
 wp db query "SELECT option_value FROM wp_options WHERE option_name = 'notion_wp_token'"
@@ -69,9 +71,11 @@ if ( ! is_ssl() && ! defined( 'WP_DEBUG' ) && ! in_array( $_SERVER['HTTP_HOST'] 
 ```
 
 **Files to Modify:**
+
 - `/Users/patrick/Projects/thevgergroup/notion-wp/plugin/src/Admin/SettingsPage.php` (add after line 70)
 
 **Testing:**
+
 - Access WordPress over HTTP (if possible)
 - Verify HTTPS required message appears
 - Verify cannot submit token over HTTP
@@ -123,9 +127,11 @@ $this->clear_rate_limit();
 ```
 
 **Files to Modify:**
+
 - `/Users/patrick/Projects/thevgergroup/notion-wp/plugin/src/Admin/SettingsPage.php` (add methods and checks)
 
 **Testing:**
+
 - Attempt connection 6 times rapidly with invalid token
 - Verify 6th attempt is blocked
 - Wait 5 minutes, verify can try again

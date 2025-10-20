@@ -105,7 +105,7 @@
 		width: 100%;
 		max-width: 600px;
 		padding: 6px 8px;
-		font-family: 'Menlo', 'Monaco', 'Consolas', monospace;
+		font-family: "Menlo", "Monaco", "Consolas", monospace;
 		font-size: 12px;
 		line-height: 1.5;
 		border: 1px solid #8c8f94;
@@ -121,7 +121,7 @@
 		}
 
 		/* Ensure token is not accidentally revealed in screenshots */
-		&[type='password'] {
+		&[type="password"] {
 			letter-spacing: 0.3em;
 		}
 	}
@@ -171,7 +171,7 @@
 		vertical-align: middle;
 
 		&::before {
-			content: '\2713'; /* Checkmark */
+			content: "\2713"; /* Checkmark */
 			font-weight: bold;
 		}
 	}
@@ -230,7 +230,7 @@
 		margin: 0;
 
 		&:empty::after {
-			content: 'No pages found. Make sure pages are shared with your integration.';
+			content: "No pages found. Make sure pages are shared with your integration.";
 			display: block;
 			padding: 20px;
 			color: #646970;
@@ -260,7 +260,7 @@
 			text-align: center;
 
 			&.default-icon::before {
-				content: '\1F4C4'; /* Document emoji */
+				content: "\1F4C4"; /* Document emoji */
 			}
 		}
 
@@ -330,7 +330,7 @@
 		background: #f0f0f1;
 		padding: 2px 6px;
 		border-radius: 3px;
-		font-family: 'Menlo', 'Monaco', 'Consolas', monospace;
+		font-family: "Menlo", "Monaco", "Consolas", monospace;
 		font-size: 12px;
 	}
 }

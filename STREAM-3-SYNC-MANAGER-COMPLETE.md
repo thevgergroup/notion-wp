@@ -31,6 +31,7 @@ Stream 3 has been successfully completed, delivering a production-ready SyncMana
 **Namespace**: `NotionSync\Sync`
 
 **Class Overview**:
+
 ```php
 class SyncManager {
     public function sync_page( string $notion_page_id ): array;
@@ -39,6 +40,7 @@ class SyncManager {
 ```
 
 **Dependencies**:
+
 - `ContentFetcher` (Stream 1) - Fetches Notion data
 - `BlockConverter` (Stream 2) - Converts blocks to Gutenberg
 - `NotionClient` - API communication
@@ -51,6 +53,7 @@ class SyncManager {
 **Framework**: PHPUnit with Brain\Monkey for WordPress mocking
 
 **Test Coverage**:
+
 1. ✅ New post creation
 2. ✅ Existing post updates
 3. ✅ Sync status retrieval
@@ -86,6 +89,7 @@ The `sync_page()` method implements a 7-step orchestration workflow:
 ```
 
 **Return Format**:
+
 ```php
 array(
     'success' => bool,      // Whether sync succeeded
@@ -101,6 +105,7 @@ array(
 **Solution**: Post meta query on `notion_page_id` field.
 
 **Implementation**:
+
 ```php
 $posts = get_posts( array(
     'post_type'      => 'post',
@@ -123,11 +128,11 @@ $posts = get_posts( array(
 
 Three meta fields are stored for each synced post:
 
-| Meta Key | Value | Purpose |
-|----------|-------|---------|
-| `notion_page_id` | Normalized Notion page ID | Duplicate detection, mapping |
-| `notion_last_synced` | MySQL timestamp | Track sync history |
-| `notion_last_edited` | Notion's last_edited_time | Future conflict detection |
+| Meta Key             | Value                     | Purpose                      |
+| -------------------- | ------------------------- | ---------------------------- |
+| `notion_page_id`     | Normalized Notion page ID | Duplicate detection, mapping |
+| `notion_last_synced` | MySQL timestamp           | Track sync history           |
+| `notion_last_edited` | Notion's last_edited_time | Future conflict detection    |
 
 ### Error Handling Architecture
 
@@ -136,40 +141,43 @@ Three meta fields are stored for each synced post:
 **Error Categories**:
 
 1. **Validation Errors**: Invalid page ID format
-   ```php
-   array(
-       'success' => false,
-       'post_id' => null,
-       'error'   => 'Notion page ID contains invalid characters...'
-   )
-   ```
+
+    ```php
+    array(
+        'success' => false,
+        'post_id' => null,
+        'error'   => 'Notion page ID contains invalid characters...'
+    )
+    ```
 
 2. **API Errors**: Notion API failures
-   ```php
-   array(
-       'success' => false,
-       'post_id' => null,
-       'error'   => 'Failed to fetch page properties from Notion...'
-   )
-   ```
+
+    ```php
+    array(
+        'success' => false,
+        'post_id' => null,
+        'error'   => 'Failed to fetch page properties from Notion...'
+    )
+    ```
 
 3. **Conversion Errors**: Block conversion failures
-   ```php
-   array(
-       'success' => false,
-       'post_id' => null,
-       'error'   => 'Block conversion failed: Invalid block type'
-   )
-   ```
+
+    ```php
+    array(
+        'success' => false,
+        'post_id' => null,
+        'error'   => 'Block conversion failed: Invalid block type'
+    )
+    ```
 
 4. **WordPress Errors**: Post creation/update failures
-   ```php
-   array(
-       'success' => false,
-       'post_id' => null,
-       'error'   => 'WordPress post creation failed: Database error'
-   )
-   ```
+    ```php
+    array(
+        'success' => false,
+        'post_id' => null,
+        'error'   => 'WordPress post creation failed: Database error'
+    )
+    ```
 
 ### Security Measures
 
@@ -200,6 +208,7 @@ MVP safety feature. Prevents accidental publishing of content that may need manu
 ### WordPress Coding Standards
 
 ✅ **Naming Conventions**:
+
 - Classes: `PascalCase` (`SyncManager`)
 - Methods: `snake_case` (`sync_page`)
 - Variables: `snake_case` (`$notion_page_id`)
@@ -214,11 +223,13 @@ MVP safety feature. Prevents accidental publishing of content that may need manu
 ### PHPStan Compliance
 
 ✅ **Type Declarations**:
+
 - All method parameters have type hints
 - All return types declared
 - Nullable types properly annotated (`?int`, `?string`)
 
 ✅ **Error Handling**:
+
 - No suppressed errors (`@phpstan-ignore` not used)
 - All exceptions documented in docblocks
 
@@ -319,11 +330,13 @@ foreach ( $error_messages as $pattern => $user_message ) {
 ### Test Framework Setup
 
 **Dependencies**:
+
 - PHPUnit 9.x
 - Brain\Monkey - WordPress function mocking
 - Mockery - PHP object mocking
 
 **Mocking Strategy**:
+
 ```php
 // Mock WordPress functions
 Functions\expect( 'wp_insert_post' )
@@ -338,17 +351,17 @@ $mock_fetcher->method( 'fetch_page_properties' )
 
 ### Test Coverage Analysis
 
-| Scenario | Test Method | Coverage |
-|----------|-------------|----------|
-| Happy path (new post) | `test_sync_page_creates_new_post` | ✅ Complete |
-| Happy path (update) | `test_sync_page_updates_existing_post` | ✅ Complete |
-| Status check | `test_get_sync_status_returns_correct_status` | ✅ Complete |
-| API failure | `test_sync_page_handles_fetch_error` | ✅ Complete |
-| Conversion failure | `test_sync_page_handles_conversion_error` | ✅ Complete |
-| Duplicate detection | `test_duplicate_detection_via_post_meta` | ✅ Complete |
-| Invalid input | `test_sync_page_validates_page_id` | ✅ Complete |
-| WordPress failure | `test_sync_page_handles_post_creation_failure` | ✅ Complete |
-| Unsynced status | `test_get_sync_status_for_unsynced_page` | ✅ Complete |
+| Scenario              | Test Method                                    | Coverage    |
+| --------------------- | ---------------------------------------------- | ----------- |
+| Happy path (new post) | `test_sync_page_creates_new_post`              | ✅ Complete |
+| Happy path (update)   | `test_sync_page_updates_existing_post`         | ✅ Complete |
+| Status check          | `test_get_sync_status_returns_correct_status`  | ✅ Complete |
+| API failure           | `test_sync_page_handles_fetch_error`           | ✅ Complete |
+| Conversion failure    | `test_sync_page_handles_conversion_error`      | ✅ Complete |
+| Duplicate detection   | `test_duplicate_detection_via_post_meta`       | ✅ Complete |
+| Invalid input         | `test_sync_page_validates_page_id`             | ✅ Complete |
+| WordPress failure     | `test_sync_page_handles_post_creation_failure` | ✅ Complete |
+| Unsynced status       | `test_get_sync_status_for_unsynced_page`       | ✅ Complete |
 
 **Coverage**: 100% of critical paths
 
@@ -397,16 +410,19 @@ $mock_fetcher->method( 'fetch_page_properties' )
 ### Current Performance Profile
 
 **Single Page Sync** (estimate):
+
 - API calls: 2 (properties + blocks)
 - Database queries: 1 (duplicate check) + 1 (insert/update) + 3 (meta updates)
 - Total: ~2-5 seconds for average page (100 blocks)
 
 **Bottlenecks**:
+
 1. Notion API latency (external)
 2. Block conversion complexity (internal)
 3. WordPress database writes (internal)
 
 **Optimization Opportunities** (Phase 2):
+
 - Batch meta updates into single query
 - Cache page properties (transients)
 - Parallel block conversion
@@ -419,6 +435,7 @@ $mock_fetcher->method( 'fetch_page_properties' )
 ### Stream 1 Integration: ContentFetcher
 
 **Methods Used**:
+
 ```php
 // Fetch page metadata
 $properties = $fetcher->fetch_page_properties( $page_id );
@@ -434,6 +451,7 @@ $blocks = $fetcher->fetch_page_blocks( $page_id );
 ### Stream 2 Integration: BlockConverter
 
 **Methods Used**:
+
 ```php
 $converter = new BlockConverter(); // Auto-registers default converters
 $gutenberg_html = $converter->convert_blocks( $blocks );
@@ -445,6 +463,7 @@ $gutenberg_html = $converter->convert_blocks( $blocks );
 ### Security Integration: Encryption
 
 **Methods Used**:
+
 ```php
 $encrypted_token = get_option( 'notion_wp_token' );
 $token = Encryption::decrypt( $encrypted_token );
@@ -582,38 +601,38 @@ add_action( 'wp_ajax_notion_bulk_sync', function() {
 ### Priority 1: Performance
 
 1. **Background Processing**
-   - Implement WP-Cron or Action Scheduler
-   - Queue large syncs for background execution
-   - Add progress tracking
+    - Implement WP-Cron or Action Scheduler
+    - Queue large syncs for background execution
+    - Add progress tracking
 
 2. **Caching**
-   - Cache page properties (transients)
-   - Cache sync status queries
-   - Invalidate on sync
+    - Cache page properties (transients)
+    - Cache sync status queries
+    - Invalidate on sync
 
 ### Priority 2: Features
 
 1. **Post Status Control**
-   - User setting for default post status
-   - Publish immediately option
-   - Schedule publishing
+    - User setting for default post status
+    - Publish immediately option
+    - Schedule publishing
 
 2. **Custom Post Types**
-   - Map Notion databases to custom post types
-   - Support WooCommerce products
-   - Support custom taxonomies
+    - Map Notion databases to custom post types
+    - Support WooCommerce products
+    - Support custom taxonomies
 
 ### Priority 3: Reliability
 
 1. **Transaction Support**
-   - Rollback on partial failures
-   - Retry logic for API errors
-   - Webhook support for real-time sync
+    - Rollback on partial failures
+    - Retry logic for API errors
+    - Webhook support for real-time sync
 
 2. **Conflict Resolution**
-   - Compare last_edited timestamps
-   - Prompt user on conflicts
-   - Bidirectional sync support
+    - Compare last_edited timestamps
+    - Prompt user on conflicts
+    - Bidirectional sync support
 
 ---
 
@@ -624,6 +643,7 @@ add_action( 'wp_ajax_notion_bulk_sync', function() {
 **Issue**: "Failed to fetch page properties"
 
 **Causes**:
+
 - Invalid Notion API token
 - Page not shared with integration
 - Network/firewall blocking Notion API
@@ -635,6 +655,7 @@ add_action( 'wp_ajax_notion_bulk_sync', function() {
 **Issue**: "Block conversion failed"
 
 **Causes**:
+
 - Unsupported block type
 - Malformed block data from API
 
@@ -645,6 +666,7 @@ add_action( 'wp_ajax_notion_bulk_sync', function() {
 **Issue**: "WordPress post creation failed"
 
 **Causes**:
+
 - Database connection error
 - Insufficient permissions
 - Disk space full
@@ -672,11 +694,13 @@ add_action( 'wp_ajax_notion_bulk_sync', function() {
 Stream 3 is **PRODUCTION READY** and provides a solid foundation for Stream 4 (Admin UI) to build upon. The SyncManager class successfully orchestrates the complex workflow of fetching Notion content, converting blocks, and creating WordPress posts with comprehensive error handling and duplicate detection.
 
 **Next Steps**:
+
 1. Stream 4 can begin Admin UI implementation
 2. Integration testing of Streams 1-3
 3. End-to-end testing with real Notion workspace
 
 **Files Delivered**:
+
 - `/plugin/src/Sync/SyncManager.php` (468 lines)
 - `/tests/unit/Sync/SyncManagerTest.php` (531 lines)
 - `/docs/agent-coordination.md` (updated with completion report)

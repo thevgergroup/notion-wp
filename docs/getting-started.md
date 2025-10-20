@@ -67,48 +67,48 @@ This is the most important step. Follow these instructions carefully.
 ### Step-by-Step Instructions
 
 1. **Open Notion Integrations Page**
-   - Go to https://www.notion.com/my-integrations
-   - You'll need to log in if you're not already
+    - Go to https://www.notion.com/my-integrations
+    - You'll need to log in if you're not already
 
 2. **Create New Integration**
-   - Click the **+ New integration** button
-   - You'll see a form with several fields
+    - Click the **+ New integration** button
+    - You'll see a form with several fields
 
 3. **Configure Your Integration**
 
-   **Name:** Enter a descriptive name
-   - Example: "WordPress Sync"
-   - Example: "My Blog Sync"
-   - This name will appear when you share pages
+    **Name:** Enter a descriptive name
+    - Example: "WordPress Sync"
+    - Example: "My Blog Sync"
+    - This name will appear when you share pages
 
-   **Associated Workspace:** Select your workspace
-   - Choose the workspace containing pages you want to sync
-   - If you have multiple workspaces, you'll need separate integrations for each
+    **Associated Workspace:** Select your workspace
+    - Choose the workspace containing pages you want to sync
+    - If you have multiple workspaces, you'll need separate integrations for each
 
-   **Logo:** (Optional)
-   - Upload a logo if you want
-   - Not required for functionality
+    **Logo:** (Optional)
+    - Upload a logo if you want
+    - Not required for functionality
 
-   **Integration Type:**
-   - Leave as **Internal** (default)
-   - Do NOT select "Public"
+    **Integration Type:**
+    - Leave as **Internal** (default)
+    - Do NOT select "Public"
 
-   **Capabilities:**
-   - Leave default capabilities checked:
-     - Read content
-     - Update content (for future bi-directional sync)
-     - Insert content (for future bi-directional sync)
-   - Do NOT uncheck "Read content" - this is required!
+    **Capabilities:**
+    - Leave default capabilities checked:
+        - Read content
+        - Update content (for future bi-directional sync)
+        - Insert content (for future bi-directional sync)
+    - Do NOT uncheck "Read content" - this is required!
 
 4. **Submit**
-   - Click **Submit** button
-   - You'll be taken to the integration details page
+    - Click **Submit** button
+    - You'll be taken to the integration details page
 
 5. **Copy Your Token**
-   - You'll see an **Internal Integration Token** field
-   - The token starts with `secret_` and is very long
-   - Click **Show** then **Copy** to copy the entire token
-   - Store it somewhere safe temporarily (you'll paste it into WordPress next)
+    - You'll see an **Internal Integration Token** field
+    - The token starts with `secret_` and is very long
+    - Click **Show** then **Copy** to copy the entire token
+    - Store it somewhere safe temporarily (you'll paste it into WordPress next)
 
 ### Important Security Notes
 
@@ -138,44 +138,44 @@ Now that you have your Notion integration token, let's install the plugin.
 ### Method 1: Upload via WordPress Admin (Recommended)
 
 1. **Download Plugin**
-   - Download the plugin ZIP file from the release page
-   - Save it somewhere you can find it
+    - Download the plugin ZIP file from the release page
+    - Save it somewhere you can find it
 
 2. **Navigate to Plugin Upload**
-   - Log into WordPress Admin
-   - Go to **Plugins > Add New**
-   - Click **Upload Plugin** (button at top)
+    - Log into WordPress Admin
+    - Go to **Plugins > Add New**
+    - Click **Upload Plugin** (button at top)
 
 3. **Upload and Install**
-   - Click **Choose File**
-   - Select the downloaded ZIP file
-   - Click **Install Now**
-   - Wait for upload and installation to complete
+    - Click **Choose File**
+    - Select the downloaded ZIP file
+    - Click **Install Now**
+    - Wait for upload and installation to complete
 
 4. **Activate**
-   - After installation, click **Activate Plugin**
-   - You should see a success message
+    - After installation, click **Activate Plugin**
+    - You should see a success message
 
 ### Method 2: Install via FTP/SFTP
 
 1. **Extract ZIP File**
-   - Extract the downloaded ZIP file on your computer
-   - You'll see a folder named `notion-sync`
+    - Extract the downloaded ZIP file on your computer
+    - You'll see a folder named `notion-sync`
 
 2. **Connect to Your Server**
-   - Use an FTP client (FileZilla, Cyberduck, etc.)
-   - Connect to your WordPress server
+    - Use an FTP client (FileZilla, Cyberduck, etc.)
+    - Connect to your WordPress server
 
 3. **Upload Plugin Folder**
-   - Navigate to `/wp-content/plugins/`
-   - Upload the entire `notion-sync` folder
-   - Wait for upload to complete
+    - Navigate to `/wp-content/plugins/`
+    - Upload the entire `notion-sync` folder
+    - Wait for upload to complete
 
 4. **Activate in WordPress**
-   - Log into WordPress Admin
-   - Go to **Plugins > Installed Plugins**
-   - Find "Notion Sync for WordPress"
-   - Click **Activate**
+    - Log into WordPress Admin
+    - Go to **Plugins > Installed Plugins**
+    - Find "Notion Sync for WordPress"
+    - Click **Activate**
 
 ### Method 3: Install via WP-CLI
 
@@ -188,6 +188,7 @@ wp plugin install notion-sync.zip --activate
 ### Verification
 
 After activation, you should see:
+
 - "Notion Sync" in your WordPress admin menu (left sidebar)
 - No error messages
 - Plugin listed as active in **Plugins** page
@@ -199,24 +200,24 @@ Now let's connect WordPress to your Notion workspace.
 ### Step-by-Step Connection Process
 
 1. **Navigate to Settings**
-   - In WordPress Admin, look for **Notion Sync** in the left sidebar
-   - Click on it to open the settings page
+    - In WordPress Admin, look for **Notion Sync** in the left sidebar
+    - Click on it to open the settings page
 
 2. **Enter Your Token**
-   - Find the **Notion API Token** field
-   - Paste the token you copied from Notion (starts with `secret_`)
-   - Make sure there are no extra spaces before or after the token
+    - Find the **Notion API Token** field
+    - Paste the token you copied from Notion (starts with `secret_`)
+    - Make sure there are no extra spaces before or after the token
 
 3. **Connect**
-   - Click the **Connect to Notion** button
-   - You'll see a loading indicator
-   - Wait for the connection to be established (usually 2-10 seconds)
+    - Click the **Connect to Notion** button
+    - You'll see a loading indicator
+    - Wait for the connection to be established (usually 2-10 seconds)
 
 4. **Success!**
-   - If successful, you'll see:
-     - A green success message
-     - Your Notion workspace name
-     - An empty page list (we'll fix this next)
+    - If successful, you'll see:
+        - A green success message
+        - Your Notion workspace name
+        - An empty page list (we'll fix this next)
 
 ### What Happens During Connection?
 
@@ -259,27 +260,31 @@ For security and privacy, Notion integrations start with zero access. You contro
 3. **Click Share** (button in top right corner)
 4. **Click Invite** in the Share modal
 5. **Search for your integration**
-   - Type the name you gave your integration (e.g., "WordPress Sync")
-   - You should see it appear with a small robot icon
+    - Type the name you gave your integration (e.g., "WordPress Sync")
+    - You should see it appear with a small robot icon
 6. **Select and Invite**
-   - Click on your integration name
-   - Click **Invite** to confirm
+    - Click on your integration name
+    - Click **Invite** to confirm
 
 ### Sharing Tips
 
 **Start Small**
+
 - Share just one page first to test
 - Once it works, share additional pages
 
 **Share Parent Pages**
+
 - If you share a parent page, all child pages are automatically accessible
 - This is useful for syncing entire sections of your workspace
 
 **Share Databases**
+
 - You can share database pages the same way
 - All entries in the database become accessible
 
 **Verify Sharing**
+
 - After sharing, you should see your integration listed in the "Shared with" section
 - If you don't see it, the sharing didn't work - try again
 
@@ -304,23 +309,25 @@ Let's make sure everything is working correctly.
 ### Check in WordPress
 
 1. **Return to WordPress Admin**
-   - Go back to **Notion Sync** settings page
+    - Go back to **Notion Sync** settings page
 2. **Refresh the page**
-   - Click your browser's refresh button
-   - Or reload the settings page
+    - Click your browser's refresh button
+    - Or reload the settings page
 3. **Look for Your Pages**
-   - You should now see a list of pages you shared
-   - Each page shows its title and Notion page ID
+    - You should now see a list of pages you shared
+    - Each page shows its title and Notion page ID
 
 ### What You Should See
 
 **Success Indicators:**
+
 - Green success message
 - Workspace name displayed
 - List of shared pages (at least one)
 - No error messages
 
 **If You Don't See Pages:**
+
 - Wait 30 seconds and refresh again
 - Verify sharing in Notion (check "Shared with" section)
 - Try sharing a different page
@@ -329,6 +336,7 @@ Let's make sure everything is working correctly.
 ### Test Connection Button
 
 Some versions include a "Test Connection" button:
+
 - Click it to verify token is still valid
 - Should show a success message
 - Useful if you haven't used the plugin in a while
@@ -338,6 +346,7 @@ Some versions include a "Test Connection" button:
 ### Issue: "Invalid token" Error
 
 **Symptoms:**
+
 - Error message: "Invalid token" or "Unauthorized"
 - Connection fails immediately
 - Red error notice
@@ -345,27 +354,28 @@ Some versions include a "Test Connection" button:
 **Solutions:**
 
 1. **Verify token format**
-   - Token should start with `secret_`
-   - Should be 50+ characters long
-   - No spaces before or after
+    - Token should start with `secret_`
+    - Should be 50+ characters long
+    - No spaces before or after
 
 2. **Copy token again**
-   - Go back to https://www.notion.com/my-integrations
-   - Click on your integration
-   - Copy the token again (sometimes clipboard issues cause problems)
+    - Go back to https://www.notion.com/my-integrations
+    - Click on your integration
+    - Copy the token again (sometimes clipboard issues cause problems)
 
 3. **Check integration status**
-   - Make sure integration wasn't deleted
-   - Verify it's still in your integrations list
+    - Make sure integration wasn't deleted
+    - Verify it's still in your integrations list
 
 4. **Try regenerating token**
-   - In Notion integration settings, regenerate the token
-   - Copy the new token
-   - Update in WordPress
+    - In Notion integration settings, regenerate the token
+    - Copy the new token
+    - Update in WordPress
 
 ### Issue: "No pages found"
 
 **Symptoms:**
+
 - Connection succeeds
 - Workspace name shows
 - Page list is empty or says "No pages shared"
@@ -373,26 +383,27 @@ Some versions include a "Test Connection" button:
 **Solutions:**
 
 1. **Verify sharing**
-   - Open page in Notion
-   - Click Share
-   - Confirm your integration is listed in "Shared with"
+    - Open page in Notion
+    - Click Share
+    - Confirm your integration is listed in "Shared with"
 
 2. **Wait and refresh**
-   - Wait 30-60 seconds
-   - Refresh WordPress page
-   - Notion's API may take a moment to update
+    - Wait 30-60 seconds
+    - Refresh WordPress page
+    - Notion's API may take a moment to update
 
 3. **Share a different page**
-   - Try sharing a simple page (not a database)
-   - Test if that page appears
+    - Try sharing a simple page (not a database)
+    - Test if that page appears
 
 4. **Check integration capabilities**
-   - Go to Notion integration settings
-   - Ensure "Read content" capability is checked
+    - Go to Notion integration settings
+    - Ensure "Read content" capability is checked
 
 ### Issue: Network or Timeout Errors
 
 **Symptoms:**
+
 - "Network error"
 - "Could not connect to Notion"
 - "Request timeout"
@@ -401,31 +412,33 @@ Some versions include a "Test Connection" button:
 **Solutions:**
 
 1. **Check internet connection**
-   - Verify WordPress site can access external sites
-   - Test by visiting https://api.notion.com in browser
+    - Verify WordPress site can access external sites
+    - Test by visiting https://api.notion.com in browser
 
 2. **Hosting restrictions**
-   - Some hosts block external API calls
-   - Contact hosting support to allow connections to api.notion.com
-   - Ask about "outbound HTTPS requests"
+    - Some hosts block external API calls
+    - Contact hosting support to allow connections to api.notion.com
+    - Ask about "outbound HTTPS requests"
 
 3. **Firewall or security plugins**
-   - Temporarily disable security plugins
-   - Check if a firewall is blocking requests
-   - Whitelist api.notion.com
+    - Temporarily disable security plugins
+    - Check if a firewall is blocking requests
+    - Whitelist api.notion.com
 
 4. **Try again later**
-   - Notion API might be temporarily down
-   - Check https://status.notion.so for status
-   - Wait 15 minutes and retry
+    - Notion API might be temporarily down
+    - Check https://status.notion.so for status
+    - Wait 15 minutes and retry
 
 ### Issue: Token Field Appears Empty
 
 **Symptoms:**
+
 - After saving, token field is blank
 - Can't see your saved token
 
 **This is normal!**
+
 - For security, saved tokens are never displayed
 - If you see workspace name and pages, token is saved correctly
 - To change token, just enter a new one and save
@@ -433,46 +446,47 @@ Some versions include a "Test Connection" button:
 ### Issue: "Permission denied" or "Forbidden"
 
 **Symptoms:**
+
 - Error 403 or "Forbidden"
 - "You don't have permission"
 
 **Solutions:**
 
 1. **Verify workspace**
-   - Make sure you selected correct workspace when creating integration
-   - Integration can only access pages in its assigned workspace
+    - Make sure you selected correct workspace when creating integration
+    - Integration can only access pages in its assigned workspace
 
 2. **Check user permissions**
-   - You must be a workspace admin to create integrations
-   - Regular members cannot create integrations
+    - You must be a workspace admin to create integrations
+    - Regular members cannot create integrations
 
 3. **Recreate integration**
-   - Delete old integration
-   - Create new one with correct workspace
+    - Delete old integration
+    - Create new one with correct workspace
 
 ### Still Having Issues?
 
 If none of the above solutions work:
 
 1. **Disable then re-enable plugin**
-   - Go to Plugins page
-   - Deactivate Notion Sync
-   - Reactivate it
-   - Try connecting again
+    - Go to Plugins page
+    - Deactivate Notion Sync
+    - Reactivate it
+    - Try connecting again
 
 2. **Check WordPress error logs**
-   - Enable WP_DEBUG in wp-config.php
-   - Check debug.log for detailed errors
-   - Share errors with support
+    - Enable WP_DEBUG in wp-config.php
+    - Check debug.log for detailed errors
+    - Share errors with support
 
 3. **Try different browser**
-   - Sometimes browser extensions interfere
-   - Test in incognito/private mode
+    - Sometimes browser extensions interfere
+    - Test in incognito/private mode
 
 4. **Contact support**
-   - Provide WordPress version, PHP version
-   - Share exact error message
-   - Describe steps you've tried
+    - Provide WordPress version, PHP version
+    - Share exact error message
+    - Describe steps you've tried
 
 ## Next Steps
 
@@ -488,21 +502,25 @@ Congratulations! You've successfully connected Notion to WordPress.
 ### What's Coming Next (Phase 1 and Beyond)
 
 **Phase 1: Content Sync**
+
 - Sync Notion pages to WordPress posts
 - Convert Notion blocks to Gutenberg blocks
 - Map Notion properties to post fields
 
 **Phase 2: Advanced Features**
+
 - Field mapping configuration
 - Multiple database support
 - Custom post type targeting
 
 **Phase 3: Media & Navigation**
+
 - Automatic image imports
 - Media library integration
 - Navigation menu generation
 
 **Phase 4: Bi-directional Sync**
+
 - WordPress to Notion sync
 - Real-time webhook updates
 - Conflict resolution
@@ -510,28 +528,31 @@ Congratulations! You've successfully connected Notion to WordPress.
 ### Recommended Next Actions
 
 1. **Explore Notion**
-   - Create a test page in Notion
-   - Share it with your integration
-   - Watch it appear in WordPress
+    - Create a test page in Notion
+    - Share it with your integration
+    - Watch it appear in WordPress
 
 2. **Join Community**
-   - Subscribe to updates
-   - Follow development progress
-   - Share feedback
+    - Subscribe to updates
+    - Follow development progress
+    - Share feedback
 
 3. **Read Documentation**
-   - Review [plugin/README.md](/plugin/README.md) for feature updates
-   - Check [CONTRIBUTING.md](/CONTRIBUTING.md) if you want to contribute code
+    - Review [plugin/README.md](/plugin/README.md) for feature updates
+    - Check [CONTRIBUTING.md](/CONTRIBUTING.md) if you want to contribute code
 
 ### Learning Resources
 
 **Notion API Documentation:**
+
 - https://developers.notion.com/docs/getting-started
 
 **WordPress Plugin Development:**
+
 - https://developer.wordpress.org/plugins/
 
 **This Project's Docs:**
+
 - [Technical Architecture](/docs/architecture/ARCHITECTURE-SUMMARY.md)
 - [Development Principles](/docs/development/principles.md)
 
@@ -540,14 +561,17 @@ Congratulations! You've successfully connected Notion to WordPress.
 We're actively developing this plugin and would love your feedback!
 
 **Found a bug?**
+
 - Check if it's a known issue
 - Report it with steps to reproduce
 
 **Have a feature request?**
+
 - Suggest improvements
 - Describe your use case
 
 **Want to contribute?**
+
 - Read [CONTRIBUTING.md](/CONTRIBUTING.md)
 - Submit pull requests
 - Improve documentation

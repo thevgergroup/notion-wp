@@ -196,14 +196,14 @@ class SyncManager {
 
 ## Supported Block Types (Phase 1)
 
-| Notion Type | Gutenberg Block | Status |
-|-------------|-----------------|--------|
-| `paragraph` | `wp:paragraph` | ✓ |
-| `heading_1` | `wp:heading` (level 1) | ✓ |
-| `heading_2` | `wp:heading` (level 2) | ✓ |
-| `heading_3` | `wp:heading` (level 3) | ✓ |
-| `bulleted_list_item` | `wp:list` | ✓ |
-| `numbered_list_item` | `wp:list` (ordered) | ✓ |
+| Notion Type          | Gutenberg Block        | Status |
+| -------------------- | ---------------------- | ------ |
+| `paragraph`          | `wp:paragraph`         | ✓      |
+| `heading_1`          | `wp:heading` (level 1) | ✓      |
+| `heading_2`          | `wp:heading` (level 2) | ✓      |
+| `heading_3`          | `wp:heading` (level 3) | ✓      |
+| `bulleted_list_item` | `wp:list`              | ✓      |
+| `numbered_list_item` | `wp:list` (ordered)    | ✓      |
 
 **Unsupported blocks**: Converted to HTML comment placeholders
 
@@ -227,6 +227,7 @@ The converter **never throws exceptions**. Instead:
 3. **Malformed data**: Skip and continue
 
 Example unsupported block output:
+
 ```html
 <!-- Unsupported Notion block: callout (ID: 12345678-...) -->
 ```
@@ -244,11 +245,13 @@ You **don't need** to sanitize the output - it's already safe.
 ## Performance
 
 Expected performance:
+
 - **Single block**: < 0.1ms
 - **100 blocks**: < 100ms
 - **1000 blocks**: < 1 second
 
 For very large documents (1000+ blocks), consider:
+
 - Background processing
 - Batch operations
 - Progress indicators
@@ -326,6 +329,7 @@ error_log('[SyncManager] Generated ' . strlen($post_content) . ' bytes of HTML')
 ```
 
 Check WordPress error log for unsupported block warnings:
+
 ```
 [NotionSync] Unsupported block type: callout (ID: 12345...)
 ```
@@ -350,6 +354,7 @@ After integrating BlockConverter:
 ## Support
 
 For implementation questions:
+
 1. Check `docs/examples/block-converter-usage.php` for 7 complete examples
 2. Review test cases in `tests/unit/Blocks/` for edge cases
 3. Consult `docs/implementation/block-conversion-system.md` for technical details

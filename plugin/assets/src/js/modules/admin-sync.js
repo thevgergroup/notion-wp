@@ -7,9 +7,12 @@
  * - Table updates (status badges, post links, timestamps)
  * - Notion ID copying
  *
- * @package NotionSync
+ * @package
  */
 
+/**
+ * Internal dependencies
+ */
 import { showAdminNotice } from './admin-ui.js';
 
 /**
@@ -17,7 +20,7 @@ import { showAdminNotice } from './admin-ui.js';
  */
 export function initSyncFunctionality() {
 	// Handle "Sync Now" button clicks (individual page sync).
-	document.addEventListener('click', function (event) {
+	document.addEventListener('click', (event) => {
 		if (event.target.classList.contains('notion-sync-now')) {
 			event.preventDefault();
 			handleSyncNow(event.target);
@@ -31,7 +34,7 @@ export function initSyncFunctionality() {
 	}
 
 	// Handle copy Notion ID buttons.
-	document.addEventListener('click', function (event) {
+	document.addEventListener('click', (event) => {
 		if (event.target.closest('.notion-copy-id')) {
 			event.preventDefault();
 			handleCopyNotionId(event.target.closest('.notion-copy-id'));
@@ -45,14 +48,15 @@ export function initSyncFunctionality() {
  * @param {HTMLElement} button - The sync button element
  */
 function handleSyncNow(button) {
-	const pageId = button.dataset.pageId;
-	const pageTitle = button.dataset.pageTitle || 'this page';
-	const row = button.closest('tr');
+	const { pageId } = button.dataset;
 
 	if (!pageId) {
 		showAdminNotice('error', 'Page ID is missing. Cannot sync page.');
 		return;
 	}
+
+	// Get row element for status updates.
+	const row = button.closest('tr');
 
 	// Disable button and show loading state.
 	button.disabled = true;
@@ -86,7 +90,11 @@ function handleSyncNow(button) {
 			if (data.success) {
 				// Update status badge to synced.
 				if (statusBadge) {
-					updateStatusBadge(statusBadge, 'synced', notionSyncAdmin.i18n.synced);
+					updateStatusBadge(
+						statusBadge,
+						'synced',
+						notionSyncAdmin.i18n.synced
+					);
 				}
 
 				// Update WordPress post column.
@@ -102,17 +110,26 @@ function handleSyncNow(button) {
 				);
 
 				// Update row actions to include edit/view links.
-				updateRowActions(button, data.data.edit_url, data.data.view_url);
+				updateRowActions(
+					button,
+					data.data.edit_url,
+					data.data.view_url
+				);
 			} else {
 				// Update status badge to error.
 				if (statusBadge) {
-					updateStatusBadge(statusBadge, 'error', notionSyncAdmin.i18n.syncError);
+					updateStatusBadge(
+						statusBadge,
+						'error',
+						notionSyncAdmin.i18n.syncError
+					);
 				}
 
 				// Show error notice.
 				showAdminNotice(
 					'error',
-					data.data.message || 'Failed to sync page. Please try again.'
+					data.data.message ||
+						'Failed to sync page. Please try again.'
 				);
 			}
 		})
@@ -123,7 +140,11 @@ function handleSyncNow(button) {
 
 			// Update status badge to error.
 			if (statusBadge) {
-				updateStatusBadge(statusBadge, 'error', notionSyncAdmin.i18n.syncError);
+				updateStatusBadge(
+					statusBadge,
+					'error',
+					notionSyncAdmin.i18n.syncError
+				);
 			}
 
 			// Show error notice.
@@ -138,7 +159,7 @@ function handleSyncNow(button) {
  * @param {HTMLFormElement} form - The bulk actions form
  */
 function handleBulkActions(form) {
-	form.addEventListener('submit', function (event) {
+	form.addEventListener('submit', (event) => {
 		// Get selected action.
 		const actionSelect = form.querySelector('select[name="action"]');
 		const actionSelect2 = form.querySelector('select[name="action2"]');
@@ -153,7 +174,9 @@ function handleBulkActions(form) {
 		event.preventDefault();
 
 		// Get selected page IDs.
-		const checkboxes = form.querySelectorAll('input[name="page_ids[]"]:checked');
+		const checkboxes = form.querySelectorAll(
+			'input[name="page_ids[]"]:checked'
+		);
 		const pageIds = Array.from(checkboxes).map((cb) => cb.value);
 
 		if (pageIds.length === 0) {
@@ -171,7 +194,7 @@ function handleBulkActions(form) {
 		formControls.forEach((control) => (control.disabled = true));
 
 		// Show loading notice.
-		showAdminNotice('info', 'Syncing ' + pageIds.length + ' pages...');
+		showAdminNotice('info', `Syncing ${pageIds.length} pages...`);
 
 		// Build form body to properly send array as PHP expects.
 		const formBody = new URLSearchParams();
@@ -202,7 +225,8 @@ function handleBulkActions(form) {
 				} else {
 					showAdminNotice(
 						'error',
-						data.data.message || 'Bulk sync failed. Please try again.'
+						data.data.message ||
+							'Bulk sync failed. Please try again.'
 					);
 				}
 			})
@@ -219,9 +243,9 @@ function handleBulkActions(form) {
 /**
  * Update status badge appearance
  *
- * @param {HTMLElement} badge - Status badge element
- * @param {string} status - Status: 'syncing', 'synced', 'error', 'not-synced'
- * @param {string} text - Badge text
+ * @param {HTMLElement} badge  - Status badge element
+ * @param {string}      status - Status: 'syncing', 'synced', 'error', 'not-synced'
+ * @param {string}      text   - Badge text
  */
 export function updateStatusBadge(badge, status, text) {
 	// Remove all status classes.
@@ -233,7 +257,7 @@ export function updateStatusBadge(badge, status, text) {
 	);
 
 	// Add new status class.
-	badge.classList.add('notion-sync-badge-' + status);
+	badge.classList.add(`notion-sync-badge-${status}`);
 
 	// Update icon.
 	const icon = badge.querySelector('.dashicons');
@@ -256,34 +280,31 @@ export function updateStatusBadge(badge, status, text) {
 		(node) => node.nodeType === Node.TEXT_NODE
 	);
 	if (textNodes.length > 0) {
-		textNodes[0].textContent = ' ' + text;
+		textNodes[0].textContent = ` ${text}`;
 	}
 }
 
 /**
  * Update WordPress post column with link
  *
- * @param {HTMLElement} row - Table row element
- * @param {number} postId - WordPress post ID
- * @param {string} editUrl - Edit post URL
+ * @param {HTMLElement} row     - Table row element
+ * @param {number}      postId  - WordPress post ID
+ * @param {string}      editUrl - Edit post URL
  */
 export function updateWpPostColumn(row, postId, editUrl) {
 	const wpPostCell = row.querySelector('.column-wp_post');
 	if (wpPostCell && postId && editUrl) {
-		wpPostCell.innerHTML =
-			'<a href="' +
-			escapeHtml(editUrl) +
-			'">#' +
-			escapeHtml(postId.toString()) +
-			'</a>';
+		wpPostCell.innerHTML = `<a href="${escapeHtml(editUrl)}">#${escapeHtml(
+			postId.toString()
+		)}</a>`;
 	}
 }
 
 /**
  * Update last synced column
  *
- * @param {HTMLElement} row - Table row element
- * @param {string} timeText - Human-readable time text
+ * @param {HTMLElement} row      - Table row element
+ * @param {string}      timeText - Human-readable time text
  */
 export function updateLastSyncedColumn(row, timeText) {
 	const lastSyncedCell = row.querySelector('.column-last_synced');
@@ -296,18 +317,20 @@ export function updateLastSyncedColumn(row, timeText) {
  * Update row actions to include edit/view links
  *
  * @param {HTMLElement} syncButton - Sync Now button
- * @param {string} editUrl - Edit post URL
- * @param {string} viewUrl - View post URL
+ * @param {string}      editUrl    - Edit post URL
+ * @param {string}      viewUrl    - View post URL
  */
 export function updateRowActions(syncButton, editUrl, viewUrl) {
 	const actionsDiv = syncButton.closest('.row-actions');
-	if (!actionsDiv) return;
+	if (!actionsDiv) {
+		return;
+	}
 
 	// Check if edit action already exists.
 	if (!actionsDiv.querySelector('.edit') && editUrl) {
 		const editLink = document.createElement('span');
 		editLink.className = 'edit';
-		editLink.innerHTML = ' | <a href="' + escapeHtml(editUrl) + '">Edit Post</a>';
+		editLink.innerHTML = ` | <a href="${escapeHtml(editUrl)}">Edit Post</a>`;
 		actionsDiv.appendChild(editLink);
 	}
 
@@ -315,10 +338,9 @@ export function updateRowActions(syncButton, editUrl, viewUrl) {
 	if (!actionsDiv.querySelector('.view') && viewUrl) {
 		const viewLink = document.createElement('span');
 		viewLink.className = 'view';
-		viewLink.innerHTML =
-			' | <a href="' +
-			escapeHtml(viewUrl) +
-			'" target="_blank" rel="noopener noreferrer">View Post</a>';
+		viewLink.innerHTML = ` | <a href="${escapeHtml(
+			viewUrl
+		)}" target="_blank" rel="noopener noreferrer">View Post</a>`;
 		actionsDiv.appendChild(viewLink);
 	}
 }
@@ -369,7 +391,7 @@ function showCopyFeedback(button) {
 /**
  * Fallback copy method for older browsers
  *
- * @param {string} text - Text to copy
+ * @param {string}      text   - Text to copy
  * @param {HTMLElement} button - Copy button element
  */
 function fallbackCopy(text, button) {

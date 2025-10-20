@@ -16,35 +16,39 @@ All linting and code quality configurations for the Notion-WP plugin have been v
 
 ### ✅ All Phase 0 Requirements Met
 
-| Requirement | Status | Location | Notes |
-|-------------|--------|----------|-------|
-| **500-line file limit** | ✅ ENFORCED | `phpcs.xml.dist` lines 63-68 | Blocks commits |
-| **PHPStan level 5** | ✅ CONFIGURED | `phpstan.neon` line 6 | Static analysis |
-| **No console.log** | ✅ ENFORCED | `.eslintrc.json` lines 36-41 | Only warn/error allowed |
-| **WordPress standards** | ✅ ENFORCED | `phpcs.xml.dist` | WPCS Core/Docs/Extra |
-| **Pre-commit hooks** | ✅ ACTIVE | `.husky/pre-commit` | Auto-fix + validation |
-| **Security rules** | ✅ ENFORCED | `phpcs.xml.dist` | Nonce/sanitize/escape |
-| **Text domain** | ✅ ENFORCED | Multiple files | `'notion-wp'` required |
+| Requirement             | Status        | Location                     | Notes                   |
+| ----------------------- | ------------- | ---------------------------- | ----------------------- |
+| **500-line file limit** | ✅ ENFORCED   | `phpcs.xml.dist` lines 63-68 | Blocks commits          |
+| **PHPStan level 5**     | ✅ CONFIGURED | `phpstan.neon` line 6        | Static analysis         |
+| **No console.log**      | ✅ ENFORCED   | `.eslintrc.json` lines 36-41 | Only warn/error allowed |
+| **WordPress standards** | ✅ ENFORCED   | `phpcs.xml.dist`             | WPCS Core/Docs/Extra    |
+| **Pre-commit hooks**    | ✅ ACTIVE     | `.husky/pre-commit`          | Auto-fix + validation   |
+| **Security rules**      | ✅ ENFORCED   | `phpcs.xml.dist`             | Nonce/sanitize/escape   |
+| **Text domain**         | ✅ ENFORCED   | Multiple files               | `'notion-wp'` required  |
 
 ---
 
 ## Configuration Files Verified
 
 ### ✅ PHP Linting
+
 - **phpcs.xml.dist** - WordPress Coding Standards, 500-line limit, security rules
 - **phpstan.neon** - Level 5 static analysis, WordPress stubs
 - **composer.json** - All linting scripts configured
 
 ### ✅ JavaScript/CSS Linting
+
 - **.eslintrc.json** - WordPress preset, no console.log, JSDoc requirements
 - **.stylelintrc.json** - WordPress CSS standards, !important warnings
 - **package.json** - All linting scripts configured
 
 ### ✅ Pre-commit Hooks
+
 - **.husky/pre-commit** - Runs all linters, auto-fixes, blocks bad commits
 - **.husky/commit-msg** - Validates commit message format
 
 ### ✅ IDE Integration
+
 - **.vscode/settings.json** - VS Code linting integration, format-on-save
 
 ---
@@ -52,10 +56,12 @@ All linting and code quality configurations for the Notion-WP plugin have been v
 ## Deliverables Created
 
 ### 1. Verification Script
+
 **File:** `scripts/verify-setup.sh`
 **Purpose:** Automated verification of entire linting setup
 
 **Features:**
+
 - Checks all dependencies installed
 - Verifies all config files exist and are correct
 - Tests all linting tools
@@ -64,15 +70,18 @@ All linting and code quality configurations for the Notion-WP plugin have been v
 - Shows helpful next steps
 
 **Usage:**
+
 ```bash
 ./scripts/verify-setup.sh
 ```
 
 ### 2. Quick Reference Guide
+
 **File:** `docs/development/linting-quick-reference.md`
 **Purpose:** Developer quick reference for daily linting tasks
 
 **Sections:**
+
 - Common commands (lint, fix, check)
 - Configuration files overview
 - Common errors and how to fix them
@@ -82,10 +91,12 @@ All linting and code quality configurations for the Notion-WP plugin have been v
 - Troubleshooting common issues
 
 ### 3. Comprehensive Verification Report
+
 **File:** `docs/development/phase-0-linting-verification-report.md`
 **Purpose:** Detailed technical documentation of linting setup
 
 **Contents:**
+
 - Line-by-line verification of all config files
 - Proof that 500-line limit is enforced
 - Proof that no-console rule is active
@@ -161,24 +172,28 @@ npm run lint
 ## Key Rules Enforced
 
 ### File Size
+
 - **Maximum 500 lines per file** (including comments)
 - **Rule:** `Generic.Files.LineCount` in phpcs.xml.dist
 - **Fix:** Refactor into smaller, focused files
 
 ### Console Statements
+
 - **No console.log() allowed** in production code
 - **Allowed:** console.error(), console.warn()
 - **Rule:** `no-console` in .eslintrc.json
 - **Fix:** Remove console.log or use proper debugging tools
 
 ### Security
+
 - **All forms must verify nonces**
 - **All input must be sanitized**
 - **All output must be escaped**
 - **All SQL must use prepared statements**
-- **Rules:** WordPress.Security.* in phpcs.xml.dist
+- **Rules:** WordPress.Security.\* in phpcs.xml.dist
 
 ### WordPress Standards
+
 - **Text domain:** Always use `'notion-wp'`
 - **Function prefix:** `notion_wp_` or `NOTION_WP_`
 - **Indentation:** Tabs (PHP), 2 spaces (JS/CSS)
@@ -194,6 +209,7 @@ npm run lint
 VS Code settings are **already configured** in `.vscode/settings.json`.
 
 **Recommended Extensions:**
+
 ```bash
 # Install these for inline linting
 code --install-extension bmewburn.vscode-intelephense-client
@@ -204,6 +220,7 @@ code --install-extension stylelint.vscode-stylelint
 ```
 
 **Features Already Enabled:**
+
 - ✅ Format on save
 - ✅ Auto-fix on save (ESLint, Stylelint)
 - ✅ Inline error highlighting
@@ -216,6 +233,7 @@ code --install-extension stylelint.vscode-stylelint
 ## Common Commands Reference
 
 ### PHP Linting
+
 ```bash
 composer lint              # Run all PHP linters
 composer lint:phpcs        # Check code style
@@ -225,6 +243,7 @@ composer check             # Run all checks
 ```
 
 ### JavaScript/CSS Linting
+
 ```bash
 npm run lint               # Run all linters
 npm run lint:js            # Check JavaScript
@@ -234,6 +253,7 @@ npm run format             # Format with Prettier
 ```
 
 ### Combined Workflow
+
 ```bash
 composer lint:fix && npm run lint:fix   # Fix everything
 composer lint && npm run lint           # Check everything
@@ -246,17 +266,20 @@ composer lint && npm run lint           # Check everything
 **⚠️ USE WITH EXTREME CAUTION ⚠️**
 
 ### Skip Pre-commit Hook
+
 ```bash
 git commit --no-verify -m "Emergency fix: description"
 ```
 
 **Requirements:**
+
 1. Document WHY in commit message
 2. Create follow-up issue to fix linting
 3. Fix in next commit
 4. Inform team
 
 **When to Use:**
+
 - Critical production bug fix
 - Immediate hotfix required
 - Reverting broken commit
@@ -310,29 +333,35 @@ rm plugin/test.php
 ## Troubleshooting
 
 ### "phpcs: command not found"
+
 ```bash
 composer install
 ```
 
 ### "eslint: command not found"
+
 ```bash
 npm install
 ```
 
 ### "Pre-commit hook not running"
+
 ```bash
 npm run prepare
 chmod +x .husky/pre-commit
 ```
 
 ### "Linting takes too long"
+
 Parallel processing is already enabled in all configs. If still slow:
+
 ```bash
 # Check specific files only
 vendor/bin/phpcs plugin/src/MyFile.php
 ```
 
 ### "VS Code not showing errors"
+
 1. Install recommended extensions
 2. Reload window: Cmd/Ctrl+Shift+P → "Reload Window"
 3. Check Output panel for extension errors
@@ -362,17 +391,20 @@ vendor/bin/phpcs plugin/src/MyFile.php
 With linting verified, you can now start:
 
 **Stream 1: Authentication System**
+
 - Create `plugin/src/Admin/SettingsPage.php`
 - Create `plugin/src/API/NotionClient.php`
 - Create `plugin/templates/admin/settings.php`
 - All files will be linted automatically
 
 **Stream 3: Admin UI**
+
 - Create `plugin/assets/src/scss/admin.scss`
 - Create `plugin/assets/src/js/admin.js`
 - All files will be linted automatically
 
 **Confidence:** Every commit will be validated for:
+
 - Code quality (PHPCS, ESLint, Stylelint)
 - Static analysis (PHPStan)
 - Security best practices

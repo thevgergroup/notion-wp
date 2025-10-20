@@ -22,9 +22,11 @@ All linting configurations are in place, correctly configured, and ready for dev
 ### ✅ PHP Linting Configuration
 
 #### phpcs.xml.dist
+
 **Status:** ✅ Verified and Correct
 
 **Key Features:**
+
 - ✅ WordPress Coding Standards (Core, Docs, Extra)
 - ✅ **500-line file limit enforced** (Critical requirement)
 - ✅ Line length limits (120 soft, 150 hard)
@@ -35,6 +37,7 @@ All linting configurations are in place, correctly configured, and ready for dev
 - ✅ Parallel processing (8 jobs)
 
 **Critical Rule Verification:**
+
 ```xml
 <!-- Line 63-68: 500-line limit CONFIRMED ✅ -->
 <rule ref="Generic.Files.LineCount">
@@ -45,10 +48,12 @@ All linting configurations are in place, correctly configured, and ready for dev
 ```
 
 **Scanned Paths:**
+
 - `./plugin`
 - `./tests`
 
 **Excluded Paths:**
+
 - `*/vendor/*`
 - `*/node_modules/*`
 - `*/build/*`
@@ -57,6 +62,7 @@ All linting configurations are in place, correctly configured, and ready for dev
 - `*.asset.php`
 
 **Security Rules Enabled:**
+
 - ✅ Nonce verification
 - ✅ Input sanitization validation
 - ✅ Output escaping validation
@@ -66,9 +72,11 @@ All linting configurations are in place, correctly configured, and ready for dev
 ---
 
 #### phpstan.neon
+
 **Status:** ✅ Verified and Correct
 
 **Key Features:**
+
 - ✅ **Level 5 analysis** (as required by principles.md)
 - ✅ WordPress stubs configured (ready for installation)
 - ✅ Proper path configuration
@@ -78,21 +86,25 @@ All linting configurations are in place, correctly configured, and ready for dev
 - ✅ Type safety checks
 
 **Analysis Level:**
+
 ```yaml
 # Line 6: Level 5 CONFIRMED ✅
 level: 5
 ```
 
 **Analyzed Paths:**
+
 - `plugin/`
 
 **Excluded Paths:**
+
 - `plugin/vendor`
 - `plugin/node_modules`
 - `plugin/build`
 - `plugin/dist`
 
 **WordPress Support:**
+
 - Ready for WordPress stubs via Composer
 - Universal object crates for WP_Post, WP_User, WP_Term
 - WordPress hook type ignores configured
@@ -104,9 +116,11 @@ level: 5
 ### ✅ JavaScript/TypeScript Linting Configuration
 
 #### .eslintrc.json
+
 **Status:** ✅ Verified and Correct
 
 **Key Features:**
+
 - ✅ WordPress ESLint plugin preset
 - ✅ **No console.log allowed** (error level)
 - ✅ console.warn and console.error permitted
@@ -117,6 +131,7 @@ level: 5
 - ✅ Test file configurations
 
 **Critical Rule Verification:**
+
 ```json
 // Lines 36-41: No console.log CONFIRMED ✅
 "no-console": [
@@ -128,6 +143,7 @@ level: 5
 ```
 
 **WordPress-Specific Rules:**
+
 - ✅ Text domain validation for `notion-wp`
 - ✅ No unused vars before return
 - ✅ No global active element
@@ -135,6 +151,7 @@ level: 5
 - ✅ Valid sprintf usage
 
 **Code Quality Rules:**
+
 - ✅ No debugger statements
 - ✅ No alert() calls
 - ✅ No unused variables
@@ -144,11 +161,13 @@ level: 5
 - ✅ const over let, no var
 
 **JSDoc Enforcement:**
+
 - ✅ Parameter documentation required
 - ✅ Return type documentation required
 - ✅ Type checking enabled
 
 **Environment Support:**
+
 - Browser globals (window, document)
 - ES2021 features
 - jQuery (WordPress standard)
@@ -157,9 +176,11 @@ level: 5
 ---
 
 #### .stylelintrc.json
+
 **Status:** ✅ Verified and Correct
 
 **Key Features:**
+
 - ✅ WordPress CSS standards
 - ✅ SCSS support
 - ✅ **!important discouraged** (warning level with message)
@@ -169,6 +190,7 @@ level: 5
 - ✅ Specificity guidelines
 
 **Critical Rule Verification:**
+
 ```json
 // Lines 25-31: !important warning CONFIRMED ✅
 "declaration-no-important": [
@@ -181,6 +203,7 @@ level: 5
 ```
 
 **CSS Quality Rules:**
+
 - ✅ No duplicate properties
 - ✅ Font family names quoted
 - ✅ Numeric font weights
@@ -190,6 +213,7 @@ level: 5
 - ✅ Max ID selectors: 1 (warning)
 
 **Property Ordering:**
+
 - Special (imports, extends, mixins)
 - Position (position, top, right, etc.)
 - Box Model (display, width, height, etc.)
@@ -203,9 +227,11 @@ level: 5
 ### ✅ Pre-commit Hook Configuration
 
 #### .husky/pre-commit
+
 **Status:** ✅ Verified and Correct
 
 **Key Features:**
+
 - ✅ Runs all linters before commit
 - ✅ Auto-fixes what can be fixed
 - ✅ Re-stages fixed files
@@ -214,6 +240,7 @@ level: 5
 - ✅ Helpful tips on failure
 
 **Execution Flow:**
+
 1. Detect staged files by type (PHP, JS, CSS)
 2. Run appropriate linters with auto-fix
 3. Re-add fixed files to staging
@@ -221,18 +248,22 @@ level: 5
 5. Show helpful error messages and commands
 
 **PHP Checks:**
+
 - ✅ PHP-CS-Fixer (auto-fix)
 - ✅ PHPCS (validation)
 - ✅ PHPStan (static analysis)
 
 **JavaScript Checks:**
+
 - ✅ ESLint (auto-fix)
 - ✅ Prettier (auto-format)
 
 **CSS Checks:**
+
 - ✅ Stylelint (auto-fix)
 
 **Note:** Hook requires execution permissions:
+
 ```bash
 chmod +x .husky/pre-commit
 ```
@@ -240,9 +271,11 @@ chmod +x .husky/pre-commit
 ---
 
 #### .husky/commit-msg
+
 **Status:** ✅ Verified
 
 **Key Features:**
+
 - Validates commit message format
 - Prevents empty commits
 - Enforces conventional commit style (optional)
@@ -252,9 +285,11 @@ chmod +x .husky/pre-commit
 ## 2. Package Configuration Verification
 
 ### ✅ composer.json
+
 **Status:** ✅ Verified and Correct
 
 **Linting Scripts:**
+
 ```json
 "lint": ["@lint:phpcs", "@lint:phpstan"],
 "lint:phpcs": "phpcs -p -s --colors",
@@ -267,6 +302,7 @@ chmod +x .husky/pre-commit
 ```
 
 **All Required Scripts Present:**
+
 - ✅ `composer lint` - Run all linters
 - ✅ `composer lint:phpcs` - PHPCS check
 - ✅ `composer lint:phpcbf` - PHPCS auto-fix
@@ -275,6 +311,7 @@ chmod +x .husky/pre-commit
 - ✅ `composer check` - Run all checks
 
 **Dependencies (require-dev):**
+
 - ✅ PHP_CodeSniffer 3.8+
 - ✅ WordPress Coding Standards 3.0+
 - ✅ PHPCompatibility 9.3+
@@ -285,15 +322,18 @@ chmod +x .husky/pre-commit
 - ✅ WP-CLI stubs 2.10+
 
 **Autoloading:**
+
 - ✅ PSR-4: `NotionWP\` → `plugin/src/`
 - ✅ PSR-4 (dev): `NotionWP\Tests\` → `tests/`
 
 ---
 
 ### ✅ package.json
+
 **Status:** ✅ Verified and Correct
 
 **Linting Scripts:**
+
 ```json
 "lint": "npm-run-all --parallel lint:*",
 "lint:js": "eslint 'plugin/**/*.{js,jsx,ts,tsx}' --max-warnings=0",
@@ -306,6 +346,7 @@ chmod +x .husky/pre-commit
 ```
 
 **All Required Scripts Present:**
+
 - ✅ `npm run lint` - Run all linters
 - ✅ `npm run lint:js` - ESLint check
 - ✅ `npm run lint:js:fix` - ESLint auto-fix
@@ -316,6 +357,7 @@ chmod +x .husky/pre-commit
 - ✅ `npm run format:check` - Prettier check
 
 **Dependencies (devDependencies):**
+
 - ✅ @wordpress/eslint-plugin 17.7+
 - ✅ @wordpress/prettier-config 3.7+
 - ✅ ESLint 8.56+
@@ -326,6 +368,7 @@ chmod +x .husky/pre-commit
 - ✅ React plugins (for future use)
 
 **Lint-Staged Configuration:**
+
 - ✅ PHP files → composer lint:fix:quiet + git add
 - ✅ JS/TS files → eslint --fix + prettier + git add
 - ✅ CSS files → stylelint --fix + prettier + git add
@@ -336,9 +379,11 @@ chmod +x .husky/pre-commit
 ## 3. Critical Requirements Checklist
 
 ### ✅ 500-Line File Limit
+
 **Status:** ✅ ENFORCED
 
 **Configuration:**
+
 ```xml
 <!-- phpcs.xml.dist, lines 63-68 -->
 <rule ref="Generic.Files.LineCount">
@@ -351,6 +396,7 @@ chmod +x .husky/pre-commit
 **Enforcement Level:** Error (blocks commit)
 
 **How It Works:**
+
 1. PHPCS scans all PHP files
 2. Counts total lines (including comments and whitespace)
 3. Fails if any file exceeds 500 lines
@@ -358,6 +404,7 @@ chmod +x .husky/pre-commit
 5. CI/CD will also catch violations
 
 **Developer Workflow:**
+
 ```bash
 # Check file size compliance
 composer lint:phpcs
@@ -372,6 +419,7 @@ composer lint:phpcs
 ```
 
 **Remediation:**
+
 1. Identify the oversized file
 2. Refactor into smaller, focused files
 3. Extract helpers to utility classes
@@ -381,9 +429,11 @@ composer lint:phpcs
 ---
 
 ### ✅ No console.log in Production
+
 **Status:** ✅ ENFORCED
 
 **Configuration:**
+
 ```json
 // .eslintrc.json, lines 36-41
 "no-console": [
@@ -397,15 +447,18 @@ composer lint:phpcs
 **Enforcement Level:** Error (blocks commit)
 
 **Allowed:**
+
 - ✅ `console.error()` - For error reporting
 - ✅ `console.warn()` - For warnings
 
 **Blocked:**
+
 - ❌ `console.log()` - Not allowed
 - ❌ `console.debug()` - Not allowed
 - ❌ `console.info()` - Not allowed
 
 **Developer Workflow:**
+
 ```bash
 # ESLint will fail on console.log
 npm run lint:js
@@ -416,6 +469,7 @@ npm run lint:js
 ```
 
 **Remediation:**
+
 1. Remove `console.log()` statements
 2. Use proper debugging tools (browser DevTools, WP Debug Log)
 3. Use `console.error()` or `console.warn()` if logging is necessary
@@ -423,46 +477,52 @@ npm run lint:js
 ---
 
 ### ✅ WordPress Coding Standards
+
 **Status:** ✅ ENFORCED
 
 **Standards Included:**
+
 - ✅ WordPress-Core
 - ✅ WordPress-Docs
 - ✅ WordPress-Extra
 
 **Key Enforcements:**
+
 1. **Security:**
-   - Nonce verification on forms
-   - Input sanitization
-   - Output escaping
-   - Prepared SQL statements
+    - Nonce verification on forms
+    - Input sanitization
+    - Output escaping
+    - Prepared SQL statements
 
 2. **Internationalization:**
-   - Text domain `'notion-wp'` required
-   - All strings translatable
+    - Text domain `'notion-wp'` required
+    - All strings translatable
 
 3. **Naming Conventions:**
-   - Global prefix: `notion_wp_` or `NOTION_WP_`
-   - Function names: snake_case
-   - Class names: PascalCase
+    - Global prefix: `notion_wp_` or `NOTION_WP_`
+    - Function names: snake_case
+    - Class names: PascalCase
 
 4. **Code Style:**
-   - Indentation: Tabs
-   - Array syntax: Short `[]` allowed
-   - PHP compatibility: 8.0+
+    - Indentation: Tabs
+    - Array syntax: Short `[]` allowed
+    - PHP compatibility: 8.0+
 
 ---
 
 ### ✅ PHPStan Level 5
+
 **Status:** ✅ CONFIGURED
 
 **Configuration:**
+
 ```yaml
 # phpstan.neon, line 6
 level: 5
 ```
 
 **What Level 5 Checks:**
+
 1. Undefined variables
 2. Unknown methods and properties
 3. Dead code detection
@@ -470,6 +530,7 @@ level: 5
 5. Return type consistency
 
 **WordPress Integration:**
+
 - WordPress stubs loaded (when installed)
 - WordPress globals recognized ($wpdb)
 - WordPress hook types ignored
@@ -478,23 +539,27 @@ level: 5
 ---
 
 ### ✅ Pre-commit Hooks Active
+
 **Status:** ✅ CONFIGURED
 
 **Hook Location:** `.husky/pre-commit`
 
 **Installation Status:**
+
 - ✅ Husky installed via npm
 - ✅ Hook file exists
 - ⚠️ **Requires:** `chmod +x .husky/pre-commit` (run once)
 - ⚠️ **Requires:** `npm run prepare` (run after npm install)
 
 **What Gets Checked:**
+
 1. PHP files → PHPCS, PHPStan, PHP-CS-Fixer
 2. JavaScript → ESLint, Prettier
 3. CSS → Stylelint, Prettier
 4. Config files → Prettier
 
 **Auto-fix Capability:**
+
 - ✅ PHPCS violations (via phpcbf)
 - ✅ ESLint violations
 - ✅ Stylelint violations
@@ -566,20 +631,21 @@ All linting checks will also run in CI/CD pipelines (when configured in Phase 1+
 
 ### ✅ All Configuration Files Present
 
-| File | Status | Purpose |
-|------|--------|---------|
-| `phpcs.xml.dist` | ✅ Verified | PHP coding standards |
-| `phpstan.neon` | ✅ Verified | PHP static analysis |
-| `.php-cs-fixer.dist.php` | ⚠️ Not found | PHP formatting (optional) |
-| `.eslintrc.json` | ✅ Verified | JavaScript linting |
-| `.stylelintrc.json` | ✅ Verified | CSS linting |
-| `.prettierrc.json` | ⚠️ Uses WordPress config | JavaScript formatting |
-| `.husky/pre-commit` | ✅ Verified | Pre-commit hook |
-| `.husky/commit-msg` | ✅ Verified | Commit message validation |
-| `composer.json` | ✅ Verified | PHP dependencies & scripts |
-| `package.json` | ✅ Verified | Node dependencies & scripts |
+| File                     | Status                   | Purpose                     |
+| ------------------------ | ------------------------ | --------------------------- |
+| `phpcs.xml.dist`         | ✅ Verified              | PHP coding standards        |
+| `phpstan.neon`           | ✅ Verified              | PHP static analysis         |
+| `.php-cs-fixer.dist.php` | ⚠️ Not found             | PHP formatting (optional)   |
+| `.eslintrc.json`         | ✅ Verified              | JavaScript linting          |
+| `.stylelintrc.json`      | ✅ Verified              | CSS linting                 |
+| `.prettierrc.json`       | ⚠️ Uses WordPress config | JavaScript formatting       |
+| `.husky/pre-commit`      | ✅ Verified              | Pre-commit hook             |
+| `.husky/commit-msg`      | ✅ Verified              | Commit message validation   |
+| `composer.json`          | ✅ Verified              | PHP dependencies & scripts  |
+| `package.json`           | ✅ Verified              | Node dependencies & scripts |
 
 **Notes:**
+
 - `.php-cs-fixer.dist.php` is optional. PHP-CS-Fixer is configured via command line options in composer.json
 - Prettier config uses `@wordpress/prettier-config` (specified in package.json line 66)
 
@@ -588,6 +654,7 @@ All linting checks will also run in CI/CD pipelines (when configured in Phase 1+
 ### ✅ All Required Scripts Available
 
 #### Composer Scripts
+
 - ✅ `composer lint` - Run all PHP linters
 - ✅ `composer lint:phpcs` - Run PHPCS
 - ✅ `composer lint:phpcbf` - Auto-fix PHPCS issues
@@ -596,6 +663,7 @@ All linting checks will also run in CI/CD pipelines (when configured in Phase 1+
 - ✅ `composer check` - Run all checks
 
 #### NPM Scripts
+
 - ✅ `npm run lint` - Run all linters
 - ✅ `npm run lint:js` - Run ESLint
 - ✅ `npm run lint:js:fix` - Auto-fix ESLint issues
@@ -609,16 +677,16 @@ All linting checks will also run in CI/CD pipelines (when configured in Phase 1+
 
 ### ✅ All Critical Rules Enforced
 
-| Rule | Status | Location | Enforcement |
-|------|--------|----------|-------------|
-| 500-line file limit | ✅ Enforced | phpcs.xml.dist:63-68 | Error |
-| No console.log | ✅ Enforced | .eslintrc.json:36-41 | Error |
-| Nonce verification | ✅ Enforced | phpcs.xml.dist:96 | Error |
-| Input sanitization | ✅ Enforced | phpcs.xml.dist:99 | Error |
-| Output escaping | ✅ Enforced | phpcs.xml.dist:100 | Error |
-| Text domain 'notion-wp' | ✅ Enforced | phpcs.xml.dist:79-86 | Error |
-| PHPStan level 5 | ✅ Enforced | phpstan.neon:6 | Error |
-| !important usage | ✅ Warned | .stylelintrc.json:25-31 | Warning |
+| Rule                    | Status      | Location                | Enforcement |
+| ----------------------- | ----------- | ----------------------- | ----------- |
+| 500-line file limit     | ✅ Enforced | phpcs.xml.dist:63-68    | Error       |
+| No console.log          | ✅ Enforced | .eslintrc.json:36-41    | Error       |
+| Nonce verification      | ✅ Enforced | phpcs.xml.dist:96       | Error       |
+| Input sanitization      | ✅ Enforced | phpcs.xml.dist:99       | Error       |
+| Output escaping         | ✅ Enforced | phpcs.xml.dist:100      | Error       |
+| Text domain 'notion-wp' | ✅ Enforced | phpcs.xml.dist:79-86    | Error       |
+| PHPStan level 5         | ✅ Enforced | phpstan.neon:6          | Error       |
+| !important usage        | ✅ Warned   | .stylelintrc.json:25-31 | Warning     |
 
 ---
 
@@ -627,39 +695,40 @@ All linting checks will also run in CI/CD pipelines (when configured in Phase 1+
 ### ⚠️ Items Requiring Action
 
 1. **Dependencies Not Installed**
-   - **Status:** Expected (fresh setup)
-   - **Action Required:**
-     ```bash
-     composer install
-     npm install
-     ```
+    - **Status:** Expected (fresh setup)
+    - **Action Required:**
+        ```bash
+        composer install
+        npm install
+        ```
 
 2. **Pre-commit Hook Permissions**
-   - **Status:** Hook exists but may not be executable
-   - **Action Required:**
-     ```bash
-     chmod +x .husky/pre-commit
-     chmod +x .husky/commit-msg
-     npm run prepare
-     ```
+    - **Status:** Hook exists but may not be executable
+    - **Action Required:**
+        ```bash
+        chmod +x .husky/pre-commit
+        chmod +x .husky/commit-msg
+        npm run prepare
+        ```
 
 3. **Git Repository**
-   - **Status:** Not initialized (checked in script)
-   - **Action Required:**
-     ```bash
-     git init
-     ```
+    - **Status:** Not initialized (checked in script)
+    - **Action Required:**
+        ```bash
+        git init
+        ```
 
 4. **WordPress Stubs**
-   - **Status:** Configured but commented in phpstan.neon
-   - **Action:** Will auto-enable when Composer dependencies installed
-   - **No action needed** - works as designed
+    - **Status:** Configured but commented in phpstan.neon
+    - **Action:** Will auto-enable when Composer dependencies installed
+    - **No action needed** - works as designed
 
 ---
 
 ### ✅ No Configuration Issues Found
 
 All configuration files are:
+
 - ✅ Syntactically correct
 - ✅ Following WordPress standards
 - ✅ Implementing required rules
@@ -671,11 +740,13 @@ All configuration files are:
 ### 💡 Recommendations for Enhancement
 
 #### Short-term (Optional for Phase 0)
+
 1. **Add .php-cs-fixer.dist.php** for more granular PHP formatting control
 2. **Create .prettierrc.json** to customize formatting beyond WordPress defaults
 3. **Add .editorconfig** for cross-IDE consistency
 
 #### Long-term (Phase 1+)
+
 1. **GitHub Actions workflow** for CI/CD linting
 2. **PHPUnit configuration** for automated testing
 3. **Increase PHPStan level** to 8+ as code matures
@@ -725,6 +796,7 @@ rm plugin/test-linting.php
 The test file above should trigger:
 
 **PHPCS Errors:**
+
 - ✗ Missing file docblock
 - ✗ Missing function docblock
 - ✗ No nonce verification
@@ -734,6 +806,7 @@ The test file above should trigger:
 - ✗ Function name not prefixed
 
 **PHPStan Errors:**
+
 - ✗ Undefined variable `$_POST['data']` type
 - ✗ Missing return type declaration
 
@@ -746,31 +819,31 @@ The test file above should trigger:
 ### ✅ New Documentation Files
 
 1. **scripts/verify-setup.sh**
-   - **Purpose:** Automated verification of linting setup
-   - **Features:**
-     - Checks dependencies installation
-     - Verifies all config files
-     - Tests linting tools
-     - Validates scripts
-     - Provides clear success/failure messages
-   - **Usage:** `./scripts/verify-setup.sh`
-   - **Status:** ✅ Created and executable
+    - **Purpose:** Automated verification of linting setup
+    - **Features:**
+        - Checks dependencies installation
+        - Verifies all config files
+        - Tests linting tools
+        - Validates scripts
+        - Provides clear success/failure messages
+    - **Usage:** `./scripts/verify-setup.sh`
+    - **Status:** ✅ Created and executable
 
 2. **docs/development/linting-quick-reference.md**
-   - **Purpose:** Developer quick reference for linting
-   - **Sections:**
-     - Common commands
-     - Configuration files overview
-     - Common errors and fixes
-     - Emergency bypass procedures
-     - IDE setup instructions
-     - Pre-commit hooks guide
-     - Troubleshooting
-   - **Status:** ✅ Created
+    - **Purpose:** Developer quick reference for linting
+    - **Sections:**
+        - Common commands
+        - Configuration files overview
+        - Common errors and fixes
+        - Emergency bypass procedures
+        - IDE setup instructions
+        - Pre-commit hooks guide
+        - Troubleshooting
+    - **Status:** ✅ Created
 
 3. **docs/development/phase-0-linting-verification-report.md** (this file)
-   - **Purpose:** Comprehensive verification documentation
-   - **Status:** ✅ Created
+    - **Purpose:** Comprehensive verification documentation
+    - **Status:** ✅ Created
 
 ---
 
@@ -778,30 +851,30 @@ The test file above should trigger:
 
 ### Phase 0 Success Criteria (from phase-0.md)
 
-| Criterion | Status | Notes |
-|-----------|--------|-------|
-| All linting passes | ✅ Ready | No code yet, configs verified |
-| WPCS enforced | ✅ Verified | phpcs.xml.dist configured |
-| ESLint enforced | ✅ Verified | .eslintrc.json configured |
-| PHPStan level 5 | ✅ Verified | phpstan.neon configured |
-| 500-line limit | ✅ Verified | Generic.Files.LineCount rule active |
-| No console.log | ✅ Verified | ESLint no-console rule active |
-| Pre-commit hooks | ✅ Verified | .husky/pre-commit exists |
-| `composer lint` works | ✅ Ready | Scripts configured, deps needed |
-| `npm run lint` works | ✅ Ready | Scripts configured, deps needed |
-| VS Code integration | ✅ Documented | IDE setup in quick reference |
+| Criterion             | Status        | Notes                               |
+| --------------------- | ------------- | ----------------------------------- |
+| All linting passes    | ✅ Ready      | No code yet, configs verified       |
+| WPCS enforced         | ✅ Verified   | phpcs.xml.dist configured           |
+| ESLint enforced       | ✅ Verified   | .eslintrc.json configured           |
+| PHPStan level 5       | ✅ Verified   | phpstan.neon configured             |
+| 500-line limit        | ✅ Verified   | Generic.Files.LineCount rule active |
+| No console.log        | ✅ Verified   | ESLint no-console rule active       |
+| Pre-commit hooks      | ✅ Verified   | .husky/pre-commit exists            |
+| `composer lint` works | ✅ Ready      | Scripts configured, deps needed     |
+| `npm run lint` works  | ✅ Ready      | Scripts configured, deps needed     |
+| VS Code integration   | ✅ Documented | IDE setup in quick reference        |
 
 ---
 
 ### Development Principles Compliance
 
-| Principle | Status | Evidence |
-|-----------|--------|----------|
-| KISS | ✅ Compliant | Simple, standard configs |
-| 500-line max | ✅ Enforced | phpcs.xml.dist line 63-68 |
-| Code quality standards | ✅ Enforced | All linters configured |
-| Pre-commit hooks | ✅ Implemented | .husky/pre-commit active |
-| WordPress standards | ✅ Enforced | WPCS, ESLint WP preset |
+| Principle              | Status         | Evidence                  |
+| ---------------------- | -------------- | ------------------------- |
+| KISS                   | ✅ Compliant   | Simple, standard configs  |
+| 500-line max           | ✅ Enforced    | phpcs.xml.dist line 63-68 |
+| Code quality standards | ✅ Enforced    | All linters configured    |
+| Pre-commit hooks       | ✅ Implemented | .husky/pre-commit active  |
+| WordPress standards    | ✅ Enforced    | WPCS, ESLint WP preset    |
 
 ---
 
@@ -810,28 +883,31 @@ The test file above should trigger:
 ### Immediate Actions (Before Development)
 
 1. **Install Dependencies:**
-   ```bash
-   composer install
-   npm install
-   ```
+
+    ```bash
+    composer install
+    npm install
+    ```
 
 2. **Set Up Git Hooks:**
-   ```bash
-   npm run prepare
-   chmod +x .husky/pre-commit
-   ```
+
+    ```bash
+    npm run prepare
+    chmod +x .husky/pre-commit
+    ```
 
 3. **Verify Setup:**
-   ```bash
-   ./scripts/verify-setup.sh
-   ```
+
+    ```bash
+    ./scripts/verify-setup.sh
+    ```
 
 4. **Initialize Git (if not done):**
-   ```bash
-   git init
-   git add .
-   git commit -m "Initial commit: Project setup with linting configuration"
-   ```
+    ```bash
+    git init
+    git add .
+    git commit -m "Initial commit: Project setup with linting configuration"
+    ```
 
 ---
 
@@ -856,20 +932,20 @@ New developers should:
 With linting verified, proceed to:
 
 1. **Stream 1: Authentication System**
-   - Create `plugin/src/Admin/SettingsPage.php`
-   - Create `plugin/src/API/NotionClient.php`
-   - Create `plugin/templates/admin/settings.php`
-   - All files will be linted automatically on commit
+    - Create `plugin/src/Admin/SettingsPage.php`
+    - Create `plugin/src/API/NotionClient.php`
+    - Create `plugin/templates/admin/settings.php`
+    - All files will be linted automatically on commit
 
 2. **Stream 3: Admin UI**
-   - Create `plugin/assets/src/scss/admin.scss`
-   - Create `plugin/assets/src/js/admin.js`
-   - All files will be linted automatically on commit
+    - Create `plugin/assets/src/scss/admin.scss`
+    - Create `plugin/assets/src/js/admin.js`
+    - All files will be linted automatically on commit
 
 3. **Stream 4: Documentation**
-   - Update README.md
-   - Create getting-started.md
-   - Documentation will be Prettier-formatted on commit
+    - Update README.md
+    - Create getting-started.md
+    - Documentation will be Prettier-formatted on commit
 
 ---
 
@@ -878,6 +954,7 @@ With linting verified, proceed to:
 ### ✅ Verification Status: COMPLETE
 
 All linting and code quality configurations are:
+
 - ✅ **Correctly configured** according to WordPress standards
 - ✅ **Fully compliant** with Phase 0 requirements
 - ✅ **Properly documented** for developer reference
@@ -896,6 +973,7 @@ All linting and code quality configurations are:
 ### Development Ready
 
 The development environment is **production-ready** and will:
+
 - ✅ Catch code quality issues before commit
 - ✅ Auto-fix what can be fixed
 - ✅ Enforce WordPress best practices
@@ -907,6 +985,7 @@ The development environment is **production-ready** and will:
 ### Documentation Complete
 
 Developers have access to:
+
 - ✅ Verification script (`scripts/verify-setup.sh`)
 - ✅ Quick reference guide (`docs/development/linting-quick-reference.md`)
 - ✅ This comprehensive verification report

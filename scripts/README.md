@@ -9,11 +9,13 @@ Helper scripts for managing git worktrees with isolated Docker environments.
 Creates a new git worktree with a fully configured Docker environment.
 
 **Usage:**
+
 ```bash
 ./scripts/create-worktree.sh <worktree-name> <branch-name>
 ```
 
 **Examples:**
+
 ```bash
 # Create worktree for feature branch
 ./scripts/create-worktree.sh feature-blocks feature/block-mapping
@@ -26,6 +28,7 @@ Creates a new git worktree with a fully configured Docker environment.
 ```
 
 **What it does:**
+
 1. Creates git worktree at `../notion-wp-<worktree-name>`
 2. Generates `.env` file with unique configuration
 3. Starts Docker services (WordPress, MariaDB, Traefik)
@@ -33,6 +36,7 @@ Creates a new git worktree with a fully configured Docker environment.
 5. Provides site URL and credentials
 
 **Result:**
+
 - Site URL: `http://<worktree-name>.localtest.me`
 - Admin: `http://<worktree-name>.localtest.me/wp-admin`
 - Credentials: admin / admin
@@ -44,17 +48,20 @@ Creates a new git worktree with a fully configured Docker environment.
 Safely removes a worktree and cleans up its Docker environment.
 
 **Usage:**
+
 ```bash
 ./scripts/remove-worktree.sh <worktree-name>
 ```
 
 **Examples:**
+
 ```bash
 ./scripts/remove-worktree.sh feature-blocks
 ./scripts/remove-worktree.sh fix-auth
 ```
 
 **What it does:**
+
 1. Offers to export database before removal
 2. Stops all Docker containers
 3. Removes Docker volumes (database and WordPress data)
@@ -62,6 +69,7 @@ Safely removes a worktree and cleans up its Docker environment.
 5. Cleans up all associated resources
 
 **Safety features:**
+
 - Confirmation prompt before deletion
 - Optional database export
 - Lists remaining worktrees after removal
@@ -73,17 +81,20 @@ Safely removes a worktree and cleans up its Docker environment.
 Displays all worktrees with their Docker environment status.
 
 **Usage:**
+
 ```bash
 ./scripts/list-worktrees.sh
 ```
 
 **Output includes:**
+
 - Worktree path and branch name
 - Docker project name and site URL
 - Running status (containers, volumes)
 - Traefik reverse proxy status
 
 **Example output:**
+
 ```
 Git Worktrees and Docker Environments
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━

@@ -8,7 +8,7 @@
  * - Copy functionality
  * - Keyboard navigation
  *
- * @package NotionSync
+ * @package
  */
 
 /**
@@ -41,8 +41,8 @@ export function showLoadingState(button) {
 /**
  * Show inline error message below input
  *
- * @param {HTMLInputElement} input - Input element
- * @param {string} message - Error message
+ * @param {HTMLInputElement} input   - Input element
+ * @param {string}           message - Error message
  */
 export function showInlineError(input, message) {
 	// Clear any existing error.
@@ -76,7 +76,9 @@ export function showInlineError(input, message) {
  * @param {HTMLInputElement} input - Input element
  */
 export function clearInlineError(input) {
-	const existingError = input.parentNode.querySelector('.notion-sync-inline-error');
+	const existingError = input.parentNode.querySelector(
+		'.notion-sync-inline-error'
+	);
 	if (existingError) {
 		existingError.remove();
 	}
@@ -94,14 +96,14 @@ export function enhanceKeyboardNavigation() {
 		'.notion-sync-settings a, .notion-sync-settings button, .notion-sync-settings input, .notion-sync-settings select'
 	);
 
-	interactiveElements.forEach(function (element) {
+	interactiveElements.forEach((element) => {
 		// Ensure tab index is set appropriately.
 		if (element.tabIndex < 0 && !element.disabled) {
 			element.tabIndex = 0;
 		}
 
 		// Add keyboard event handlers.
-		element.addEventListener('keydown', function (event) {
+		element.addEventListener('keydown', (event) => {
 			// Handle Enter and Space for buttons styled as links.
 			if (
 				(event.key === 'Enter' || event.key === ' ') &&
@@ -114,7 +116,7 @@ export function enhanceKeyboardNavigation() {
 	});
 
 	// Add escape key handler for modals/dialogs (future use).
-	document.addEventListener('keydown', function (event) {
+	document.addEventListener('keydown', (event) => {
 		if (event.key === 'Escape') {
 			closeAllModals();
 		}
@@ -133,12 +135,14 @@ export function closeAllModals() {
  * Auto-dismiss dismissible notices after delay
  */
 function handleDismissibleNotices() {
-	const notices = document.querySelectorAll('.notice.is-dismissible.notion-sync-notice');
+	const notices = document.querySelectorAll(
+		'.notice.is-dismissible.notion-sync-notice'
+	);
 
-	notices.forEach(function (notice) {
+	notices.forEach((notice) => {
 		// Auto-dismiss success notices after 5 seconds.
 		if (notice.classList.contains('notice-success')) {
-			setTimeout(function () {
+			setTimeout(() => {
 				if (notice.querySelector('.notice-dismiss')) {
 					notice.querySelector('.notice-dismiss').click();
 				}
@@ -155,7 +159,7 @@ export function initAdminNotices() {
 
 	// Make notices keyboard accessible.
 	const dismissButtons = document.querySelectorAll('.notice-dismiss');
-	dismissButtons.forEach(function (button) {
+	dismissButtons.forEach((button) => {
 		button.setAttribute('aria-label', 'Dismiss this notice');
 
 		// Ensure keyboard accessibility.
@@ -174,18 +178,19 @@ export function initAdminNotices() {
 export function initCopyButtons() {
 	const copyButtons = document.querySelectorAll('.notion-sync-copy-button');
 
-	copyButtons.forEach(function (button) {
+	copyButtons.forEach((button) => {
 		button.addEventListener('click', function () {
-			const textToCopy = this.dataset.copy || this.previousElementSibling.textContent;
+			const textToCopy =
+				this.dataset.copy || this.previousElementSibling.textContent;
 
 			// Use modern clipboard API with fallback.
 			if (navigator.clipboard && navigator.clipboard.writeText) {
 				navigator.clipboard
 					.writeText(textToCopy)
-					.then(function () {
+					.then(() => {
 						showCopySuccess(button);
 					})
-					.catch(function () {
+					.catch(() => {
 						// Fallback for older browsers.
 						fallbackCopy(textToCopy, button);
 					});
@@ -206,7 +211,7 @@ export function showCopySuccess(button) {
 	button.textContent = 'Copied!';
 	button.classList.add('copied');
 
-	setTimeout(function () {
+	setTimeout(() => {
 		button.textContent = originalText;
 		button.classList.remove('copied');
 	}, 2000);
@@ -215,7 +220,7 @@ export function showCopySuccess(button) {
 /**
  * Fallback copy method for older browsers
  *
- * @param {string} text - Text to copy
+ * @param {string}      text   - Text to copy
  * @param {HTMLElement} button - Copy button element
  */
 export function fallbackCopy(text, button) {
@@ -240,7 +245,7 @@ export function fallbackCopy(text, button) {
 /**
  * Show admin notice message
  *
- * @param {string} type - Notice type: 'success', 'error', 'warning', 'info'
+ * @param {string} type    - Notice type: 'success', 'error', 'warning', 'info'
  * @param {string} message - Notice message
  */
 export function showAdminNotice(type, message) {
@@ -253,21 +258,22 @@ export function showAdminNotice(type, message) {
 
 	// Create notice element.
 	const notice = document.createElement('div');
-	notice.className = 'notice notice-' + type + ' is-dismissible';
-	notice.innerHTML = '<p>' + escapeHtml(message) + '</p>';
+	notice.className = `notice notice-${type} is-dismissible`;
+	notice.innerHTML = `<p>${escapeHtml(message)}</p>`;
 
 	// Add dismiss button.
 	const dismissButton = document.createElement('button');
 	dismissButton.type = 'button';
 	dismissButton.className = 'notice-dismiss';
-	dismissButton.innerHTML = '<span class="screen-reader-text">Dismiss this notice.</span>';
+	dismissButton.innerHTML =
+		'<span class="screen-reader-text">Dismiss this notice.</span>';
 	dismissButton.addEventListener('click', () => {
 		notice.remove();
 	});
 	notice.appendChild(dismissButton);
 
 	// Clear previous notices of same type.
-	const existingNotices = container.querySelectorAll('.notice-' + type);
+	const existingNotices = container.querySelectorAll(`.notice-${type}`);
 	existingNotices.forEach((n) => n.remove());
 
 	// Add to container.

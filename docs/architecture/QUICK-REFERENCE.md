@@ -3,12 +3,14 @@
 ## Setup Commands
 
 ### Create New Worktree
+
 ```bash
 ./scripts/setup-worktree.sh <name> <http-port> <db-port>
 # Example: ./scripts/setup-worktree.sh feature-sync 8081 3307
 ```
 
 ### Teardown Worktree
+
 ```bash
 ./scripts/teardown-worktree.sh <name> [--delete-branch]
 # Example: ./scripts/teardown-worktree.sh feature-sync --delete-branch
@@ -16,32 +18,32 @@
 
 ## Make Commands
 
-| Command | Description |
-|---------|-------------|
-| `make help` | Show all available commands |
-| `make up` | Start Docker containers |
-| `make down` | Stop Docker containers |
-| `make restart` | Restart containers |
-| `make logs` | View all container logs |
-| `make logs-wp` | View WordPress logs only |
-| `make shell` | Access WordPress container shell |
-| `make shell-db` | Access database shell |
-| `make wp ARGS="..."` | Run WP-CLI command |
-| `make install-wp` | Install WordPress |
-| `make activate-plugin` | Activate notion-sync plugin |
-| `make composer-install` | Install PHP dependencies |
-| `make npm-install` | Install Node dependencies |
-| `make npm-build` | Build production assets |
-| `make npm-watch` | Watch and rebuild assets |
-| `make test` | Run all tests |
-| `make test-unit` | Run unit tests only |
-| `make phpcs` | Check code standards |
-| `make phpcbf` | Auto-fix code standards |
-| `make db-export` | Export database to file |
-| `make db-import FILE=...` | Import database from file |
-| `make clean` | Remove build artifacts |
-| `make setup` | Full setup (all steps) |
-| `make info` | Show environment info |
+| Command                   | Description                      |
+| ------------------------- | -------------------------------- |
+| `make help`               | Show all available commands      |
+| `make up`                 | Start Docker containers          |
+| `make down`               | Stop Docker containers           |
+| `make restart`            | Restart containers               |
+| `make logs`               | View all container logs          |
+| `make logs-wp`            | View WordPress logs only         |
+| `make shell`              | Access WordPress container shell |
+| `make shell-db`           | Access database shell            |
+| `make wp ARGS="..."`      | Run WP-CLI command               |
+| `make install-wp`         | Install WordPress                |
+| `make activate-plugin`    | Activate notion-sync plugin      |
+| `make composer-install`   | Install PHP dependencies         |
+| `make npm-install`        | Install Node dependencies        |
+| `make npm-build`          | Build production assets          |
+| `make npm-watch`          | Watch and rebuild assets         |
+| `make test`               | Run all tests                    |
+| `make test-unit`          | Run unit tests only              |
+| `make phpcs`              | Check code standards             |
+| `make phpcbf`             | Auto-fix code standards          |
+| `make db-export`          | Export database to file          |
+| `make db-import FILE=...` | Import database from file        |
+| `make clean`              | Remove build artifacts           |
+| `make setup`              | Full setup (all steps)           |
+| `make info`               | Show environment info            |
 
 ## Directory Structure
 
@@ -70,19 +72,20 @@ worktree-name/
 
 ## Important File Paths
 
-| File | Purpose |
-|------|---------|
-| `/Users/patrick/Projects/thevgergroup/notion-wp/docker/compose.yml` | Docker Compose configuration |
-| `/Users/patrick/Projects/thevgergroup/notion-wp/.env.template` | Environment variable template |
-| `/Users/patrick/Projects/thevgergroup/notion-wp/Makefile` | Common commands |
-| `/Users/patrick/Projects/thevgergroup/notion-wp/plugin/notion-sync.php` | Main plugin file |
-| `/Users/patrick/Projects/thevgergroup/notion-wp/plugin/composer.json` | PHP dependencies |
-| `/Users/patrick/Projects/thevgergroup/notion-wp/plugin/package.json` | Node dependencies |
-| `/Users/patrick/Projects/thevgergroup/notion-wp/plugin/config/*.example.json` | Config templates |
+| File                                                                          | Purpose                       |
+| ----------------------------------------------------------------------------- | ----------------------------- |
+| `/Users/patrick/Projects/thevgergroup/notion-wp/docker/compose.yml`           | Docker Compose configuration  |
+| `/Users/patrick/Projects/thevgergroup/notion-wp/.env.template`                | Environment variable template |
+| `/Users/patrick/Projects/thevgergroup/notion-wp/Makefile`                     | Common commands               |
+| `/Users/patrick/Projects/thevgergroup/notion-wp/plugin/notion-sync.php`       | Main plugin file              |
+| `/Users/patrick/Projects/thevgergroup/notion-wp/plugin/composer.json`         | PHP dependencies              |
+| `/Users/patrick/Projects/thevgergroup/notion-wp/plugin/package.json`          | Node dependencies             |
+| `/Users/patrick/Projects/thevgergroup/notion-wp/plugin/config/*.example.json` | Config templates              |
 
 ## Environment Variables
 
 ### Required (Must be unique per worktree)
+
 ```bash
 COMPOSE_PROJECT_NAME=notionwp_main     # Unique project name
 WP_SITE_HOST=main.localtest.me         # Unique hostname
@@ -90,6 +93,7 @@ DB_NAME=wp_main                        # Unique database name
 ```
 
 ### Optional
+
 ```bash
 HTTP_PORT=8080                         # HTTP port (with Traefik, not needed)
 DB_PORT=3306                           # Database external port
@@ -98,6 +102,7 @@ WP_DEBUG=1                             # Enable WordPress debug mode
 ```
 
 ### Plugin Config
+
 ```bash
 NOTION_TOKEN=secret_xxx                # Notion integration token
 NOTION_WORKSPACE_ID=abc123             # Notion workspace ID
@@ -105,10 +110,10 @@ NOTION_WORKSPACE_ID=abc123             # Notion workspace ID
 
 ## URL Access
 
-| Worktree | URL |
-|----------|-----|
-| main | http://main.localtest.me |
-| feature-sync | http://feature-sync.localtest.me |
+| Worktree       | URL                                |
+| -------------- | ---------------------------------- |
+| main           | http://main.localtest.me           |
+| feature-sync   | http://feature-sync.localtest.me   |
 | feature-blocks | http://feature-blocks.localtest.me |
 
 **Admin**: Add `/wp-admin` to any URL (username/password: `admin`/`admin`)
@@ -143,6 +148,7 @@ make wp ARGS="rewrite structure '/%postname%/'"
 ## Common Tasks
 
 ### Start Development Session
+
 ```bash
 cd ~/Projects/thevgergroup/notion-wp/feature-x
 make up
@@ -152,6 +158,7 @@ npm run watch
 ```
 
 ### Run Tests Before Commit
+
 ```bash
 cd plugin
 vendor/bin/phpcs --standard=WordPress src/
@@ -159,6 +166,7 @@ vendor/bin/phpunit
 ```
 
 ### Debug WordPress Errors
+
 ```bash
 make logs-wp
 # or
@@ -167,6 +175,7 @@ tail -f /var/www/html/wp-content/debug.log
 ```
 
 ### Reset Environment
+
 ```bash
 make down
 make clean  # WARNING: Deletes all data
@@ -174,11 +183,13 @@ make setup  # Fresh installation
 ```
 
 ### Import Test Data
+
 ```bash
 make wp ARGS="import test-data.xml --authors=create"
 ```
 
 ### Access Database via CLI
+
 ```bash
 make shell-db
 # Inside container:
@@ -188,6 +199,7 @@ SHOW TABLES;
 ```
 
 ### Check Container Status
+
 ```bash
 make ps
 # or
@@ -197,6 +209,7 @@ docker ps | grep notionwp
 ## Git Workflow
 
 ### Create Feature Branch
+
 ```bash
 ./scripts/setup-worktree.sh feature-name 8081 3307
 cd ../feature-name
@@ -207,6 +220,7 @@ git push origin feature-name
 ```
 
 ### Merge Feature
+
 ```bash
 cd ~/Projects/thevgergroup/notion-wp/main
 git merge feature-name
@@ -214,6 +228,7 @@ git push origin main
 ```
 
 ### Clean Up
+
 ```bash
 ./scripts/teardown-worktree.sh feature-name --delete-branch
 ```
@@ -221,24 +236,28 @@ git push origin main
 ## Troubleshooting
 
 ### Port Already in Use
+
 ```bash
 # Check .env for unique ports
 # Or use Traefik without port mapping
 ```
 
 ### Database Connection Failed
+
 ```bash
 make restart
 make logs-db
 ```
 
 ### Plugin Not Activating
+
 ```bash
 make logs-wp
 make wp ARGS="plugin list"
 ```
 
 ### Assets Not Updating
+
 ```bash
 cd plugin
 rm -rf node_modules/
@@ -247,6 +266,7 @@ npm run build
 ```
 
 ### Clear All Caches
+
 ```bash
 make wp ARGS="cache flush"
 make wp ARGS="transient delete --all"
@@ -254,11 +274,13 @@ make restart
 ```
 
 ### View All Docker Volumes
+
 ```bash
 docker volume ls | grep notionwp
 ```
 
 ### Remove Orphaned Resources
+
 ```bash
 docker system prune -a --volumes
 # WARNING: Removes all unused Docker resources
@@ -267,6 +289,7 @@ docker system prune -a --volumes
 ## File Permissions
 
 If you encounter permission issues:
+
 ```bash
 # Fix WordPress file permissions
 make shell
@@ -306,6 +329,7 @@ sudo chown -R $USER:$USER plugin/
 ## Support
 
 For issues or questions:
+
 1. Check logs: `make logs`
 2. Review documentation in `docs/`
 3. Check GitHub issues (add URL)

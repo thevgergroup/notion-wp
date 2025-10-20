@@ -59,6 +59,7 @@ class NotionClient {
 Creates a new NotionClient instance with the provided API token.
 
 **Parameters:**
+
 - `$token` (string, required): Notion Internal Integration Token (starts with `secret_`)
 
 **Returns:** `NotionClient` instance
@@ -66,6 +67,7 @@ Creates a new NotionClient instance with the provided API token.
 **Throws:** None (validation happens on first request)
 
 **Example:**
+
 ```php
 use NotionWP\API\NotionClient;
 
@@ -84,16 +86,19 @@ Tests if the provided token is valid and can authenticate with Notion API.
 **Parameters:** None
 
 **Returns:**
+
 - `true` if connection successful
 - `false` if connection fails
 
 **Notion API Endpoint:** `GET /v1/users/me`
 
 **Error Handling:**
+
 - Returns `false` on any error (network, authentication, etc.)
 - Does not throw exceptions
 
 **Example:**
+
 ```php
 $client = new NotionClient($token);
 
@@ -105,6 +110,7 @@ if ($client->test_connection()) {
 ```
 
 **Use Cases:**
+
 - Validating token on settings save
 - Health check before sync operations
 - Troubleshooting connection issues
@@ -132,10 +138,12 @@ Retrieves information about the authenticated integration's workspace and user.
 **Notion API Endpoint:** `GET /v1/users/me`
 
 **Error Handling:**
+
 - Returns empty array on error
 - Check for empty array before using
 
 **Example:**
+
 ```php
 $client = new NotionClient($token);
 $info = $client->get_workspace_info();
@@ -147,11 +155,13 @@ if (!empty($info)) {
 ```
 
 **Use Cases:**
+
 - Displaying connected workspace in admin UI
 - Verifying correct workspace is connected
 - Storing workspace metadata
 
 **Response Schema:**
+
 ```php
 [
     'user_id'        => string,  // Required
@@ -169,6 +179,7 @@ if (!empty($info)) {
 Retrieves a list of pages accessible to the integration.
 
 **Parameters:**
+
 - `$limit` (int, optional): Maximum number of pages to return. Default: `10`, Max: `100`
 
 **Returns:** Array of page objects:
@@ -189,11 +200,13 @@ Retrieves a list of pages accessible to the integration.
 **Notion API Endpoint:** `POST /v1/search`
 
 **Error Handling:**
+
 - Returns empty array on error
 - Filters out non-page results (databases, etc.)
 - Handles pagination (limited to $limit items)
 
 **Example:**
+
 ```php
 $client = new NotionClient($token);
 $pages = $client->list_pages(20);
@@ -205,6 +218,7 @@ foreach ($pages as $page) {
 ```
 
 **Advanced Example with Error Checking:**
+
 ```php
 $client = new NotionClient($token);
 $pages = $client->list_pages();
@@ -224,11 +238,13 @@ if (empty($pages)) {
 ```
 
 **Use Cases:**
+
 - Displaying available pages in admin UI
 - Verifying pages are accessible
 - Selecting pages to sync
 
 **Response Schema:**
+
 ```php
 [
     'id'               => string,  // Notion page ID
@@ -240,6 +256,7 @@ if (empty($pages)) {
 ```
 
 **Notes:**
+
 - Only returns pages explicitly shared with integration
 - Does NOT return child pages unless parent is shared
 - Title extraction handles empty titles as "Untitled"
@@ -254,6 +271,7 @@ if (empty($pages)) {
 Internal method for making HTTP requests to Notion API.
 
 **Parameters:**
+
 - `$method` (string): HTTP method (`GET`, `POST`, `PATCH`, `DELETE`)
 - `$endpoint` (string): API endpoint (e.g., `/users/me`, `/search`)
 - `$body` (array, optional): Request body (auto-encoded to JSON)
@@ -261,11 +279,13 @@ Internal method for making HTTP requests to Notion API.
 **Returns:** Decoded JSON response as associative array
 
 **Error Handling:**
+
 - Returns empty array on network errors
 - Returns empty array on invalid JSON
 - Logs errors to WordPress debug log if `WP_DEBUG` is enabled
 
 **Example (internal use only):**
+
 ```php
 $response = $this->request('POST', '/search', [
     'query' => 'My Page',
@@ -274,6 +294,7 @@ $response = $this->request('POST', '/search', [
 ```
 
 **Headers Sent:**
+
 ```php
 [
     'Authorization'  => 'Bearer secret_xxx...',
@@ -303,16 +324,18 @@ The `NotionClient` class uses a graceful error handling approach:
 **Symptom:** `test_connection()` returns `false`
 
 **Notion Response:**
+
 ```json
 {
-    "object": "error",
-    "status": 401,
-    "code": "unauthorized",
-    "message": "API token is invalid."
+	"object": "error",
+	"status": 401,
+	"code": "unauthorized",
+	"message": "API token is invalid."
 }
 ```
 
 **How to Handle:**
+
 ```php
 if (!$client->test_connection()) {
     wp_die(
@@ -327,11 +350,13 @@ if (!$client->test_connection()) {
 **Symptom:** Methods return empty arrays
 
 **Causes:**
+
 - No internet connection
 - Firewall blocking api.notion.com
 - Hosting provider blocking outbound requests
 
 **How to Handle:**
+
 ```php
 $info = $client->get_workspace_info();
 
@@ -351,6 +376,7 @@ if (empty($info)) {
 **Notion Limit:** ~50 requests per second per integration
 
 **How to Handle:**
+
 ```php
 // Add caching to reduce API calls
 $cached_pages = get_transient('notion_wp_pages');
@@ -368,6 +394,7 @@ if (false === $cached_pages) {
 **Cause:** Pages not shared with integration
 
 **How to Handle:**
+
 ```php
 $pages = $client->list_pages();
 
@@ -653,6 +680,7 @@ To use a newer Notion API version:
 ## Rate Limiting
 
 **Notion API Limits:**
+
 - ~50 requests per second per integration
 - Burst allowance for short spikes
 - 429 status code when exceeded
@@ -665,6 +693,7 @@ To use a newer Notion API version:
 4. **User feedback:** Show progress for long operations
 
 **Example with retry logic:**
+
 ```php
 private function request_with_retry(string $method, string $endpoint, array $body = [], int $max_retries = 3): array {
     $attempt = 0;
@@ -727,6 +756,7 @@ private function request_with_retry(string $method, string $endpoint, array $bod
 ## Changelog
 
 ### v0.1-dev (Phase 0)
+
 - Initial implementation
 - `test_connection()` method
 - `get_workspace_info()` method
@@ -734,6 +764,7 @@ private function request_with_retry(string $method, string $endpoint, array $bod
 - WordPress HTTP API integration
 
 ### Future Versions
+
 - Pagination support for large result sets
 - Webhook handling
 - Block content retrieval

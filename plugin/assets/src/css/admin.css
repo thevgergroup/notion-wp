@@ -107,7 +107,7 @@
 	width: 100%;
 	max-width: 600px;
 	padding: 6px 8px;
-	font-family: 'Menlo', 'Monaco', 'Consolas', monospace;
+	font-family: "Menlo", "Monaco", "Consolas", monospace;
 	font-size: 12px;
 	line-height: 1.5;
 	border: 1px solid #8c8f94;
@@ -123,7 +123,7 @@
 	outline: 2px solid transparent;
 }
 
-.notion-sync-connection-form .token-input[type='password'] {
+.notion-sync-connection-form .token-input[type="password"] {
 	letter-spacing: 0.3em;
 }
 
@@ -173,7 +173,7 @@
 }
 
 .notion-sync-workspace-info .success-icon::before {
-	content: '\2713';
+	content: "\2713";
 	font-weight: bold;
 }
 
@@ -232,7 +232,7 @@
 }
 
 .notion-sync-pages .pages-list:empty::after {
-	content: 'No pages found. Make sure pages are shared with your integration.';
+	content: "No pages found. Make sure pages are shared with your integration.";
 	display: block;
 	padding: 20px;
 	color: #646970;
@@ -263,7 +263,7 @@
 }
 
 .notion-sync-pages .page-item .page-icon.default-icon::before {
-	content: '\1F4C4';
+	content: "\1F4C4";
 }
 
 .notion-sync-pages .page-item .page-info {
@@ -326,7 +326,7 @@
 	background: #f0f0f1;
 	padding: 2px 6px;
 	border-radius: 3px;
-	font-family: 'Menlo', 'Monaco', 'Consolas', monospace;
+	font-family: "Menlo", "Monaco", "Consolas", monospace;
 	font-size: 12px;
 }
 
@@ -574,7 +574,7 @@
 	background: #f0f0f1;
 	padding: 2px 6px;
 	border-radius: 3px;
-	font-family: 'Menlo', 'Monaco', 'Consolas', monospace;
+	font-family: "Menlo", "Monaco", "Consolas", monospace;
 	font-size: 11px;
 	color: #1d2327;
 }
@@ -677,7 +677,7 @@
 	display: inline-block;
 }
 
-.wp-list-table .check-column input[type='checkbox']:focus {
+.wp-list-table .check-column input[type="checkbox"]:focus {
 	outline: 2px solid #2271b1;
 	outline-offset: 2px;
 }
