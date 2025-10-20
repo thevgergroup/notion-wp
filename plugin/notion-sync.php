@@ -72,6 +72,33 @@ function init() {
 		$admin_notices->register();
 	}
 
+	// Register Action Scheduler hook for batch processing.
+	if ( function_exists( 'as_enqueue_async_action' ) ) {
+		add_action(
+			'notion_sync_process_batch',
+			function ( $batch_id, $post_id, $entries, $batch_number, $total_batches ) {
+				// Get encrypted token.
+				$encrypted_token = get_option( 'notion_wp_token' );
+				if ( empty( $encrypted_token ) ) {
+					// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log -- Debug logging for batch processing.
+					error_log( 'Batch processing aborted: No Notion token configured' );
+					return;
+				}
+
+				// Initialize dependencies.
+				$client     = new API\NotionClient( Security\Encryption::decrypt( $encrypted_token ) );
+				$fetcher    = new Sync\DatabaseFetcher( $client );
+				$repository = new Database\RowRepository();
+				$processor  = new Sync\BatchProcessor( $fetcher, $repository );
+
+				// Process the batch.
+				$processor->process_batch( $batch_id, $post_id, $entries, $batch_number, $total_batches );
+			},
+			10,
+			5
+		);
+	}
+
 	// Plugin loaded hook for extensibility.
 	do_action( 'notion_sync_loaded' );
 }

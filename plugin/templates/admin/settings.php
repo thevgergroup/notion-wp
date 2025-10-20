@@ -9,10 +9,12 @@
  * @since 0.1.0
  *
  * Available variables:
- * @var bool                                     $is_connected   Whether user is connected to Notion.
- * @var array                                    $workspace_info Workspace information array.
- * @var \NotionSync\Admin\PagesListTable|null    $list_table     Pages list table instance.
- * @var string                                   $error_message  Error message to display (if any).
+ * @var bool                                         $is_connected     Whether user is connected to Notion.
+ * @var array                                        $workspace_info   Workspace information array.
+ * @var \NotionSync\Admin\PagesListTable|null        $list_table       Pages list table instance.
+ * @var \NotionSync\Admin\DatabasesListTable|null    $databases_table  Databases list table instance.
+ * @var string                                       $current_tab      Current active tab.
+ * @var string                                       $error_message    Error message to display (if any).
  */
 
 // Exit if accessed directly.
@@ -122,6 +124,51 @@ if ( ! defined( 'ABSPATH' ) ) {
 			</div>
 
 		<?php else : ?>
+
+			<!-- Tab Navigation -->
+			<h2 class="nav-tab-wrapper">
+				<a href="<?php echo esc_url( add_query_arg( 'tab', 'pages', admin_url( 'admin.php?page=notion-sync' ) ) ); ?>"
+				   class="nav-tab <?php echo 'pages' === $current_tab ? 'nav-tab-active' : ''; ?>">
+					<?php esc_html_e( 'Pages', 'notion-wp' ); ?>
+				</a>
+				<a href="<?php echo esc_url( add_query_arg( 'tab', 'databases', admin_url( 'admin.php?page=notion-sync' ) ) ); ?>"
+				   class="nav-tab <?php echo 'databases' === $current_tab ? 'nav-tab-active' : ''; ?>">
+					<?php esc_html_e( 'Databases', 'notion-wp' ); ?>
+				</a>
+			</h2>
+
+			<?php if ( 'databases' === $current_tab ) : ?>
+
+				<!-- Databases Tab Content -->
+				<div id="notion-sync-messages" style="margin-top: 20px;"></div>
+
+				<?php if ( null !== $databases_table && ! empty( $databases_table->items ) ) : ?>
+					<div class="card" style="margin-top: 20px;">
+						<form method="post">
+							<?php $databases_table->display(); ?>
+						</form>
+					</div>
+				<?php else : ?>
+					<div class="card" style="margin-top: 20px;">
+						<h2><?php esc_html_e( 'No Databases Found', 'notion-wp' ); ?></h2>
+						<p>
+							<?php esc_html_e( 'No databases are currently accessible by this integration.', 'notion-wp' ); ?>
+						</p>
+						<p>
+							<?php esc_html_e( 'To grant access to your Notion databases:', 'notion-wp' ); ?>
+						</p>
+						<ol style="margin-left: 20px; line-height: 1.8;">
+							<li><?php esc_html_e( 'Open a database in Notion', 'notion-wp' ); ?></li>
+							<li><?php esc_html_e( 'Click the "..." menu in the top right', 'notion-wp' ); ?></li>
+							<li><?php esc_html_e( 'Select "Add connections"', 'notion-wp' ); ?></li>
+							<li><?php esc_html_e( 'Choose your integration from the list', 'notion-wp' ); ?></li>
+						</ol>
+					</div>
+				<?php endif; ?>
+
+			<?php else : ?>
+
+				<!-- Pages Tab Content (existing) -->
 
 			<!-- Connected State -->
 			<div class="card connection-card">

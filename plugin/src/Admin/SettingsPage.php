@@ -34,6 +34,11 @@ class SettingsPage {
 		// Register AJAX handlers via dedicated handler class.
 		$ajax_handler = new SyncAjaxHandler();
 		$ajax_handler->register();
+
+		// Register database sync AJAX handlers.
+		add_action( 'wp_ajax_notion_sync_database', array( $this, 'ajax_sync_database' ) );
+		add_action( 'wp_ajax_notion_sync_batch_progress', array( $this, 'ajax_batch_progress' ) );
+		add_action( 'wp_ajax_notion_sync_cancel_batch', array( $this, 'ajax_cancel_batch' ) );
 	}
 
 	/**
@@ -91,16 +96,20 @@ class SettingsPage {
 				'ajaxUrl' => admin_url( 'admin-ajax.php' ),
 				'nonce'   => wp_create_nonce( 'notion_sync_ajax' ),
 				'i18n'    => array(
-					'connecting'      => __( 'Connecting...', 'notion-wp' ),
-					'connected'       => __( 'Connected!', 'notion-wp' ),
-					'disconnecting'   => __( 'Disconnecting...', 'notion-wp' ),
-					'error'           => __( 'An error occurred. Please try again.', 'notion-wp' ),
-					'syncing'         => __( 'Syncing...', 'notion-wp' ),
-					'synced'          => __( 'Synced', 'notion-wp' ),
-					'syncError'       => __( 'Sync failed', 'notion-wp' ),
-					'confirmBulkSync' => __( 'Are you sure you want to sync the selected pages?', 'notion-wp' ),
-					'selectPages'     => __( 'Please select at least one page to sync.', 'notion-wp' ),
-					'copied'          => __( 'Copied!', 'notion-wp' ),
+					'connecting'           => __( 'Connecting...', 'notion-wp' ),
+					'connected'            => __( 'Connected!', 'notion-wp' ),
+					'disconnecting'        => __( 'Disconnecting...', 'notion-wp' ),
+					'error'                => __( 'An error occurred. Please try again.', 'notion-wp' ),
+					'syncing'              => __( 'Syncing...', 'notion-wp' ),
+					'synced'               => __( 'Synced', 'notion-wp' ),
+					'syncError'            => __( 'Sync failed', 'notion-wp' ),
+					'confirmBulkSync'      => __( 'Are you sure you want to sync the selected pages?', 'notion-wp' ),
+					'selectPages'          => __( 'Please select at least one page to sync.', 'notion-wp' ),
+					'copied'               => __( 'Copied!', 'notion-wp' ),
+					'confirmDatabaseSync'  => __( 'Are you sure you want to sync this database? This will import all entries.', 'notion-wp' ),
+					'databaseSyncStarted'  => __( 'Database sync started. Please wait...', 'notion-wp' ),
+					'databaseSyncComplete' => __( 'Database sync complete!', 'notion-wp' ),
+					'cancelBatch'          => __( 'Are you sure you want to cancel this sync?', 'notion-wp' ),
 				),
 			)
 		);
@@ -147,9 +156,11 @@ class SettingsPage {
 		$is_connected    = ! empty( $token );
 		$workspace_info  = array();
 		$list_table      = null;
+		$databases_table = null;
 		$error_message   = '';
+		$current_tab     = isset( $_GET['tab'] ) ? sanitize_text_field( wp_unslash( $_GET['tab'] ) ) : 'pages';
 
-		// If connected, fetch workspace info and initialize list table.
+		// If connected, fetch workspace info.
 		if ( $is_connected ) {
 			$workspace_info = $this->get_cached_workspace_info( $token );
 
@@ -172,18 +183,27 @@ class SettingsPage {
 				}
 			}
 
-			// Initialize pages list table.
+			// Initialize appropriate list table based on current tab.
 			try {
-				$client  = new NotionClient( $token );
-				$fetcher = new \NotionSync\Sync\ContentFetcher( $client );
-				$manager = new SyncManager();
+				$client = new NotionClient( $token );
 
-				$list_table = new PagesListTable( $fetcher, $manager );
+				if ( 'databases' === $current_tab ) {
+					// Initialize databases list table.
+					$db_fetcher      = new \NotionSync\Sync\DatabaseFetcher( $client );
+					$databases_table = new \NotionSync\Admin\DatabasesListTable( $db_fetcher );
+					$databases_table->prepare_items();
+				} else {
+					// Initialize pages list table.
+					$fetcher = new \NotionSync\Sync\ContentFetcher( $client );
+					$manager = new SyncManager();
 
-				// Process bulk actions BEFORE preparing items.
-				$list_table->process_bulk_action();
+					$list_table = new PagesListTable( $fetcher, $manager );
 
-				$list_table->prepare_items();
+					// Process bulk actions BEFORE preparing items.
+					$list_table->process_bulk_action();
+
+					$list_table->prepare_items();
+				}
 			} catch ( \Exception $e ) {
 				$error_message = $e->getMessage();
 			}
@@ -390,5 +410,158 @@ class SettingsPage {
 	 */
 	private function clear_rate_limit() {
 		delete_transient( 'notion_sync_attempts_' . get_current_user_id() );
+	}
+
+	/**
+	 * AJAX handler for database sync.
+	 *
+	 * Queues a database for batch processing.
+	 *
+	 * @return void
+	 */
+	public function ajax_sync_database() {
+		// Verify nonce.
+		check_ajax_referer( 'notion_sync_ajax' );
+
+		// Check capabilities.
+		if ( ! current_user_can( 'manage_options' ) ) {
+			wp_send_json_error( __( 'Unauthorized', 'notion-wp' ) );
+		}
+
+		// Get database ID.
+		$database_id = isset( $_POST['database_id'] ) ? sanitize_text_field( wp_unslash( $_POST['database_id'] ) ) : '';
+
+		if ( empty( $database_id ) ) {
+			wp_send_json_error( __( 'Database ID is required', 'notion-wp' ) );
+		}
+
+		try {
+			// Get token.
+			$encrypted_token = get_option( 'notion_wp_token', '' );
+			$token           = Encryption::decrypt( $encrypted_token );
+
+			if ( empty( $token ) ) {
+				wp_send_json_error( __( 'Not connected to Notion', 'notion-wp' ) );
+			}
+
+			// Initialize components.
+			$client     = new NotionClient( $token );
+			$fetcher    = new \NotionSync\Sync\DatabaseFetcher( $client );
+			$repository = new \NotionSync\Database\RowRepository();
+			$processor  = new \NotionSync\Sync\BatchProcessor( $fetcher, $repository );
+
+			// Queue the sync.
+			$batch_id = $processor->queue_database_sync( $database_id );
+
+			wp_send_json_success(
+				array(
+					'batch_id' => $batch_id,
+					'message'  => __( 'Database sync started', 'notion-wp' ),
+				)
+			);
+
+		} catch ( \Exception $e ) {
+			wp_send_json_error( $e->getMessage() );
+		}
+	}
+
+	/**
+	 * AJAX handler for batch progress.
+	 *
+	 * Returns current progress of a batch operation.
+	 *
+	 * @return void
+	 */
+	public function ajax_batch_progress() {
+		// Verify nonce.
+		check_ajax_referer( 'notion_sync_ajax' );
+
+		// Check capabilities.
+		if ( ! current_user_can( 'manage_options' ) ) {
+			wp_send_json_error( __( 'Unauthorized', 'notion-wp' ) );
+		}
+
+		// Get batch ID.
+		$batch_id = isset( $_POST['batch_id'] ) ? sanitize_text_field( wp_unslash( $_POST['batch_id'] ) ) : '';
+
+		if ( empty( $batch_id ) ) {
+			wp_send_json_error( __( 'Batch ID is required', 'notion-wp' ) );
+		}
+
+		try {
+			// Get token.
+			$encrypted_token = get_option( 'notion_wp_token', '' );
+			$token           = Encryption::decrypt( $encrypted_token );
+
+			if ( empty( $token ) ) {
+				wp_send_json_error( __( 'Not connected to Notion', 'notion-wp' ) );
+			}
+
+			// Initialize components.
+			$client     = new NotionClient( $token );
+			$fetcher    = new \NotionSync\Sync\DatabaseFetcher( $client );
+			$repository = new \NotionSync\Database\RowRepository();
+			$processor  = new \NotionSync\Sync\BatchProcessor( $fetcher, $repository );
+
+			// Get progress.
+			$progress = $processor->get_batch_progress( $batch_id );
+
+			wp_send_json_success( $progress );
+
+		} catch ( \Exception $e ) {
+			wp_send_json_error( $e->getMessage() );
+		}
+	}
+
+	/**
+	 * AJAX handler for cancelling batch.
+	 *
+	 * Cancels an in-progress batch operation.
+	 *
+	 * @return void
+	 */
+	public function ajax_cancel_batch() {
+		// Verify nonce.
+		check_ajax_referer( 'notion_sync_ajax' );
+
+		// Check capabilities.
+		if ( ! current_user_can( 'manage_options' ) ) {
+			wp_send_json_error( __( 'Unauthorized', 'notion-wp' ) );
+		}
+
+		// Get batch ID.
+		$batch_id = isset( $_POST['batch_id'] ) ? sanitize_text_field( wp_unslash( $_POST['batch_id'] ) ) : '';
+
+		if ( empty( $batch_id ) ) {
+			wp_send_json_error( __( 'Batch ID is required', 'notion-wp' ) );
+		}
+
+		try {
+			// Get token.
+			$encrypted_token = get_option( 'notion_wp_token', '' );
+			$token           = Encryption::decrypt( $encrypted_token );
+
+			if ( empty( $token ) ) {
+				wp_send_json_error( __( 'Not connected to Notion', 'notion-wp' ) );
+			}
+
+			// Initialize components.
+			$client     = new NotionClient( $token );
+			$fetcher    = new \NotionSync\Sync\DatabaseFetcher( $client );
+			$repository = new \NotionSync\Database\RowRepository();
+			$processor  = new \NotionSync\Sync\BatchProcessor( $fetcher, $repository );
+
+			// Cancel batch.
+			$success = $processor->cancel_batch( $batch_id );
+
+			if ( $success ) {
+				wp_send_json_success( __( 'Batch cancelled', 'notion-wp' ) );
+			} else {
+				wp_send_json_error( __( 'Failed to cancel batch', 'notion-wp' ) );
+			}
+
+		} catch ( \Exception $e ) {
+			wp_send_json_error( $e->getMessage() );
+		}
 	}
 }
