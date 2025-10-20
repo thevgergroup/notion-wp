@@ -13,6 +13,9 @@
 	<exclude-pattern>*/dist/*</exclude-pattern>
 	<exclude-pattern>*.min.js</exclude-pattern>
 	<exclude-pattern>*.asset.php</exclude-pattern>
+	<exclude-pattern>*/ENQUEUE-SNIPPET.php</exclude-pattern>
+	<exclude-pattern>tests/bootstrap.php</exclude-pattern>
+	<exclude-pattern>*/settings-sample.php</exclude-pattern>
 
 	<!-- How to scan -->
 	<arg value="sp"/> <!-- Show sniff and progress -->
@@ -30,6 +33,9 @@
 		<!-- Allow short array syntax [] instead of array() -->
 		<exclude name="Generic.Arrays.DisallowShortArraySyntax"/>
 		<exclude name="Universal.Arrays.DisallowShortArraySyntax"/>
+		<!-- Disable file naming rules for PSR-4 autoloaded classes -->
+		<exclude name="WordPress.Files.FileName.NotHyphenatedLowercase"/>
+		<exclude name="WordPress.Files.FileName.InvalidClassFileName"/>
 	</rule>
 
 	<rule ref="WordPress-Docs"/>
@@ -110,6 +116,8 @@
 			<property name="prefixes" type="array">
 				<element value="notion_wp"/>
 				<element value="NOTION_WP"/>
+				<element value="NotionSync"/>
+				<element value="NotionWP"/>
 			</property>
 		</properties>
 	</rule>
