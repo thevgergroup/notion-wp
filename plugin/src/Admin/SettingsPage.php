@@ -10,6 +10,7 @@ namespace NotionSync\Admin;
 
 use NotionSync\API\NotionClient;
 use NotionSync\Security\Encryption;
+use NotionSync\Sync\SyncManager;
 
 /**
  * Class SettingsPage
@@ -29,6 +30,10 @@ class SettingsPage {
 		add_action( 'admin_post_notion_sync_connect', array( $this, 'handle_connect' ) );
 		add_action( 'admin_post_notion_sync_disconnect', array( $this, 'handle_disconnect' ) );
 		add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_assets' ) );
+
+		// Register AJAX handlers via dedicated handler class.
+		$ajax_handler = new SyncAjaxHandler();
+		$ajax_handler->register();
 	}
 
 	/**
@@ -86,10 +91,16 @@ class SettingsPage {
 				'ajaxUrl' => admin_url( 'admin-ajax.php' ),
 				'nonce'   => wp_create_nonce( 'notion_sync_ajax' ),
 				'i18n'    => array(
-					'connecting'    => __( 'Connecting...', 'notion-wp' ),
-					'connected'     => __( 'Connected!', 'notion-wp' ),
-					'disconnecting' => __( 'Disconnecting...', 'notion-wp' ),
-					'error'         => __( 'An error occurred. Please try again.', 'notion-wp' ),
+					'connecting'      => __( 'Connecting...', 'notion-wp' ),
+					'connected'       => __( 'Connected!', 'notion-wp' ),
+					'disconnecting'   => __( 'Disconnecting...', 'notion-wp' ),
+					'error'           => __( 'An error occurred. Please try again.', 'notion-wp' ),
+					'syncing'         => __( 'Syncing...', 'notion-wp' ),
+					'synced'          => __( 'Synced', 'notion-wp' ),
+					'syncError'       => __( 'Sync failed', 'notion-wp' ),
+					'confirmBulkSync' => __( 'Are you sure you want to sync the selected pages?', 'notion-wp' ),
+					'selectPages'     => __( 'Please select at least one page to sync.', 'notion-wp' ),
+					'copied'          => __( 'Copied!', 'notion-wp' ),
 				),
 			)
 		);
@@ -111,16 +122,16 @@ class SettingsPage {
 		}
 
 		// Require HTTPS for security (except in development environments).
-		$http_host = isset( $_SERVER['HTTP_HOST'] ) ?
-			sanitize_text_field( wp_unslash( $_SERVER['HTTP_HOST'] ) ) : '';
+		$http_host = isset( $_SERVER['HTTP_HOST'] ) ? sanitize_text_field( wp_unslash( $_SERVER['HTTP_HOST'] ) ) : '';
 		$is_local  = in_array( $http_host, array( 'localhost', '127.0.0.1' ), true ) ||
-					strpos( $http_host, '.localtest.me' ) !== false;
+					false !== strpos( $http_host, '.localtest.me' );
 
 		if ( ! is_ssl() && ! defined( 'WP_DEBUG' ) && ! $is_local ) {
 			wp_die(
-				esc_html__(
-					'HTTPS is required to configure Notion Sync. Please enable SSL/TLS or add "define( \'FORCE_SSL_ADMIN\', true );" to wp-config.php.',
-					'notion-wp'
+				sprintf(
+					/* translators: SSL/TLS configuration message */
+					esc_html__( 'HTTPS is required to configure Notion Sync. Please enable SSL/TLS or add %s to wp-config.php.', 'notion-wp' ),
+					'<code>define( \'FORCE_SSL_ADMIN\', true );</code>'
 				),
 				esc_html__( 'HTTPS Required', 'notion-wp' ),
 				array(
@@ -135,10 +146,10 @@ class SettingsPage {
 		$token           = ! empty( $encrypted_token ) ? Encryption::decrypt( $encrypted_token ) : '';
 		$is_connected    = ! empty( $token );
 		$workspace_info  = array();
-		$pages           = array();
+		$list_table      = null;
 		$error_message   = '';
 
-		// If connected, fetch workspace info and pages.
+		// If connected, fetch workspace info and initialize list table.
 		if ( $is_connected ) {
 			$workspace_info = $this->get_cached_workspace_info( $token );
 
@@ -153,23 +164,28 @@ class SettingsPage {
 						// Cache for 1 hour.
 						set_transient( 'notion_wp_workspace_info_cache', $workspace_info, HOUR_IN_SECONDS );
 						update_option( 'notion_wp_workspace_info', $workspace_info );
-
-						// Fetch pages.
-						$pages = $client->list_pages( 10 );
 					} else {
 						$error_message = $workspace_info['error'] ?? __( 'Unable to fetch workspace information.', 'notion-wp' );
 					}
 				} catch ( \Exception $e ) {
 					$error_message = $e->getMessage();
 				}
-			} else {
-				// Use cached data and try to fetch pages.
-				try {
-					$client = new NotionClient( $token );
-					$pages  = $client->list_pages( 10 );
-				} catch ( \Exception $e ) {
-					$error_message = $e->getMessage();
-				}
+			}
+
+			// Initialize pages list table.
+			try {
+				$client  = new NotionClient( $token );
+				$fetcher = new \NotionSync\Sync\ContentFetcher( $client );
+				$manager = new SyncManager();
+
+				$list_table = new PagesListTable( $fetcher, $manager );
+
+				// Process bulk actions BEFORE preparing items.
+				$list_table->process_bulk_action();
+
+				$list_table->prepare_items();
+			} catch ( \Exception $e ) {
+				$error_message = $e->getMessage();
 			}
 		}
 
@@ -213,7 +229,10 @@ class SettingsPage {
 
 		// Validate token format (Notion tokens start with "secret_" or "ntn_").
 		if ( strpos( $token, 'secret_' ) !== 0 && strpos( $token, 'ntn_' ) !== 0 ) {
-			$this->redirect_with_message( 'error', __( 'Invalid token format. Notion API tokens should start with "secret_" or "ntn_".', 'notion-wp' ) );
+			$this->redirect_with_message(
+				'error',
+				__( 'Invalid token format. Notion API tokens should start with "secret_" or "ntn_".', 'notion-wp' )
+			);
 			return;
 		}
 
@@ -326,7 +345,7 @@ class SettingsPage {
 	private function redirect_with_message( $type, $message ) {
 		$redirect_url = add_query_arg(
 			array(
-				'page'                 => 'notion-sync',
+				'page'               => 'notion-sync',
 				'notion_sync_' . $type => rawurlencode( $message ),
 			),
 			admin_url( 'admin.php' )

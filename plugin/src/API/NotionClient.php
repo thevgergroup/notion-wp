@@ -186,7 +186,73 @@ class NotionClient {
 			'url'              => $page_data['url'] ?? '',
 			'last_edited_time' => $page_data['last_edited_time'] ?? '',
 			'created_time'     => $page_data['created_time'] ?? '',
+			'object_type'      => $page_data['object'] ?? 'page',
+			'parent_type'      => $this->get_parent_type( $page_data ),
 		);
+	}
+
+	/**
+	 * Determine the parent type of a page to distinguish database entries.
+	 *
+	 * @param array $page_data Raw page data from Notion API.
+	 * @return string Parent type: 'database', 'page', or 'workspace'.
+	 */
+	private function get_parent_type( $page_data ) {
+		if ( isset( $page_data['parent']['type'] ) ) {
+			return $page_data['parent']['type'];
+		}
+		return 'unknown';
+	}
+
+	/**
+	 * Get a Notion page by ID.
+	 *
+	 * @param string $page_id Notion page ID.
+	 * @return array Page data or error.
+	 */
+	public function get_page( $page_id ) {
+		try {
+			$response = $this->request( 'GET', '/pages/' . $page_id );
+			return $response;
+		} catch ( \Exception $e ) {
+			return array(
+				'error' => $e->getMessage(),
+			);
+		}
+	}
+
+	/**
+	 * Get block children (content blocks from a page or block).
+	 *
+	 * @param string      $block_id Block or page ID to fetch children from.
+	 * @param string|null $cursor   Pagination cursor (null for first page).
+	 * @return array Block children data with pagination info, or error.
+	 */
+	public function get_block_children( $block_id, $cursor = null ) {
+		try {
+			$endpoint = '/blocks/' . $block_id . '/children';
+
+			// Add pagination parameters if cursor provided.
+			$query_params = array();
+			if ( null !== $cursor ) {
+				$query_params['start_cursor'] = $cursor;
+			}
+
+			// Add page size for consistent batches.
+			$query_params['page_size'] = 100;
+
+			// Build query string if parameters exist.
+			if ( ! empty( $query_params ) ) {
+				$endpoint .= '?' . http_build_query( $query_params );
+			}
+
+			$response = $this->request( 'GET', $endpoint );
+			return $response;
+		} catch ( \Exception $e ) {
+			return array(
+				'error' => $e->getMessage(),
+			);
+		}
 	}
 
 	/**
@@ -225,6 +291,7 @@ class NotionClient {
 
 		// Handle HTTP errors.
 		if ( is_wp_error( $response ) ) {
+			// phpcs:disable WordPress.Security.EscapeOutput.ExceptionNotEscaped -- Exception messages are not output to users.
 			throw new \Exception(
 				sprintf(
 					/* translators: %s: error message */
@@ -232,6 +299,7 @@ class NotionClient {
 					$response->get_error_message()
 				)
 			);
+			// phpcs:enable WordPress.Security.EscapeOutput.ExceptionNotEscaped
 		}
 
 		// Get response code and body.
@@ -272,24 +340,30 @@ class NotionClient {
 				return sprintf(
 					/* translators: %s: API error message */
 					__( 'Bad request: %s', 'notion-wp' ),
-					$api_message ?: __( 'The request was invalid.', 'notion-wp' )
+					$api_message ? $api_message : __( 'The request was invalid.', 'notion-wp' )
 				);
 
 			case 401:
-				return __( 'Authentication failed. Please check that your API token is correct and has not been revoked.', 'notion-wp' );
+				$message = 'Authentication failed. Please check that your API token is correct';
+				$message .= ' and has not been revoked.';
+				return __( $message, 'notion-wp' );
 
 			case 403:
-				return __( 'Access forbidden. Make sure you have shared your Notion pages with this integration.', 'notion-wp' );
+				$message = 'Access forbidden. Make sure you have shared your Notion pages';
+				$message .= ' with this integration.';
+				return __( $message, 'notion-wp' );
 
 			case 404:
 				return sprintf(
 					/* translators: %s: API error message */
 					__( 'Resource not found: %s', 'notion-wp' ),
-					$api_message ?: __( 'The requested resource does not exist.', 'notion-wp' )
+					$api_message ? $api_message : __( 'The requested resource does not exist.', 'notion-wp' )
 				);
 
 			case 429:
-				return __( 'Too many requests. Please wait a moment and try again. Notion has rate limits to ensure service stability.', 'notion-wp' );
+				$message = 'Too many requests. Please wait a moment and try again.';
+				$message .= ' Notion has rate limits to ensure service stability.';
+				return __( $message, 'notion-wp' );
 
 			case 500:
 			case 502:
@@ -298,7 +372,7 @@ class NotionClient {
 				return sprintf(
 					/* translators: %s: API error message */
 					__( 'Notion server error: %s. Please try again later.', 'notion-wp' ),
-					$api_message ?: __( 'The Notion API is experiencing issues.', 'notion-wp' )
+					$api_message ? $api_message : __( 'The Notion API is experiencing issues.', 'notion-wp' )
 				);
 
 			default:
@@ -306,7 +380,7 @@ class NotionClient {
 					/* translators: 1: HTTP status code, 2: API error message */
 					__( 'API error (Code %1$d): %2$s', 'notion-wp' ),
 					$status_code,
-					$api_message ?: __( 'An unknown error occurred.', 'notion-wp' )
+					$api_message ? $api_message : __( 'An unknown error occurred.', 'notion-wp' )
 				);
 		}
 	}

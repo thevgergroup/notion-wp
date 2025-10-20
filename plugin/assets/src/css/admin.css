@@ -438,6 +438,321 @@
 }
 
 /* =============================================================================
+   Notion Pages List Table
+   ========================================================================== */
+
+/* Status badges */
+.notion-sync-badge {
+	display: inline-flex;
+	align-items: center;
+	gap: 4px;
+	padding: 4px 10px;
+	border-radius: 12px;
+	font-size: 12px;
+	font-weight: 600;
+	white-space: nowrap;
+}
+
+.notion-sync-badge .dashicons {
+	font-size: 16px;
+	width: 16px;
+	height: 16px;
+	vertical-align: middle;
+}
+
+/* Synced status - green */
+.notion-sync-badge-synced {
+	background-color: #d5f5e3;
+	color: #00712e;
+	border: 1px solid #00a32a;
+}
+
+.notion-sync-badge-synced .dashicons {
+	color: #00a32a;
+}
+
+/* Not synced status - gray */
+.notion-sync-badge-not-synced {
+	background-color: #f0f0f1;
+	color: #646970;
+	border: 1px solid #c3c4c7;
+}
+
+.notion-sync-badge-not-synced .dashicons {
+	color: #646970;
+}
+
+/* Syncing status - yellow with animation */
+.notion-sync-badge-syncing {
+	background-color: #fff9e6;
+	color: #996800;
+	border: 1px solid #dba617;
+}
+
+.notion-sync-badge-syncing .dashicons {
+	color: #dba617;
+}
+
+/* Error status - red */
+.notion-sync-badge-error {
+	background-color: #fef0f0;
+	color: #b32d2e;
+	border: 1px solid #d63638;
+}
+
+.notion-sync-badge-error .dashicons {
+	color: #d63638;
+}
+
+/* Notion ID copy button */
+.notion-copy-id {
+	padding: 2px 6px;
+	min-height: auto;
+	line-height: 1;
+	vertical-align: middle;
+	cursor: pointer;
+	background: transparent;
+	border: none;
+	color: #2271b1;
+	transition: color 0.1s ease;
+}
+
+.notion-copy-id:hover,
+.notion-copy-id:focus {
+	color: #135e96;
+	background: transparent;
+	border: none;
+	box-shadow: none;
+}
+
+.notion-copy-id .dashicons {
+	font-size: 13px;
+	width: 13px;
+	height: 13px;
+}
+
+/* Sync Now action link styling */
+.notion-sync-now {
+	color: #2271b1;
+	cursor: pointer;
+	text-decoration: none;
+}
+
+.notion-sync-now:hover,
+.notion-sync-now:focus {
+	color: #135e96;
+	text-decoration: underline;
+}
+
+.notion-sync-now:disabled {
+	color: #646970;
+	cursor: not-allowed;
+	opacity: 0.6;
+}
+
+/* WordPress post ID links */
+.column-wp_post a {
+	color: #2271b1;
+	font-weight: 600;
+	text-decoration: none;
+}
+
+.column-wp_post a:hover,
+.column-wp_post a:focus {
+	color: #135e96;
+	text-decoration: underline;
+}
+
+/* Last synced time column */
+.column-last_synced time {
+	color: #646970;
+	font-size: 13px;
+}
+
+/* Notion ID column code styling */
+.column-notion_id code {
+	background: #f0f0f1;
+	padding: 2px 6px;
+	border-radius: 3px;
+	font-family: "Menlo", "Monaco", "Consolas", monospace;
+	font-size: 11px;
+	color: #1d2327;
+}
+
+/* List table form styling */
+#notion-pages-form {
+	background: #fff;
+	border: 1px solid #c3c4c7;
+	border-radius: 4px;
+	padding: 0;
+}
+
+#notion-pages-form .wp-list-table {
+	border: none;
+	margin: 0;
+}
+
+#notion-pages-form .wp-list-table th,
+#notion-pages-form .wp-list-table td {
+	padding: 12px 10px;
+}
+
+/* Column widths for optimal layout */
+.column-cb {
+	width: 2.2em;
+	padding: 8px 0 0 3px !important;
+}
+
+.column-title {
+	width: 30%;
+}
+
+.column-notion_id {
+	width: 15%;
+}
+
+.column-sync_status {
+	width: 15%;
+}
+
+.column-wp_post {
+	width: 15%;
+}
+
+.column-last_synced {
+	width: 20%;
+}
+
+/* Admin message container */
+#notion-sync-messages {
+	margin: 15px 0;
+}
+
+#notion-sync-messages .notice {
+	margin: 5px 0;
+}
+
+/* Bulk actions styling */
+.tablenav .bulkactions select {
+	display: inline-block;
+	vertical-align: middle;
+}
+
+.tablenav .bulkactions .button {
+	margin-left: 4px;
+}
+
+/* No items found message */
+.wp-list-table .no-items td {
+	text-align: center;
+	padding: 30px 20px;
+	color: #646970;
+	font-size: 14px;
+}
+
+/* Rotation animation for syncing spinner */
+@keyframes rotation {
+	from {
+		transform: rotate(0deg);
+	}
+	to {
+		transform: rotate(359deg);
+	}
+}
+
+/* =============================================================================
+   Accessibility Improvements for List Table
+   ========================================================================== */
+
+/* Focus states for interactive elements in table */
+.wp-list-table a:focus,
+.wp-list-table button:focus {
+	outline: 2px solid #2271b1;
+	outline-offset: 2px;
+	box-shadow: none;
+}
+
+/* Screen reader improvements */
+.wp-list-table .check-column label {
+	display: inline-block;
+}
+
+.wp-list-table .check-column input[type="checkbox"]:focus {
+	outline: 2px solid #2271b1;
+	outline-offset: 2px;
+}
+
+/* Row hover state */
+.wp-list-table tbody tr:hover {
+	background-color: #f6f7f7;
+}
+
+/* =============================================================================
+   Mobile Responsive for List Table
+   ========================================================================== */
+
+@media screen and (max-width: 782px) {
+	/* Stack table on mobile - WordPress handles this but we add extras */
+	#notion-pages-form {
+		overflow-x: auto;
+	}
+
+	.column-cb {
+		width: 3em;
+	}
+
+	.column-title {
+		width: auto;
+	}
+
+	.column-notion_id,
+	.column-sync_status,
+	.column-wp_post,
+	.column-last_synced {
+		display: table-cell !important;
+		font-size: 12px;
+	}
+
+	/* Make badges smaller on mobile */
+	.notion-sync-badge {
+		font-size: 11px;
+		padding: 3px 8px;
+	}
+
+	.notion-sync-badge .dashicons {
+		font-size: 14px;
+		width: 14px;
+		height: 14px;
+	}
+
+	/* Adjust table padding on mobile */
+	#notion-pages-form .wp-list-table th,
+	#notion-pages-form .wp-list-table td {
+		padding: 8px 6px;
+	}
+}
+
+@media screen and (max-width: 600px) {
+	/* Hide less critical columns on very small screens */
+	.column-notion_id,
+	.column-last_synced {
+		display: none !important;
+	}
+
+	.column-title {
+		width: 50%;
+	}
+
+	.column-sync_status {
+		width: 25%;
+	}
+
+	.column-wp_post {
+		width: 25%;
+	}
+}
+
+/* =============================================================================
    Print Styles
    ========================================================================== */
 
@@ -449,5 +764,19 @@
 	.notion-sync-connection-form .form-actions,
 	.notion-sync-workspace-info .disconnect-button {
 		display: none;
+	}
+
+	/* Hide interactive elements in print */
+	.column-cb,
+	.tablenav,
+	.row-actions,
+	.notion-copy-id {
+		display: none !important;
+	}
+
+	/* Simplify badges for print */
+	.notion-sync-badge {
+		border: 1px solid #000;
+		padding: 2px 6px;
 	}
 }
