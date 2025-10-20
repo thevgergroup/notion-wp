@@ -58,7 +58,11 @@ if ( ! defined( 'ABSPATH' ) ) {
 						printf(
 							/* translators: %s: URL to Notion integrations page */
 							wp_kses(
-								__( 'Visit <a href="%s" target="_blank" rel="noopener noreferrer">Notion Integrations</a> and create a new integration.', 'notion-wp' ),
+								__(
+									'Visit <a href="%s" target="_blank" rel="noopener noreferrer">' .
+									'Notion Integrations</a> and create a new integration.',
+									'notion-wp'
+								),
 								array(
 									'a' => array(
 										'href'   => array(),
@@ -160,7 +164,11 @@ if ( ! defined( 'ABSPATH' ) ) {
 					<button
 						type="submit"
 						class="button button-secondary"
-						onclick="return confirm('<?php echo esc_js( __( 'Are you sure you want to disconnect from Notion? This will remove your API token.', 'notion-wp' ) ); ?>');"
+						onclick="return confirm('<?php
+						echo esc_js(
+							__( 'Are you sure you want to disconnect from Notion? This will remove your API token.', 'notion-wp' )
+						);
+					?>');"
 					>
 						<?php esc_html_e( 'Disconnect', 'notion-wp' ); ?>
 					</button>

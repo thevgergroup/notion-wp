@@ -138,7 +138,8 @@ class SyncManager {
 				return array(
 					'success' => false,
 					'post_id' => null,
-					'error'   => 'Failed to fetch page properties from Notion. The page may not exist or the integration may not have access.',
+					'error'   => 'Failed to fetch page properties from Notion. ' .
+					'The page may not exist or the integration may not have access.',
 				);
 			}
 
