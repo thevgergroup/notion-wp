@@ -264,7 +264,7 @@ class NotionClient {
 	 * @return array Response data or error.
 	 * @throws \Exception If request fails.
 	 */
-	private function request( $method, $endpoint, $body = array() ) {
+	public function request( $method, $endpoint, $body = array() ) {
 		$url = $this->base_url . $endpoint;
 
 		// Prepare headers.
