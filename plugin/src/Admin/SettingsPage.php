@@ -434,7 +434,7 @@ class SettingsPage {
 	 */
 	public function ajax_sync_database() {
 		// Verify nonce.
-		check_ajax_referer( 'notion_sync_ajax' );
+		check_ajax_referer( 'notion_sync_ajax', 'nonce' );
 
 		// Check capabilities.
 		if ( ! current_user_can( 'manage_options' ) ) {
@@ -487,7 +487,7 @@ class SettingsPage {
 	 */
 	public function ajax_batch_progress() {
 		// Verify nonce.
-		check_ajax_referer( 'notion_sync_ajax' );
+		check_ajax_referer( 'notion_sync_ajax', 'nonce' );
 
 		// Check capabilities.
 		if ( ! current_user_can( 'manage_options' ) ) {
@@ -535,7 +535,7 @@ class SettingsPage {
 	 */
 	public function ajax_cancel_batch() {
 		// Verify nonce.
-		check_ajax_referer( 'notion_sync_ajax' );
+		check_ajax_referer( 'notion_sync_ajax', 'nonce' );
 
 		// Check capabilities.
 		if ( ! current_user_can( 'manage_options' ) ) {
