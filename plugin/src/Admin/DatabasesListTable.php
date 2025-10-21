@@ -98,7 +98,7 @@ class DatabasesListTable extends \WP_List_Table {
 	public function column_title( $item ): string {
 		$title = sprintf(
 			'<strong>%s</strong>',
-			esc_html( $item['title'] )
+			esc_html( $item['title'] ?? __( 'Untitled', 'notion-wp' ) )
 		);
 
 		// Build row actions.
@@ -142,7 +142,7 @@ class DatabasesListTable extends \WP_List_Table {
 	public function column_notion_id( $item ): string {
 		return sprintf(
 			'<code style="font-size: 11px;">%s</code>',
-			esc_html( $item['id'] )
+			esc_html( $item['id'] ?? '' )
 		);
 	}
 
@@ -225,7 +225,7 @@ class DatabasesListTable extends \WP_List_Table {
 
 		return sprintf(
 			'<button type="button" class="button button-small sync-database" data-database-id="%s">%s</button>',
-			esc_attr( $item['id'] ),
+			esc_attr( $item['id'] ?? '' ),
 			esc_html( $button_text )
 		);
 	}
