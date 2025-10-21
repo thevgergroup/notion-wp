@@ -73,19 +73,32 @@ class SettingsPage {
 		// Enqueue custom admin CSS.
 		wp_enqueue_style(
 			'notion-sync-admin',
-			NOTION_SYNC_URL . 'assets/dist/css/admin.min.css',
+			NOTION_SYNC_URL . 'assets/src/css/admin.css',
 			array(),
 			NOTION_SYNC_VERSION,
 			'all'
 		);
 
-		// Enqueue custom admin JavaScript.
+		// Enqueue custom admin JavaScript (ES6 module).
 		wp_enqueue_script(
 			'notion-sync-admin',
-			NOTION_SYNC_URL . 'assets/dist/js/admin.min.js',
+			NOTION_SYNC_URL . 'assets/src/js/admin.js',
 			array(),
 			NOTION_SYNC_VERSION,
 			true
+		);
+
+		// Add type="module" attribute for ES6 imports.
+		add_filter(
+			'script_loader_tag',
+			function ( $tag, $handle ) {
+				if ( 'notion-sync-admin' === $handle ) {
+					return str_replace( '<script ', '<script type="module" ', $tag );
+				}
+				return $tag;
+			},
+			10,
+			2
 		);
 
 		// Pass data to JavaScript.
