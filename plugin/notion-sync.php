@@ -66,9 +66,6 @@ spl_autoload_register(
  * @return void
  */
 function init() {
-	// Load text domain for translations.
-	load_plugin_textdomain( 'notion-wp', false, dirname( NOTION_SYNC_BASENAME ) . '/languages' );
-
 	// Register database custom post type.
 	$database_cpt = new Database\DatabasePostType();
 	$database_cpt->register();
