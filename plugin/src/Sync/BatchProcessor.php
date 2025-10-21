@@ -79,6 +79,9 @@ class BatchProcessor {
 			);
 		}
 
+		// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log -- Debug logging.
+		error_log( 'BatchProcessor: Starting queue_database_sync for database: ' . $database_id );
+
 		// Fetch all entries from database.
 		$entries = $this->fetcher->query_database( $database_id );
 
@@ -86,21 +89,44 @@ class BatchProcessor {
 			throw new \RuntimeException( 'No entries found in database' );
 		}
 
+		// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log -- Debug logging.
+		error_log( 'BatchProcessor: Fetched ' . count( $entries ) . ' entries from database' );
+
 		// Find or create database post.
 		$database_info = $this->fetcher->get_database_schema( $database_id );
 		$database_cpt  = new DatabasePostType();
 		$post_id       = $database_cpt->find_or_create( $database_id, $database_info );
 
+		// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log -- Debug logging.
+		error_log( 'BatchProcessor: Database post ID: ' . $post_id );
+
 		// Generate unique batch ID.
 		$batch_id = 'batch_' . substr( md5( $database_id . time() ), 0, 10 );
+
+		// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log -- Debug logging.
+		error_log( 'BatchProcessor: Generated batch ID: ' . $batch_id );
 
 		// Split entries into batches.
 		$batches = array_chunk( $entries, self::BATCH_SIZE );
 
+		// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log -- Debug logging.
+		error_log( 'BatchProcessor: Split into ' . count( $batches ) . ' batches of size ' . self::BATCH_SIZE );
+
 		// Schedule each batch with Action Scheduler.
 		foreach ( $batches as $index => $batch ) {
-			as_schedule_single_action(
-				time() + ( $index * 3 ), // Stagger by 3 seconds.
+			$scheduled_time = time() + ( $index * 3 );
+
+			// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log -- Debug logging.
+			error_log( sprintf(
+				'BatchProcessor: Scheduling batch %d/%d for time %s (in %d seconds)',
+				$index + 1,
+				count( $batches ),
+				gmdate( 'Y-m-d H:i:s', $scheduled_time ),
+				$index * 3
+			) );
+
+			$action_id = as_schedule_single_action(
+				$scheduled_time,
 				self::ACTION_NAME,
 				array(
 					'batch_id'      => $batch_id,
@@ -110,6 +136,9 @@ class BatchProcessor {
 					'total_batches' => count( $batches ),
 				)
 			);
+
+			// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log -- Debug logging.
+			error_log( 'BatchProcessor: Scheduled action returned ID: ' . var_export( $action_id, true ) );
 		}
 
 		// Save batch metadata.

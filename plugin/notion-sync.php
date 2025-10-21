@@ -80,10 +80,23 @@ function init() {
 	}
 
 	// Register Action Scheduler hook for batch processing.
-	if ( function_exists( 'as_enqueue_async_action' ) ) {
+	if ( function_exists( 'as_schedule_single_action' ) ) {
+		// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log -- Debug logging.
+		error_log( 'NotionSync: Registering Action Scheduler hook for notion_sync_process_batch' );
+
 		add_action(
 			'notion_sync_process_batch',
 			function ( $batch_id, $post_id, $entries, $batch_number, $total_batches ) {
+				// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log -- Debug logging.
+				error_log( sprintf(
+					'NotionSync: Processing batch %d/%d for batch_id=%s, post_id=%d, entries=%d',
+					$batch_number,
+					$total_batches,
+					$batch_id,
+					$post_id,
+					count( $entries )
+				) );
+
 				// Get encrypted token.
 				$encrypted_token = get_option( 'notion_wp_token' );
 				if ( empty( $encrypted_token ) ) {
@@ -100,10 +113,16 @@ function init() {
 
 				// Process the batch.
 				$processor->process_batch( $batch_id, $post_id, $entries, $batch_number, $total_batches );
+
+				// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log -- Debug logging.
+				error_log( sprintf( 'NotionSync: Completed processing batch %d/%d', $batch_number, $total_batches ) );
 			},
 			10,
 			5
 		);
+	} else {
+		// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log -- Debug logging.
+		error_log( 'NotionSync: WARNING - Action Scheduler not available, hook not registered' );
 	}
 
 	// Plugin loaded hook for extensibility.
