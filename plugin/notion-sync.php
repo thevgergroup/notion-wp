@@ -75,9 +75,21 @@ function init() {
 		$settings_page = new Admin\SettingsPage();
 		$settings_page->register();
 
+		$database_view_page = new Admin\DatabaseViewPage();
+		$database_view_page->register();
+
 		$admin_notices = new Admin\AdminNotices();
 		$admin_notices->register();
 	}
+
+	// Register REST API endpoints.
+	add_action(
+		'rest_api_init',
+		function () {
+			$rest_controller = new API\DatabaseRestController();
+			$rest_controller->register_routes();
+		}
+	);
 
 	// Register Action Scheduler hook for batch processing.
 	if ( function_exists( 'as_schedule_single_action' ) ) {

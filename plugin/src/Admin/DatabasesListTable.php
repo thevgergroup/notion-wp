@@ -96,10 +96,39 @@ class DatabasesListTable extends \WP_List_Table {
 	 * @return string Column content.
 	 */
 	public function column_title( $item ): string {
-		return sprintf(
+		$title = sprintf(
 			'<strong>%s</strong>',
 			esc_html( $item['title'] )
 		);
+
+		// Build row actions.
+		$actions = array();
+
+		// Add "View" link if database has been synced.
+		if ( ! empty( $item['wp_post_id'] ) ) {
+			$view_url = add_query_arg(
+				array(
+					'page'    => 'notion-sync-view-database',
+					'post_id' => $item['wp_post_id'],
+				),
+				admin_url( 'admin.php' )
+			);
+
+			$actions['view'] = sprintf(
+				'<a href="%s">%s</a>',
+				esc_url( $view_url ),
+				esc_html__( 'View', 'notion-wp' )
+			);
+		}
+
+		// Add "Open in Notion" link.
+		$actions['notion'] = sprintf(
+			'<a href="%s" target="_blank" rel="noopener noreferrer">%s</a>',
+			esc_url( $item['url'] ),
+			esc_html__( 'Open in Notion', 'notion-wp' )
+		);
+
+		return $title . $this->row_actions( $actions );
 	}
 
 	/**
@@ -165,9 +194,8 @@ class DatabasesListTable extends \WP_List_Table {
 				esc_url(
 					add_query_arg(
 						array(
-							'page'        => 'notion-sync',
-							'tab'         => 'databases',
-							'database_id' => $item['id'],
+							'page'    => 'notion-sync-view-database',
+							'post_id' => $item['wp_post_id'],
 						),
 						admin_url( 'admin.php' )
 					)
