@@ -192,7 +192,8 @@ class DatabaseRestController {
 		}
 
 		// Extract column definitions from first row's properties.
-		$properties = json_decode( $sample_rows[0]['properties'], true );
+		// Note: RowRepository already decodes JSON, so properties is an array.
+		$properties = $sample_rows[0]['properties'];
 		$columns    = $this->build_column_definitions( $properties );
 
 		return new \WP_REST_Response(
