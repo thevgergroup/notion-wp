@@ -112,36 +112,7 @@ class BatchProcessor {
 		// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log -- Debug logging.
 		error_log( 'BatchProcessor: Split into ' . count( $batches ) . ' batches of size ' . self::BATCH_SIZE );
 
-		// Schedule each batch with Action Scheduler.
-		foreach ( $batches as $index => $batch ) {
-			$scheduled_time = time() + ( $index * 3 );
-
-			// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log -- Debug logging.
-			error_log( sprintf(
-				'BatchProcessor: Scheduling batch %d/%d for time %s (in %d seconds)',
-				$index + 1,
-				count( $batches ),
-				gmdate( 'Y-m-d H:i:s', $scheduled_time ),
-				$index * 3
-			) );
-
-			$action_id = as_schedule_single_action(
-				$scheduled_time,
-				self::ACTION_NAME,
-				array(
-					'batch_id'      => $batch_id,
-					'post_id'       => $post_id,
-					'entries'       => $batch,
-					'batch_number'  => $index + 1,
-					'total_batches' => count( $batches ),
-				)
-			);
-
-			// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log -- Debug logging.
-			error_log( 'BatchProcessor: Scheduled action returned ID: ' . var_export( $action_id, true ) );
-		}
-
-		// Save batch metadata.
+		// Save batch metadata first.
 		update_option(
 			"notion_sync_batch_{$batch_id}",
 			array(
@@ -156,6 +127,48 @@ class BatchProcessor {
 			)
 		);
 
+		// Schedule each batch with Action Scheduler.
+		// Store batch data separately to avoid 8000 char limit for Action Scheduler args.
+		foreach ( $batches as $index => $batch ) {
+			$batch_key = "notion_sync_batch_{$batch_id}_data_" . ( $index + 1 );
+
+			// Store batch entries in wp_options.
+			update_option( $batch_key, $batch, false );
+
+			// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log -- Debug logging.
+			error_log( sprintf(
+				'BatchProcessor: Stored %d entries in %s',
+				count( $batch ),
+				$batch_key
+			) );
+
+			$scheduled_time = time() + ( $index * 3 );
+
+			// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log -- Debug logging.
+			error_log( sprintf(
+				'BatchProcessor: Scheduling batch %d/%d for time %s (in %d seconds)',
+				$index + 1,
+				count( $batches ),
+				gmdate( 'Y-m-d H:i:s', $scheduled_time ),
+				$index * 3
+			) );
+
+			// Only pass minimal data to Action Scheduler (not the full entries array).
+			$action_id = as_schedule_single_action(
+				$scheduled_time,
+				self::ACTION_NAME,
+				array(
+					'batch_id'      => $batch_id,
+					'post_id'       => $post_id,
+					'batch_number'  => $index + 1,
+					'total_batches' => count( $batches ),
+				)
+			);
+
+			// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log -- Debug logging.
+			error_log( 'BatchProcessor: Scheduled action returned ID: ' . var_export( $action_id, true ) );
+		}
+
 		return $batch_id;
 	}
 
@@ -168,17 +181,35 @@ class BatchProcessor {
 	 *
 	 * @param string $batch_id      Batch identifier.
 	 * @param int    $post_id       Database post ID.
-	 * @param array  $entries       Entries to process.
 	 * @param int    $batch_number  Current batch number.
 	 * @param int    $total_batches Total number of batches.
 	 */
 	public function process_batch(
 		string $batch_id,
 		int $post_id,
-		array $entries,
 		int $batch_number,
 		int $total_batches
 	): void {
+		// Retrieve batch entries from storage.
+		$batch_key = "notion_sync_batch_{$batch_id}_data_{$batch_number}";
+		$entries   = get_option( $batch_key, array() );
+
+		if ( empty( $entries ) ) {
+			// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log -- Debug logging.
+			error_log( sprintf(
+				'BatchProcessor: No entries found for %s',
+				$batch_key
+			) );
+			return;
+		}
+
+		// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log -- Debug logging.
+		error_log( sprintf(
+			'BatchProcessor: Retrieved %d entries from %s',
+			count( $entries ),
+			$batch_key
+		) );
+
 		// Update status to processing.
 		$this->update_batch_status( $batch_id, 'processing' );
 
@@ -225,6 +256,15 @@ class BatchProcessor {
 
 		// Update batch progress.
 		$this->increment_batch_progress( $batch_id, $completed, $failed );
+
+		// Clean up batch data after processing.
+		delete_option( $batch_key );
+
+		// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log -- Debug logging.
+		error_log( sprintf(
+			'BatchProcessor: Cleaned up batch data for %s',
+			$batch_key
+		) );
 
 		// If this is the last batch, mark as complete.
 		if ( $batch_number === $total_batches ) {

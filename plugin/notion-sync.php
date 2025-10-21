@@ -86,15 +86,14 @@ function init() {
 
 		add_action(
 			'notion_sync_process_batch',
-			function ( $batch_id, $post_id, $entries, $batch_number, $total_batches ) {
+			function ( $batch_id, $post_id, $batch_number, $total_batches ) {
 				// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log -- Debug logging.
 				error_log( sprintf(
-					'NotionSync: Processing batch %d/%d for batch_id=%s, post_id=%d, entries=%d',
+					'NotionSync: Processing batch %d/%d for batch_id=%s, post_id=%d',
 					$batch_number,
 					$total_batches,
 					$batch_id,
-					$post_id,
-					count( $entries )
+					$post_id
 				) );
 
 				// Get encrypted token.
@@ -112,13 +111,13 @@ function init() {
 				$processor  = new Sync\BatchProcessor( $fetcher, $repository );
 
 				// Process the batch.
-				$processor->process_batch( $batch_id, $post_id, $entries, $batch_number, $total_batches );
+				$processor->process_batch( $batch_id, $post_id, $batch_number, $total_batches );
 
 				// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log -- Debug logging.
 				error_log( sprintf( 'NotionSync: Completed processing batch %d/%d', $batch_number, $total_batches ) );
 			},
 			10,
-			5
+			4
 		);
 	} else {
 		// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log -- Debug logging.
