@@ -283,6 +283,8 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 		<?php endif; ?>
 
+	<?php endif; ?>
+
 	</div>
 </div>
 
