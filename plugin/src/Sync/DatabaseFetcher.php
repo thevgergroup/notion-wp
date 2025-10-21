@@ -167,6 +167,7 @@ class DatabaseFetcher {
 					'id'               => $database['id'] ?? '',
 					'title'            => $this->extract_title_from_database( $database ),
 					'last_edited_time' => $database['last_edited_time'] ?? '',
+					'url'              => $database['url'] ?? '',
 				);
 			}
 

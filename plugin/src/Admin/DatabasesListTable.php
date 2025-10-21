@@ -121,12 +121,14 @@ class DatabasesListTable extends \WP_List_Table {
 			);
 		}
 
-		// Add "Open in Notion" link.
-		$actions['notion'] = sprintf(
-			'<a href="%s" target="_blank" rel="noopener noreferrer">%s</a>',
-			esc_url( $item['url'] ),
-			esc_html__( 'Open in Notion', 'notion-wp' )
-		);
+		// Add "Open in Notion" link if URL is available.
+		if ( ! empty( $item['url'] ) ) {
+			$actions['notion'] = sprintf(
+				'<a href="%s" target="_blank" rel="noopener noreferrer">%s</a>',
+				esc_url( $item['url'] ),
+				esc_html__( 'Open in Notion', 'notion-wp' )
+			);
+		}
 
 		return $title . $this->row_actions( $actions );
 	}
