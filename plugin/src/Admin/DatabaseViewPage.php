@@ -38,7 +38,7 @@ class DatabaseViewPage {
 	 */
 	public function add_admin_page(): void {
 		add_submenu_page(
-			null, // No parent - hidden from menu.
+			'', // Empty string creates hidden page (not shown in menu).
 			__( 'View Database', 'notion-wp' ),
 			__( 'View Database', 'notion-wp' ),
 			'manage_options',
