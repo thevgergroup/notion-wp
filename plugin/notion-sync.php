@@ -109,7 +109,7 @@ function init() {
 	// Plugin loaded hook for extensibility.
 	do_action( 'notion_sync_loaded' );
 }
-add_action( 'plugins_loaded', __NAMESPACE__ . '\init' );
+add_action( 'init', __NAMESPACE__ . '\init' );
 
 /**
  * Activation hook.
