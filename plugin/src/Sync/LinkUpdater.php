@@ -131,11 +131,11 @@ class LinkUpdater {
 		$updated_content = preg_replace_callback(
 			$pattern_with_id,
 			function ( $matches ) use ( &$links_rewritten ) {
-				$before_href   = $matches[1];
-				$current_url   = $matches[2];
-				$between       = $matches[3];
-				$notion_id     = $matches[4];
-				$after_id      = $matches[5];
+				$before_href = $matches[1];
+				$current_url = $matches[2];
+				$between     = $matches[3];
+				$notion_id   = $matches[4];
+				$after_id    = $matches[5];
 
 				// Get the current WordPress permalink for this Notion page.
 				$new_url = LinkRewriter::get_wordpress_permalink( $notion_id );

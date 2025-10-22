@@ -58,8 +58,8 @@ class DatabaseFetcher {
 		array $filters = array(),
 		array $sorts = array()
 	): array {
-		$all_entries = array();
-		$has_more    = true;
+		$all_entries  = array();
+		$has_more     = true;
 		$start_cursor = null;
 
 		while ( $has_more ) {
@@ -253,7 +253,7 @@ class DatabaseFetcher {
 					$end   = $property_data['date']['end'] ?? null;
 					return $end ? array(
 						'start' => $start,
-						'end' => $end,
+						'end'   => $end,
 					) : $start;
 				}
 				return null;

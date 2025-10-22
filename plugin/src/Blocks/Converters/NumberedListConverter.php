@@ -46,7 +46,7 @@ class NumberedListConverter implements BlockConverterInterface {
 	 * @return string Gutenberg list block HTML.
 	 */
 	public function convert( array $notion_block ): string {
-		$rich_text = $notion_block['numbered_list_item']['rich_text'] ?? array();
+		$rich_text    = $notion_block['numbered_list_item']['rich_text'] ?? array();
 		$html_content = $this->convert_rich_text( $rich_text );
 
 		// Handle empty list items.
@@ -55,7 +55,7 @@ class NumberedListConverter implements BlockConverterInterface {
 		}
 
 		// Check if this item has children (nested list).
-		$has_children = ! empty( $notion_block['has_children'] );
+		$has_children  = ! empty( $notion_block['has_children'] );
 		$children_html = '';
 
 		if ( $has_children && isset( $notion_block['children'] ) ) {
@@ -86,7 +86,7 @@ class NumberedListConverter implements BlockConverterInterface {
 			// Check if child is also a numbered list item.
 			if ( $this->supports( $child_block ) ) {
 				$child_rich_text = $child_block['numbered_list_item']['rich_text'] ?? array();
-				$child_content = $this->convert_rich_text( $child_rich_text );
+				$child_content   = $this->convert_rich_text( $child_rich_text );
 
 				if ( empty( $child_content ) ) {
 					$child_content = '&nbsp;';
@@ -126,7 +126,7 @@ class NumberedListConverter implements BlockConverterInterface {
 	 * @return string Formatted HTML for this text segment.
 	 */
 	private function convert_text_item( array $text_item ): string {
-		$content = $this->extract_content( $text_item );
+		$content   = $this->extract_content( $text_item );
 		$formatted = $this->apply_annotations( $content, $text_item['annotations'] ?? array() );
 		$formatted = $this->apply_link( $formatted, $text_item );
 

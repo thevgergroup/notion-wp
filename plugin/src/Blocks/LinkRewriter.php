@@ -90,7 +90,7 @@ class LinkRewriter {
 		$registry = new LinkRegistry();
 
 		// Try to determine if this is a page or database by checking existing data.
-		$post_id = self::find_post_by_notion_id( $notion_id );
+		$post_id          = self::find_post_by_notion_id( $notion_id );
 		$database_post_id = self::find_database_by_notion_id( $notion_id );
 
 		if ( $post_id || $database_post_id ) {
@@ -328,7 +328,7 @@ class LinkRewriter {
 	 * @since 1.0.0
 	 */
 	public static function clear_cache(): void {
-		self::$lookup_cache = array();
+		self::$lookup_cache          = array();
 		self::$database_lookup_cache = array();
 	}
 }

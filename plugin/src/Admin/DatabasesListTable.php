@@ -75,9 +75,9 @@ class DatabasesListTable extends \WP_List_Table {
 
 			// Enhance each database with WordPress sync status.
 			foreach ( $databases as &$database ) {
-				$database['wp_post_id']   = $this->find_database_post( $database['id'] );
-				$database['entry_count']  = $this->get_database_entry_count( $database['id'] );
-				$database['last_synced']  = $this->get_last_synced_time( $database['wp_post_id'] );
+				$database['wp_post_id']  = $this->find_database_post( $database['id'] );
+				$database['entry_count'] = $this->get_database_entry_count( $database['id'] );
+				$database['last_synced'] = $this->get_last_synced_time( $database['wp_post_id'] );
 			}
 
 			$this->items = $databases;

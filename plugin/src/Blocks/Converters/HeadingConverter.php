@@ -114,7 +114,7 @@ class HeadingConverter implements BlockConverterInterface {
 	 * @return string Formatted HTML for this text segment.
 	 */
 	private function convert_text_item( array $text_item ): string {
-		$content = $this->extract_content( $text_item );
+		$content   = $this->extract_content( $text_item );
 		$formatted = $this->apply_annotations( $content, $text_item['annotations'] ?? array() );
 		$formatted = $this->apply_link( $formatted, $text_item );
 

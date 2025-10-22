@@ -210,7 +210,7 @@ class NotionLinkBlock {
 
 		// Add icon if enabled.
 		if ( $attributes['showIcon'] ?? true ) {
-			$icon = 'database' === $entry->notion_type ? '📊' : '📄';
+			$icon      = 'database' === $entry->notion_type ? '📊' : '📄';
 			$link_text = $icon . ' ' . $link_text;
 		}
 

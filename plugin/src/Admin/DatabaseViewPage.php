@@ -116,15 +116,15 @@ class DatabaseViewPage {
 			'notion-sync-database-viewer',
 			'notionDatabaseViewer',
 			array(
-				'restUrl'   => rest_url( 'notion-sync/v1' ),
-				'nonce'     => wp_create_nonce( 'wp_rest' ),
-				'postId'    => $post_id,
-				'i18n'      => array(
-					'loading'     => __( 'Loading database...', 'notion-wp' ),
-					'error'       => __( 'Error loading database', 'notion-wp' ),
-					'noData'      => __( 'No rows found', 'notion-wp' ),
-					'exportCsv'   => __( 'Export CSV', 'notion-wp' ),
-					'exportJson'  => __( 'Export JSON', 'notion-wp' ),
+				'restUrl' => rest_url( 'notion-sync/v1' ),
+				'nonce'   => wp_create_nonce( 'wp_rest' ),
+				'postId'  => $post_id,
+				'i18n'    => array(
+					'loading'      => __( 'Loading database...', 'notion-wp' ),
+					'error'        => __( 'Error loading database', 'notion-wp' ),
+					'noData'       => __( 'No rows found', 'notion-wp' ),
+					'exportCsv'    => __( 'Export CSV', 'notion-wp' ),
+					'exportJson'   => __( 'Export JSON', 'notion-wp' ),
 					'resetFilters' => __( 'Reset Filters', 'notion-wp' ),
 				),
 			)

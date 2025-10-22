@@ -141,9 +141,9 @@ class ContentFetcher {
 		}
 
 		try {
-			$all_blocks = array();
-			$has_more   = true;
-			$cursor     = null;
+			$all_blocks  = array();
+			$has_more    = true;
+			$cursor      = null;
 			$batch_count = 0;
 			$max_batches = 50; // Safety limit: 50 batches * 100 blocks = 5000 blocks max.
 

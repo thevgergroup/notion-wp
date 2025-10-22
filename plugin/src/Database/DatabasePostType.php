@@ -37,7 +37,7 @@ class DatabasePostType {
 		register_post_type(
 			self::POST_TYPE,
 			array(
-				'labels'          => array(
+				'labels'             => array(
 					'name'          => __( 'Notion Databases', 'notion-wp' ),
 					'singular_name' => __( 'Notion Database', 'notion-wp' ),
 					'add_new'       => __( 'Add New', 'notion-wp' ),
@@ -47,16 +47,16 @@ class DatabasePostType {
 					'all_items'     => __( 'All Databases', 'notion-wp' ),
 					'search_items'  => __( 'Search Databases', 'notion-wp' ),
 				),
-				'public'          => true,
+				'public'             => true,
 				'publicly_queryable' => true,
-				'show_ui'         => true,
-				'show_in_menu'    => false, // Accessed via Notion Sync settings page.
-				'show_in_rest'    => false,
-				'capability_type' => 'post',
-				'hierarchical'    => false,
-				'supports'        => array( 'title' ),
-				'has_archive'     => true,
-				'rewrite'         => array(
+				'show_ui'            => true,
+				'show_in_menu'       => false, // Accessed via Notion Sync settings page.
+				'show_in_rest'       => false,
+				'capability_type'    => 'post',
+				'hierarchical'       => false,
+				'supports'           => array( 'title' ),
+				'has_archive'        => true,
+				'rewrite'            => array(
 					'slug'       => 'database',
 					'with_front' => false,
 				),

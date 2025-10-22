@@ -115,8 +115,8 @@ class RegistryHandler {
 								substr( $notion_id_normalized, 12, 4 ) . '-' .
 								substr( $notion_id_normalized, 16, 4 ) . '-' .
 								substr( $notion_id_normalized, 20, 12 );
-			$where_values[]       = $notion_id_normalized;
-			$where_values[]       = $notion_id_uuid;
+			$where_values[] = $notion_id_normalized;
+			$where_values[] = $notion_id_uuid;
 		}
 
 		if ( $sync_status ) {

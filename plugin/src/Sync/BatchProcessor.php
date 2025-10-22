@@ -397,9 +397,9 @@ class BatchProcessor {
 	 * @param int    $failed    Number failed in this batch.
 	 */
 	private function increment_batch_progress( string $batch_id, int $completed, int $failed ): void {
-		$batch_meta                = $this->get_batch_progress( $batch_id );
-		$batch_meta['completed']  += $completed;
-		$batch_meta['failed']     += $failed;
+		$batch_meta               = $this->get_batch_progress( $batch_id );
+		$batch_meta['completed'] += $completed;
+		$batch_meta['failed']    += $failed;
 		update_option( "notion_sync_batch_{$batch_id}", $batch_meta );
 	}
 
@@ -410,9 +410,9 @@ class BatchProcessor {
 	 * @param int    $post_id  Database post ID.
 	 */
 	private function complete_batch( string $batch_id, int $post_id ): void {
-		$batch_meta                   = $this->get_batch_progress( $batch_id );
-		$batch_meta['status']         = 'completed';
-		$batch_meta['completed_at']   = current_time( 'mysql' );
+		$batch_meta                 = $this->get_batch_progress( $batch_id );
+		$batch_meta['status']       = 'completed';
+		$batch_meta['completed_at'] = current_time( 'mysql' );
 		update_option( "notion_sync_batch_{$batch_id}", $batch_meta );
 
 		// Update database post with final row count.

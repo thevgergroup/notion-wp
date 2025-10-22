@@ -138,10 +138,10 @@ class ShowHandler {
 		$rows = array();
 		foreach ( $sample_entries as $entry ) {
 			$normalized = $fetcher->normalize_entry( $entry );
-			$rows[] = array(
-				'ID'          => substr( $normalized['id'], 0, 8 ) . '...',
-				'Created'     => CommandHelpers::format_timestamp( $normalized['created_time'] ),
-				'Properties'  => count( $normalized['properties'] ),
+			$rows[]     = array(
+				'ID'         => substr( $normalized['id'], 0, 8 ) . '...',
+				'Created'    => CommandHelpers::format_timestamp( $normalized['created_time'] ),
+				'Properties' => count( $normalized['properties'] ),
 			);
 		}
 

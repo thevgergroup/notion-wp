@@ -59,6 +59,7 @@ class RowRepository {
 		// Check if row already exists.
 		$exists = $wpdb->get_var(
 			$wpdb->prepare(
+				// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- Table name is safe.
 				"SELECT id FROM {$this->table_name} WHERE notion_page_id = %s",
 				$notion_page_id
 			)
@@ -66,14 +67,14 @@ class RowRepository {
 
 		// Prepare data array.
 		$data = array(
-			'database_post_id'  => $database_post_id,
-			'notion_page_id'    => $notion_page_id,
-			'properties'        => wp_json_encode( $properties ),
-			'title'             => $extracted['title'] ?? null,
-			'status'            => $extracted['status'] ?? null,
-			'created_time'      => $extracted['created_time'] ?? null,
-			'last_edited_time'  => $extracted['last_edited_time'] ?? null,
-			'synced_at'         => current_time( 'mysql' ),
+			'database_post_id' => $database_post_id,
+			'notion_page_id'   => $notion_page_id,
+			'properties'       => wp_json_encode( $properties ),
+			'title'            => $extracted['title'] ?? null,
+			'status'           => $extracted['status'] ?? null,
+			'created_time'     => $extracted['created_time'] ?? null,
+			'last_edited_time' => $extracted['last_edited_time'] ?? null,
+			'synced_at'        => current_time( 'mysql' ),
 		);
 
 		// Format array for wpdb.
@@ -134,7 +135,7 @@ class RowRepository {
 		}
 
 		// Build query with LIMIT and OFFSET.
-		// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- $where is prepared above.
+		// phpcs:disable WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.PreparedSQL.NotPrepared
 		$results = $wpdb->get_results(
 			$wpdb->prepare(
 				"SELECT * FROM {$this->table_name}
@@ -146,6 +147,7 @@ class RowRepository {
 			),
 			ARRAY_A
 		);
+		// phpcs:enable WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.PreparedSQL.NotPrepared
 
 		if ( ! is_array( $results ) ) {
 			return array();
@@ -172,6 +174,7 @@ class RowRepository {
 
 		$result = $wpdb->get_row(
 			$wpdb->prepare(
+				// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- Table name is safe.
 				"SELECT * FROM {$this->table_name} WHERE notion_page_id = %s",
 				$notion_page_id
 			),
@@ -215,9 +218,9 @@ class RowRepository {
 			);
 		}
 
-		// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- $where is prepared above.
+		// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.PreparedSQL.NotPrepared -- Table name and $where are safe.
 		$count = $wpdb->get_var(
-			"SELECT COUNT(*) FROM {$this->table_name} {$where}"
+			"SELECT COUNT(*) FROM {$this->table_name} {$where}" // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
 		);
 
 		return (int) $count;
@@ -274,6 +277,7 @@ class RowRepository {
 
 		$statuses = $wpdb->get_col(
 			$wpdb->prepare(
+				// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- Table name is safe.
 				"SELECT DISTINCT status FROM {$this->table_name}
 				 WHERE database_post_id = %d AND status IS NOT NULL
 				 ORDER BY status ASC",
@@ -300,6 +304,7 @@ class RowRepository {
 
 		$results = $wpdb->get_results(
 			$wpdb->prepare(
+				// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- Table name is safe.
 				"SELECT * FROM {$this->table_name}
 				 WHERE database_post_id = %d AND last_edited_time > %s
 				 ORDER BY last_edited_time DESC",

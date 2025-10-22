@@ -15,10 +15,10 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 // Get database metadata.
-$post_id      = get_the_ID();
-$notion_db_id = get_post_meta( $post_id, 'notion_database_id', true );
-$row_count    = get_post_meta( $post_id, 'row_count', true );
-$last_synced  = get_post_meta( $post_id, 'last_synced', true );
+$notionsync_post_id      = get_the_ID();
+$notionsync_notion_db_id = get_post_meta( $notionsync_post_id, 'notion_database_id', true );
+$notionsync_row_count    = get_post_meta( $notionsync_post_id, 'row_count', true );
+$notionsync_last_synced  = get_post_meta( $notionsync_post_id, 'last_synced', true );
 ?>
 <!DOCTYPE html>
 <html <?php language_attributes(); ?>>
@@ -104,11 +104,14 @@ $last_synced  = get_post_meta( $post_id, 'last_synced', true );
 						<h2 class="database-title"><?php the_title(); ?></h2>
 						<div class="database-meta">
 							<?php
+							$notionsync_time_diff = $notionsync_last_synced
+								? human_time_diff( strtotime( $notionsync_last_synced ), current_time( 'timestamp' ) ) . ' ago'
+								: __( 'Never', 'notion-wp' );
 							printf(
 								/* translators: 1: row count, 2: last sync time */
 								esc_html__( '%1$d rows • Last synced: %2$s', 'notion-wp' ),
-								(int) $row_count,
-								$last_synced ? esc_html( human_time_diff( strtotime( $last_synced ), current_time( 'timestamp' ) ) . ' ago' ) : esc_html__( 'Never', 'notion-wp' )
+								(int) $notionsync_row_count,
+								esc_html( $notionsync_time_diff )
 							);
 							?>
 						</div>

@@ -130,7 +130,7 @@ class LinkRegistry {
 				array( '%d' )
 			);
 
-			return $result !== false ? $existing->id : false;
+			return false !== $result ? $existing->id : false;
 		}
 
 		// Insert new entry.
@@ -166,6 +166,7 @@ class LinkRegistry {
 		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- Repository pattern.
 		$entry = $wpdb->get_row(
 			$wpdb->prepare(
+				// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- Table name is safe.
 				"SELECT * FROM {$this->table_name}
 				 WHERE notion_id = %s OR notion_id_uuid = %s
 				 LIMIT 1",
@@ -174,7 +175,7 @@ class LinkRegistry {
 			)
 		);
 
-		return $entry ?: null;
+		return $entry ? $entry : null;
 	}
 
 	/**
@@ -191,12 +192,13 @@ class LinkRegistry {
 		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- Repository pattern.
 		$entry = $wpdb->get_row(
 			$wpdb->prepare(
+				// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- Table name is safe.
 				"SELECT * FROM {$this->table_name} WHERE slug = %s LIMIT 1",
 				$slug
 			)
 		);
 
-		return $entry ?: null;
+		return $entry ? $entry : null;
 	}
 
 	/**
@@ -252,6 +254,7 @@ class LinkRegistry {
 		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- Repository pattern.
 		return false !== $wpdb->query(
 			$wpdb->prepare(
+				// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- Table name is safe.
 				"UPDATE {$this->table_name}
 				 SET access_count = access_count + 1,
 					 last_accessed_at = %s
@@ -346,6 +349,7 @@ class LinkRegistry {
 		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- Repository pattern.
 		$count = $wpdb->get_var(
 			$wpdb->prepare(
+				// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- Table name is safe.
 				"SELECT COUNT(*) FROM {$this->table_name} WHERE slug = %s",
 				$slug
 			)

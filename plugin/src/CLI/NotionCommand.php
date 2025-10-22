@@ -97,6 +97,8 @@ class NotionCommand {
 	 *     wp notion list --type=page --limit=20
 	 *     wp notion list --type=database --format=json
 	 *
+	 * @param array $args Positional arguments.
+	 * @param array $assoc_args Associative arguments.
 	 * @when after_wp_load
 	 */
 	public function list( $args, $assoc_args ) {
@@ -144,6 +146,8 @@ class NotionCommand {
 	 *     wp notion sync abc-123-def-456 --force
 	 *     wp notion sync database-id-here --batch-size=50
 	 *
+	 * @param array $args Positional arguments.
+	 * @param array $assoc_args Associative arguments.
 	 * @when after_wp_load
 	 */
 	public function sync( $args, $assoc_args ) {
@@ -195,12 +199,14 @@ class NotionCommand {
 	 *     wp notion show 75424b1c35d0476b836cbb0e776f3f7c --blocks
 	 *     wp notion show 75424b1c35d0476b836cbb0e776f3f7c --raw
 	 *
+	 * @param array $args Positional arguments.
+	 * @param array $assoc_args Associative arguments.
 	 * @when after_wp_load
 	 */
 	public function show( $args, $assoc_args ) {
-		$notion_id = $args[0];
+		$notion_id   = $args[0];
 		$show_blocks = isset( $assoc_args['blocks'] );
-		$show_raw = isset( $assoc_args['raw'] );
+		$show_raw    = isset( $assoc_args['raw'] );
 
 		try {
 			list( $client, $error ) = CommandHelpers::get_notion_client();
@@ -245,6 +251,8 @@ class NotionCommand {
 	 *     wp notion show-database abc123def456
 	 *     wp notion show-database abc123def456 --limit=5 --format=json
 	 *
+	 * @param array $args Positional arguments.
+	 * @param array $assoc_args Associative arguments.
 	 * @when after_wp_load
 	 */
 	public function show_database( $args, $assoc_args ) {
@@ -277,6 +285,8 @@ class NotionCommand {
 	 *
 	 *     wp notion links 123
 	 *
+	 * @param array $args Positional arguments.
+	 * @param array $assoc_args Associative arguments.
 	 * @when after_wp_load
 	 */
 	public function links( $args, $assoc_args ) {
@@ -317,6 +327,8 @@ class NotionCommand {
 	 *     wp notion registry --notion-id=abc123
 	 *     wp notion registry --sync-status=synced --format=json
 	 *
+	 * @param array $args Positional arguments.
+	 * @param array $assoc_args Associative arguments.
 	 * @when after_wp_load
 	 */
 	public function registry( $args, $assoc_args ) {
@@ -340,6 +352,8 @@ class NotionCommand {
 	 *     wp notion test-link "/75424b1c35d0476b836cbb0e776f3f7c"
 	 *     wp notion test-link "https://notion.so/abc123def456"
 	 *
+	 * @param array $args Positional arguments.
+	 * @param array $assoc_args Associative arguments.
 	 * @when after_wp_load
 	 */
 	public function test_link( $args, $assoc_args ) {
@@ -360,6 +374,8 @@ class NotionCommand {
 	 *
 	 *     wp notion test_route understanding-ai-fundamentals-1
 	 *
+	 * @param array $args Positional arguments.
+	 * @param array $assoc_args Associative arguments.
 	 * @when after_wp_load
 	 */
 	public function test_route( $args, $assoc_args ) {
@@ -382,6 +398,8 @@ class NotionCommand {
 	 *
 	 *     wp notion update_links 20
 	 *
+	 * @param array $args Positional arguments.
+	 * @param array $assoc_args Associative arguments.
 	 * @when after_wp_load
 	 */
 	public function update_links( $args, $assoc_args ) {

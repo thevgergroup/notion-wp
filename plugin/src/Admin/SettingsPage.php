@@ -376,7 +376,7 @@ class SettingsPage {
 	private function redirect_with_message( $type, $message ) {
 		$redirect_url = add_query_arg(
 			array(
-				'page'               => 'notion-sync',
+				'page'                 => 'notion-sync',
 				'notion_sync_' . $type => rawurlencode( $message ),
 			),
 			admin_url( 'admin.php' )

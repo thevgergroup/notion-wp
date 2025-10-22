@@ -59,12 +59,12 @@ class DatabaseRestController {
 				'callback'            => array( $this, 'get_rows' ),
 				'permission_callback' => array( $this, 'check_read_permission' ),
 				'args'                => array(
-					'post_id' => array(
+					'post_id'  => array(
 						'required'          => true,
 						'type'              => 'integer',
 						'sanitize_callback' => 'absint',
 					),
-					'page'    => array(
+					'page'     => array(
 						'default'           => 1,
 						'type'              => 'integer',
 						'sanitize_callback' => 'absint',
@@ -161,10 +161,10 @@ class DatabaseRestController {
 			array(
 				'rows'       => $rows,
 				'pagination' => array(
-					'total'       => $total_count,
-					'per_page'    => $per_page,
+					'total'        => $total_count,
+					'per_page'     => $per_page,
 					'current_page' => $page,
-					'total_pages' => ceil( $total_count / $per_page ),
+					'total_pages'  => ceil( $total_count / $per_page ),
 				),
 			),
 			200
@@ -213,11 +213,11 @@ class DatabaseRestController {
 
 		return new \WP_REST_Response(
 			array(
-				'columns'             => $columns,
-				'notion_database_id'  => get_post_meta( $post_id, 'notion_database_id', true ),
-				'title'               => $post->post_title,
-				'row_count'           => get_post_meta( $post_id, 'row_count', true ),
-				'last_synced'         => get_post_meta( $post_id, 'last_synced', true ),
+				'columns'            => $columns,
+				'notion_database_id' => get_post_meta( $post_id, 'notion_database_id', true ),
+				'title'              => $post->post_title,
+				'row_count'          => get_post_meta( $post_id, 'row_count', true ),
+				'last_synced'        => get_post_meta( $post_id, 'last_synced', true ),
 			),
 			200
 		);
@@ -236,20 +236,20 @@ class DatabaseRestController {
 
 		// Add ID column (always first).
 		$columns[] = array(
-			'field'      => 'notion_id',
-			'title'      => 'ID',
-			'width'      => 100,
-			'frozen'     => true,
-			'formatter'  => 'html',
+			'field'        => 'notion_id',
+			'title'        => 'ID',
+			'width'        => 100,
+			'frozen'       => true,
+			'formatter'    => 'html',
 			'headerFilter' => 'input',
 		);
 
 		// Add title column (always second).
 		$columns[] = array(
-			'field'      => 'title',
-			'title'      => 'Title',
-			'width'      => 250,
-			'frozen'     => true,
+			'field'        => 'title',
+			'title'        => 'Title',
+			'width'        => 250,
+			'frozen'       => true,
 			'headerFilter' => 'input',
 		);
 
@@ -268,18 +268,18 @@ class DatabaseRestController {
 
 		// Add metadata columns.
 		$columns[] = array(
-			'field'      => 'created_time',
-			'title'      => 'Created',
-			'width'      => 160,
-			'sorter'     => 'datetime',
+			'field'        => 'created_time',
+			'title'        => 'Created',
+			'width'        => 160,
+			'sorter'       => 'datetime',
 			'headerFilter' => 'input',
 		);
 
 		$columns[] = array(
-			'field'      => 'last_edited_time',
-			'title'      => 'Last Edited',
-			'width'      => 160,
-			'sorter'     => 'datetime',
+			'field'        => 'last_edited_time',
+			'title'        => 'Last Edited',
+			'width'        => 160,
+			'sorter'       => 'datetime',
 			'headerFilter' => 'input',
 		);
 
