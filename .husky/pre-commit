@@ -35,15 +35,17 @@ if [ -n "$STAGED_PHP_FILES" ]; then
 	echo "  → Running PHP_CodeSniffer..."
 	if ! php composer.phar lint:phpcs:quiet 2>&1 | grep -v "Registering sniffs" | grep -v "Creating file list"; then
 		echo "  ✗ PHPCS found issues"
+		echo "  💡 Run 'php composer.phar lint:phpcs' to see details"
 		HAS_ERRORS=1
 	else
 		echo "  ✓ PHPCS passed"
 	fi
 
-	# Run PHPStan (static analysis)
+	# Run PHPStan (static analysis - matches GitHub Actions)
 	echo "  → Running PHPStan..."
 	if ! php composer.phar lint:phpstan:quiet 2>&1 | grep -v "Note:"; then
 		echo "  ✗ PHPStan found issues"
+		echo "  💡 Run 'php composer.phar lint:phpstan' to see details"
 		HAS_ERRORS=1
 	else
 		echo "  ✓ PHPStan passed"
@@ -73,22 +75,8 @@ if [ -n "$STAGED_JS_FILES" ]; then
 	echo "  ✓ Prettier passed"
 fi
 
-# CSS/SCSS Linting
-if [ -n "$STAGED_CSS_FILES" ]; then
-	echo ""
-	echo "📝 Checking CSS/SCSS files..."
-
-	# Run Stylelint (auto-fix)
-	echo "  → Running Stylelint (auto-fix)..."
-	if ! npm run lint:css:fix --silent 2>&1; then
-		echo "  ✗ Stylelint found issues"
-		HAS_ERRORS=1
-	else
-		echo "  ✓ Stylelint passed"
-		# Re-add fixed files to staging
-		echo "$STAGED_CSS_FILES" | xargs git add
-	fi
-fi
+# Note: Stylelint is disabled to match GitHub Actions configuration
+# (stylelint-config-wordpress has version compatibility issues)
 
 # Check if any errors occurred
 if [ $HAS_ERRORS -ne 0 ]; then
