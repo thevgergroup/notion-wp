@@ -14,9 +14,13 @@
 services:
   # Traefik reverse proxy (shared across all worktrees)
   # Routes traffic to appropriate WordPress container based on hostname
+  # NOTE: Use 'docker compose up traefik' once to start the shared instance
+  # Then use 'docker compose up' (without traefik) in other worktrees
   traefik:
     image: traefik:v2.11
-    container_name: notionwp_traefik  # Single shared Traefik instance
+    container_name: notionwp_traefik # Single shared Traefik instance
+    profiles:
+      - traefik # Only starts when explicitly requested with --profile traefik
     command:
       - "--api.insecure=true"
       - "--providers.docker=true"
@@ -24,8 +28,8 @@ services:
       - "--entrypoints.web.address=:80"
       - "--log.level=INFO"
     ports:
-      - "80:80"       # HTTP traffic for all *.localtest.me domains
-      - "8080:8080"   # Traefik dashboard at http://localhost:8080
+      - "80:80" # HTTP traffic for all *.localtest.me domains
+      - "8080:8080" # Traefik dashboard at http://localhost:8080
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock:ro
     networks:
@@ -103,7 +107,7 @@ services:
   wpcli:
     image: wordpress:cli-${WP_CLI_VERSION:-php8.3}
     container_name: ${COMPOSE_PROJECT_NAME}_wpcli
-    user: "33:33"  # www-data user/group
+    user: "33:33" # www-data user/group
     environment:
       WORDPRESS_DB_HOST: db:3306
       WORDPRESS_DB_USER: ${DB_USER:-wp}
@@ -130,7 +134,7 @@ services:
     image: ghcr.io/oraios/serena:latest
     container_name: ${COMPOSE_PROJECT_NAME}_serena
     profiles:
-      - worktree  # Only starts when --profile worktree is used
+      - worktree # Only starts when --profile worktree is used
     ports:
       # Static port for MCP connection
       - "9121:9121"
@@ -146,18 +150,14 @@ services:
     # Use the exact command from Serena's Docker documentation
     command: >
       serena start-mcp-server
-      --transport sse
+      --transport streamable-http
       --port 9121
       --host 0.0.0.0
     networks:
       - internal
     restart: unless-stopped
-    healthcheck:
-      test: ["CMD", "wget", "--spider", "-q", "http://localhost:9121/health"]
-      interval: 30s
-      timeout: 10s
-      retries: 3
-      start_period: 40s
+    # Healthcheck disabled - streamable-http transport doesn't expose /health endpoint
+    # The server will be accessible via the MCP endpoint at http://localhost:9121
 
 # Named volumes for data persistence (unique per worktree)
 volumes:
@@ -183,4 +183,4 @@ networks:
   # Shared Traefik network for reverse proxy routing
   traefik_network:
     name: traefik_network
-    driver: bridge
+    external: true
