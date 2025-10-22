@@ -12,6 +12,7 @@ namespace NotionSync\Blocks\Converters;
 
 use NotionSync\Blocks\BlockConverterInterface;
 use NotionSync\Blocks\LinkRewriter;
+use NotionSync\Router\LinkRegistry;
 
 /**
  * Converts Notion child_page blocks to linked references
@@ -61,20 +62,35 @@ class ChildPageConverter implements BlockConverterInterface {
 		// Normalize page ID (remove dashes).
 		$normalized_id = str_replace( '-', '', $page_id );
 
-		// Get the appropriate URL (WordPress permalink or Notion URL).
-		$url = LinkRewriter::get_wordpress_permalink( $normalized_id );
-		if ( ! $url ) {
-			// Page not synced yet, use Notion URL.
-			$url = 'https://notion.so/' . $normalized_id;
+		// Use LinkRewriter to get the /notion/{slug} URL.
+		// This automatically registers the link in LinkRegistry.
+		$link_data = LinkRewriter::rewrite_url( '/' . $normalized_id );
+
+		// Update registry with the actual title (LinkRewriter uses ID as temporary title).
+		$registry = new LinkRegistry();
+		$entry    = $registry->find_by_notion_id( $normalized_id );
+
+		// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log, Generic.Files.LineLength.TooLong, Generic.Files.LineLength.MaxExceeded -- Debug logging.
+		error_log( sprintf( '[ChildPageConverter] Page: %s, ID: %s, Entry exists: %s, Entry title: %s', $title, $normalized_id, $entry ? 'yes' : 'no', $entry ? $entry->notion_title : 'N/A' ) );
+
+		if ( $entry && $entry->notion_title === $normalized_id ) {
+			// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log -- Debug logging.
+			error_log( sprintf( '[ChildPageConverter] Updating title from "%s" to "%s"', $entry->notion_title, $title ) );
+			// Update with actual title if we have it.
+			$registry->register(
+				array(
+					'notion_id'    => $normalized_id,
+					'notion_title' => $title,
+					'notion_type'  => 'page',
+				)
+			);
 		}
 
-		// Create a paragraph with an icon and link to the child page.
-		// Include data-notion-id attribute so links can be updated when permalink structure changes.
+		// Output Notion Link block instead of static HTML.
+		// The block will fetch current title/slug/URL at render time.
 		return sprintf(
-			"<!-- wp:paragraph -->\n<p>📄 <strong><a href=\"%s\" data-notion-id=\"%s\">%s</a></strong></p>\n<!-- /wp:paragraph -->\n\n",
-			esc_url( $url ),
-			esc_attr( $normalized_id ),
-			esc_html( $title )
+			"<!-- wp:notion-sync/notion-link {\"notionId\":\"%s\",\"showIcon\":true} /-->\n\n",
+			esc_attr( $normalized_id )
 		);
 	}
 }

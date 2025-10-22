@@ -31,9 +31,12 @@ class SettingsPage {
 		add_action( 'admin_post_notion_sync_disconnect', array( $this, 'handle_disconnect' ) );
 		add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_assets' ) );
 
-		// Register AJAX handlers via dedicated handler class.
-		$ajax_handler = new SyncAjaxHandler();
-		$ajax_handler->register();
+		// Register AJAX handlers via dedicated handler classes.
+		$sync_ajax_handler = new SyncAjaxHandler();
+		$sync_ajax_handler->register();
+
+		$database_ajax_handler = new DatabaseAjaxHandler();
+		$database_ajax_handler->register();
 	}
 
 	/**
@@ -68,19 +71,32 @@ class SettingsPage {
 		// Enqueue custom admin CSS.
 		wp_enqueue_style(
 			'notion-sync-admin',
-			NOTION_SYNC_URL . 'assets/dist/css/admin.min.css',
+			NOTION_SYNC_URL . 'assets/src/css/admin.css',
 			array(),
 			NOTION_SYNC_VERSION,
 			'all'
 		);
 
-		// Enqueue custom admin JavaScript.
+		// Enqueue custom admin JavaScript (ES6 module).
 		wp_enqueue_script(
 			'notion-sync-admin',
-			NOTION_SYNC_URL . 'assets/dist/js/admin.min.js',
+			NOTION_SYNC_URL . 'assets/src/js/admin.js',
 			array(),
 			NOTION_SYNC_VERSION,
 			true
+		);
+
+		// Add type="module" attribute for ES6 imports.
+		add_filter(
+			'script_loader_tag',
+			function ( $tag, $handle ) {
+				if ( 'notion-sync-admin' === $handle ) {
+					return str_replace( '<script ', '<script type="module" ', $tag );
+				}
+				return $tag;
+			},
+			10,
+			2
 		);
 
 		// Pass data to JavaScript.
@@ -91,16 +107,20 @@ class SettingsPage {
 				'ajaxUrl' => admin_url( 'admin-ajax.php' ),
 				'nonce'   => wp_create_nonce( 'notion_sync_ajax' ),
 				'i18n'    => array(
-					'connecting'      => __( 'Connecting...', 'notion-wp' ),
-					'connected'       => __( 'Connected!', 'notion-wp' ),
-					'disconnecting'   => __( 'Disconnecting...', 'notion-wp' ),
-					'error'           => __( 'An error occurred. Please try again.', 'notion-wp' ),
-					'syncing'         => __( 'Syncing...', 'notion-wp' ),
-					'synced'          => __( 'Synced', 'notion-wp' ),
-					'syncError'       => __( 'Sync failed', 'notion-wp' ),
-					'confirmBulkSync' => __( 'Are you sure you want to sync the selected pages?', 'notion-wp' ),
-					'selectPages'     => __( 'Please select at least one page to sync.', 'notion-wp' ),
-					'copied'          => __( 'Copied!', 'notion-wp' ),
+					'connecting'           => __( 'Connecting...', 'notion-wp' ),
+					'connected'            => __( 'Connected!', 'notion-wp' ),
+					'disconnecting'        => __( 'Disconnecting...', 'notion-wp' ),
+					'error'                => __( 'An error occurred. Please try again.', 'notion-wp' ),
+					'syncing'              => __( 'Syncing...', 'notion-wp' ),
+					'synced'               => __( 'Synced', 'notion-wp' ),
+					'syncError'            => __( 'Sync failed', 'notion-wp' ),
+					'confirmBulkSync'      => __( 'Are you sure you want to sync the selected pages?', 'notion-wp' ),
+					'selectPages'          => __( 'Please select at least one page to sync.', 'notion-wp' ),
+					'copied'               => __( 'Copied!', 'notion-wp' ),
+					'confirmDatabaseSync'  => __( 'Are you sure you want to sync this database? This will import all entries.', 'notion-wp' ),
+					'databaseSyncStarted'  => __( 'Database sync started. Please wait...', 'notion-wp' ),
+					'databaseSyncComplete' => __( 'Database sync complete!', 'notion-wp' ),
+					'cancelBatch'          => __( 'Are you sure you want to cancel this sync?', 'notion-wp' ),
 				),
 			)
 		);
@@ -147,9 +167,11 @@ class SettingsPage {
 		$is_connected    = ! empty( $token );
 		$workspace_info  = array();
 		$list_table      = null;
+		$databases_table = null;
 		$error_message   = '';
+		$current_tab     = isset( $_GET['tab'] ) ? sanitize_text_field( wp_unslash( $_GET['tab'] ) ) : 'pages';
 
-		// If connected, fetch workspace info and initialize list table.
+		// If connected, fetch workspace info.
 		if ( $is_connected ) {
 			$workspace_info = $this->get_cached_workspace_info( $token );
 
@@ -172,18 +194,27 @@ class SettingsPage {
 				}
 			}
 
-			// Initialize pages list table.
+			// Initialize appropriate list table based on current tab.
 			try {
-				$client  = new NotionClient( $token );
-				$fetcher = new \NotionSync\Sync\ContentFetcher( $client );
-				$manager = new SyncManager();
+				$client = new NotionClient( $token );
 
-				$list_table = new PagesListTable( $fetcher, $manager );
+				if ( 'databases' === $current_tab ) {
+					// Initialize databases list table.
+					$db_fetcher      = new \NotionSync\Sync\DatabaseFetcher( $client );
+					$databases_table = new \NotionSync\Admin\DatabasesListTable( $db_fetcher );
+					$databases_table->prepare_items();
+				} else {
+					// Initialize pages list table.
+					$fetcher = new \NotionSync\Sync\ContentFetcher( $client );
+					$manager = new SyncManager();
 
-				// Process bulk actions BEFORE preparing items.
-				$list_table->process_bulk_action();
+					$list_table = new PagesListTable( $fetcher, $manager );
 
-				$list_table->prepare_items();
+					// Process bulk actions BEFORE preparing items.
+					$list_table->process_bulk_action();
+
+					$list_table->prepare_items();
+				}
 			} catch ( \Exception $e ) {
 				$error_message = $e->getMessage();
 			}
@@ -345,7 +376,7 @@ class SettingsPage {
 	private function redirect_with_message( $type, $message ) {
 		$redirect_url = add_query_arg(
 			array(
-				'page'               => 'notion-sync',
+				'page'                 => 'notion-sync',
 				'notion_sync_' . $type => rawurlencode( $message ),
 			),
 			admin_url( 'admin.php' )

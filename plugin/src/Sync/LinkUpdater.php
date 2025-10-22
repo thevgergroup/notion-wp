@@ -115,6 +115,14 @@ class LinkUpdater {
 		$updated_content  = $original_content;
 		$links_rewritten  = 0;
 
+		// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log -- Debug logging.
+		error_log( sprintf( 'LinkUpdater: Processing post ID %d, content length: %d', $post_id, strlen( $original_content ) ) );
+
+		// Check if content has any Notion links.
+		$has_notion_links = strpos( $original_content, 'notion.so' ) !== false;
+		// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log -- Debug logging.
+		error_log( sprintf( 'LinkUpdater: Has notion.so links: %s', $has_notion_links ? 'YES' : 'NO' ) );
+
 		// Pattern 1: Match links with data-notion-id attribute (newer format).
 		// This allows updating links even after they've been rewritten to WordPress permalinks.
 		// Matches: <a href="..." data-notion-id="...">.
@@ -123,18 +131,28 @@ class LinkUpdater {
 		$updated_content = preg_replace_callback(
 			$pattern_with_id,
 			function ( $matches ) use ( &$links_rewritten ) {
-				$before_href   = $matches[1];
-				$current_url   = $matches[2];
-				$between       = $matches[3];
-				$notion_id     = $matches[4];
-				$after_id      = $matches[5];
+				$before_href = $matches[1];
+				$current_url = $matches[2];
+				$between     = $matches[3];
+				$notion_id   = $matches[4];
+				$after_id    = $matches[5];
 
 				// Get the current WordPress permalink for this Notion page.
 				$new_url = LinkRewriter::get_wordpress_permalink( $notion_id );
 
 				if ( ! $new_url ) {
-					// Page not synced or deleted, keep Notion URL.
-					$new_url = 'https://notion.so/' . $notion_id;
+					// Page not synced to WordPress post, but may be in link registry.
+					// Check registry for current slug.
+					$registry = new \NotionSync\Router\LinkRegistry();
+					$entry    = $registry->find_by_notion_id( $notion_id );
+
+					if ( $entry ) {
+						// Use current registry slug to build /notion/{slug} URL.
+						$new_url = home_url( '/notion/' . $entry->slug );
+					} else {
+						// Not in registry either, keep Notion URL.
+						$new_url = 'https://notion.so/' . $notion_id;
+					}
 				}
 
 				// Only count as rewritten if URL changed.
@@ -156,8 +174,12 @@ class LinkUpdater {
 		);
 
 		// Pattern 2: Match Notion internal links without data-notion-id (older format).
-		// Matches: href="/[32-hex-chars]" or href="https://notion.so/[32-hex-chars]".
-		$pattern_no_id = '#href="(/[a-f0-9]{32}|https://notion\.so/[a-f0-9]{32}(?:-[a-f0-9]{12})?)"#i';
+		// Matches: href="/[32-hex-chars]" or href="https://notion.so/[32-hex-chars]" (with optional query params).
+		$pattern_no_id = '~href="(/[a-f0-9]{32}(?:[?#][^"]*)?|https://notion\.so/[a-f0-9]{32}(?:-[a-f0-9]{12})?(?:[?#][^"]*)?)"~i';
+
+		// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log -- Debug logging.
+		preg_match_all( $pattern_no_id, $updated_content, $test_matches );
+		error_log( sprintf( 'LinkUpdater: Pattern 2 found %d potential matches', count( $test_matches[0] ) ) );
 
 		$updated_content = preg_replace_callback(
 			$pattern_no_id,

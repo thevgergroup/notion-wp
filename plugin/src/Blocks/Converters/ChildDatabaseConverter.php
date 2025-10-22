@@ -11,6 +11,8 @@
 namespace NotionSync\Blocks\Converters;
 
 use NotionSync\Blocks\BlockConverterInterface;
+use NotionSync\Blocks\LinkRewriter;
+use NotionSync\Router\LinkRegistry;
 
 /**
  * Converts Notion child_database blocks to linked references
@@ -60,19 +62,36 @@ class ChildDatabaseConverter implements BlockConverterInterface {
 		// Normalize database ID (remove dashes).
 		$normalized_id = str_replace( '-', '', $database_id );
 
-		// Create Notion URL.
-		$url = 'https://notion.so/' . $normalized_id;
+		// Use LinkRewriter to get the /notion/{slug} URL.
+		// This automatically registers the link in LinkRegistry.
+		$link_data = LinkRewriter::rewrite_url( '/' . $normalized_id );
 
-		// Create a paragraph with database icon and link to Notion.
-		$template  = "<!-- wp:paragraph -->\n";
-		$template .= '<p>📊 <strong><a href="%s" target="_blank" rel="noopener noreferrer">';
-		$template .= 'View Database: %s</a></strong> <em>(opens in Notion)</em></p>';
-		$template .= "\n<!-- /wp:paragraph -->\n\n";
+		// Update registry with the actual title (LinkRewriter uses ID as temporary title).
+		$registry = new LinkRegistry();
+		$entry    = $registry->find_by_notion_id( $normalized_id );
 
+		// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log, Generic.Files.LineLength.TooLong, Generic.Files.LineLength.MaxExceeded -- Debug logging.
+		error_log( sprintf( '[ChildDatabaseConverter] Database: %s, ID: %s, Entry exists: %s, Entry title: %s', $title, $normalized_id, $entry ? 'yes' : 'no', $entry ? $entry->notion_title : 'N/A' ) );
+
+		if ( $entry && $entry->notion_title === $normalized_id ) {
+			// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log -- Debug logging.
+			error_log( sprintf( '[ChildDatabaseConverter] Updating title from "%s" to "%s"', $entry->notion_title, $title ) );
+			// Update with actual title and type.
+			$registry->register(
+				array(
+					'notion_id'    => $normalized_id,
+					'notion_title' => $title,
+					'notion_type'  => 'database',
+				)
+			);
+		}
+
+		// Output Notion Link block for database.
+		// The block will fetch current title/slug/URL at render time.
+		// Open in new tab for databases since they may not be synced to WordPress.
 		return sprintf(
-			$template,
-			esc_url( $url ),
-			esc_html( $title )
+			"<!-- wp:notion-sync/notion-link {\"notionId\":\"%s\",\"showIcon\":true,\"openInNewTab\":true} /-->\n\n",
+			esc_attr( $normalized_id )
 		);
 	}
 }

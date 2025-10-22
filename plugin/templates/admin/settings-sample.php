@@ -13,7 +13,7 @@
  * @package NotionSync
  */
 
-// Prevent direct access
+// Prevent direct access.
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
@@ -58,8 +58,8 @@ if ( ! defined( 'ABSPATH' ) ) {
 	</div>
 
 	<?php
-	// Determine which state to show
-	$is_connected = false; // This would come from your settings/options
+	// Determine which state to show.
+	$is_connected = false; // This would come from your settings/options.
 	$is_loading   = false;
 
 	if ( $is_loading ) :
@@ -143,7 +143,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 			<span class="success-icon" aria-label="<?php esc_attr_e( 'Connected', 'notion-wp' ); ?>"></span>
 			<h2 class="workspace-name">
 				<?php
-				// In real implementation, this would come from the API response
+				// In real implementation, this would come from the API response.
 				echo esc_html( 'My Notion Workspace' );
 				?>
 			</h2>
@@ -178,7 +178,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 			<h2><?php esc_html_e( 'Available Pages', 'notion-wp' ); ?></h2>
 			<div class="pages-list">
 				<?php
-				// Sample pages - in real implementation, this would come from the API
+				// Sample pages - in real implementation, this would come from the API.
 				$sample_pages = array(
 					array(
 						'icon'  => '📄',
@@ -207,18 +207,18 @@ if ( ! defined( 'ABSPATH' ) ) {
 					),
 				);
 
-				foreach ( $sample_pages as $page ) :
+				foreach ( $sample_pages as $notion_page ) :
 					?>
 					<div class="page-item">
 						<span class="page-icon" aria-hidden="true">
-							<?php echo esc_html( $page['icon'] ); ?>
+							<?php echo esc_html( $notion_page['icon'] ); ?>
 						</span>
 						<div class="page-info">
 							<div class="page-title">
-								<?php echo esc_html( $page['title'] ); ?>
+								<?php echo esc_html( $notion_page['title'] ); ?>
 							</div>
 							<div class="page-meta">
-								<?php echo esc_html( $page['date'] ); ?>
+								<?php echo esc_html( $notion_page['date'] ); ?>
 							</div>
 						</div>
 					</div>

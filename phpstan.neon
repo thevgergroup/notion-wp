@@ -58,7 +58,8 @@ parameters:
 	# These will be loaded if available via composer
 	stubFiles:
 		# Add WordPress stubs when we install them via Composer
-		# - vendor/php-stubs/wordpress-stubs/wordpress-stubs.php
+		- vendor/php-stubs/wordpress-stubs/wordpress-stubs.php
+		- vendor/php-stubs/wp-cli-stubs/wp-cli-stubs.php
 
 	# Treat dynamic properties as always defined (WordPress uses them heavily)
 	universalObjectCratesClasses:
@@ -90,8 +91,9 @@ parameters:
 
 # Include PHPStan extensions for better WordPress analysis
 includes:
-	# Uncomment when installed via Composer:
-	# - vendor/szepeviktor/phpstan-wordpress/extension.neon
+	# WordPress extensions enabled:
+	- vendor/szepeviktor/phpstan-wordpress/extension.neon
+	# Strict rules commented out - they introduce 156 errors. Enable later when code is more mature:
 	# - vendor/phpstan/phpstan-strict-rules/rules.neon
 	# - vendor/phpstan/phpstan-deprecation-rules/rules.neon
 

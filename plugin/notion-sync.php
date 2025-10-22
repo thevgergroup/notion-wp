@@ -30,18 +30,28 @@ define( 'NOTION_SYNC_PATH', plugin_dir_path( __FILE__ ) );
 define( 'NOTION_SYNC_URL', plugin_dir_url( __FILE__ ) );
 define( 'NOTION_SYNC_BASENAME', plugin_basename( __FILE__ ) );
 
+// Load composer autoloader for Action Scheduler and other dependencies.
+if ( file_exists( __DIR__ . '/vendor/autoload.php' ) ) {
+	require_once __DIR__ . '/vendor/autoload.php';
+}
+
+// Initialize Action Scheduler (WooCommerce library for background processing).
+if ( file_exists( __DIR__ . '/vendor/woocommerce/action-scheduler/action-scheduler.php' ) ) {
+	require_once __DIR__ . '/vendor/woocommerce/action-scheduler/action-scheduler.php';
+}
+
 // PSR-4 autoloader.
 spl_autoload_register(
-	function ( $class ) {
+	function ( $class_name ) {
 		$prefix   = 'NotionSync\\';
 		$base_dir = __DIR__ . '/src/';
 
 		$len = strlen( $prefix );
-		if ( strncmp( $prefix, $class, $len ) !== 0 ) {
+		if ( strncmp( $prefix, $class_name, $len ) !== 0 ) {
 			return;
 		}
 
-		$relative_class = substr( $class, $len );
+		$relative_class = substr( $class_name, $len );
 		$file           = $base_dir . str_replace( '\\', '/', $relative_class ) . '.php';
 
 		if ( file_exists( $file ) ) {
@@ -56,22 +66,88 @@ spl_autoload_register(
  * @return void
  */
 function init() {
-	// Load text domain for translations.
-	load_plugin_textdomain( 'notion-wp', false, dirname( NOTION_SYNC_BASENAME ) . '/languages' );
+	// Register database custom post type.
+	$database_cpt = new Database\DatabasePostType();
+	$database_cpt->register();
+
+	// Register database frontend template loader.
+	$database_template_loader = new Database\DatabaseTemplateLoader();
+	$database_template_loader->register();
+
+	// Initialize Link Registry and Router for /notion/{slug} URLs.
+	$link_registry = new Router\LinkRegistry();
+	$notion_router = new Router\NotionRouter( $link_registry );
+	$notion_router->register();
+
+	// Register Notion Link Gutenberg block.
+	$notion_link_block = new Blocks\NotionLinkBlock();
+	$notion_link_block->register();
+
+	// Register Notion Link shortcode for inline links.
+	$notion_link_shortcode = new Blocks\NotionLinkShortcode();
+	$notion_link_shortcode->register();
 
 	// Initialize admin interface.
 	if ( is_admin() ) {
 		$settings_page = new Admin\SettingsPage();
 		$settings_page->register();
 
+		$database_view_page = new Admin\DatabaseViewPage();
+		$database_view_page->register();
+
 		$admin_notices = new Admin\AdminNotices();
 		$admin_notices->register();
+	}
+
+	// Register REST API endpoints.
+	add_action(
+		'rest_api_init',
+		function () {
+			$rest_controller = new API\DatabaseRestController();
+			$rest_controller->register_routes();
+
+			$link_rest_controller = new API\LinkRegistryRestController();
+			$link_rest_controller->register_routes();
+		}
+	);
+
+	// Register Action Scheduler hook for batch processing.
+	if ( function_exists( 'as_schedule_single_action' ) ) {
+		add_action(
+			'notion_sync_process_batch',
+			function ( $batch_id, $post_id, $batch_number, $total_batches ) {
+
+				// Get encrypted token.
+				$encrypted_token = get_option( 'notion_wp_token' );
+				if ( empty( $encrypted_token ) ) {
+					// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log -- Debug logging for batch processing.
+					error_log( 'Batch processing aborted: No Notion token configured' );
+					return;
+				}
+
+				// Initialize dependencies.
+				$client     = new API\NotionClient( Security\Encryption::decrypt( $encrypted_token ) );
+				$fetcher    = new Sync\DatabaseFetcher( $client );
+				$repository = new Database\RowRepository();
+				$processor  = new Sync\BatchProcessor( $fetcher, $repository );
+
+				// Process the batch.
+				$processor->process_batch( $batch_id, $post_id, $batch_number, $total_batches );
+			},
+			10,
+			4
+		);
+	}
+
+	// Register WP-CLI commands if WP-CLI is available.
+	if ( defined( 'WP_CLI' ) && WP_CLI ) {
+		\WP_CLI::add_command( 'notion', 'NotionSync\\CLI\\NotionCommand' );
 	}
 
 	// Plugin loaded hook for extensibility.
 	do_action( 'notion_sync_loaded' );
 }
-add_action( 'plugins_loaded', __NAMESPACE__ . '\init' );
+add_action( 'init', __NAMESPACE__ . '\init' );
 
 /**
  * Activation hook.
@@ -86,6 +162,18 @@ function activate() {
 	if ( false === get_option( 'notion_wp_workspace_info' ) ) {
 		add_option( 'notion_wp_workspace_info', array() );
 	}
+
+	// Create custom database tables.
+	\NotionSync\Database\Schema::create_tables();
+
+	// Register database CPT before flushing rewrite rules.
+	$database_cpt = new \NotionSync\Database\DatabasePostType();
+	$database_cpt->register();
+
+	// Register Link Router rewrite rules before flushing.
+	$link_registry = new \NotionSync\Router\LinkRegistry();
+	$notion_router = new \NotionSync\Router\NotionRouter( $link_registry );
+	$notion_router->register_rewrite_rules();
 
 	// Flush rewrite rules.
 	flush_rewrite_rules();

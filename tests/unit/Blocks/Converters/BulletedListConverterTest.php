@@ -231,6 +231,7 @@ class BulletedListConverterTest extends TestCase {
 	 */
 	private function load_fixture( string $filename ): array {
 		$path = __DIR__ . '/../../../fixtures/notion-blocks/' . $filename;
+		// phpcs:ignore WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents -- Loading local test fixture.
 		$json = file_get_contents( $path );
 		return json_decode( $json, true );
 	}

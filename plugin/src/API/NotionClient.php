@@ -264,7 +264,7 @@ class NotionClient {
 	 * @return array Response data or error.
 	 * @throws \Exception If request fails.
 	 */
-	private function request( $method, $endpoint, $body = array() ) {
+	public function request( $method, $endpoint, $body = array() ) {
 		$url = $this->base_url . $endpoint;
 
 		// Prepare headers.
@@ -344,12 +344,12 @@ class NotionClient {
 				);
 
 			case 401:
-				$message = 'Authentication failed. Please check that your API token is correct';
+				$message  = 'Authentication failed. Please check that your API token is correct';
 				$message .= ' and has not been revoked.';
 				return __( $message, 'notion-wp' );
 
 			case 403:
-				$message = 'Access forbidden. Make sure you have shared your Notion pages';
+				$message  = 'Access forbidden. Make sure you have shared your Notion pages';
 				$message .= ' with this integration.';
 				return __( $message, 'notion-wp' );
 
@@ -361,7 +361,7 @@ class NotionClient {
 				);
 
 			case 429:
-				$message = 'Too many requests. Please wait a moment and try again.';
+				$message  = 'Too many requests. Please wait a moment and try again.';
 				$message .= ' Notion has rate limits to ensure service stability.';
 				return __( $message, 'notion-wp' );
 
