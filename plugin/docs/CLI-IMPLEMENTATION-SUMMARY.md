@@ -268,23 +268,23 @@ wp notion test-link "/75424b1c35d0476b836cbb0e776f3f7c"
 **What's actually new:**
 
 1. **Argument parsing** (~80 lines)
-   - WP-CLI argument validation
-   - Option defaults and bounds checking
+    - WP-CLI argument validation
+    - Option defaults and bounds checking
 
 2. **Output formatting** (~150 lines)
-   - Table/CSV/JSON/YAML formatting
-   - Colored output for CLI
-   - Progress messages
+    - Table/CSV/JSON/YAML formatting
+    - Colored output for CLI
+    - Progress messages
 
 3. **Helper methods** (~90 lines)
-   - `get_notion_client()` - wraps existing initialization
-   - `detect_resource_type()` - uses existing API calls
-   - `format_timestamp()` - utility only
+    - `get_notion_client()` - wraps existing initialization
+    - `detect_resource_type()` - uses existing API calls
+    - `format_timestamp()` - utility only
 
 4. **Routing logic** (~55 lines)
-   - Dispatch to page vs. database sync
-   - Handle force flag
-   - Command-specific logic
+    - Dispatch to page vs. database sync
+    - Handle force flag
+    - Command-specific logic
 
 **What's NOT new (reused):**
 

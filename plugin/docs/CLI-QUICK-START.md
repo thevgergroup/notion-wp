@@ -53,12 +53,14 @@ wp notion links 123
 Notion IDs are the long alphanumeric strings in Notion URLs:
 
 **From Page URL:**
+
 ```
 https://notion.so/Getting-Started-75424b1c35d0476b836cbb0e776f3f7c
                                  └─────────── This is the ID ────────────┘
 ```
 
 **Short Format (also works):**
+
 ```bash
 # With dashes
 wp notion sync 75424b1c-35d0-476b-836c-bb0e776f3f7c
@@ -203,6 +205,7 @@ wp post delete 123
 ### "Notion API token not configured"
 
 **Fix:** Configure token in WordPress admin:
+
 ```bash
 wp admin
 # Go to Settings > Notion Sync and add your integration token
@@ -211,6 +214,7 @@ wp admin
 ### "Failed to connect to Notion API"
 
 **Fix:** Verify token is valid:
+
 ```bash
 # Test connection
 wp notion list --limit=1
@@ -228,6 +232,7 @@ wp notion list --limit=1
 ### "Unable to determine resource type"
 
 **Fix:** Check the ID format and access:
+
 ```bash
 # Verify ID is correct
 wp notion show <notion-id>
@@ -280,14 +285,14 @@ wp help notion registry
 
 ## Quick Troubleshooting
 
-| Problem                      | Command to Run                   |
-| ---------------------------- | -------------------------------- |
-| Can't see any pages          | `wp notion list`                 |
-| Page won't sync              | `wp notion show <id>`            |
-| Links not working            | `wp notion links <post-id>`      |
-| Want to see what's synced    | `wp notion registry`             |
-| Need to test link rewriting  | `wp notion test-link "<url>"`    |
-| Sync jobs stuck              | `wp action-scheduler list`       |
+| Problem                     | Command to Run                |
+| --------------------------- | ----------------------------- |
+| Can't see any pages         | `wp notion list`              |
+| Page won't sync             | `wp notion show <id>`         |
+| Links not working           | `wp notion links <post-id>`   |
+| Want to see what's synced   | `wp notion registry`          |
+| Need to test link rewriting | `wp notion test-link "<url>"` |
+| Sync jobs stuck             | `wp action-scheduler list`    |
 
 ---
 

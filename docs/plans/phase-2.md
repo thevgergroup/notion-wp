@@ -14,11 +14,13 @@ Sync Notion databases to WordPress as **structured JSON data** in a custom table
 ## 🧠 Architecture Decision
 
 **Database Representation:**
+
 - **Notion Database** → WordPress CPT post (stores metadata: title, ID, last synced)
 - **Database Rows** → JSON documents in custom table `wp_notion_database_rows`
 - **NOT creating individual posts** for each row (this maintains data integrity and simplifies management)
 
 **Why JSON Storage?**
+
 - Preserves Notion's flexible property structure
 - Handles arbitrary property types without schema changes
 - Enables future features (search, filtering, custom views)
@@ -26,6 +28,7 @@ Sync Notion databases to WordPress as **structured JSON data** in a custom table
 - Simpler maintenance than hundreds/thousands of posts
 
 **MySQL Compatibility:**
+
 - Use `LONGTEXT` column type (MySQL 5.5+ compatible)
 - Store JSON via `json_encode()` / `json_decode()` in PHP
 - Extract key fields (title, status, dates) for indexing
@@ -36,6 +39,7 @@ Sync Notion databases to WordPress as **structured JSON data** in a custom table
 **DO NOT PROCEED to Phase 3 until ALL criteria are met:**
 
 ### Core Functionality
+
 - [ ] User can see list of Notion databases in admin
 - [ ] Can sync entire database with one click
 - [ ] All database entries stored as JSON in custom table
@@ -46,12 +50,14 @@ Sync Notion databases to WordPress as **structured JSON data** in a custom table
 - [ ] Batch processing handles 100+ entries without timeout
 
 ### Performance Requirements
+
 - [ ] Syncs 100 database entries in under 5 minutes
 - [ ] Handles databases with 500+ entries
 - [ ] No memory limit errors on large batches
 - [ ] Uses Action Scheduler for background processing
 
 ### Quality Requirements
+
 - [ ] Re-sync updates existing data (no duplicates created)
 - [ ] Zero PHP warnings (all Phase 1 linting warnings eliminated)
 - [ ] All linting passes (PHPCS, ESLint, PHPStan level 3+)
@@ -82,6 +88,7 @@ Sync Notion databases to WordPress as **structured JSON data** in a custom table
 **What Was Fixed:**
 
 Critical PHPCS warnings eliminated:
+
 1. ✅ **error_log() calls** (9 instances) - Added phpcs:ignore comments
 2. ✅ **Reserved keyword warning** (1 instance) - Renamed $class → $class_name
 3. ✅ **file_get_contents() in tests** (1 instance) - Added phpcs:ignore for fixtures
@@ -1138,57 +1145,60 @@ Add progress polling:
 
 ```javascript
 // Handle database sync
-document.querySelectorAll('.sync-database').forEach(button => {
-    button.addEventListener('click', async function(e) {
-        e.preventDefault();
+document.querySelectorAll('.sync-database').forEach((button) => {
+	button.addEventListener('click', async function (e) {
+		e.preventDefault();
 
-        const databaseId = this.dataset.databaseId;
+		const databaseId = this.dataset.databaseId;
 
-        if (!confirm(notionSyncAdmin.i18n.confirmDatabaseSync)) {
-            return;
-        }
+		if (!confirm(notionSyncAdmin.i18n.confirmDatabaseSync)) {
+			return;
+		}
 
-        try {
-            const formData = new FormData();
-            formData.append('action', 'notion_sync_database');
-            formData.append('database_id', databaseId);
-            formData.append('_ajax_nonce', notionSyncAdmin.nonce);
+		try {
+			const formData = new FormData();
+			formData.append('action', 'notion_sync_database');
+			formData.append('database_id', databaseId);
+			formData.append('_ajax_nonce', notionSyncAdmin.nonce);
 
-            const response = await fetch(notionSyncAdmin.ajaxUrl, {
-                method: 'POST',
-                body: formData
-            });
+			const response = await fetch(notionSyncAdmin.ajaxUrl, {
+				method: 'POST',
+				body: formData,
+			});
 
-            const data = await response.json();
+			const data = await response.json();
 
-            if (data.success) {
-                startProgressPolling(data.data.batch_id);
-            } else {
-                showMessage(data.data, 'error');
-            }
-        } catch (error) {
-            showMessage(error.message, 'error');
-        }
-    });
+			if (data.success) {
+				startProgressPolling(data.data.batch_id);
+			} else {
+				showMessage(data.data, 'error');
+			}
+		} catch (error) {
+			showMessage(error.message, 'error');
+		}
+	});
 });
 
 async function startProgressPolling(batchId) {
-    const progressContainer = createProgressBar();
+	const progressContainer = createProgressBar();
 
-    const interval = setInterval(async () => {
-        try {
-            const progress = await getBatchProgress(batchId);
-            updateProgressBar(progressContainer, progress);
+	const interval = setInterval(async () => {
+		try {
+			const progress = await getBatchProgress(batchId);
+			updateProgressBar(progressContainer, progress);
 
-            if (progress.status === 'completed' || progress.status === 'cancelled') {
-                clearInterval(interval);
-                showCompletionMessage(progress);
-            }
-        } catch (error) {
-            clearInterval(interval);
-            showMessage(error.message, 'error');
-        }
-    }, 2000);
+			if (
+				progress.status === 'completed' ||
+				progress.status === 'cancelled'
+			) {
+				clearInterval(interval);
+				showCompletionMessage(progress);
+			}
+		} catch (error) {
+			clearInterval(interval);
+			showMessage(error.message, 'error');
+		}
+	}, 2000);
 }
 ```
 
@@ -1231,6 +1241,7 @@ async function startProgressPolling(batchId) {
 ### Technical
 
 **New Files:**
+
 - ✅ `plugin/src/Sync/DatabaseFetcher.php` - Database queries
 - ✅ `plugin/src/Database/Schema.php` - Table creation
 - ✅ `plugin/src/Database/DatabasePostType.php` - CPT
@@ -1240,12 +1251,14 @@ async function startProgressPolling(batchId) {
 - ✅ `plugin/src/Admin/DatabaseRowsListTable.php` - Rows viewer
 
 **Modified Files:**
+
 - ✅ `plugin/notion-sync.php` - Activation hook, table creation
 - ✅ `plugin/src/Admin/SettingsPage.php` - Tabs, AJAX handlers
 - ✅ `plugin/assets/src/js/admin.js` - Progress polling
 - ✅ `composer.json` - Action Scheduler dependency
 
 **Not Built (Deferred):**
+
 - ❌ Field mapping to posts (future feature)
 - ❌ Gutenberg blocks from rows (future)
 - ❌ Advanced filtering/sorting (future)
@@ -1292,16 +1305,19 @@ async function startProgressPolling(batchId) {
 ## 📊 Success Metrics
 
 **Time Metrics:**
+
 - 100 entries sync in <5 minutes
 - Progress updates every 2 seconds
 
 **Quality Metrics:**
+
 - Zero linting warnings
 - 100% data accuracy
 - Zero duplicate rows
 - 95%+ batch success rate
 
 **User Metrics:**
+
 - Can demo in under 5 minutes
 - Non-developer can understand workflow
 
@@ -1309,12 +1325,12 @@ async function startProgressPolling(batchId) {
 
 ## 🚧 Risks & Mitigation
 
-| Risk | Impact | Mitigation |
-|------|--------|-----------|
-| Large databases timeout | High | Action Scheduler background processing |
-| Memory exhaustion | High | Process in batches, unset variables |
-| JSON encoding fails | Medium | Validate data, log errors |
-| Action Scheduler conflicts | Medium | Version check dependencies |
+| Risk                       | Impact | Mitigation                             |
+| -------------------------- | ------ | -------------------------------------- |
+| Large databases timeout    | High   | Action Scheduler background processing |
+| Memory exhaustion          | High   | Process in batches, unset variables    |
+| JSON encoding fails        | Medium | Validate data, log errors              |
+| Action Scheduler conflicts | Medium | Version check dependencies             |
 
 ---
 

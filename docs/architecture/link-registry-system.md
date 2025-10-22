@@ -11,12 +11,14 @@ Instead of constantly rescanning post content to rewrite Notion links, we mainta
 ## 🧠 Architecture Decision
 
 **Problem:**
+
 - Current approach requires rescanning all post content after each sync
 - Links embedded in content become stale
 - Performance degrades with content volume
 - No single source of truth for Notion ↔ WordPress mappings
 
 **Solution:**
+
 - **Link Registry Table** - Central mapping of Notion IDs → WordPress resources
 - **URL Router** - Handles `/notion/{slug}` requests dynamically
 - **Block Converters** - Output registry links instead of direct permalinks
@@ -194,11 +196,11 @@ class NotionRouter {
 
 ### URL Examples
 
-| Original Notion URL | Registry Entry | Public URL | Behavior |
-|---------------------|----------------|------------|----------|
-| `https://notion.so/4349fe02...` | `slug: 'ai-education-resources'`<br>`wp_post_id: 7`<br>`sync_status: 'synced'` | `/notion/ai-education-resources` | ✅ Redirects to WP admin database viewer |
-| `https://notion.so/75424b1c...` | `slug: 'ai-fundamentals'`<br>`wp_post_id: 9`<br>`sync_status: 'synced'` | `/notion/ai-fundamentals` | ✅ Redirects to WordPress post permalink |
-| `https://notion.so/6218660...` | `slug: 'interactive-ai-tools'`<br>`wp_post_id: null`<br>`sync_status: 'not_synced'` | `/notion/interactive-ai-tools` | ↗️ Redirects to Notion |
+| Original Notion URL             | Registry Entry                                                                      | Public URL                       | Behavior                                 |
+| ------------------------------- | ----------------------------------------------------------------------------------- | -------------------------------- | ---------------------------------------- |
+| `https://notion.so/4349fe02...` | `slug: 'ai-education-resources'`<br>`wp_post_id: 7`<br>`sync_status: 'synced'`      | `/notion/ai-education-resources` | ✅ Redirects to WP admin database viewer |
+| `https://notion.so/75424b1c...` | `slug: 'ai-fundamentals'`<br>`wp_post_id: 9`<br>`sync_status: 'synced'`             | `/notion/ai-fundamentals`        | ✅ Redirects to WordPress post permalink |
+| `https://notion.so/6218660...`  | `slug: 'interactive-ai-tools'`<br>`wp_post_id: null`<br>`sync_status: 'not_synced'` | `/notion/interactive-ai-tools`   | ↗️ Redirects to Notion                   |
 
 ## 📝 Link Registry Repository
 
@@ -462,6 +464,7 @@ class LinkRegistry {
 ### 1. During Block Conversion
 
 **Current Code (LinkRewriter):**
+
 ```php
 // Old approach - tries to find synced post and rewrite directly
 $permalink = LinkRewriter::rewrite_url_string( 'https://notion.so/abc123...' );
@@ -472,6 +475,7 @@ $permalink = LinkRewriter::rewrite_url_string( 'https://notion.so/abc123...' );
 ```
 
 **New Approach (Link Registry):**
+
 ```php
 // Register link in database (idempotent)
 $registry->register( array(
@@ -491,6 +495,7 @@ $slug = $registry->get_slug_for_notion_id( 'abc123...' );
 ### 2. During Page/Database Sync
 
 **After Successful Sync:**
+
 ```php
 // Page was synced to WordPress
 $post_id = 123; // Created WordPress post ID
@@ -505,6 +510,7 @@ $registry->mark_as_synced( $notion_id, $post_id );
 ### 3. Link Discovery (Automatic Registration)
 
 **When Converting Blocks:**
+
 ```php
 // In block converter, when encountering a Notion link
 preg_match_all( '/notion\.so\/([a-f0-9-]{32,36})/', $content, $matches );
@@ -605,10 +611,12 @@ foreach ( $matches[1] as $notion_id ) {
 ### Phase 1: Database Schema & Registry (1-2 days)
 
 **Files:**
+
 - `plugin/src/Database/Schema.php` - Add table creation
 - `plugin/src/Router/LinkRegistry.php` - Repository class
 
 **Tasks:**
+
 1. Add `wp_notion_links` table to Schema::create_tables()
 2. Implement LinkRegistry CRUD methods
 3. Write unit tests for registry operations
@@ -617,10 +625,12 @@ foreach ( $matches[1] as $notion_id ) {
 ### Phase 2: URL Router (1-2 days)
 
 **Files:**
+
 - `plugin/src/Router/NotionRouter.php` - Route handler
 - `plugin/notion-sync.php` - Register hooks
 
 **Tasks:**
+
 1. Add rewrite rules registration
 2. Implement route_request() handler
 3. Add redirect logic (synced vs not_synced)
@@ -630,11 +640,13 @@ foreach ( $matches[1] as $notion_id ) {
 ### Phase 3: Sync Integration (1-2 days)
 
 **Files:**
+
 - `plugin/src/Sync/SyncManager.php` - Register links after sync
 - `plugin/src/Sync/BatchProcessor.php` - Register database links
 - `plugin/src/Blocks/LinkRewriter.php` - Use registry instead of direct rewrites
 
 **Tasks:**
+
 1. Call registry->register() after page sync
 2. Call registry->mark_as_synced() after successful sync
 3. Update LinkRewriter to use registry
@@ -643,9 +655,11 @@ foreach ( $matches[1] as $notion_id ) {
 ### Phase 4: Block Converter Updates (1 day)
 
 **Files:**
+
 - `plugin/src/Blocks/NotionBlockConverter.php` - Auto-register discovered links
 
 **Tasks:**
+
 1. Scan converted content for Notion links
 2. Auto-register any discovered links
 3. Replace Notion URLs with `/notion/{slug}` format
@@ -654,6 +668,7 @@ foreach ( $matches[1] as $notion_id ) {
 ### Phase 5: Testing & Polish (1 day)
 
 **Tasks:**
+
 1. Integration testing with real Notion content
 2. Test link discovery and registration
 3. Test routing behavior (synced vs not_synced)
@@ -676,22 +691,26 @@ foreach ( $matches[1] as $notion_id ) {
 ## 🔮 Future Enhancements
 
 **Link Analytics:**
+
 - Track which links are accessed most
 - Identify broken links (deleted posts)
 - Report on unsync'd links to prioritize syncs
 
 **Smart Redirects:**
+
 - Preserve fragment identifiers (#section)
 - Handle query parameters
 - Support custom redirect rules
 
 **Link Management UI:**
+
 - Admin page to view all registry entries
 - Bulk operations (delete, regenerate slugs)
 - Manual slug editing
 - Sync status indicators
 
 **SEO Optimization:**
+
 - Generate proper meta tags for `/notion/{slug}` URLs
 - Add canonical URLs
 - Implement 301 vs 302 redirect strategies
@@ -701,13 +720,13 @@ foreach ( $matches[1] as $notion_id ) {
 **Backwards Compatibility:**
 
 1. **Existing Posts** - Run migration script to:
-   - Scan all post content for Notion links
-   - Register discovered links in registry
-   - Replace links with `/notion/{slug}` format
+    - Scan all post content for Notion links
+    - Register discovered links in registry
+    - Replace links with `/notion/{slug}` format
 
 2. **LinkRewriter Deprecation** - Keep as fallback but:
-   - Primary method: Use LinkRegistry
-   - LinkRewriter: Only for legacy support
+    - Primary method: Use LinkRegistry
+    - LinkRewriter: Only for legacy support
 
 **Migration Script:**
 

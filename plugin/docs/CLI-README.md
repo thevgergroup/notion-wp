@@ -20,15 +20,15 @@ wp notion registry --sync-status=synced
 
 ## Available Commands
 
-| Command                       | Purpose                                   |
-| ----------------------------- | ----------------------------------------- |
-| `wp notion list`              | List Notion pages and databases           |
-| `wp notion sync <id>`         | Sync a page or database to WordPress      |
-| `wp notion show <id>`         | Show details for a Notion page            |
-| `wp notion show-database <id>`| Show database schema and sample rows      |
-| `wp notion links <post-id>`   | Show Notion links in a WordPress post     |
-| `wp notion registry`          | View link registry entries                |
-| `wp notion test-link <url>`   | Test link rewriting transformation        |
+| Command                        | Purpose                               |
+| ------------------------------ | ------------------------------------- |
+| `wp notion list`               | List Notion pages and databases       |
+| `wp notion sync <id>`          | Sync a page or database to WordPress  |
+| `wp notion show <id>`          | Show details for a Notion page        |
+| `wp notion show-database <id>` | Show database schema and sample rows  |
+| `wp notion links <post-id>`    | Show Notion links in a WordPress post |
+| `wp notion registry`           | View link registry entries            |
+| `wp notion test-link <url>`    | Test link rewriting transformation    |
 
 ## Documentation
 

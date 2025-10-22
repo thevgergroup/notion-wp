@@ -263,17 +263,17 @@ private function format_timestamp(string $timestamp): string {
 
 ## Code Reuse Statistics
 
-| Command              | Existing Methods Used | New Code (Lines) | Reuse Ratio |
-| -------------------- | --------------------- | ---------------- | ----------- |
-| `list`               | 2                     | 40               | 95%         |
-| `sync`               | 8+                    | 60               | 90%         |
-| `show`               | 4                     | 50               | 90%         |
-| `show-database`      | 3                     | 40               | 92%         |
-| `links`              | 4                     | 45               | 88%         |
-| `registry`           | Direct DB (1)         | 50               | 70%         |
-| `test-link`          | 2                     | 30               | 95%         |
-| **Helpers**          | N/A                   | 60               | N/A         |
-| **Total**            | **25+ methods**       | **375 lines**    | **~90%**    |
+| Command         | Existing Methods Used | New Code (Lines) | Reuse Ratio |
+| --------------- | --------------------- | ---------------- | ----------- |
+| `list`          | 2                     | 40               | 95%         |
+| `sync`          | 8+                    | 60               | 90%         |
+| `show`          | 4                     | 50               | 90%         |
+| `show-database` | 3                     | 40               | 92%         |
+| `links`         | 4                     | 45               | 88%         |
+| `registry`      | Direct DB (1)         | 50               | 70%         |
+| `test-link`     | 2                     | 30               | 95%         |
+| **Helpers**     | N/A                   | 60               | N/A         |
+| **Total**       | **25+ methods**       | **375 lines**    | **~90%**    |
 
 **Total CLI file size:** ~950 lines (including docs)
 
