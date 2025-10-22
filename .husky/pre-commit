@@ -22,7 +22,7 @@ if [ -n "$STAGED_PHP_FILES" ]; then
 
 	# Run PHP-CS-Fixer (auto-fix)
 	echo "  → Running PHP-CS-Fixer (auto-fix)..."
-	if ! composer lint:fix:quiet 2>&1 | grep -v "Loaded config" | grep -v "Using cache file"; then
+	if ! php composer.phar lint:fix:quiet 2>&1 | grep -v "Loaded config" | grep -v "Using cache file"; then
 		echo "  ✗ PHP-CS-Fixer failed"
 		HAS_ERRORS=1
 	else
@@ -33,7 +33,7 @@ if [ -n "$STAGED_PHP_FILES" ]; then
 
 	# Run PHPCS (check only)
 	echo "  → Running PHP_CodeSniffer..."
-	if ! composer lint:phpcs:quiet 2>&1 | grep -v "Registering sniffs" | grep -v "Creating file list"; then
+	if ! php composer.phar lint:phpcs:quiet 2>&1 | grep -v "Registering sniffs" | grep -v "Creating file list"; then
 		echo "  ✗ PHPCS found issues"
 		HAS_ERRORS=1
 	else
@@ -42,7 +42,7 @@ if [ -n "$STAGED_PHP_FILES" ]; then
 
 	# Run PHPStan (static analysis)
 	echo "  → Running PHPStan..."
-	if ! composer lint:phpstan:quiet 2>&1 | grep -v "Note:"; then
+	if ! php composer.phar lint:phpstan:quiet 2>&1 | grep -v "Note:"; then
 		echo "  ✗ PHPStan found issues"
 		HAS_ERRORS=1
 	else
@@ -96,9 +96,9 @@ if [ $HAS_ERRORS -ne 0 ]; then
 	echo "❌ Pre-commit checks failed. Please fix the errors above and try again."
 	echo ""
 	echo "💡 Tips:"
-	echo "  • Run 'composer lint:fix' to auto-fix PHP issues"
+	echo "  • Run 'php composer.phar lint:fix' to auto-fix PHP issues"
 	echo "  • Run 'npm run lint:fix' to auto-fix JS/CSS issues"
-	echo "  • Run 'composer lint' or 'npm run lint' to see detailed errors"
+	echo "  • Run 'php composer.phar lint' or 'npm run lint' to see detailed errors"
 	echo ""
 	exit 1
 fi
