@@ -20,30 +20,22 @@ if [ -n "$STAGED_PHP_FILES" ]; then
 	echo ""
 	echo "📝 Checking PHP files..."
 
-	# Run PHP-CS-Fixer (auto-fix)
-	echo "  → Running PHP-CS-Fixer (auto-fix)..."
-	if ! php composer.phar lint:fix:quiet 2>&1 | grep -v "Loaded config" | grep -v "Using cache file"; then
-		echo "  ✗ PHP-CS-Fixer failed"
-		HAS_ERRORS=1
-	else
-		echo "  ✓ PHP-CS-Fixer passed"
-		# Re-add fixed files to staging
-		echo "$STAGED_PHP_FILES" | xargs git add
-	fi
-
-	# Run PHPCS (check only)
+	# Run PHPCS (check only - matches GitHub Actions)
+	# Note: PHP-CS-Fixer is NOT run because it conflicts with WordPress Coding Standards
 	echo "  → Running PHP_CodeSniffer..."
-	if ! php composer.phar lint:phpcs:quiet 2>&1 | grep -v "Registering sniffs" | grep -v "Creating file list"; then
+	if ! php composer.phar lint:phpcs 2>&1 | grep -v "Registering sniffs" | grep -v "Creating file list"; then
 		echo "  ✗ PHPCS found issues"
+		echo "  💡 Run 'php composer.phar lint:phpcs' to see details"
 		HAS_ERRORS=1
 	else
 		echo "  ✓ PHPCS passed"
 	fi
 
-	# Run PHPStan (static analysis)
+	# Run PHPStan (static analysis - matches GitHub Actions)
 	echo "  → Running PHPStan..."
-	if ! php composer.phar lint:phpstan:quiet 2>&1 | grep -v "Note:"; then
+	if ! php composer.phar lint:phpstan 2>&1 | grep -v "Note:"; then
 		echo "  ✗ PHPStan found issues"
+		echo "  💡 Run 'php composer.phar lint:phpstan' to see details"
 		HAS_ERRORS=1
 	else
 		echo "  ✓ PHPStan passed"
@@ -73,22 +65,8 @@ if [ -n "$STAGED_JS_FILES" ]; then
 	echo "  ✓ Prettier passed"
 fi
 
-# CSS/SCSS Linting
-if [ -n "$STAGED_CSS_FILES" ]; then
-	echo ""
-	echo "📝 Checking CSS/SCSS files..."
-
-	# Run Stylelint (auto-fix)
-	echo "  → Running Stylelint (auto-fix)..."
-	if ! npm run lint:css:fix --silent 2>&1; then
-		echo "  ✗ Stylelint found issues"
-		HAS_ERRORS=1
-	else
-		echo "  ✓ Stylelint passed"
-		# Re-add fixed files to staging
-		echo "$STAGED_CSS_FILES" | xargs git add
-	fi
-fi
+# Note: Stylelint is disabled to match GitHub Actions configuration
+# (stylelint-config-wordpress has version compatibility issues)
 
 # Check if any errors occurred
 if [ $HAS_ERRORS -ne 0 ]; then
@@ -96,9 +74,10 @@ if [ $HAS_ERRORS -ne 0 ]; then
 	echo "❌ Pre-commit checks failed. Please fix the errors above and try again."
 	echo ""
 	echo "💡 Tips:"
-	echo "  • Run 'php composer.phar lint:fix' to auto-fix PHP issues"
-	echo "  • Run 'npm run lint:fix' to auto-fix JS/CSS issues"
-	echo "  • Run 'php composer.phar lint' or 'npm run lint' to see detailed errors"
+	echo "  • Run 'php composer.phar lint:phpcs' to see PHP CodeSniffer errors"
+	echo "  • Run 'php composer.phar lint:phpstan' to see PHPStan errors"
+	echo "  • Run 'npm run lint:js' to see ESLint errors"
+	echo "  • Run 'npm run format:check' to check Prettier formatting"
 	echo ""
 	exit 1
 fi

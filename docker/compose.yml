@@ -123,6 +123,42 @@ services:
     # Keep container running for wp-cli commands via docker exec
     entrypoint: ["tail", "-f", "/dev/null"]
 
+  # Serena MCP Server for AI-powered code assistance (isolated per worktree)
+  # IMPORTANT: Only run in worktrees, not in main repo
+  # This service uses a Docker profile to prevent accidental startup in main
+  serena:
+    image: ghcr.io/oraios/serena:latest
+    container_name: ${COMPOSE_PROJECT_NAME}_serena
+    profiles:
+      - worktree  # Only starts when --profile worktree is used
+    ports:
+      # Static port for MCP connection
+      - "9121:9121"
+    volumes:
+      # Mount entire worktree for code analysis
+      - ..:/workspace/projects:rw
+      # Mount .serenaignore to exclude paths
+      - ../.serenaignore:/workspace/projects/.serenaignore:ro
+      # Persist Serena cache for faster indexing
+      - serena_cache:/root/.serena
+    environment:
+      - SERENA_DOCKER=1
+    # Use the exact command from Serena's Docker documentation
+    command: >
+      serena start-mcp-server
+      --transport sse
+      --port 9121
+      --host 0.0.0.0
+    networks:
+      - internal
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "wget", "--spider", "-q", "http://localhost:9121/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
 # Named volumes for data persistence (unique per worktree)
 volumes:
   db_data:
@@ -131,6 +167,10 @@ volumes:
 
   wp_data:
     name: ${COMPOSE_PROJECT_NAME}_wp_data
+    driver: local
+
+  serena_cache:
+    name: ${COMPOSE_PROJECT_NAME}_serena_cache
     driver: local
 
 # Networks
