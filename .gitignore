@@ -55,9 +55,8 @@ coverage/
 .stylelintcache
 .eslintcache
 
-# Serena MCP cache and ignore file (copied from main, not committed)
+# Serena MCP cache
 .serena/
-.serenaignore
 
 # Temporary files
 tmp/
