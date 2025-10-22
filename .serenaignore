@@ -1,0 +1,40 @@
+# Serena Ignore File
+# Prevents Serena from indexing these paths
+
+# Exclude all worktrees to avoid duplicate indexing
+worktrees/
+
+# Exclude vendor dependencies (already indexed in their own packages)
+vendor/
+node_modules/
+plugin/vendor/
+
+# Exclude build artifacts
+build/
+dist/
+*.min.js
+*.min.css
+
+# Exclude logs and temporary files
+logs/
+*.log
+tmp/
+temp/
+
+# Exclude Docker volumes
+.docker/
+docker/volumes/
+
+# Exclude version control
+.git/
+
+# Exclude IDE/editor files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Exclude cache directories
+.cache/
+.serena/

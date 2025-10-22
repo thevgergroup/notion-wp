@@ -84,13 +84,58 @@ EOF
 
 echo -e "${GREEN}Created .env file${NC}"
 
-# Step 3: Create logs directory
-echo -e "${YELLOW}[3/8] Creating logs directory...${NC}"
+# Step 3: Install vendor dependencies (before Docker to avoid conflicts)
+echo -e "${YELLOW}[3/9] Installing vendor dependencies...${NC}"
+
+# Install Composer dependencies
+if [ -f "composer.json" ]; then
+    echo "Installing Composer dependencies..."
+    if [ -f "composer.phar" ]; then
+        php composer.phar install --no-interaction --prefer-dist
+    elif command -v composer &> /dev/null; then
+        composer install --no-interaction --prefer-dist
+    else
+        echo -e "${YELLOW}Warning: Composer not found. Run 'composer install' manually.${NC}"
+    fi
+else
+    echo "No composer.json found, skipping Composer install"
+fi
+
+# Install NPM dependencies
+if [ -f "package.json" ]; then
+    echo "Installing NPM dependencies..."
+    if command -v npm &> /dev/null; then
+        npm install
+    else
+        echo -e "${YELLOW}Warning: npm not found. Run 'npm install' manually.${NC}"
+    fi
+else
+    echo "No package.json found, skipping NPM install"
+fi
+
+echo -e "${GREEN}Vendor dependencies installed${NC}"
+
+# Step 4: Configure Serena MCP (via Docker)
+echo -e "${YELLOW}[4/10] Configuring Serena MCP...${NC}"
+# Create .serena directory for cache persistence
+mkdir -p .serena
+
+# Copy .serenaignore from main repo if it exists
+if [ -f "$MAIN_REPO_DIR/.serenaignore" ]; then
+    cp "$MAIN_REPO_DIR/.serenaignore" .serenaignore
+    echo "Copied .serenaignore from main repo"
+fi
+
+echo -e "${GREEN}Serena MCP will start with Docker Compose on port 9121${NC}"
+echo "Note: Serena will be available at http://localhost:9121/mcp after Docker starts"
+
+# Step 5: Create logs directory
+echo -e "${YELLOW}[5/10] Creating logs directory...${NC}"
 mkdir -p logs
 touch logs/.gitkeep
 
-# Step 4: Create plugin config directory
-echo -e "${YELLOW}[4/8] Setting up plugin config...${NC}"
+# Step 6: Create plugin config directory
+echo -e "${YELLOW}[6/10] Setting up plugin config...${NC}"
 mkdir -p plugin/config
 
 # Copy example configs if they exist
@@ -104,15 +149,16 @@ if [ -f "$MAIN_REPO_DIR/plugin/config/field-maps.example.json" ]; then
     echo "Created plugin/config/field-maps.json"
 fi
 
-# Step 5: Start Docker environment
-echo -e "${YELLOW}[5/8] Starting Docker containers...${NC}"
-docker compose -f ../docker/compose.yml up -d
+# Step 7: Start Docker environment
+echo -e "${YELLOW}[7/10] Starting Docker containers (including Serena)...${NC}"
+# Use --profile worktree to include Serena service
+docker compose -f ../docker/compose.yml --profile worktree up -d
 
 echo "Waiting for services to be ready..."
 sleep 10
 
-# Step 6: Install WordPress
-echo -e "${YELLOW}[6/8] Installing WordPress...${NC}"
+# Step 8: Install WordPress
+echo -e "${YELLOW}[8/10] Installing WordPress...${NC}"
 
 # Wait for MySQL to be ready
 echo "Waiting for MySQL to be ready..."
@@ -134,36 +180,24 @@ docker exec "notionwp_${PROJECT_NAME}_wp" wp core install \
 
 echo -e "${GREEN}WordPress installed successfully${NC}"
 
-# Step 7: Install and activate plugin dependencies
-echo -e "${YELLOW}[7/8] Setting up plugin...${NC}"
+# Step 9: Build assets and activate plugin
+echo -e "${YELLOW}[9/10] Building plugin assets...${NC}"
 
-# Navigate to plugin directory
-cd "$WORKTREE_DIR/plugin"
+# Navigate back to worktree root
+cd "$WORKTREE_DIR"
 
-# Install Composer dependencies (if composer.json exists)
-if [ -f "composer.json" ]; then
-    echo "Installing Composer dependencies..."
-    if command -v composer &> /dev/null; then
-        composer install --no-interaction
-    else
-        docker run --rm -v "$(pwd):/app" composer:latest install --no-interaction
-    fi
-fi
-
-# Install NPM dependencies (if package.json exists)
-if [ -f "package.json" ]; then
-    echo "Installing NPM dependencies..."
-    npm install
+# Build assets if npm build script exists
+if [ -f "package.json" ] && npm run --silent 2>&1 | grep -q "build"; then
     echo "Building assets..."
-    npm run build || echo "No build script found, skipping..."
+    npm run build || echo "Build script failed, continuing..."
 fi
 
-# Activate plugin
-echo "Activating plugin..."
+# Step 10: Activate plugin
+echo -e "${YELLOW}[10/10] Activating plugin...${NC}"
 docker exec "notionwp_${PROJECT_NAME}_wp" wp plugin activate notion-sync --allow-root || \
     echo "Plugin activation will be done manually (plugin files may not exist yet)"
 
-# Step 8: Display summary
+# Display summary
 echo ""
 echo -e "${GREEN}=======================================${NC}"
 echo -e "${GREEN}Worktree setup complete!${NC}"
@@ -187,16 +221,24 @@ echo ""
 echo -e "${YELLOW}Docker Containers:${NC}"
 echo "  WordPress: notionwp_${PROJECT_NAME}_wp"
 echo "  Database: notionwp_${PROJECT_NAME}_db"
+echo "  Serena MCP: notionwp_${PROJECT_NAME}_serena (port 9121)"
+echo ""
+echo -e "${YELLOW}Serena MCP Server:${NC}"
+echo "  URL: http://localhost:9121/mcp"
+echo "  Add to .mcp.json:"
+echo '    "serena": { "url": "http://localhost:9121/mcp" }'
 echo ""
 echo -e "${YELLOW}Useful Commands:${NC}"
-echo "  View logs: docker compose -f ../docker/compose.yml logs -f"
-echo "  Stop: docker compose -f ../docker/compose.yml down"
+echo "  View logs: docker compose -f ../docker/compose.yml --profile worktree logs -f"
+echo "  View Serena logs: docker compose -f ../docker/compose.yml --profile worktree logs -f serena"
+echo "  Stop: docker compose -f ../docker/compose.yml --profile worktree down"
 echo "  WP-CLI: docker exec notionwp_${PROJECT_NAME}_wp wp --allow-root <command>"
 echo "  Shell: docker exec -it notionwp_${PROJECT_NAME}_wp bash"
 echo ""
 echo -e "${YELLOW}Next Steps:${NC}"
 echo "  1. Navigate to worktree: cd $WORKTREE_DIR"
 echo "  2. Edit .env to add Notion credentials (NOTION_TOKEN)"
-echo "  3. Configure plugin at: $WP_SITE_URL/wp-admin/admin.php?page=notion-sync"
-echo "  4. Start developing!"
+echo "  3. Add Serena to .mcp.json (see above) and restart Claude Code"
+echo "  4. Configure plugin at: $WP_SITE_URL/wp-admin/admin.php?page=notion-sync"
+echo "  5. Start developing!"
 echo ""

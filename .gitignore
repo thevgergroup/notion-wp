@@ -55,6 +55,9 @@ coverage/
 .stylelintcache
 .eslintcache
 
+# Serena MCP cache
+.serena/
+
 # Temporary files
 tmp/
 temp/
