@@ -280,6 +280,7 @@ class DatabasesListTable extends \WP_List_Table {
 
 		$count = $wpdb->get_var(
 			$wpdb->prepare(
+				// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- Table name is safe.
 				"SELECT COUNT(*) FROM {$table_name} WHERE database_post_id = %d",
 				$post_id
 			)

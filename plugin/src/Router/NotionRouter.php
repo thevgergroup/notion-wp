@@ -118,7 +118,7 @@ class NotionRouter {
 			exit;
 		}
 
-		// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log -- Debug logging.
+		// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log, Generic.Files.LineLength.MaxExceeded -- Debug logging.
 		error_log( sprintf( '[NotionRouter] Found entry - sync_status: %s, wp_post_id: %s', $link_entry->sync_status, $link_entry->wp_post_id ?? 'null' ) );
 
 		// Handle based on sync status.

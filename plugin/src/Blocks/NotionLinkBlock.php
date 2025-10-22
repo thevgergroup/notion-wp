@@ -165,8 +165,10 @@ class NotionLinkBlock {
 	 * @param array  $attributes Block attributes.
 	 * @param string $content    Block content (not used for dynamic blocks).
 	 * @return string Rendered HTML.
+	 *
+	 * @phpcs:ignore Generic.CodeAnalysis.UnusedFunctionParameter.FoundAfterLastUsed -- $content required by block API.
 	 */
-	public function render_block( array $attributes, string $content = '' ): string { // phpcs:ignore Generic.CodeAnalysis.UnusedFunctionParameter.FoundAfterLastUsed
+	public function render_block( array $attributes, string $content = '' ): string {
 
 		$notion_id = $attributes['notionId'] ?? '';
 

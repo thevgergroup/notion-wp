@@ -118,6 +118,7 @@ class DatabasePostType {
 			throw new \RuntimeException(
 				sprintf(
 					'Failed to create database post: %s',
+					// phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- Exception message, not browser output.
 					$post_id->get_error_message()
 				)
 			);

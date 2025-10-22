@@ -41,6 +41,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 						/* translators: 1: row count, 2: last sync time */
 						esc_html__( '%1$d rows • Last synced: %2$s', 'notion-wp' ),
 						(int) $row_count,
+						// phpcs:ignore Generic.Files.LineLength.TooLong, Generic.Files.LineLength.MaxExceeded -- Template readability.
 						$last_synced ? esc_html( human_time_diff( strtotime( $last_synced ), current_time( 'timestamp' ) ) . ' ago' ) : esc_html__( 'Never', 'notion-wp' )
 					);
 					?>
@@ -67,7 +68,8 @@ if ( ! defined( 'ABSPATH' ) ) {
 			<?php esc_html_e( 'Loading database...', 'notion-wp' ); ?>
 		</div>
 
-		<div id="table-error" style="display: none; padding: 20px; background: #f8d7da; border: 1px solid #f5c6cb; border-radius: 4px; color: #721c24; margin-top: 20px;">
+		<?php // phpcs:ignore Generic.Files.LineLength.MaxExceeded -- Template inline styles. ?>
+	<div id="table-error" style="display: none; padding: 20px; background: #f8d7da; border: 1px solid #f5c6cb; border-radius: 4px; color: #721c24; margin-top: 20px;">
 			<strong><?php esc_html_e( 'Error:', 'notion-wp' ); ?></strong>
 			<span id="error-message"></span>
 		</div>

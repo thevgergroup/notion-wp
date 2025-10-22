@@ -231,11 +231,23 @@ if ( ! defined( 'ABSPATH' ) ) {
 				<h2><?php esc_html_e( 'Maintenance Tools', 'notion-wp' ); ?></h2>
 
 				<p>
-					<?php esc_html_e( 'Update internal Notion links in previously synced posts to WordPress permalinks. This includes links to both pages and databases.', 'notion-wp' ); ?>
+					<?php
+					esc_html_e(
+						'Update internal Notion links in previously synced posts to WordPress permalinks. ' .
+						'This includes links to both pages and databases.',
+						'notion-wp'
+					);
+					?>
 				</p>
 
 				<p class="description">
-					<?php esc_html_e( 'This is useful after syncing new content that is referenced by existing posts, or after enabling database support.', 'notion-wp' ); ?>
+					<?php
+					esc_html_e(
+						'This is useful after syncing new content that is referenced by existing posts, ' .
+						'or after enabling database support.',
+						'notion-wp'
+					);
+					?>
 				</p>
 
 				<div id="link-update-messages" style="margin-top: 15px;"></div>
