@@ -574,121 +574,149 @@ class MediaUploader {
 }
 ```
 
-**File 2:** `plugin/src/Media/MediaTracker.php` (<300 lines)
+**File 2:** `plugin/src/Media/MediaRegistry.php` (<350 lines)
+
+**Architecture Note:** See `docs/architecture/media-sync-integration.md` for detailed integration strategy.
 
 ```php
 <?php
 namespace NotionSync\Media;
 
 /**
- * Tracks media uploads to prevent duplicates.
+ * Registry for tracking Notion media → WordPress attachments.
  *
- * Uses Notion block IDs to identify already-uploaded media.
+ * Extends the LinkRegistry pattern to media files.
+ * Prevents duplicate uploads and enables cross-reference resolution.
  */
-class MediaTracker {
+class MediaRegistry {
 
-    private const META_KEY_NOTION_BLOCK_ID = 'notion_block_id';
-    private const META_KEY_NOTION_FILE_URL = 'notion_file_url';
+    private const TABLE_NAME = 'notion_media_registry';
 
     /**
-     * Find existing attachment by Notion block ID.
-     *
-     * @param string $notion_block_id Notion block ID.
-     * @return int|null Attachment ID or null if not found.
+     * Create registry table.
      */
-    public function find_by_block_id( string $notion_block_id ): ?int {
-        $attachments = get_posts( [
-            'post_type'      => 'attachment',
-            'posts_per_page' => 1,
-            'fields'         => 'ids',
-            'meta_query'     => [
-                [
-                    'key'   => self::META_KEY_NOTION_BLOCK_ID,
-                    'value' => $notion_block_id,
-                ],
-            ],
-        ] );
+    public static function create_table(): void {
+        global $wpdb;
 
-        return ! empty( $attachments ) ? (int) $attachments[0] : null;
+        $table_name = $wpdb->prefix . self::TABLE_NAME;
+        $charset_collate = $wpdb->get_charset_collate();
+
+        $sql = "CREATE TABLE IF NOT EXISTS {$table_name} (
+            id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+            notion_identifier VARCHAR(255) NOT NULL UNIQUE,
+            attachment_id BIGINT UNSIGNED NOT NULL,
+            notion_file_url TEXT,
+            registered_at DATETIME NOT NULL,
+            KEY attachment_id (attachment_id),
+            KEY registered_at (registered_at)
+        ) {$charset_collate};";
+
+        require_once ABSPATH . 'wp-admin/includes/upgrade.php';
+        dbDelta( $sql );
     }
 
     /**
-     * Track uploaded attachment.
+     * Register downloaded media.
      *
-     * @param int    $attachment_id   Attachment ID.
-     * @param string $notion_block_id Notion block ID.
-     * @param string $notion_file_url Original Notion file URL.
+     * @param string $notion_identifier Notion block ID or file URL.
+     * @param int    $attachment_id     WordPress attachment ID.
+     * @param string $notion_file_url   Original Notion URL (optional).
      * @return bool Success status.
      */
-    public function track_attachment(
+    public static function register(
+        string $notion_identifier,
         int $attachment_id,
-        string $notion_block_id,
-        string $notion_file_url
+        string $notion_file_url = ''
     ): bool {
-        update_post_meta( $attachment_id, self::META_KEY_NOTION_BLOCK_ID, $notion_block_id );
-        update_post_meta( $attachment_id, self::META_KEY_NOTION_FILE_URL, $notion_file_url );
-        update_post_meta( $attachment_id, 'notion_synced_at', current_time( 'mysql' ) );
+        global $wpdb;
 
-        return true;
+        return false !== $wpdb->replace(
+            $wpdb->prefix . self::TABLE_NAME,
+            [
+                'notion_identifier' => $notion_identifier,
+                'attachment_id' => $attachment_id,
+                'notion_file_url' => $notion_file_url,
+                'registered_at' => current_time( 'mysql' ),
+            ],
+            [ '%s', '%d', '%s', '%s' ]
+        );
     }
 
     /**
-     * Check if attachment needs re-upload.
+     * Find existing attachment by Notion identifier.
      *
-     * Compares file URL to detect if Notion file changed.
-     *
-     * @param int    $attachment_id   Attachment ID.
-     * @param string $notion_file_url Current Notion file URL.
-     * @return bool True if needs re-upload.
+     * @param string $notion_identifier Notion block ID or file URL.
+     * @return int|null Attachment ID or null if not found.
      */
-    public function needs_reupload( int $attachment_id, string $notion_file_url ): bool {
-        $stored_url = get_post_meta( $attachment_id, self::META_KEY_NOTION_FILE_URL, true );
+    public static function find( string $notion_identifier ): ?int {
+        global $wpdb;
 
-        // If URL changed, file might have been replaced in Notion
-        return $stored_url !== $notion_file_url;
+        $attachment_id = $wpdb->get_var( $wpdb->prepare(
+            "SELECT attachment_id
+             FROM {$wpdb->prefix}%s
+             WHERE notion_identifier = %s
+             LIMIT 1",
+            self::TABLE_NAME,
+            $notion_identifier
+        ) );
+
+        return $attachment_id ? (int) $attachment_id : null;
     }
 
     /**
-     * Get all attachments for a Notion page.
+     * Get WordPress media URL from Notion identifier.
      *
-     * @param string $notion_page_id Notion page ID.
-     * @return array Array of attachment IDs.
+     * @param string $notion_identifier Notion block ID or file URL.
+     * @return string|null Media URL or null.
      */
-    public function get_page_attachments( string $notion_page_id ): array {
-        $post_id = $this->find_post_by_notion_id( $notion_page_id );
+    public static function get_media_url( string $notion_identifier ): ?string {
+        $attachment_id = self::find( $notion_identifier );
 
-        if ( ! $post_id ) {
-            return [];
+        if ( ! $attachment_id ) {
+            return null;
         }
 
-        return get_children( [
-            'post_parent'    => $post_id,
-            'post_type'      => 'attachment',
-            'posts_per_page' => -1,
-            'fields'         => 'ids',
-        ] );
+        return wp_get_attachment_url( $attachment_id );
     }
 
     /**
-     * Find WordPress post by Notion page ID.
+     * Get original Notion URL for attachment.
      *
-     * @param string $notion_page_id Notion page ID.
-     * @return int|null Post ID or null.
+     * @param int $attachment_id Attachment ID.
+     * @return string|null Notion file URL or null.
      */
-    private function find_post_by_notion_id( string $notion_page_id ): ?int {
-        $posts = get_posts( [
-            'post_type'      => 'any',
-            'posts_per_page' => 1,
-            'fields'         => 'ids',
-            'meta_query'     => [
-                [
-                    'key'   => 'notion_page_id',
-                    'value' => $notion_page_id,
-                ],
-            ],
-        ] );
+    public static function get_notion_url( int $attachment_id ): ?string {
+        global $wpdb;
 
-        return ! empty( $posts ) ? (int) $posts[0] : null;
+        return $wpdb->get_var( $wpdb->prepare(
+            "SELECT notion_file_url
+             FROM {$wpdb->prefix}%s
+             WHERE attachment_id = %d
+             LIMIT 1",
+            self::TABLE_NAME,
+            $attachment_id
+        ) );
+    }
+
+    /**
+     * Check if media needs re-upload.
+     *
+     * @param string $notion_identifier Notion block ID.
+     * @param string $current_file_url  Current file URL.
+     * @return bool True if needs re-upload.
+     */
+    public static function needs_reupload(
+        string $notion_identifier,
+        string $current_file_url
+    ): bool {
+        $attachment_id = self::find( $notion_identifier );
+
+        if ( ! $attachment_id ) {
+            return true; // Not uploaded yet
+        }
+
+        $stored_url = self::get_notion_url( $attachment_id );
+        return $stored_url !== $current_file_url;
     }
 }
 ```
@@ -699,8 +727,8 @@ class MediaTracker {
 2. Implement upload to Media Library
 3. Add metadata handling (alt text, caption)
 4. Ensure thumbnail generation works
-5. Create MediaTracker for deduplication
-6. Implement block ID tracking
+5. Create MediaRegistry for deduplication (extends LinkRegistry pattern)
+6. Implement block ID tracking in registry table
 7. Add tests for upload process
 8. Test metadata preservation
 
@@ -739,7 +767,7 @@ namespace NotionSync\Blocks\Converters;
 
 use NotionSync\Media\ImageDownloader;
 use NotionSync\Media\MediaUploader;
-use NotionSync\Media\MediaTracker;
+use NotionSync\Media\MediaRegistry;
 
 /**
  * Converts Notion image blocks to WordPress image blocks.
@@ -748,16 +776,13 @@ class ImageConverter implements ConverterInterface {
 
     private ImageDownloader $downloader;
     private MediaUploader $uploader;
-    private MediaTracker $tracker;
 
     public function __construct(
         ImageDownloader $downloader,
-        MediaUploader $uploader,
-        MediaTracker $tracker
+        MediaUploader $uploader
     ) {
         $this->downloader = $downloader;
         $this->uploader = $uploader;
-        $this->tracker = $tracker;
     }
 
     /**
@@ -778,11 +803,11 @@ class ImageConverter implements ConverterInterface {
             return '<!-- Image block: No URL found -->';
         }
 
-        // Check if already uploaded
-        $attachment_id = $this->tracker->find_by_block_id( $block_id );
+        // Check MediaRegistry first (deduplication)
+        $attachment_id = MediaRegistry::find( $block_id );
 
-        if ( $attachment_id && ! $this->tracker->needs_reupload( $attachment_id, $image_url ) ) {
-            // Use existing attachment
+        if ( $attachment_id && ! MediaRegistry::needs_reupload( $block_id, $image_url ) ) {
+            // Already uploaded - reuse existing attachment
             return $this->generate_image_block( $attachment_id, $image_data );
         }
 
@@ -803,8 +828,8 @@ class ImageConverter implements ConverterInterface {
                 $parent_post_id
             );
 
-            // Track upload
-            $this->tracker->track_attachment( $attachment_id, $block_id, $image_url );
+            // Register in MediaRegistry
+            MediaRegistry::register( $block_id, $attachment_id, $image_url );
 
             // Clean up temp file
             $this->downloader->cleanup( $downloaded['file_path'] );
@@ -937,14 +962,12 @@ public function register_default_converters(): void {
     // Register media converters
     $this->register_converter( new ImageConverter(
         new ImageDownloader(),
-        new MediaUploader(),
-        new MediaTracker()
+        new MediaUploader()
     ) );
 
     $this->register_converter( new FileConverter(
         new FileDownloader(),
-        new MediaUploader(),
-        new MediaTracker()
+        new MediaUploader()
     ) );
 }
 ```
@@ -1092,11 +1115,9 @@ class MediaSyncScheduler {
 
         $downloader = new ImageDownloader();
         $uploader = new MediaUploader();
-        $tracker = new MediaTracker();
         $converter = new \NotionSync\Blocks\Converters\ImageConverter(
             $downloader,
-            $uploader,
-            $tracker
+            $uploader
         );
 
         $completed = 0;
@@ -1206,7 +1227,7 @@ add_action( 'notion_sync_media', function( $job_id, $page_id, $post_id, $blocks 
 - ✅ `plugin/src/Media/ImageDownloader.php` - Image downloads
 - ✅ `plugin/src/Media/FileDownloader.php` - File downloads
 - ✅ `plugin/src/Media/MediaUploader.php` - Media Library uploads
-- ✅ `plugin/src/Media/MediaTracker.php` - Deduplication
+- ✅ `plugin/src/Media/MediaRegistry.php` - Deduplication (extends LinkRegistry pattern)
 - ✅ `plugin/src/Media/MediaSyncScheduler.php` - Background jobs
 - ✅ `plugin/src/Blocks/Converters/ImageConverter.php` - Image blocks
 - ✅ `plugin/src/Blocks/Converters/FileConverter.php` - File blocks
