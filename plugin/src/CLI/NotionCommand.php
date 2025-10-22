@@ -388,5 +388,4 @@ class NotionCommand {
 		$post_id = absint( $args[0] );
 		RegistryHandler::update_post_links( $post_id );
 	}
-
 }
