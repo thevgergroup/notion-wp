@@ -3,7 +3,7 @@
  *
  * Handles updating table UI elements (badges, columns, row actions).
  *
- * @package NotionSync
+ * @package
  */
 
 /**

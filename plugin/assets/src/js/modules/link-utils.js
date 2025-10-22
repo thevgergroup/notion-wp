@@ -4,13 +4,12 @@
  * Handles link-related functionality including copying Notion IDs
  * and updating links in posts.
  *
- * @package NotionSync
+ * @package
  */
 
 /**
  * Internal dependencies
  */
-import { showAdminNotice } from './admin-ui.js';
 import { escapeHtml } from './table-ui.js';
 
 /**
@@ -89,7 +88,6 @@ function fallbackCopy(text, button) {
  */
 export function handleUpdateLinks() {
 	const button = document.getElementById('update-links-btn');
-	const spinner = document.getElementById('link-update-spinner');
 	const messagesContainer = document.getElementById('link-update-messages');
 
 	if (!button || !messagesContainer) {
@@ -98,6 +96,7 @@ export function handleUpdateLinks() {
 
 	// Disable button and show loading state.
 	button.disabled = true;
+	const spinner = document.getElementById('link-update-spinner');
 	if (spinner) {
 		spinner.style.display = 'inline-block';
 	}

@@ -3,7 +3,7 @@
  *
  * Handles database sync operations with batch progress tracking.
  *
- * @package NotionSync
+ * @package
  */
 
 /**
@@ -21,7 +21,10 @@ export function handleDatabaseSync(button) {
 	const { databaseId } = button.dataset;
 
 	if (!databaseId) {
-		showAdminNotice('error', 'Database ID is missing. Cannot sync database.');
+		showAdminNotice(
+			'error',
+			'Database ID is missing. Cannot sync database.'
+		);
 		return;
 	}
 
@@ -51,7 +54,10 @@ export function handleDatabaseSync(button) {
 		.then((data) => {
 			if (data.success) {
 				// Show success message.
-				showAdminNotice('info', notionSyncAdmin.i18n.databaseSyncStarted);
+				showAdminNotice(
+					'info',
+					notionSyncAdmin.i18n.databaseSyncStarted
+				);
 
 				// Create progress bar.
 				const progressContainer = createProgressBar(data.data.batch_id);
@@ -165,12 +171,10 @@ function pollBatchProgress(
 					const progress = data.data;
 
 					// Update progress bar.
-					const progressText = progressContainer.querySelector(
-						'.progress-text'
-					);
-					const progressFill = progressContainer.querySelector(
-						'.progress-bar-fill'
-					);
+					const progressText =
+						progressContainer.querySelector('.progress-text');
+					const progressFill =
+						progressContainer.querySelector('.progress-bar-fill');
 
 					if (progressText && progressFill) {
 						const percentage = progress.percentage || 0;
@@ -202,7 +206,10 @@ function pollBatchProgress(
 								window.location.reload();
 							}, 2000);
 						} else {
-							showAdminNotice('warning', 'Database sync cancelled.');
+							showAdminNotice(
+								'warning',
+								'Database sync cancelled.'
+							);
 						}
 
 						// Re-enable button.

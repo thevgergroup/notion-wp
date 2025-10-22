@@ -4,7 +4,7 @@
  * Main orchestrator for sync functionality.
  * Imports and coordinates functionality from specialized modules.
  *
- * @package NotionSync
+ * @package
  */
 
 /**
@@ -17,7 +17,11 @@ import { handleCopyNotionId, handleUpdateLinks } from './link-utils.js';
 /**
  * Re-export table UI functions for backward compatibility
  */
-export { updateStatusBadge, updateWpPostColumn, updateLastSyncedColumn } from './table-ui.js';
+export {
+	updateStatusBadge,
+	updateWpPostColumn,
+	updateLastSyncedColumn,
+} from './table-ui.js';
 
 /**
  * Initialize sync functionality for pages list table

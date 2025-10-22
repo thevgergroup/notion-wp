@@ -3,14 +3,19 @@
  *
  * Handles individual page sync and bulk sync operations.
  *
- * @package NotionSync
+ * @package
  */
 
 /**
  * Internal dependencies
  */
 import { showAdminNotice } from './admin-ui.js';
-import { updateStatusBadge, updateWpPostColumn, updateLastSyncedColumn, updateRowActions } from './table-ui.js';
+import {
+	updateStatusBadge,
+	updateWpPostColumn,
+	updateLastSyncedColumn,
+	updateRowActions,
+} from './table-ui.js';
 
 /**
  * Handle individual page sync ("Sync Now" button)

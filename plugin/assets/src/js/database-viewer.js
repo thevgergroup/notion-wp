@@ -3,7 +3,7 @@
  *
  * Displays Notion database data with interactive sorting, filtering, and export.
  *
- * @package NotionSync
+ * @package
  * @since 1.0.0
  */
 
@@ -11,7 +11,7 @@
 	'use strict';
 
 	// Wait for DOM and Tabulator to be ready.
-	document.addEventListener('DOMContentLoaded', function () {
+	document.addEventListener('DOMContentLoaded', () => {
 		initDatabaseViewer();
 	});
 
@@ -40,22 +40,19 @@
 	/**
 	 * Fetch database schema from REST API.
 	 *
-	 * @param {number} postId Database post ID.
+	 * @param {number} postId  Database post ID.
 	 * @param {string} restUrl REST API base URL.
-	 * @param {string} nonce REST API nonce.
+	 * @param {string} nonce   REST API nonce.
 	 * @return {Promise<Object>} Schema data.
 	 */
 	async function fetchSchema(postId, restUrl, nonce) {
-		const response = await fetch(
-			`${restUrl}/databases/${postId}/schema`,
-			{
-				method: 'GET',
-				headers: {
-					'Content-Type': 'application/json',
-					'X-WP-Nonce': nonce,
-				},
-			}
-		);
+		const response = await fetch(`${restUrl}/databases/${postId}/schema`, {
+			method: 'GET',
+			headers: {
+				'Content-Type': 'application/json',
+				'X-WP-Nonce': nonce,
+			},
+		});
 
 		if (!response.ok) {
 			throw new Error(`HTTP ${response.status}: ${response.statusText}`);
@@ -67,11 +64,11 @@
 	/**
 	 * Initialize Tabulator table.
 	 *
-	 * @param {Object} schema Schema data from API.
-	 * @param {number} postId Database post ID.
+	 * @param {Object} schema  Schema data from API.
+	 * @param {number} postId  Database post ID.
 	 * @param {string} restUrl REST API base URL.
-	 * @param {string} nonce REST API nonce.
-	 * @param {Object} i18n Internationalization strings.
+	 * @param {string} nonce   REST API nonce.
+	 * @param {Object} i18n    Internationalization strings.
 	 */
 	function initializeTable(schema, postId, restUrl, nonce, i18n) {
 		// Build columns from schema.
@@ -93,14 +90,14 @@
 					'X-WP-Nonce': nonce,
 				},
 			},
-			ajaxResponse: function (url, params, response) {
+			ajaxResponse(url, params, response) {
 				// Transform API response for Tabulator.
 				return {
 					last_page: response.pagination.total_pages,
 					data: transformRows(response.rows),
 				};
 			},
-			columns: columns,
+			columns,
 			placeholder: i18n.noData,
 			initialSort: [{ column: 'last_edited_time', dir: 'desc' }],
 		});
@@ -115,7 +112,7 @@
 	/**
 	 * Build Tabulator columns from schema.
 	 *
-	 * @param {Array} schemColumns Column definitions from API.
+	 * @param {Array} schemaColumns Column definitions from API.
 	 * @return {Array} Tabulator column configuration.
 	 */
 	function buildColumns(schemaColumns) {
@@ -140,7 +137,10 @@
 					if (Array.isArray(value)) {
 						// Multi-select or array values.
 						return value
-							.map((v) => `<span class="tag">${escapeHtml(v)}</span>`)
+							.map(
+								(v) =>
+									`<span class="tag">${escapeHtml(v)}</span>`
+							)
 							.join(' ');
 					}
 					return value;
@@ -154,7 +154,9 @@
 			if (col.sorter === 'datetime') {
 				column.formatter = function (cell) {
 					const value = cell.getValue();
-					if (!value) return '';
+					if (!value) {
+						return '';
+					}
 					try {
 						return new Date(value).toLocaleString();
 					} catch (e) {
@@ -188,7 +190,7 @@
 				title: row.title,
 				created_time: row.created_time,
 				last_edited_time: row.last_edited_time,
-				properties: properties,
+				properties,
 			};
 		});
 	}
@@ -197,13 +199,15 @@
 	 * Wire up action buttons.
 	 *
 	 * @param {Tabulator} table Tabulator instance.
-	 * @param {Object} i18n Internationalization strings.
+	 * @param {Object}    _i18n Internationalization strings (unused).
 	 */
-	function wireUpActions(table, i18n) {
+	function wireUpActions(table, _i18n) {
 		// Reset filters.
-		document.getElementById('reset-filters').addEventListener('click', () => {
-			table.clearHeaderFilter();
-		});
+		document
+			.getElementById('reset-filters')
+			.addEventListener('click', () => {
+				table.clearHeaderFilter();
+			});
 
 		// Export CSV.
 		document.getElementById('export-csv').addEventListener('click', () => {
