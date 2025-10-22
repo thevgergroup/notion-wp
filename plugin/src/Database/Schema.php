@@ -145,9 +145,9 @@ class Schema {
 		$table_name  = $wpdb->prefix . self::TABLE_NAME;
 		$links_table = $wpdb->prefix . self::LINKS_TABLE_NAME;
 
-		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.SchemaChange -- Intentional table drop on uninstall.
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.SchemaChange, WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- Intentional table drop on uninstall, table name is safe.
 		$wpdb->query( "DROP TABLE IF EXISTS {$table_name}" );
-		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.SchemaChange -- Intentional table drop on uninstall.
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.SchemaChange, WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- Intentional table drop on uninstall, table name is safe.
 		$wpdb->query( "DROP TABLE IF EXISTS {$links_table}" );
 	}
 
