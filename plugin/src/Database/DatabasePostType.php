@@ -114,6 +114,7 @@ class DatabasePostType {
 			)
 		);
 
+		// @phpstan-ignore-next-line -- wp_insert_post can return WP_Error|int, PHPStan doesn't recognize WP_Error return type.
 		if ( is_wp_error( $post_id ) ) {
 			throw new \RuntimeException(
 				sprintf(

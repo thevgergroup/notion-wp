@@ -51,7 +51,8 @@ class RegistryHandler {
 			return;
 		}
 
-		\WP_CLI::log( \WP_CLI::colorize( "%GLinks Found (%d):%n\n", count( $links ) ) );
+		$link_count = count( $links );
+		\WP_CLI::log( \WP_CLI::colorize( "%GLinks Found ({$link_count}):%n" ) );
 
 		$link_registry      = new LinkRegistry();
 		$notion_links_found = false;
