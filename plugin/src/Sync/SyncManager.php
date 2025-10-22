@@ -412,13 +412,9 @@ class SyncManager {
 		string $notion_page_id,
 		?int $existing_post_id = null
 	): array {
-		// Extract title from page properties.
-		$title = $page_properties['title'] ?? 'Untitled';
-
-		// Sanitize title.
-		$title = sanitize_text_field( $title );
-
-		// Use wp_kses_post to allow safe HTML in content.
+		// Extract and sanitize title from page properties.
+		$title   = $page_properties['title'] ?? 'Untitled';
+		$title   = sanitize_text_field( $title );
 		$content = wp_kses_post( $gutenberg_html );
 
 		$post_data = array(
@@ -497,7 +493,6 @@ class SyncManager {
 
 		// Create Notion client and content fetcher.
 		$client = new NotionClient( $token );
-
 		return new ContentFetcher( $client );
 	}
 }
