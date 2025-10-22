@@ -27,23 +27,33 @@ class DatabaseViewPage {
 	public function register(): void {
 		add_action( 'admin_menu', array( $this, 'add_admin_page' ) );
 		add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_assets' ) );
+		add_filter( 'admin_title', array( $this, 'set_admin_title' ), 10, 2 );
 	}
 
 	/**
 	 * Add admin menu page.
 	 *
-	 * Hidden from menu - accessed via direct URL from databases list.
+	 * Added as submenu of Notion Sync but hidden from display using CSS.
+	 * This prevents PHP 8.3 deprecation warnings with hidden pages.
 	 *
 	 * @since 1.0.0
 	 */
 	public function add_admin_page(): void {
 		add_submenu_page(
-			'', // Empty string creates hidden page (not shown in menu).
+			'notion-sync', // Parent page slug (Notion Sync main page).
 			__( 'View Database', 'notion-wp' ),
 			__( 'View Database', 'notion-wp' ),
 			'manage_options',
 			'notion-sync-view-database',
 			array( $this, 'render_page' )
+		);
+
+		// Hide this submenu item from the admin menu using CSS.
+		add_action(
+			'admin_head',
+			function () {
+				echo '<style>#toplevel_page_notion-sync .wp-submenu li a[href*="notion-sync-view-database"] { display: none !important; }</style>';
+			}
 		);
 	}
 
@@ -56,7 +66,11 @@ class DatabaseViewPage {
 	 */
 	public function enqueue_assets( string $hook ): void {
 		// Only load on our page.
-		if ( 'admin_page_notion-sync-view-database' !== $hook ) {
+		// Check using the page query parameter which is more reliable than hook suffix.
+		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Just checking page slug, not processing data.
+		$current_page = isset( $_GET['page'] ) ? sanitize_text_field( wp_unslash( $_GET['page'] ) ) : '';
+
+		if ( 'notion-sync-view-database' !== $current_page ) {
 			return;
 		}
 
@@ -68,11 +82,20 @@ class DatabaseViewPage {
 			'6.3.0'
 		);
 
-		// Enqueue Tabulator JS.
+		// Enqueue Luxon.js (required for datetime sorting).
+		wp_enqueue_script(
+			'luxon',
+			'https://cdn.jsdelivr.net/npm/luxon@3.4.4/build/global/luxon.min.js',
+			array(),
+			'3.4.4',
+			true
+		);
+
+		// Enqueue Tabulator JS (depends on luxon for datetime sorting).
 		wp_enqueue_script(
 			'tabulator',
 			'https://unpkg.com/tabulator-tables@6.3.0/dist/js/tabulator.min.js',
-			array(),
+			array( 'luxon' ),
 			'6.3.0',
 			true
 		);
@@ -146,6 +169,37 @@ class DatabaseViewPage {
 			}
 			'
 		);
+	}
+
+	/**
+	 * Set admin page title.
+	 *
+	 * Prevents strip_tags() deprecation warning by ensuring title is never null.
+	 *
+	 * @since 1.0.0
+	 *
+	 * @param string $admin_title The page title.
+	 * @param string $title       The title of the admin page.
+	 * @return string The page title.
+	 */
+	public function set_admin_title( $admin_title, $title ): string {
+		// Only modify title on our page.
+		$screen = get_current_screen();
+		if ( ! $screen || 'notion-sync_page_notion-sync-view-database' !== $screen->id ) {
+			return $admin_title;
+		}
+
+		// Get database title if available.
+		$post_id = isset( $_GET['post_id'] ) ? absint( $_GET['post_id'] ) : 0;
+		if ( $post_id ) {
+			$post = get_post( $post_id );
+			if ( $post ) {
+				return $post->post_title . ' &lsaquo; ' . get_bloginfo( 'name' );
+			}
+		}
+
+		// Fallback to generic title.
+		return __( 'View Database', 'notion-wp' ) . ' &lsaquo; ' . get_bloginfo( 'name' );
 	}
 
 	/**

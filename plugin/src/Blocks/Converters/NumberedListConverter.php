@@ -217,15 +217,17 @@ class NumberedListConverter implements BlockConverterInterface {
 			$link_data   = LinkRewriter::rewrite_url( $link_url );
 			$escaped_url = esc_url( $link_data['url'] );
 
-			// Add data-notion-id attribute if this is a Notion link.
+			// Use shortcode for Notion internal links (dynamic content).
+			// Use static HTML for external links.
 			if ( $link_data['notion_page_id'] ) {
+				// Notion internal link - use shortcode for always-current title/URL.
 				$formatted = sprintf(
-					'<a href="%s" data-notion-id="%s">%s</a>',
-					$escaped_url,
+					'[notion_link id="%s" text="%s"]',
 					esc_attr( $link_data['notion_page_id'] ),
-					$formatted
+					esc_attr( wp_strip_all_tags( $formatted ) )
 				);
 			} else {
+				// External link - use static HTML.
 				$formatted = sprintf( '<a href="%s">%s</a>', $escaped_url, $formatted );
 			}
 		}

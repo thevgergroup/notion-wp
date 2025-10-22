@@ -13,6 +13,7 @@ namespace NotionSync\Sync;
 
 use NotionSync\Database\RowRepository;
 use NotionSync\Database\DatabasePostType;
+use NotionSync\Router\LinkRegistry;
 
 /**
  * Class BatchProcessor
@@ -52,14 +53,23 @@ class BatchProcessor {
 	private $repository;
 
 	/**
+	 * Link registry instance.
+	 *
+	 * @var LinkRegistry
+	 */
+	private $link_registry;
+
+	/**
 	 * Constructor.
 	 *
-	 * @param DatabaseFetcher $fetcher    Database fetcher.
-	 * @param RowRepository   $repository Row repository.
+	 * @param DatabaseFetcher  $fetcher       Database fetcher.
+	 * @param RowRepository    $repository    Row repository.
+	 * @param LinkRegistry|null $link_registry Link registry instance.
 	 */
-	public function __construct( DatabaseFetcher $fetcher, RowRepository $repository ) {
-		$this->fetcher    = $fetcher;
-		$this->repository = $repository;
+	public function __construct( DatabaseFetcher $fetcher, RowRepository $repository, ?LinkRegistry $link_registry = null ) {
+		$this->fetcher       = $fetcher;
+		$this->repository    = $repository;
+		$this->link_registry = $link_registry ?? new LinkRegistry();
 	}
 
 	/**
@@ -99,6 +109,18 @@ class BatchProcessor {
 
 		// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log -- Debug logging.
 		error_log( 'BatchProcessor: Database post ID: ' . $post_id );
+
+		// Register/update database link in registry.
+		// This enables /notion/{slug} URLs to redirect to the database viewer.
+		$this->link_registry->register(
+			array(
+				'notion_id'    => str_replace( '-', '', $database_id ),
+				'notion_title' => $database_info['title'] ?? 'Untitled Database',
+				'notion_type'  => 'database',
+				'wp_post_id'   => $post_id,
+				'wp_post_type' => 'notion_database',
+			)
+		);
 
 		// Generate unique batch ID.
 		$batch_id = 'batch_' . substr( md5( $database_id . time() ), 0, 10 );

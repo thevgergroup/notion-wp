@@ -226,6 +226,29 @@ if ( ! defined( 'ABSPATH' ) ) {
 				</form>
 			</div>
 
+			<!-- Link Update Tool -->
+			<div class="card" style="margin-top: 20px;">
+				<h2><?php esc_html_e( 'Maintenance Tools', 'notion-wp' ); ?></h2>
+
+				<p>
+					<?php esc_html_e( 'Update internal Notion links in previously synced posts to WordPress permalinks. This includes links to both pages and databases.', 'notion-wp' ); ?>
+				</p>
+
+				<p class="description">
+					<?php esc_html_e( 'This is useful after syncing new content that is referenced by existing posts, or after enabling database support.', 'notion-wp' ); ?>
+				</p>
+
+				<div id="link-update-messages" style="margin-top: 15px;"></div>
+
+				<p style="margin-top: 15px;">
+					<button type="button" id="update-links-btn" class="button button-secondary">
+						<span class="dashicons dashicons-update" style="margin-top: 3px;"></span>
+						<?php esc_html_e( 'Update All Links', 'notion-wp' ); ?>
+					</button>
+					<span id="link-update-spinner" class="spinner" style="float: none; margin-left: 10px; display: none;"></span>
+				</p>
+			</div>
+
 			<!-- Notion Pages List Table -->
 			<?php if ( null !== $list_table ) : ?>
 				<div class="card" style="margin-top: 20px;">

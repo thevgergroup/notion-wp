@@ -56,6 +56,12 @@ export function initSyncFunctionality() {
 			handleCopyNotionId(event.target.closest('.notion-copy-id'));
 		}
 	});
+
+	// Handle update links button.
+	const updateLinksBtn = document.getElementById('update-links-btn');
+	if (updateLinksBtn) {
+		updateLinksBtn.addEventListener('click', handleUpdateLinks);
+	}
 }
 
 /**
@@ -698,5 +704,86 @@ function handleCancelBatch(button) {
 			console.error('Cancel batch error:', error);
 			button.disabled = false;
 			button.textContent = 'Cancel Sync';
+		});
+}
+
+/**
+ * Handle update links button click
+ *
+ * Updates all Notion links in synced posts to WordPress permalinks.
+ * This includes both page links and database links.
+ */
+function handleUpdateLinks() {
+	const button = document.getElementById('update-links-btn');
+	const spinner = document.getElementById('link-update-spinner');
+	const messagesContainer = document.getElementById('link-update-messages');
+
+	if (!button || !messagesContainer) {
+		return;
+	}
+
+	// Disable button and show loading state.
+	button.disabled = true;
+	if (spinner) {
+		spinner.style.display = 'inline-block';
+	}
+
+	// Clear previous messages.
+	messagesContainer.innerHTML = '';
+
+	// Make AJAX request.
+	fetch(notionSyncAdmin.ajaxUrl, {
+		method: 'POST',
+		headers: {
+			'Content-Type': 'application/x-www-form-urlencoded',
+		},
+		body: new URLSearchParams({
+			action: 'notion_sync_update_links',
+			nonce: notionSyncAdmin.nonce,
+		}),
+	})
+		.then((response) => response.json())
+		.then((data) => {
+			// Re-enable button and hide spinner.
+			button.disabled = false;
+			if (spinner) {
+				spinner.style.display = 'none';
+			}
+
+			if (data.success) {
+				// Show success message with statistics.
+				const message = document.createElement('div');
+				message.className = 'notice notice-success';
+				message.innerHTML = `<p><strong>Link Update Complete</strong></p>
+					<ul style="margin-left: 20px;">
+						<li>Posts checked: ${data.data.posts_checked}</li>
+						<li>Posts updated: ${data.data.posts_updated}</li>
+						<li>Links rewritten: ${data.data.links_rewritten}</li>
+					</ul>`;
+				messagesContainer.appendChild(message);
+			} else {
+				// Show error message.
+				const message = document.createElement('div');
+				message.className = 'notice notice-error';
+				message.innerHTML = `<p>${escapeHtml(
+					data.data || 'Failed to update links. Please try again.'
+				)}</p>`;
+				messagesContainer.appendChild(message);
+			}
+		})
+		.catch((error) => {
+			// Re-enable button and hide spinner.
+			button.disabled = false;
+			if (spinner) {
+				spinner.style.display = 'none';
+			}
+
+			// Show error message.
+			const message = document.createElement('div');
+			message.className = 'notice notice-error';
+			message.innerHTML =
+				'<p>Network error updating links. Please try again.</p>';
+			messagesContainer.appendChild(message);
+			console.error('Link update error:', error);
 		});
 }

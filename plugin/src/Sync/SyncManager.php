@@ -17,6 +17,7 @@ use NotionSync\API\NotionClient;
 use NotionSync\Blocks\BlockConverter;
 use NotionSync\Security\Encryption;
 use NotionSync\Sync\LinkUpdater;
+use NotionSync\Router\LinkRegistry;
 
 /**
  * Class SyncManager
@@ -41,6 +42,13 @@ class SyncManager {
 	 * @var BlockConverter
 	 */
 	private $converter;
+
+	/**
+	 * Link registry instance.
+	 *
+	 * @var LinkRegistry
+	 */
+	private $link_registry;
 
 	/**
 	 * Post meta key for storing Notion page ID.
@@ -78,12 +86,13 @@ class SyncManager {
 	 *
 	 * @since 1.0.0
 	 *
-	 * @param ContentFetcher|null $fetcher   Optional. Content fetcher instance.
-	 * @param BlockConverter|null $converter Optional. Block converter instance.
+	 * @param ContentFetcher|null $fetcher       Optional. Content fetcher instance.
+	 * @param BlockConverter|null $converter     Optional. Block converter instance.
+	 * @param LinkRegistry|null   $link_registry Optional. Link registry instance.
 	 *
 	 * @throws \RuntimeException If Notion token is not configured and no fetcher provided.
 	 */
-	public function __construct( ?ContentFetcher $fetcher = null, ?BlockConverter $converter = null ) {
+	public function __construct( ?ContentFetcher $fetcher = null, ?BlockConverter $converter = null, ?LinkRegistry $link_registry = null ) {
 		if ( null === $fetcher ) {
 			// Initialize fetcher with stored Notion token.
 			$fetcher = $this->create_default_fetcher();
@@ -94,8 +103,14 @@ class SyncManager {
 			$converter = new BlockConverter();
 		}
 
-		$this->fetcher   = $fetcher;
-		$this->converter = $converter;
+		if ( null === $link_registry ) {
+			// Initialize link registry.
+			$link_registry = new LinkRegistry();
+		}
+
+		$this->fetcher       = $fetcher;
+		$this->converter     = $converter;
+		$this->link_registry = $link_registry;
 	}
 
 	/**
@@ -201,11 +216,23 @@ class SyncManager {
 			// Step 7: Store Notion metadata.
 			$this->store_post_metadata( $post_id, $notion_page_id, $page_properties );
 
-			// Step 8: Update links across all synced posts.
-			// This solves the chicken-and-egg problem where Page A is synced before Page B,
-			// causing links in Page A to point to Notion. After syncing Page B, we update
-			// all posts to rewrite those Notion links to WordPress permalinks.
-			LinkUpdater::update_all_links();
+			// Step 8: Register/update link in registry.
+			// This enables /notion/{slug} URLs to redirect to this WordPress post.
+			$this->link_registry->register(
+				array(
+					'notion_id'    => str_replace( '-', '', $notion_page_id ),
+					'notion_title' => $page_properties['title'] ?? 'Untitled',
+					'notion_type'  => 'page',
+					'wp_post_id'   => $post_id,
+					'wp_post_type' => 'post',
+				)
+			);
+
+			// Step 9 (DEPRECATED): Update links across all synced posts.
+			// This old approach is replaced by the link registry system.
+			// Links now use /notion/{slug} format which works before and after sync.
+			// Keeping for backward compatibility during transition.
+			// LinkUpdater::update_all_links();
 
 			// Return success result.
 			return array(

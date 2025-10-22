@@ -70,6 +70,23 @@ function init() {
 	$database_cpt = new Database\DatabasePostType();
 	$database_cpt->register();
 
+	// Register database frontend template loader.
+	$database_template_loader = new Database\DatabaseTemplateLoader();
+	$database_template_loader->register();
+
+	// Initialize Link Registry and Router for /notion/{slug} URLs.
+	$link_registry = new Router\LinkRegistry();
+	$notion_router = new Router\NotionRouter( $link_registry );
+	$notion_router->register();
+
+	// Register Notion Link Gutenberg block.
+	$notion_link_block = new Blocks\NotionLinkBlock();
+	$notion_link_block->register();
+
+	// Register Notion Link shortcode for inline links.
+	$notion_link_shortcode = new Blocks\NotionLinkShortcode();
+	$notion_link_shortcode->register();
+
 	// Initialize admin interface.
 	if ( is_admin() ) {
 		$settings_page = new Admin\SettingsPage();
@@ -88,6 +105,9 @@ function init() {
 		function () {
 			$rest_controller = new API\DatabaseRestController();
 			$rest_controller->register_routes();
+
+			$link_rest_controller = new API\LinkRegistryRestController();
+			$link_rest_controller->register_routes();
 		}
 	);
 
@@ -119,6 +139,11 @@ function init() {
 		);
 	}
 
+	// Register WP-CLI commands if WP-CLI is available.
+	if ( defined( 'WP_CLI' ) && WP_CLI ) {
+		\WP_CLI::add_command( 'notion', 'NotionSync\\CLI\\NotionCommand' );
+	}
+
 	// Plugin loaded hook for extensibility.
 	do_action( 'notion_sync_loaded' );
 }
@@ -144,6 +169,11 @@ function activate() {
 	// Register database CPT before flushing rewrite rules.
 	$database_cpt = new \NotionSync\Database\DatabasePostType();
 	$database_cpt->register();
+
+	// Register Link Router rewrite rules before flushing.
+	$link_registry = new \NotionSync\Router\LinkRegistry();
+	$notion_router = new \NotionSync\Router\NotionRouter( $link_registry );
+	$notion_router->register_rewrite_rules();
 
 	// Flush rewrite rules.
 	flush_rewrite_rules();

@@ -39,6 +39,7 @@ class SettingsPage {
 		add_action( 'wp_ajax_notion_sync_database', array( $this, 'ajax_sync_database' ) );
 		add_action( 'wp_ajax_notion_sync_batch_progress', array( $this, 'ajax_batch_progress' ) );
 		add_action( 'wp_ajax_notion_sync_cancel_batch', array( $this, 'ajax_cancel_batch' ) );
+		add_action( 'wp_ajax_notion_sync_update_links', array( $this, 'ajax_update_links' ) );
 	}
 
 	/**
@@ -572,6 +573,47 @@ class SettingsPage {
 			} else {
 				wp_send_json_error( __( 'Failed to cancel batch', 'notion-wp' ) );
 			}
+
+		} catch ( \Exception $e ) {
+			wp_send_json_error( $e->getMessage() );
+		}
+	}
+
+	/**
+	 * AJAX handler for updating links.
+	 *
+	 * Updates all Notion links in synced posts to WordPress permalinks.
+	 * This includes both page links and database links.
+	 *
+	 * @return void
+	 */
+	public function ajax_update_links() {
+		// Verify nonce.
+		check_ajax_referer( 'notion_sync_ajax', 'nonce' );
+
+		// Check capabilities.
+		if ( ! current_user_can( 'manage_options' ) ) {
+			wp_send_json_error( __( 'Unauthorized', 'notion-wp' ) );
+		}
+
+		try {
+			// Run link updater.
+			$result = \NotionSync\Sync\LinkUpdater::update_all_links();
+
+			wp_send_json_success(
+				array(
+					'message'         => sprintf(
+						// translators: %1$d: number of posts checked, %2$d: number of posts updated, %3$d: number of links rewritten.
+						__( 'Link update complete. Checked %1$d posts, updated %2$d posts, rewrote %3$d links.', 'notion-wp' ),
+						$result['posts_checked'],
+						$result['posts_updated'],
+						$result['links_rewritten']
+					),
+					'posts_checked'   => $result['posts_checked'],
+					'posts_updated'   => $result['posts_updated'],
+					'links_rewritten' => $result['links_rewritten'],
+				)
+			);
 
 		} catch ( \Exception $e ) {
 			wp_send_json_error( $e->getMessage() );

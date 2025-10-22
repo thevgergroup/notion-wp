@@ -100,14 +100,29 @@ class DatabaseRestController {
 	/**
 	 * Check read permission.
 	 *
-	 * For admin views, require manage_options.
-	 * For public embeds, we'll add a separate public endpoint later.
+	 * Allow public access to published databases.
+	 * This enables the frontend database viewer to work for all visitors.
 	 *
 	 * @since 1.0.0
 	 *
+	 * @param \WP_REST_Request $request Request object.
 	 * @return bool True if user has permission.
 	 */
-	public function check_read_permission(): bool {
+	public function check_read_permission( $request ): bool {
+		$post_id = $request->get_param( 'post_id' );
+
+		// Verify post exists and is a database.
+		$post = get_post( $post_id );
+		if ( ! $post || 'notion_database' !== $post->post_type ) {
+			return false;
+		}
+
+		// Allow access if post is published (public).
+		if ( 'publish' === $post->post_status ) {
+			return true;
+		}
+
+		// For non-published posts, require admin permission.
 		return current_user_can( 'manage_options' );
 	}
 
