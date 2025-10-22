@@ -244,10 +244,10 @@ class LinkRewriter {
 		// Convert to UUID format with dashes (Notion stores as UUID).
 		// Format: 8-4-4-4-12 characters.
 		$notion_database_id_with_dashes = substr( $notion_database_id, 0, 8 ) . '-' .
-										 substr( $notion_database_id, 8, 4 ) . '-' .
-										 substr( $notion_database_id, 12, 4 ) . '-' .
-										 substr( $notion_database_id, 16, 4 ) . '-' .
-										 substr( $notion_database_id, 20, 12 );
+										substr( $notion_database_id, 8, 4 ) . '-' .
+										substr( $notion_database_id, 12, 4 ) . '-' .
+										substr( $notion_database_id, 16, 4 ) . '-' .
+										substr( $notion_database_id, 20, 12 );
 
 		// Try to find with both formats (with and without dashes).
 		$posts = get_posts(

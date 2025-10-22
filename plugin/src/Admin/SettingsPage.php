@@ -573,7 +573,6 @@ class SettingsPage {
 			} else {
 				wp_send_json_error( __( 'Failed to cancel batch', 'notion-wp' ) );
 			}
-
 		} catch ( \Exception $e ) {
 			wp_send_json_error( $e->getMessage() );
 		}

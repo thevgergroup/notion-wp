@@ -62,8 +62,8 @@ class BatchProcessor {
 	/**
 	 * Constructor.
 	 *
-	 * @param DatabaseFetcher  $fetcher       Database fetcher.
-	 * @param RowRepository    $repository    Row repository.
+	 * @param DatabaseFetcher   $fetcher       Database fetcher.
+	 * @param RowRepository     $repository    Row repository.
 	 * @param LinkRegistry|null $link_registry Link registry instance.
 	 */
 	public function __construct( DatabaseFetcher $fetcher, RowRepository $repository, ?LinkRegistry $link_registry = null ) {
@@ -158,22 +158,26 @@ class BatchProcessor {
 			update_option( $batch_key, $batch, false );
 
 			// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log -- Debug logging.
-			error_log( sprintf(
-				'BatchProcessor: Stored %d entries in %s',
-				count( $batch ),
-				$batch_key
-			) );
+			error_log(
+				sprintf(
+					'BatchProcessor: Stored %d entries in %s',
+					count( $batch ),
+					$batch_key
+				)
+			);
 
 			$scheduled_time = time() + ( $index * 3 );
 
 			// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log -- Debug logging.
-			error_log( sprintf(
-				'BatchProcessor: Scheduling batch %d/%d for time %s (in %d seconds)',
-				$index + 1,
-				count( $batches ),
-				gmdate( 'Y-m-d H:i:s', $scheduled_time ),
-				$index * 3
-			) );
+			error_log(
+				sprintf(
+					'BatchProcessor: Scheduling batch %d/%d for time %s (in %d seconds)',
+					$index + 1,
+					count( $batches ),
+					gmdate( 'Y-m-d H:i:s', $scheduled_time ),
+					$index * 3
+				)
+			);
 
 			// Only pass minimal data to Action Scheduler (not the full entries array).
 			$action_id = as_schedule_single_action(
@@ -218,19 +222,23 @@ class BatchProcessor {
 
 		if ( empty( $entries ) ) {
 			// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log -- Debug logging.
-			error_log( sprintf(
-				'BatchProcessor: No entries found for %s',
-				$batch_key
-			) );
+			error_log(
+				sprintf(
+					'BatchProcessor: No entries found for %s',
+					$batch_key
+				)
+			);
 			return;
 		}
 
 		// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log -- Debug logging.
-		error_log( sprintf(
-			'BatchProcessor: Retrieved %d entries from %s',
-			count( $entries ),
-			$batch_key
-		) );
+		error_log(
+			sprintf(
+				'BatchProcessor: Retrieved %d entries from %s',
+				count( $entries ),
+				$batch_key
+			)
+		);
 
 		// Update status to processing.
 		$this->update_batch_status( $batch_id, 'processing' );
@@ -260,10 +268,10 @@ class BatchProcessor {
 					$extracted
 				);
 
-				$completed++;
+				++$completed;
 
 			} catch ( \Exception $e ) {
-				$failed++;
+				++$failed;
 				// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log -- Debug logging for batch processing.
 				error_log(
 					sprintf(
@@ -283,10 +291,12 @@ class BatchProcessor {
 		delete_option( $batch_key );
 
 		// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log -- Debug logging.
-		error_log( sprintf(
-			'BatchProcessor: Cleaned up batch data for %s',
-			$batch_key
-		) );
+		error_log(
+			sprintf(
+				'BatchProcessor: Cleaned up batch data for %s',
+				$batch_key
+			)
+		);
 
 		// If this is the last batch, mark as complete.
 		if ( $batch_number === $total_batches ) {

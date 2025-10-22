@@ -221,7 +221,6 @@ class NotionCommand {
 			} else {
 				\WP_CLI::error( 'Unable to determine resource type. Please check the Notion ID and integration access.' );
 			}
-
 		} catch ( \Exception $e ) {
 			\WP_CLI::error( 'Sync failed: ' . $e->getMessage() );
 		}
@@ -301,22 +300,19 @@ class NotionCommand {
 
 				if ( empty( $blocks ) ) {
 					\WP_CLI::log( '  (No blocks found)' );
-				} else {
-					if ( $show_raw ) {
+				} elseif ( $show_raw ) {
 						// Output raw JSON for debugging.
 						\WP_CLI::log( \WP_CLI::colorize( '%GRaw Block JSON:%n' ) );
 						\WP_CLI::log( json_encode( $blocks, JSON_PRETTY_PRINT ) );
-					} else {
-						\WP_CLI::log( \WP_CLI::colorize( '%GPage Blocks:%n' ) );
-						\WP_CLI::log( '  Total blocks: ' . count( $blocks ) );
-						foreach ( $blocks as $index => $block ) {
-							$type = $block['type'] ?? 'unknown';
-							\WP_CLI::log( sprintf( '  [%d] %s', $index + 1, $type ) );
-						}
+				} else {
+					\WP_CLI::log( \WP_CLI::colorize( '%GPage Blocks:%n' ) );
+					\WP_CLI::log( '  Total blocks: ' . count( $blocks ) );
+					foreach ( $blocks as $index => $block ) {
+						$type = $block['type'] ?? 'unknown';
+						\WP_CLI::log( sprintf( '  [%d] %s', $index + 1, $type ) );
 					}
 				}
 			}
-
 		} catch ( \Exception $e ) {
 			\WP_CLI::error( 'Failed to fetch page: ' . $e->getMessage() );
 		}
@@ -553,10 +549,10 @@ class NotionCommand {
 			$notion_id_normalized = str_replace( '-', '', $notion_id );
 			// Format as UUID.
 			$notion_id_uuid = substr( $notion_id_normalized, 0, 8 ) . '-' .
-							  substr( $notion_id_normalized, 8, 4 ) . '-' .
-							  substr( $notion_id_normalized, 12, 4 ) . '-' .
-							  substr( $notion_id_normalized, 16, 4 ) . '-' .
-							  substr( $notion_id_normalized, 20, 12 );
+								substr( $notion_id_normalized, 8, 4 ) . '-' .
+								substr( $notion_id_normalized, 12, 4 ) . '-' .
+								substr( $notion_id_normalized, 16, 4 ) . '-' .
+								substr( $notion_id_normalized, 20, 12 );
 			$where_values[] = $notion_id_normalized;
 			$where_values[] = $notion_id_uuid;
 		}
@@ -676,11 +672,13 @@ class NotionCommand {
 		if ( ! $force ) {
 			$status = $sync_manager->get_sync_status( $notion_id );
 			if ( $status['is_synced'] ) {
-				\WP_CLI::log( sprintf(
-					'Page already synced to post ID %d (last synced: %s)',
-					$status['post_id'],
-					$this->format_timestamp( $status['last_synced'] )
-				) );
+				\WP_CLI::log(
+					sprintf(
+						'Page already synced to post ID %d (last synced: %s)',
+						$status['post_id'],
+						$this->format_timestamp( $status['last_synced'] )
+					)
+				);
 				\WP_CLI::log( 'Use --force to re-sync.' );
 				return;
 			}
@@ -691,10 +689,12 @@ class NotionCommand {
 		$result = $sync_manager->sync_page( $notion_id );
 
 		if ( $result['success'] ) {
-			\WP_CLI::success( sprintf(
-				'Page synced successfully! WordPress post ID: %d',
-				$result['post_id']
-			) );
+			\WP_CLI::success(
+				sprintf(
+					'Page synced successfully! WordPress post ID: %d',
+					$result['post_id']
+				)
+			);
 			\WP_CLI::log( 'View post: ' . get_permalink( $result['post_id'] ) );
 		} else {
 			\WP_CLI::error( 'Sync failed: ' . $result['error'] );
@@ -767,9 +767,9 @@ class NotionCommand {
 	 * For pages with a parent page, fetches and displays the parent's title.
 	 * Uses caching to avoid redundant API calls.
 	 *
-	 * @param array            $page         Page data from Notion.
-	 * @param ContentFetcher   $fetcher      Content fetcher instance for API calls.
-	 * @param array            $parent_cache Reference to parent title cache array.
+	 * @param array          $page         Page data from Notion.
+	 * @param ContentFetcher $fetcher      Content fetcher instance for API calls.
+	 * @param array          $parent_cache Reference to parent title cache array.
 	 * @return string Parent display string (title, "workspace", or "N/A").
 	 */
 	private function resolve_parent_title( array $page, ContentFetcher $fetcher, array &$parent_cache ): string {
@@ -882,25 +882,25 @@ class NotionCommand {
 		$entry    = $registry->find_by_slug( $slug );
 
 		if ( ! $entry ) {
-			\WP_CLI::error( "Slug not found in registry!" );
+			\WP_CLI::error( 'Slug not found in registry!' );
 		}
 
-		\WP_CLI::success( "Found in registry!" );
+		\WP_CLI::success( 'Found in registry!' );
 		\WP_CLI::log( "  Notion ID:     {$entry->notion_id}" );
 		\WP_CLI::log( "  Title:         {$entry->notion_title}" );
 		\WP_CLI::log( "  Type:          {$entry->notion_type}" );
 		\WP_CLI::log( "  Sync Status:   {$entry->sync_status}" );
-		\WP_CLI::log( "  WP Post ID:    " . ( $entry->wp_post_id ?? 'N/A' ) );
+		\WP_CLI::log( '  WP Post ID:    ' . ( $entry->wp_post_id ?? 'N/A' ) );
 
 		if ( 'synced' === $entry->sync_status && $entry->wp_post_id ) {
 			$permalink = get_permalink( $entry->wp_post_id );
 			\WP_CLI::log( "  Permalink:     {$permalink}" );
 			\WP_CLI::log( '' );
-			\WP_CLI::log( \WP_CLI::colorize( "%GShould redirect to WordPress post%n" ) );
+			\WP_CLI::log( \WP_CLI::colorize( '%GShould redirect to WordPress post%n' ) );
 		} else {
 			\WP_CLI::log( "  Notion URL:    {$entry->notion_url}" );
 			\WP_CLI::log( '' );
-			\WP_CLI::log( \WP_CLI::colorize( "%YShould redirect to Notion%n" ) );
+			\WP_CLI::log( \WP_CLI::colorize( '%YShould redirect to Notion%n' ) );
 		}
 	}
 
@@ -930,12 +930,14 @@ class NotionCommand {
 		$result = \NotionSync\Sync\LinkUpdater::update_post_links( $post_id );
 
 		if ( $result['updated'] ) {
-			\WP_CLI::success( sprintf(
-				'Updated %d link%s in post %d',
-				$result['links_rewritten'],
-				$result['links_rewritten'] === 1 ? '' : 's',
-				$post_id
-			) );
+			\WP_CLI::success(
+				sprintf(
+					'Updated %d link%s in post %d',
+					$result['links_rewritten'],
+					$result['links_rewritten'] === 1 ? '' : 's',
+					$post_id
+				)
+			);
 		} else {
 			\WP_CLI::log( 'No links needed updating.' );
 		}

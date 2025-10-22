@@ -370,10 +370,10 @@ class LinkRegistry {
 
 		// Format: 8-4-4-4-12.
 		return substr( $notion_id, 0, 8 ) . '-' .
-			   substr( $notion_id, 8, 4 ) . '-' .
-			   substr( $notion_id, 12, 4 ) . '-' .
-			   substr( $notion_id, 16, 4 ) . '-' .
-			   substr( $notion_id, 20, 12 );
+				substr( $notion_id, 8, 4 ) . '-' .
+				substr( $notion_id, 12, 4 ) . '-' .
+				substr( $notion_id, 16, 4 ) . '-' .
+				substr( $notion_id, 20, 12 );
 	}
 
 	/**

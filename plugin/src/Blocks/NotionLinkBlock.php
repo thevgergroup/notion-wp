@@ -166,7 +166,8 @@ class NotionLinkBlock {
 	 * @param string $content    Block content (not used for dynamic blocks).
 	 * @return string Rendered HTML.
 	 */
-	public function render_block( array $attributes, string $content = '' ): string {
+	public function render_block( array $attributes, string $content = '' ): string { // phpcs:ignore Generic.CodeAnalysis.UnusedFunctionParameter.FoundAfterLastUsed
+
 		$notion_id = $attributes['notionId'] ?? '';
 
 		// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log -- Debug logging.

@@ -128,11 +128,11 @@ if ( ! defined( 'ABSPATH' ) ) {
 			<!-- Tab Navigation -->
 			<h2 class="nav-tab-wrapper">
 				<a href="<?php echo esc_url( add_query_arg( 'tab', 'pages', admin_url( 'admin.php?page=notion-sync' ) ) ); ?>"
-				   class="nav-tab <?php echo 'pages' === $current_tab ? 'nav-tab-active' : ''; ?>">
+					class="nav-tab <?php echo 'pages' === $current_tab ? 'nav-tab-active' : ''; ?>">
 					<?php esc_html_e( 'Pages', 'notion-wp' ); ?>
 				</a>
 				<a href="<?php echo esc_url( add_query_arg( 'tab', 'databases', admin_url( 'admin.php?page=notion-sync' ) ) ); ?>"
-				   class="nav-tab <?php echo 'databases' === $current_tab ? 'nav-tab-active' : ''; ?>">
+					class="nav-tab <?php echo 'databases' === $current_tab ? 'nav-tab-active' : ''; ?>">
 					<?php esc_html_e( 'Databases', 'notion-wp' ); ?>
 				</a>
 			</h2>
@@ -250,7 +250,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 			</div>
 
 			<!-- Notion Pages List Table -->
-			<?php if ( null !== $list_table ) : ?>
+				<?php if ( null !== $list_table ) : ?>
 				<div class="card" style="margin-top: 20px;">
 					<h2><?php esc_html_e( 'Notion Pages', 'notion-wp' ); ?></h2>
 

@@ -251,7 +251,10 @@ class DatabaseFetcher {
 				if ( isset( $property_data['date']['start'] ) ) {
 					$start = $property_data['date']['start'];
 					$end   = $property_data['date']['end'] ?? null;
-					return $end ? array( 'start' => $start, 'end' => $end ) : $start;
+					return $end ? array(
+						'start' => $start,
+						'end' => $end,
+					) : $start;
 				}
 				return null;
 
