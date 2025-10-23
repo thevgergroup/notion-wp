@@ -39,8 +39,20 @@ use NotionSync\Security\Encryption;
  *     # Sync a specific page
  *     $ wp notion sync 75424b1c35d0476b836cbb0e776f3f7c
  *
+ *     # Sync a database with batch processing
+ *     $ wp notion sync database-id-here --batch-size=50
+ *
  *     # Force re-sync even if already synced
  *     $ wp notion sync 75424b1c35d0476b836cbb0e776f3f7c --force
+ *
+ *     # View sync logs
+ *     $ wp notion logs
+ *
+ *     # View only errors
+ *     $ wp notion logs --severity=error
+ *
+ *     # View log statistics
+ *     $ wp notion logs --stats
  *
  *     # Show page details
  *     $ wp notion show 75424b1c35d0476b836cbb0e776f3f7c
@@ -405,5 +417,82 @@ class NotionCommand {
 	public function update_links( $args, $assoc_args ) {
 		$post_id = absint( $args[0] );
 		RegistryHandler::update_post_links( $post_id );
+	}
+
+	/**
+	 * View and manage sync logs.
+	 *
+	 * ## OPTIONS
+	 *
+	 * [--severity=<severity>]
+	 * : Filter by severity level
+	 * ---
+	 * options:
+	 *   - error
+	 *   - warning
+	 *   - info
+	 * ---
+	 *
+	 * [--category=<category>]
+	 * : Filter by category
+	 * ---
+	 * options:
+	 *   - image
+	 *   - block
+	 *   - api
+	 *   - conversion
+	 *   - performance
+	 * ---
+	 *
+	 * [--notion-page-id=<id>]
+	 * : Filter by Notion page ID
+	 *
+	 * [--wp-post-id=<id>]
+	 * : Filter by WordPress post ID
+	 *
+	 * [--limit=<limit>]
+	 * : Maximum number of logs to display (default: 20)
+	 * ---
+	 * default: 20
+	 * ---
+	 *
+	 * [--resolve=<log-id>]
+	 * : Mark a specific log entry as resolved
+	 *
+	 * [--resolve-all]
+	 * : Mark all unresolved logs as resolved
+	 *
+	 * [--stats]
+	 * : Show log statistics instead of listing logs
+	 *
+	 * ## EXAMPLES
+	 *
+	 *     # View all unresolved logs
+	 *     wp notion logs
+	 *
+	 *     # View only errors
+	 *     wp notion logs --severity=error
+	 *
+	 *     # View logs for specific page
+	 *     wp notion logs --notion-page-id=75424b1c35d0476b836cbb0e776f3f7c
+	 *
+	 *     # View image-related warnings
+	 *     wp notion logs --severity=warning --category=image
+	 *
+	 *     # Resolve a specific log
+	 *     wp notion logs --resolve=123
+	 *
+	 *     # Resolve all logs
+	 *     wp notion logs --resolve-all
+	 *
+	 *     # Show statistics
+	 *     wp notion logs --stats
+	 *
+	 * @param array $args Positional arguments.
+	 * @param array $assoc_args Associative arguments.
+	 * @when after_wp_load
+	 */
+	public function logs( $args, $assoc_args ) {
+		LogsHandler::handle_logs_command( $assoc_args );
 	}
 }
