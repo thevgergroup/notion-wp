@@ -114,6 +114,11 @@ class SyncStatusRestController extends WP_REST_Controller {
 			'batch' => null,
 		);
 
+		// If no batch_id provided, check for most recent active batch.
+		if ( empty( $batch_id ) ) {
+			$batch_id = $this->scheduler->get_active_batch_id();
+		}
+
 		// Get status for individual pages if requested.
 		if ( ! empty( $page_ids ) && is_array( $page_ids ) ) {
 			foreach ( $page_ids as $page_id ) {

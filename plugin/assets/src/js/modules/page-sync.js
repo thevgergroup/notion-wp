@@ -217,9 +217,9 @@ export function handleBulkActions(form) {
 
 					const batchId = queueData.data.batch_id;
 
-					// Start Preact dashboard.
+					// Start Preact dashboard with immediate "Queuing" feedback.
 					if (typeof window.startSyncDashboard === 'function') {
-						window.startSyncDashboard(batchId);
+						window.startSyncDashboard(batchId, pageIds.length);
 					}
 
 					// Start watching batch with REST API poller.

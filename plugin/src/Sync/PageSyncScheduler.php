@@ -269,6 +269,39 @@ class PageSyncScheduler {
 	}
 
 	/**
+	 * Get the most recent active batch ID.
+	 *
+	 * Returns the batch_id of the most recently started batch that is still
+	 * queued or processing. Used to restore sync state across page loads.
+	 *
+	 * @return string|null Active batch ID or null if none found.
+	 */
+	public function get_active_batch_id(): ?string {
+		global $wpdb;
+
+		// Query for most recent batch options with 'queued' or 'processing' status.
+		$results = $wpdb->get_results(
+			"SELECT option_name, option_value
+			FROM {$wpdb->options}
+			WHERE option_name LIKE 'notion_sync_page_batch_%'
+			ORDER BY option_id DESC
+			LIMIT 10",
+			ARRAY_A
+		);
+
+		foreach ( $results as $row ) {
+			$batch = maybe_unserialize( $row['option_value'] );
+			if ( is_array( $batch ) && in_array( $batch['status'] ?? '', array( 'queued', 'processing' ), true ) ) {
+				// Extract batch_id from option_name.
+				$batch_id = str_replace( 'notion_sync_page_batch_', '', $row['option_name'] );
+				return $batch_id;
+			}
+		}
+
+		return null;
+	}
+
+	/**
 	 * Cancel batch operation.
 	 *
 	 * Unschedules all pending actions for this batch.

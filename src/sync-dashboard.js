@@ -10,9 +10,10 @@
 import { h, render } from 'preact';
 import { useState, useEffect } from 'preact/hooks';
 
-function SyncDashboard({ batchId: initialBatchId }) {
+function SyncDashboard({ batchId: initialBatchId, totalPages = 0 }) {
 	const [batch, setBatch] = useState(null);
 	const [batchId, setBatchId] = useState(initialBatchId);
+	const [isQueuing, setIsQueuing] = useState(true);
 
 	// Poll for status
 	useEffect(() => {
@@ -31,6 +32,7 @@ function SyncDashboard({ batchId: initialBatchId }) {
 				const data = await res.json();
 				if (data.batch) {
 					setBatch(data.batch);
+					setIsQueuing(false); // Got first response
 					// Stop polling when complete
 					if (
 						data.batch.status === 'completed' ||
@@ -50,6 +52,69 @@ function SyncDashboard({ batchId: initialBatchId }) {
 
 		return () => clearInterval(interval);
 	}, [batchId]);
+
+	// Show queuing state immediately
+	if (!batch && isQueuing) {
+		return h(
+			'div',
+			{
+				className: 'notion-sync-dashboard',
+				style: {
+					background: '#fff',
+					border: '2px solid #2271b1',
+					borderRadius: '4px',
+					padding: '16px',
+					margin: '20px 0',
+					boxShadow: '0 2px 8px rgba(0,0,0,.1)',
+				},
+			},
+			[
+				h(
+					'div',
+					{
+						style: {
+							display: 'flex',
+							alignItems: 'center',
+							gap: '12px',
+						},
+					},
+					[
+						h(
+							'div',
+							{
+								style: {
+									width: '20px',
+									height: '20px',
+									border: '3px solid #f0f0f1',
+									borderTopColor: '#2271b1',
+									borderRadius: '50%',
+									animation: 'spin 1s linear infinite',
+								},
+							}
+						),
+						h('strong', null, 'Queuing sync...'),
+					]
+				),
+				h(
+					'div',
+					{
+						style: {
+							fontSize: '13px',
+							color: '#646970',
+							marginTop: '12px',
+						},
+					},
+					`Preparing to sync ${totalPages} page${totalPages !== 1 ? 's' : ''}...`
+				),
+				// Add spinner animation
+				h('style', null, `
+					@keyframes spin {
+						to { transform: rotate(360deg); }
+					}
+				`),
+			]
+		);
+	}
 
 	if (!batch) return null;
 
@@ -175,7 +240,37 @@ function SyncDashboard({ batchId: initialBatchId }) {
 const container = document.getElementById('notion-sync-dashboard');
 if (container) {
 	// Listen for batch watch events
-	window.startSyncDashboard = (batchId) => {
-		render(h(SyncDashboard, { batchId }), container);
+	window.startSyncDashboard = (batchId, totalPages = 0) => {
+		render(h(SyncDashboard, { batchId, totalPages }), container);
 	};
+
+	// Check for active syncs on page load
+	const checkForActiveSyncs = async () => {
+		try {
+			const res = await fetch(
+				`${window.notionSyncAdmin.restUrl}`,
+				{
+					headers: {
+						'X-WP-Nonce': window.notionSyncAdmin.restNonce,
+					},
+				}
+			);
+			const data = await res.json();
+
+			// If there's an active batch, show it
+			if (data.batch && (data.batch.status === 'processing' || data.batch.status === 'queued')) {
+				window.startSyncDashboard(data.batch.batch_id, data.batch.total);
+			}
+		} catch (error) {
+			// Silently fail - don't block page load
+			console.log('No active syncs found');
+		}
+	};
+
+	// Check on page load
+	if (document.readyState === 'loading') {
+		document.addEventListener('DOMContentLoaded', checkForActiveSyncs);
+	} else {
+		checkForActiveSyncs();
+	}
 }
