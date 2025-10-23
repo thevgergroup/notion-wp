@@ -282,19 +282,27 @@ class ImageConverter implements BlockConverterInterface {
 	/**
 	 * Generate Gutenberg image block for external URL.
 	 *
+	 * Uses HTML block to avoid validation errors (external images have no attachment ID).
+	 *
 	 * @param string $url     External image URL.
 	 * @param string $alt     Alt text.
 	 * @param string $caption Caption text.
-	 * @return string Gutenberg image block HTML.
+	 * @return string Gutenberg HTML block.
 	 */
 	private function generate_external_image_block( string $url, string $alt, string $caption ): string {
 		$caption_html = $caption ? sprintf( '<figcaption class="wp-element-caption">%s</figcaption>', wp_kses_post( $caption ) ) : '';
 
-		return sprintf(
-			"<!-- wp:image -->\n<figure class=\"wp-block-image\"><img src=\"%s\" alt=\"%s\" class=\"external-image\"/>%s</figure>\n<!-- /wp:image -->\n\n",
+		$html = sprintf(
+			'<figure class="wp-block-image"><img src="%s" alt="%s" class="external-image"/>%s</figure>',
 			esc_url( $url ),
 			esc_attr( $alt ),
 			$caption_html
+		);
+
+		// Use HTML block to avoid Gutenberg validation errors for images without attachment IDs.
+		return sprintf(
+			"<!-- wp:html -->\n%s\n<!-- /wp:html -->\n\n",
+			$html
 		);
 	}
 
