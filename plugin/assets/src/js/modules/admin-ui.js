@@ -259,7 +259,15 @@ export function showAdminNotice(type, message) {
 	// Create notice element.
 	const notice = document.createElement('div');
 	notice.className = `notice notice-${type} is-dismissible`;
-	notice.innerHTML = `<p>${escapeHtml(message)}</p>`;
+
+	// Support HTML messages (for progress updates) or escape plain text
+	if (message.includes('<')) {
+		// Message contains HTML, use it directly (caller is responsible for escaping)
+		notice.innerHTML = `<p>${message}</p>`;
+	} else {
+		// Plain text message, escape it
+		notice.innerHTML = `<p>${escapeHtml(message)}</p>`;
+	}
 
 	// Add dismiss button.
 	const dismissButton = document.createElement('button');
@@ -288,6 +296,9 @@ export function showAdminNotice(type, message) {
 
 	// Scroll to notice.
 	notice.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+
+	// Return the notice element so it can be updated.
+	return notice;
 }
 
 /**

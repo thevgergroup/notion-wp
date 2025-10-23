@@ -18,6 +18,7 @@ use NotionSync\Blocks\BlockConverter;
 use NotionSync\Security\Encryption;
 use NotionSync\Sync\LinkUpdater;
 use NotionSync\Router\LinkRegistry;
+use NotionSync\Utils\PerformanceLogger;
 
 /**
  * Class SyncManager
@@ -147,9 +148,18 @@ class SyncManager {
 		}
 
 		try {
+			// Initialize performance logging.
+			PerformanceLogger::reset();
+			PerformanceLogger::start( 'sync_page_total' );
+
 			// Step 1: Fetch page properties from Notion.
+			PerformanceLogger::start( 'fetch_page_properties' );
 			$page_properties = $this->fetcher->fetch_page_properties( $notion_page_id );
+			PerformanceLogger::stop( 'fetch_page_properties' );
+
 			if ( empty( $page_properties ) ) {
+				PerformanceLogger::stop( 'sync_page_total' );
+				PerformanceLogger::log_summary( "Sync Failed: {$notion_page_id}" );
 				return array(
 					'success' => false,
 					'post_id' => null,
@@ -159,8 +169,13 @@ class SyncManager {
 			}
 
 			// Step 2: Fetch page blocks from Notion.
+			PerformanceLogger::start( 'fetch_page_blocks' );
 			$notion_blocks = $this->fetcher->fetch_page_blocks( $notion_page_id );
+			PerformanceLogger::stop( 'fetch_page_blocks' );
+
 			if ( false === $notion_blocks ) {
+				PerformanceLogger::stop( 'sync_page_total' );
+				PerformanceLogger::log_summary( "Sync Failed: {$notion_page_id}" );
 				return array(
 					'success' => false,
 					'post_id' => null,
@@ -168,37 +183,88 @@ class SyncManager {
 				);
 			}
 
+			error_log( sprintf( '[PERF] Fetched %d blocks for page %s', count( $notion_blocks ), $notion_page_id ) );
+
 			// Step 3: Check if page already synced (duplicate detection).
 			$existing_post_id = $this->find_existing_post( $notion_page_id );
 
-			// Step 4: Convert Notion blocks to Gutenberg HTML.
+			// Step 4: Create or get post ID FIRST (needed for media attachments).
+			if ( $existing_post_id ) {
+				$post_id = $existing_post_id;
+			} else {
+				// Create draft post with temporary content.
+				$title     = sanitize_text_field( $page_properties['title'] ?? 'Untitled' );
+				$post_data = array(
+					'post_title'   => $title,
+					'post_content' => '<!-- Syncing content from Notion... -->',
+					'post_status'  => 'draft',
+					'post_type'    => 'post',
+					'meta_input'   => array(
+						self::META_NOTION_PAGE_ID => $this->normalize_page_id( $notion_page_id ),
+						self::META_LAST_SYNCED    => current_time( 'mysql' ),
+						self::META_LAST_EDITED    => $page_properties['last_edited_time'] ?? '',
+					),
+				);
+				$post_id   = wp_insert_post( $post_data, true );
+
+				if ( is_wp_error( $post_id ) ) {
+					return array(
+						'success' => false,
+						'post_id' => null,
+						'error'   => sprintf(
+							'WordPress post creation failed: %s',
+							$post_id->get_error_message()
+						),
+					);
+				}
+			}
+
+			// Step 5: Set post ID for media converters.
+			foreach ( $this->converter->get_converters() as $converter ) {
+				if ( method_exists( $converter, 'set_parent_post_id' ) ) {
+					$converter->set_parent_post_id( $post_id );
+				}
+			}
+
+			// Step 6: Convert Notion blocks to Gutenberg HTML (with post ID available for media).
+			PerformanceLogger::start( 'convert_blocks' );
 			try {
 				$gutenberg_html = $this->converter->convert_blocks( $notion_blocks );
 			} catch ( \Exception $e ) {
+				PerformanceLogger::stop( 'convert_blocks' );
+				PerformanceLogger::stop( 'sync_page_total' );
+				PerformanceLogger::log_summary( "Sync Failed: {$notion_page_id}" );
 				return array(
 					'success' => false,
-					'post_id' => null,
+					'post_id' => $post_id,
 					'error'   => sprintf(
 						'Block conversion failed: %s',
 						$e->getMessage()
 					),
 				);
 			}
+			PerformanceLogger::stop( 'convert_blocks' );
 
-			// Step 5: Prepare post data.
-			$post_data = $this->prepare_post_data(
-				$page_properties,
-				$gutenberg_html,
-				$notion_page_id,
-				$existing_post_id
+			error_log( sprintf( '[PERF] Converted content length: %d characters', strlen( $gutenberg_html ) ) );
+
+			// Step 7: Update post with converted content.
+			PerformanceLogger::start( 'update_post_content' );
+			$update_data = array(
+				'ID'           => $post_id,
+				'post_content' => wp_kses_post( $gutenberg_html ),
 			);
+			$result      = wp_update_post( $update_data, true );
+			PerformanceLogger::stop( 'update_post_content' );
 
-			// Step 6: Create or update WordPress post.
-			if ( $existing_post_id ) {
-				$post_data['ID'] = $existing_post_id;
-				$post_id         = wp_update_post( $post_data, true );
-			} else {
-				$post_id = wp_insert_post( $post_data, true );
+			if ( is_wp_error( $result ) ) {
+				return array(
+					'success' => false,
+					'post_id' => $post_id,
+					'error'   => sprintf(
+						'Failed to update post with converted content: %s',
+						$result->get_error_message()
+					),
+				);
 			}
 
 			// Check for WordPress errors.
@@ -216,7 +282,18 @@ class SyncManager {
 			// Step 7: Store Notion metadata.
 			$this->store_post_metadata( $post_id, $notion_page_id, $page_properties );
 
+			// Step 7a: Sync icon emoji.
+			PerformanceLogger::start( 'sync_page_icon' );
+			$this->sync_page_icon( $post_id, $page_properties );
+			PerformanceLogger::stop( 'sync_page_icon' );
+
+			// Step 7b: Sync cover image as featured image.
+			PerformanceLogger::start( 'sync_cover_image' );
+			$this->sync_cover_image( $post_id, $page_properties );
+			PerformanceLogger::stop( 'sync_cover_image' );
+
 			// Step 8: Register/update link in registry.
+			PerformanceLogger::start( 'register_link' );
 			// This enables /notion/{slug} URLs to redirect to this WordPress post.
 			$this->link_registry->register(
 				array(
@@ -227,12 +304,17 @@ class SyncManager {
 					'wp_post_type' => 'post',
 				)
 			);
+			PerformanceLogger::stop( 'register_link' );
 
 			// Step 9 (DEPRECATED): Update links across all synced posts.
 			// This old approach is replaced by the link registry system.
 			// Links now use /notion/{slug} format which works before and after sync.
 			// Keeping for backward compatibility during transition.
 			// LinkUpdater::update_all_links();
+
+			// Stop total timer and log summary.
+			PerformanceLogger::stop( 'sync_page_total' );
+			PerformanceLogger::log_summary( "Sync Complete: {$notion_page_id} -> Post {$post_id}" );
 
 			// Return success result.
 			return array(
@@ -494,5 +576,128 @@ class SyncManager {
 		// Create Notion client and content fetcher.
 		$client = new NotionClient( $token );
 		return new ContentFetcher( $client );
+	}
+
+	/**
+	 * Sync page icon emoji to WordPress.
+	 *
+	 * Stores the Notion page icon (emoji or image URL) in post meta.
+	 * Themes can use this to display the icon before the post title.
+	 *
+	 * @since 0.3.0
+	 *
+	 * @param int   $post_id         WordPress post ID.
+	 * @param array $page_properties Notion page properties.
+	 * @return void
+	 */
+	private function sync_page_icon( int $post_id, array $page_properties ): void {
+		if ( empty( $page_properties['icon'] ) ) {
+			delete_post_meta( $post_id, '_notion_icon' );
+			delete_post_meta( $post_id, '_notion_icon_type' );
+			return;
+		}
+
+		$icon = $page_properties['icon'];
+		$icon_type = $icon['type'] ?? '';
+
+		update_post_meta( $post_id, '_notion_icon_type', $icon_type );
+
+		if ( 'emoji' === $icon_type ) {
+			// Store emoji directly.
+			update_post_meta( $post_id, '_notion_icon', $icon['emoji'] ?? '' );
+		} elseif ( 'external' === $icon_type ) {
+			// Store external icon URL.
+			update_post_meta( $post_id, '_notion_icon', $icon['external']['url'] ?? '' );
+		} elseif ( 'file' === $icon_type ) {
+			// Store Notion file URL.
+			update_post_meta( $post_id, '_notion_icon', $icon['file']['url'] ?? '' );
+		}
+	}
+
+	/**
+	 * Sync cover image as WordPress featured image.
+	 *
+	 * Downloads the Notion cover image and sets it as the WordPress post thumbnail (featured image).
+	 * Registers the image in MediaRegistry to prevent duplicate downloads on re-sync.
+	 *
+	 * @since 0.3.0
+	 *
+	 * @param int   $post_id         WordPress post ID.
+	 * @param array $page_properties Notion page properties.
+	 * @return void
+	 */
+	private function sync_cover_image( int $post_id, array $page_properties ): void {
+		if ( empty( $page_properties['cover'] ) ) {
+			return;
+		}
+
+		$cover = $page_properties['cover'];
+		$cover_type = $cover['type'] ?? '';
+
+		// Determine cover URL based on type.
+		$cover_url = '';
+		if ( 'external' === $cover_type ) {
+			$cover_url = $cover['external']['url'] ?? '';
+		} elseif ( 'file' === $cover_type ) {
+			$cover_url = $cover['file']['url'] ?? '';
+		}
+
+		if ( empty( $cover_url ) ) {
+			return;
+		}
+
+		// Generate a unique identifier for this cover in MediaRegistry.
+		// Use page_id + '_cover' to differentiate from inline images.
+		$normalized_page_id = $this->normalize_page_id( $page_properties['id'] ?? '' );
+		$cover_identifier = $normalized_page_id . '_cover';
+
+		try {
+			// Check if cover already uploaded (prevents re-download on sync).
+			$existing_attachment_id = \NotionSync\Media\MediaRegistry::find( $cover_identifier );
+
+			if ( $existing_attachment_id ) {
+				// Already uploaded - just update featured image.
+				set_post_thumbnail( $post_id, $existing_attachment_id );
+				return;
+			}
+
+			// Download cover image.
+			// Force download even for external URLs (Unsplash, etc.) because cover images
+			// are critical for WordPress themes and should be in the Media Library.
+			$downloader = new \NotionSync\Media\ImageDownloader();
+			$downloaded = $downloader->download( $cover_url, array( 'force' => true ) );
+
+			// Upload to WordPress Media Library.
+			$uploader = new \NotionSync\Media\MediaUploader();
+			$attachment_id = $uploader->upload(
+				$downloaded['file_path'],
+				array(
+					'title'    => 'Cover image',
+					'alt_text' => $page_properties['title'] ?? 'Cover image',
+				),
+				$post_id
+			);
+
+			// Register in MediaRegistry to prevent re-download.
+			\NotionSync\Media\MediaRegistry::register(
+				$cover_identifier,
+				$attachment_id,
+				$cover_url
+			);
+
+			// Set as featured image.
+			set_post_thumbnail( $post_id, $attachment_id );
+
+		} catch ( \Exception $e ) {
+			// Log error but don't fail the entire sync.
+			// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log -- Debug logging for sync operations.
+			error_log(
+				sprintf(
+					'SyncManager: Failed to sync cover image for post %d: %s',
+					$post_id,
+					$e->getMessage()
+				)
+			);
+		}
 	}
 }

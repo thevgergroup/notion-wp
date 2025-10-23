@@ -26,6 +26,8 @@ class SyncAjaxHandler {
 	public function register() {
 		add_action( 'wp_ajax_notion_sync_page', array( $this, 'handle_sync_page_ajax' ) );
 		add_action( 'wp_ajax_notion_bulk_sync', array( $this, 'handle_bulk_sync_ajax' ) );
+		add_action( 'wp_ajax_notion_queue_bulk_sync', array( $this, 'handle_queue_bulk_sync_ajax' ) );
+		add_action( 'wp_ajax_notion_bulk_sync_status', array( $this, 'handle_bulk_sync_status_ajax' ) );
 	}
 
 	/**
@@ -213,5 +215,149 @@ class SyncAjaxHandler {
 				'results'       => $results,
 			)
 		);
+	}
+
+	/**
+	 * Handle AJAX request to queue bulk sync using Action Scheduler.
+	 *
+	 * Queues multiple Notion pages for background sync and returns batch ID for status tracking.
+	 * Uses Action Scheduler to process pages in the background.
+	 *
+	 * @since 0.1.5
+	 *
+	 * @return void Outputs JSON response and exits.
+	 */
+	public function handle_queue_bulk_sync_ajax() {
+		// Verify nonce.
+		check_ajax_referer( 'notion_sync_ajax', 'nonce' );
+
+		// Check user capabilities.
+		if ( ! current_user_can( 'manage_options' ) ) {
+			wp_send_json_error(
+				array(
+					'message' => __( 'Insufficient permissions to sync pages.', 'notion-wp' ),
+				),
+				403
+			);
+		}
+
+		// Get and validate page IDs.
+		$page_ids = isset( $_POST['page_ids'] ) ? array_map( 'sanitize_text_field', wp_unslash( (array) $_POST['page_ids'] ) ) : array();
+
+		if ( empty( $page_ids ) ) {
+			wp_send_json_error(
+				array(
+					'message' => __( 'No pages selected for sync.', 'notion-wp' ),
+				),
+				400
+			);
+		}
+
+		// Queue bulk sync using PageSyncScheduler.
+		try {
+			$scheduler = new \NotionSync\Sync\PageSyncScheduler();
+			$result    = $scheduler->schedule_bulk_sync( $page_ids );
+
+			if ( 'scheduled' === $result['status'] ) {
+				wp_send_json_success(
+					array(
+						'message'  => sprintf(
+							/* translators: %d: number of pages queued */
+							_n(
+								'Queued %d page for sync.',
+								'Queued %d pages for sync.',
+								$result['total'],
+								'notion-wp'
+							),
+							$result['total']
+						),
+						'batch_id' => $result['batch_id'],
+						'total'    => $result['total'],
+					)
+				);
+			} else {
+				wp_send_json_error(
+					array(
+						'message' => $result['error'] ?? __( 'Failed to queue bulk sync.', 'notion-wp' ),
+					),
+					500
+				);
+			}
+		} catch ( \Exception $e ) {
+			wp_send_json_error(
+				array(
+					'message' => sprintf(
+						/* translators: %s: error message */
+						__( 'Failed to queue bulk sync: %s', 'notion-wp' ),
+						$e->getMessage()
+					),
+				),
+				500
+			);
+		}
+	}
+
+	/**
+	 * Handle AJAX request to get bulk sync status.
+	 *
+	 * Returns current progress for a queued bulk sync batch.
+	 *
+	 * @since 0.1.5
+	 *
+	 * @return void Outputs JSON response and exits.
+	 */
+	public function handle_bulk_sync_status_ajax() {
+		// Verify nonce.
+		check_ajax_referer( 'notion_sync_ajax', 'nonce' );
+
+		// Check user capabilities.
+		if ( ! current_user_can( 'manage_options' ) ) {
+			wp_send_json_error(
+				array(
+					'message' => __( 'Insufficient permissions.', 'notion-wp' ),
+				),
+				403
+			);
+		}
+
+		// Get and validate batch ID.
+		$batch_id = isset( $_POST['batch_id'] ) ? sanitize_text_field( wp_unslash( $_POST['batch_id'] ) ) : '';
+
+		if ( empty( $batch_id ) ) {
+			wp_send_json_error(
+				array(
+					'message' => __( 'Batch ID is required.', 'notion-wp' ),
+				),
+				400
+			);
+		}
+
+		// Get batch progress.
+		try {
+			$scheduler = new \NotionSync\Sync\PageSyncScheduler();
+			$progress  = $scheduler->get_batch_progress( $batch_id );
+
+			if ( null === $progress ) {
+				wp_send_json_error(
+					array(
+						'message' => __( 'Batch not found.', 'notion-wp' ),
+					),
+					404
+				);
+			}
+
+			wp_send_json_success( $progress );
+		} catch ( \Exception $e ) {
+			wp_send_json_error(
+				array(
+					'message' => sprintf(
+						/* translators: %s: error message */
+						__( 'Failed to get batch status: %s', 'notion-wp' ),
+						$e->getMessage()
+					),
+				),
+				500
+			);
+		}
 	}
 }

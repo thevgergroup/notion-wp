@@ -59,8 +59,8 @@ class PagesListTable extends \WP_List_Table {
 	public function __construct( ContentFetcher $fetcher, SyncManager $manager ) {
 		parent::__construct(
 			array(
-				'singular' => 'page',
-				'plural'   => 'pages',
+				'singular' => 'notion_page',
+				'plural'   => 'notion_pages',
 				'ajax'     => true,
 			)
 		);
@@ -128,7 +128,7 @@ class PagesListTable extends \WP_List_Table {
 	 */
 	protected function column_cb( $item ) {
 		return sprintf(
-			'<input type="checkbox" name="page_ids[]" value="%s" />',
+			'<input type="checkbox" name="notion_page[]" value="%s" />',
 			esc_attr( $item['id'] )
 		);
 	}
@@ -386,28 +386,39 @@ class PagesListTable extends \WP_List_Table {
 	/**
 	 * Process bulk actions.
 	 *
-	 * Handles bulk sync operations for selected pages by delegating
-	 * to BulkSyncProcessor. This method should be called before prepare_items().
+	 * NOTE: Bulk sync is handled entirely via JavaScript/AJAX (see page-sync.js).
+	 * This method handles the fallback case when JavaScript fails to intercept.
+	 * It prevents WordPress's "Please select at least one item" error by validating
+	 * and gracefully handling the bulk_sync action server-side.
 	 *
 	 * @since 1.0.0
 	 */
 	public function process_bulk_action() {
-		// Check if bulk sync action was triggered.
 		$action = $this->current_action();
 
+		// Only handle bulk_sync action.
 		if ( 'bulk_sync' !== $action ) {
 			return;
 		}
 
-		// Verify nonce.
-		check_admin_referer( 'bulk-' . $this->_args['plural'] );
+		// Check if any pages were selected.
+		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Nonce verified in SettingsPage.
+		$page_ids = isset( $_REQUEST['notion_page'] ) ? array_map( 'sanitize_text_field', wp_unslash( (array) $_REQUEST['notion_page'] ) ) : array();
 
-		// Get selected page IDs.
-		$page_ids = isset( $_REQUEST['page_ids'] ) ? array_map( 'sanitize_text_field', wp_unslash( (array) $_REQUEST['page_ids'] ) ) : array();
+		if ( empty( $page_ids ) ) {
+			// No pages selected - JavaScript should have prevented this, but handle gracefully.
+			// Don't show an error; the JavaScript will handle it.
+			return;
+		}
 
-		// Delegate to bulk sync processor.
-		$processor = new BulkSyncProcessor( $this->manager );
-		$processor->process( $page_ids );
+		// If we reach here, it means JavaScript failed to intercept the form submission.
+		// Fall back to a simple redirect with a notice that JavaScript is required.
+		add_settings_error(
+			'notion_sync',
+			'bulk_sync_js_required',
+			__( 'Bulk sync requires JavaScript to be enabled. Please enable JavaScript and try again.', 'notion-wp' ),
+			'warning'
+		);
 	}
 
 	/**
@@ -426,7 +437,30 @@ class PagesListTable extends \WP_List_Table {
 		$this->_column_headers = array( $columns, $hidden, $sortable );
 
 		// Fetch pages from Notion.
-		$pages = $this->fetcher->fetch_pages_list( 100 );
+		$all_pages = $this->fetcher->fetch_pages_list( 100 );
+
+		// Filter out:
+		// 1. Databases (object_type = 'database') - shown on Databases tab
+		// 2. Database entries (parent_type = 'database_id') - synced via database sync
+		$pages = array_filter(
+			$all_pages,
+			function ( $page ) {
+				$object_type = $page['object_type'] ?? 'page';
+				$parent_type = $page['parent_type'] ?? 'unknown';
+
+				// Exclude databases themselves.
+				if ( 'database' === $object_type ) {
+					return false;
+				}
+
+				// Exclude database entries (rows from databases).
+				if ( 'database_id' === $parent_type ) {
+					return false;
+				}
+
+				return true;
+			}
+		);
 
 		// Set items.
 		$this->items = $pages;

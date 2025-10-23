@@ -134,7 +134,9 @@ export function handleSyncNow(button) {
  * @param {HTMLFormElement} form - The bulk actions form
  */
 export function handleBulkActions(form) {
-	form.addEventListener('submit', (event) => {
+	form.addEventListener(
+		'submit',
+		(event) => {
 		// Get selected action.
 		const actionSelect = form.querySelector('select[name="action"]');
 		const actionSelect2 = form.querySelector('select[name="action2"]');
@@ -145,12 +147,19 @@ export function handleBulkActions(form) {
 			return;
 		}
 
-		// Prevent default form submission.
+		// Prevent default form submission IMMEDIATELY and stop all propagation.
 		event.preventDefault();
+		event.stopPropagation();
+		event.stopImmediatePropagation();
+
+		// Also return false as an extra safeguard
+		if (event.returnValue !== undefined) {
+			event.returnValue = false;
+		}
 
 		// Get selected page IDs.
 		const checkboxes = form.querySelectorAll(
-			'input[name="page_ids[]"]:checked'
+			'input[name="notion_page[]"]:checked'
 		);
 		const pageIds = Array.from(checkboxes).map((cb) => cb.value);
 
@@ -168,49 +177,156 @@ export function handleBulkActions(form) {
 		const formControls = form.querySelectorAll('input, select, button');
 		formControls.forEach((control) => (control.disabled = true));
 
-		// Show loading notice.
-		showAdminNotice('info', `Syncing ${pageIds.length} pages...`);
+		// Show queueing notice.
+		let noticeEl = showAdminNotice(
+			'info',
+			`<strong>Queueing Sync...</strong><br>Preparing to sync ${pageIds.length} pages...`
+		);
 
-		// Build form body to properly send array as PHP expects.
-		const formBody = new URLSearchParams();
-		formBody.append('action', 'notion_bulk_sync');
-		formBody.append('nonce', notionSyncAdmin.nonce);
-		pageIds.forEach((pageId) => formBody.append('page_ids[]', pageId));
+		// Queue bulk sync with Action Scheduler.
+		(async () => {
+			try {
+				const queueBody = new URLSearchParams();
+				queueBody.append('action', 'notion_queue_bulk_sync');
+				queueBody.append('nonce', notionSyncAdmin.nonce);
+				pageIds.forEach((id) => queueBody.append('page_ids[]', id));
 
-		fetch(notionSyncAdmin.ajaxUrl, {
-			method: 'POST',
-			headers: {
-				'Content-Type': 'application/x-www-form-urlencoded',
-			},
-			body: formBody,
-		})
-			.then((response) => response.json())
-			.then((data) => {
-				// Re-enable form controls.
-				formControls.forEach((control) => (control.disabled = false));
+				const queueResponse = await fetch(notionSyncAdmin.ajaxUrl, {
+					method: 'POST',
+					headers: {
+						'Content-Type': 'application/x-www-form-urlencoded',
+					},
+					body: queueBody,
+				});
 
-				if (data.success) {
-					// Show success message.
-					showAdminNotice('success', data.data.message);
+				const queueData = await queueResponse.json();
 
-					// Reload page to show updated sync status.
-					setTimeout(() => {
-						window.location.reload();
-					}, 1500);
-				} else {
+				if (!queueData.success) {
 					showAdminNotice(
 						'error',
-						data.data.message ||
-							'Bulk sync failed. Please try again.'
+						queueData.data.message || 'Failed to queue bulk sync.'
 					);
+					formControls.forEach((control) => (control.disabled = false));
+					return;
 				}
-			})
-			.catch((error) => {
-				// Re-enable form controls.
-				formControls.forEach((control) => (control.disabled = false));
 
-				showAdminNotice('error', 'Network error during bulk sync.');
-				console.error('Bulk sync error:', error);
-			});
-	});
+				const batchId = queueData.data.batch_id;
+				const total = queueData.data.total;
+
+				// Update notice to show sync has started.
+				const noticeP = noticeEl.querySelector('p');
+				if (noticeP) {
+					noticeP.innerHTML = `<strong>Bulk Sync in Progress...</strong><br>Processing 0 / ${total} pages...`;
+				}
+
+				// Poll for status updates.
+				let pollCount = 0;
+				const maxPolls = 300; // 5 minutes max (1 second intervals).
+
+				const pollStatus = async () => {
+					pollCount++;
+
+					if (pollCount > maxPolls) {
+						showAdminNotice(
+							'warning',
+							'Bulk sync is taking longer than expected. Please check the status later.'
+						);
+						formControls.forEach(
+							(control) => (control.disabled = false)
+						);
+						return;
+					}
+
+					try {
+						const statusBody = new URLSearchParams();
+						statusBody.append('action', 'notion_bulk_sync_status');
+						statusBody.append('nonce', notionSyncAdmin.nonce);
+						statusBody.append('batch_id', batchId);
+
+						const statusResponse = await fetch(
+							notionSyncAdmin.ajaxUrl,
+							{
+								method: 'POST',
+								headers: {
+									'Content-Type':
+										'application/x-www-form-urlencoded',
+								},
+								body: statusBody,
+							}
+						);
+
+						const statusData = await statusResponse.json();
+
+						if (statusData.success) {
+							const progress = statusData.data;
+
+							// Update progress notice.
+							if (noticeP) {
+								noticeP.innerHTML = `<strong>Bulk Sync in Progress...</strong><br>Processing ${progress.processed} / ${progress.total} pages... (${progress.percentage}%)`;
+							}
+
+							// Check if completed.
+							if (progress.status === 'completed') {
+								// Show completion summary.
+								let summaryHTML = `<strong>Bulk Sync Complete!</strong><br>`;
+								summaryHTML += `Successfully synced: ${progress.successful} / ${progress.total} pages`;
+
+								if (progress.failed > 0) {
+									summaryHTML += `<br><span style="color: #d63638;">Failed: ${progress.failed} pages</span>`;
+								}
+
+								if (noticeP) {
+									noticeP.innerHTML = summaryHTML;
+								}
+								noticeEl.className = `notice notice-${
+									progress.failed > 0 ? 'warning' : 'success'
+								} is-dismissible`;
+
+								// Re-enable form controls.
+								formControls.forEach(
+									(control) => (control.disabled = false)
+								);
+
+								// Reload page to show updated sync status.
+								setTimeout(() => {
+									window.location.reload();
+								}, 2000);
+
+								return;
+							}
+
+							// Continue polling.
+							setTimeout(pollStatus, 1000);
+						} else {
+							showAdminNotice(
+								'error',
+								'Failed to get sync status. Please refresh the page.'
+							);
+							formControls.forEach(
+								(control) => (control.disabled = false)
+							);
+						}
+					} catch (error) {
+						console.error('Error polling sync status:', error);
+						showAdminNotice(
+							'error',
+							'Network error while checking sync status.'
+						);
+						formControls.forEach(
+							(control) => (control.disabled = false)
+						);
+					}
+				};
+
+				// Start polling after a brief delay.
+				setTimeout(pollStatus, 1000);
+			} catch (error) {
+				console.error('Error queueing bulk sync:', error);
+				showAdminNotice('error', 'Network error. Please try again.');
+				formControls.forEach((control) => (control.disabled = false));
+			}
+		})();
+		},
+		true // Use capture phase to intercept BEFORE other handlers
+	);
 }

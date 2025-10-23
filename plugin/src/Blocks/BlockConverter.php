@@ -8,6 +8,8 @@
 
 namespace NotionSync\Blocks;
 
+use NotionSync\Utils\PerformanceLogger;
+
 /**
  * Registry for managing block converters
  *
@@ -54,6 +56,8 @@ class BlockConverter {
 			new Converters\ChildPageConverter(),
 			new Converters\ChildDatabaseConverter(),
 			new Converters\LinkToPageConverter(),
+			new Converters\ImageConverter(),
+			new Converters\FileConverter(),
 		);
 
 		/**
@@ -103,12 +107,26 @@ class BlockConverter {
 	 */
 	public function convert_blocks( array $notion_blocks ): string {
 		$gutenberg_content = '';
+		$block_type_counts = array();
 
 		foreach ( $notion_blocks as $notion_block ) {
-			$converter = $this->find_converter( $notion_block );
+			$block_type = $notion_block['type'] ?? 'unknown';
+			$converter  = $this->find_converter( $notion_block );
 
 			if ( $converter ) {
+				// Track block type performance.
+				$perf_label = "convert_block_{$block_type}";
+				PerformanceLogger::start( $perf_label );
+
 				$gutenberg_content .= $converter->convert( $notion_block );
+
+				PerformanceLogger::stop( $perf_label );
+
+				// Count block types.
+				if ( ! isset( $block_type_counts[ $block_type ] ) ) {
+					$block_type_counts[ $block_type ] = 0;
+				}
+				++$block_type_counts[ $block_type ];
 			} else {
 				// Log unsupported block type.
 				$this->log_unsupported_block( $notion_block );
@@ -117,6 +135,14 @@ class BlockConverter {
 				$gutenberg_content .= $this->create_unsupported_block_placeholder( $notion_block );
 			}
 		}
+
+		// Log block type summary.
+		error_log(
+			sprintf(
+				'[PERF] Block type distribution: %s',
+				wp_json_encode( $block_type_counts )
+			)
+		);
 
 		return $gutenberg_content;
 	}

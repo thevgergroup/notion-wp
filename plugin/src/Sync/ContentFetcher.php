@@ -12,6 +12,7 @@
 namespace NotionSync\Sync;
 
 use NotionSync\API\NotionClient;
+use NotionSync\Utils\PerformanceLogger;
 
 /**
  * Class ContentFetcher
@@ -93,7 +94,9 @@ class ContentFetcher {
 			$normalized_id = str_replace( '-', '', $page_id );
 
 			// Call NotionClient's get_page method.
+			PerformanceLogger::start( 'api_get_page' );
 			$response = $this->client->get_page( $normalized_id );
+			PerformanceLogger::stop( 'api_get_page' );
 
 			if ( isset( $response['error'] ) ) {
 		// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log -- Debug logging for development.
@@ -224,7 +227,9 @@ class ContentFetcher {
 	private function fetch_blocks_batch( string $block_id, ?string $cursor = null ): array {
 		try {
 			// Call NotionClient's get_block_children method.
+			PerformanceLogger::start( 'api_get_block_children' );
 			$response = $this->client->get_block_children( $block_id, $cursor );
+			PerformanceLogger::stop( 'api_get_block_children' );
 
 			if ( isset( $response['error'] ) ) {
 				return array( 'error' => $response['error'] );

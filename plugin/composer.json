@@ -1,0 +1,14 @@
+{
+  "name": "thevgergroup/notion-sync",
+  "description": "Bi-directional synchronization between Notion and WordPress",
+  "type": "wordpress-plugin",
+  "license": "GPL-3.0-or-later",
+  "require": {
+    "php": ">=8.0",
+    "woocommerce/action-scheduler": "^3.7"
+  },
+  "config": {
+    "optimize-autoloader": true,
+    "sort-packages": true
+  }
+}
