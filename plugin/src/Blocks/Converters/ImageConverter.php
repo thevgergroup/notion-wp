@@ -50,6 +50,13 @@ class ImageConverter implements BlockConverterInterface {
 	private ?int $parent_post_id = null;
 
 	/**
+	 * Notion page ID for logging.
+	 *
+	 * @var string|null
+	 */
+	private ?string $notion_page_id = null;
+
+	/**
 	 * Constructor.
 	 *
 	 * @param ImageDownloader|null $downloader Optional custom downloader.
@@ -68,6 +75,16 @@ class ImageConverter implements BlockConverterInterface {
 	 */
 	public function set_parent_post_id( ?int $post_id ): void {
 		$this->parent_post_id = $post_id;
+	}
+
+	/**
+	 * Set Notion page ID for logging.
+	 *
+	 * @param string|null $page_id Notion page ID.
+	 * @return void
+	 */
+	public function set_notion_page_id( ?string $page_id ): void {
+		$this->notion_page_id = $page_id;
 	}
 
 	/**
@@ -171,7 +188,17 @@ class ImageConverter implements BlockConverterInterface {
 
 		// If not found or needs re-upload, download and upload.
 		if ( ! $attachment_id ) {
-			$attachment_id = $this->download_and_upload( $notion_url, $block_id, $image_data );
+			$result = $this->download_and_upload( $notion_url, $block_id, $image_data );
+
+			// Check if result is a URL (unsupported type) or attachment ID.
+			if ( is_string( $result ) ) {
+				// Unsupported type - link to original URL.
+				$caption = $this->extract_caption( $image_data );
+				$alt     = $caption ?: 'Unsupported image type';
+				return $this->generate_external_image_block( $result, $alt, $caption );
+			}
+
+			$attachment_id = $result;
 		}
 
 		return $this->generate_wordpress_image_block( $attachment_id, $image_data );
@@ -183,12 +210,24 @@ class ImageConverter implements BlockConverterInterface {
 	 * @param string $notion_url  Notion S3 URL.
 	 * @param string $block_id    Notion block ID.
 	 * @param array  $image_data  Image data for metadata.
-	 * @return int WordPress attachment ID.
+	 * @return int|string WordPress attachment ID, or URL string if unsupported type.
 	 * @throws \Exception If download or upload fails.
 	 */
-	private function download_and_upload( string $notion_url, string $block_id, array $image_data ): int {
-		// Download from Notion S3.
-		$downloaded = $this->downloader->download( $notion_url );
+	private function download_and_upload( string $notion_url, string $block_id, array $image_data ) {
+		// Download from Notion S3 (with logging context).
+		$downloaded = $this->downloader->download(
+			$notion_url,
+			[
+				'notion_page_id' => $this->notion_page_id,
+				'wp_post_id'     => $this->parent_post_id,
+			]
+		);
+
+		// Check if image type is unsupported (e.g., TIFF).
+		if ( ! empty( $downloaded['unsupported'] ) ) {
+			// Return the linked URL instead of attachment ID.
+			return $downloaded['linked_url'];
+		}
 
 		// Extract metadata from Notion.
 		$caption = $this->extract_caption( $image_data );

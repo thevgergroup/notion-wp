@@ -95,6 +95,9 @@ function init() {
 		$database_view_page = new Admin\DatabaseViewPage();
 		$database_view_page->register();
 
+		$sync_logs_page = new Admin\SyncLogsPage();
+		$sync_logs_page->register();
+
 		$admin_notices = new Admin\AdminNotices();
 		$admin_notices->register();
 	}
@@ -214,6 +217,9 @@ function activate() {
 	$link_registry = new \NotionSync\Router\LinkRegistry();
 	$notion_router = new \NotionSync\Router\NotionRouter( $link_registry );
 	$notion_router->register_rewrite_rules();
+
+	// Create sync log database table.
+	\NotionSync\Database\SyncLogSchema::create_table();
 
 	// Flush rewrite rules.
 	flush_rewrite_rules();

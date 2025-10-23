@@ -219,10 +219,13 @@ class SyncManager {
 				}
 			}
 
-			// Step 5: Set post ID for media converters.
+			// Step 5: Set context for media converters (post ID and page ID for logging).
 			foreach ( $this->converter->get_converters() as $converter ) {
 				if ( method_exists( $converter, 'set_parent_post_id' ) ) {
 					$converter->set_parent_post_id( $post_id );
+				}
+				if ( method_exists( $converter, 'set_notion_page_id' ) ) {
+					$converter->set_notion_page_id( $notion_page_id );
 				}
 			}
 
