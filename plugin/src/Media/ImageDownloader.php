@@ -57,6 +57,16 @@ class ImageDownloader {
 	];
 
 	/**
+	 * MIME types that require conversion.
+	 *
+	 * @var array
+	 */
+	private const CONVERTIBLE_MIME_TYPES = [
+		'image/tiff',
+		'image/tif',
+	];
+
+	/**
 	 * Temporary directory for downloads.
 	 *
 	 * @var string
@@ -211,6 +221,24 @@ class ImageDownloader {
 		// Detect MIME type.
 		$mime_type = $this->detect_mime_type( $temp_path );
 
+		// Convert TIFF images to JPEG if needed.
+		if ( in_array( $mime_type, self::CONVERTIBLE_MIME_TYPES, true ) ) {
+			error_log( sprintf( 'ImageDownloader: Converting TIFF image to JPEG: %s', $url ) );
+
+			try {
+				$converted_result = $this->convert_tiff_to_jpeg( $temp_path );
+				// Delete original TIFF file.
+				unlink( $temp_path );
+				// Update variables to converted file.
+				$temp_path = $converted_result['file_path'];
+				$mime_type = $converted_result['mime_type'];
+				$file_size = $converted_result['file_size'];
+			} catch ( \Exception $e ) {
+				unlink( $temp_path );
+				throw new \Exception( 'Failed to convert TIFF image to JPEG: ' . $e->getMessage() );
+			}
+		}
+
 		// Validate MIME type if requested.
 		if ( $options['validate'] ?? true ) {
 			if ( ! in_array( $mime_type, self::ALLOWED_MIME_TYPES, true ) ) {
@@ -338,5 +366,85 @@ class ImageDownloader {
 	 */
 	public static function is_allowed_mime_type( string $mime_type ): bool {
 		return in_array( $mime_type, self::ALLOWED_MIME_TYPES, true );
+	}
+
+	/**
+	 * Convert TIFF image to JPEG format.
+	 *
+	 * WordPress doesn't support TIFF images by default, so we convert them
+	 * to JPEG to ensure compatibility.
+	 *
+	 * @param string $tiff_path Path to TIFF file.
+	 * @return array {
+	 *     Conversion result.
+	 *
+	 *     @type string $file_path Path to converted JPEG file.
+	 *     @type string $mime_type MIME type (image/jpeg).
+	 *     @type int    $file_size File size in bytes.
+	 * }
+	 * @throws \Exception If conversion fails.
+	 */
+	private function convert_tiff_to_jpeg( string $tiff_path ): array {
+		// Check if ImageMagick is available.
+		if ( ! extension_loaded( 'imagick' ) && ! class_exists( 'Imagick' ) ) {
+			// Try GD as fallback (though GD doesn't support TIFF well).
+			if ( ! extension_loaded( 'gd' ) ) {
+				throw new \Exception( 'Neither ImageMagick nor GD extension available for TIFF conversion' );
+			}
+
+			throw new \Exception( 'GD extension does not support TIFF images. Please install ImageMagick extension.' );
+		}
+
+		try {
+			// Create Imagick object.
+			$imagick = new \Imagick( $tiff_path );
+
+			// Set format to JPEG.
+			$imagick->setImageFormat( 'jpeg' );
+
+			// Set quality to 90% (good balance between quality and file size).
+			$imagick->setImageCompressionQuality( 90 );
+
+			// Generate output filename.
+			$jpeg_path = preg_replace( '/\.(tiff?|tif)$/i', '.jpg', $tiff_path );
+			if ( $jpeg_path === $tiff_path ) {
+				// If no extension found, append .jpg.
+				$jpeg_path .= '.jpg';
+			}
+
+			// Write JPEG file.
+			$imagick->writeImage( $jpeg_path );
+
+			// Clean up.
+			$imagick->clear();
+			$imagick->destroy();
+
+			// Verify JPEG was created.
+			if ( ! file_exists( $jpeg_path ) ) {
+				throw new \Exception( 'Converted JPEG file not found' );
+			}
+
+			$file_size = filesize( $jpeg_path );
+			if ( $file_size === false || $file_size === 0 ) {
+				unlink( $jpeg_path );
+				throw new \Exception( 'Converted JPEG file is empty or unreadable' );
+			}
+
+			error_log(
+				sprintf(
+					'ImageDownloader: Successfully converted TIFF to JPEG (%d bytes)',
+					$file_size
+				)
+			);
+
+			return [
+				'file_path'  => $jpeg_path,
+				'mime_type'  => 'image/jpeg',
+				'file_size'  => $file_size,
+			];
+
+		} catch ( \ImagickException $e ) {
+			throw new \Exception( 'ImageMagick conversion failed: ' . $e->getMessage() );
+		}
 	}
 }
