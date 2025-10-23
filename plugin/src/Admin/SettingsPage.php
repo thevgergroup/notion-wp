@@ -86,6 +86,15 @@ class SettingsPage {
 			true
 		);
 
+		// Enqueue Preact sync dashboard.
+		wp_enqueue_script(
+			'notion-sync-dashboard',
+			NOTION_SYNC_URL . 'assets/build/sync-dashboard.js',
+			array(),
+			NOTION_SYNC_VERSION,
+			true
+		);
+
 		// Add type="module" attribute for ES6 imports.
 		add_filter(
 			'script_loader_tag',
@@ -105,7 +114,9 @@ class SettingsPage {
 			'notionSyncAdmin',
 			array(
 				'ajaxUrl' => admin_url( 'admin-ajax.php' ),
+				'restUrl' => rest_url( 'notion-sync/v1/sync-status' ),
 				'nonce'   => wp_create_nonce( 'notion_sync_ajax' ),
+				'restNonce' => wp_create_nonce( 'wp_rest' ),
 				'i18n'    => array(
 					'connecting'           => __( 'Connecting...', 'notion-wp' ),
 					'connected'            => __( 'Connected!', 'notion-wp' ),

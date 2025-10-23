@@ -111,6 +111,9 @@ function init() {
 
 			$link_rest_controller = new API\LinkRegistryRestController();
 			$link_rest_controller->register_routes();
+
+			$sync_status_controller = new API\SyncStatusRestController();
+			$sync_status_controller->register_routes();
 		}
 	);
 

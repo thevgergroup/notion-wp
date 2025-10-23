@@ -140,6 +140,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 			<?php if ( 'databases' === $current_tab ) : ?>
 
 				<!-- Databases Tab Content -->
+				<div id="notion-sync-dashboard"></div>
 				<div id="notion-sync-messages" style="margin-top: 20px;"></div>
 
 				<?php if ( null !== $databases_table && ! empty( $databases_table->items ) ) : ?>
@@ -271,6 +272,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 					</p>
 
 					<!-- Admin notice container for AJAX messages -->
+					<div id="notion-sync-dashboard"></div>
 					<div id="notion-sync-messages" style="margin-top: 15px;"></div>
 
 					<form id="notion-pages-form" method="post" style="margin-top: 15px;">

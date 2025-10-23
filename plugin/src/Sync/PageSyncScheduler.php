@@ -94,18 +94,26 @@ class PageSyncScheduler {
 		$batch_id = uniqid( 'page_sync_', true );
 		$total    = count( $page_ids );
 
+		// Initialize per-page status tracking.
+		$page_statuses = array();
+		foreach ( $page_ids as $page_id ) {
+			$page_statuses[ $page_id ] = 'queued';
+		}
+
 		// Store batch metadata in options table.
 		update_option(
 			"notion_sync_page_batch_{$batch_id}",
 			[
-				'page_ids'   => $page_ids,
-				'total'      => $total,
-				'processed'  => 0,
-				'successful' => 0,
-				'failed'     => 0,
-				'status'     => 'queued',
-				'started_at' => current_time( 'mysql' ),
-				'results'    => [],
+				'page_ids'       => $page_ids,
+				'total'          => $total,
+				'processed'      => 0,
+				'successful'     => 0,
+				'failed'         => 0,
+				'status'         => 'queued',
+				'started_at'     => current_time( 'mysql' ),
+				'page_statuses'  => $page_statuses,
+				'current_page_id' => null,
+				'results'        => [],
 			],
 			false // Don't autoload.
 		);
@@ -153,8 +161,17 @@ class PageSyncScheduler {
 		// Update status to processing if this is the first page.
 		if ( 'queued' === $batch['status'] ) {
 			$batch['status'] = 'processing';
-			update_option( "notion_sync_page_batch_{$batch_id}", $batch, false );
 		}
+
+		// Initialize page_statuses array if not present (backward compatibility).
+		if ( ! isset( $batch['page_statuses'] ) ) {
+			$batch['page_statuses'] = array();
+		}
+
+		// Mark this page as currently processing.
+		$batch['current_page_id']           = $page_id;
+		$batch['page_statuses'][ $page_id ] = 'processing';
+		update_option( "notion_sync_page_batch_{$batch_id}", $batch, false );
 
 		try {
 			// Sync the page.
@@ -162,7 +179,8 @@ class PageSyncScheduler {
 
 			if ( $result['success'] ) {
 				$batch['successful']++;
-				$batch['results'][ $page_id ] = [
+				$batch['page_statuses'][ $page_id ] = 'completed';
+				$batch['results'][ $page_id ]       = [
 					'success' => true,
 					'post_id' => $result['post_id'],
 				];
@@ -171,7 +189,8 @@ class PageSyncScheduler {
 				error_log( "PageSyncScheduler: Successfully synced page {$page_id} (post {$result['post_id']})" );
 			} else {
 				$batch['failed']++;
-				$batch['results'][ $page_id ] = [
+				$batch['page_statuses'][ $page_id ] = 'failed';
+				$batch['results'][ $page_id ]       = [
 					'success' => false,
 					'error'   => $result['error'] ?? 'Unknown error',
 				];
@@ -181,7 +200,8 @@ class PageSyncScheduler {
 			}
 		} catch ( \Exception $e ) {
 			$batch['failed']++;
-			$batch['results'][ $page_id ] = [
+			$batch['page_statuses'][ $page_id ] = 'failed';
+			$batch['results'][ $page_id ]       = [
 				'success' => false,
 				'error'   => $e->getMessage(),
 			];
@@ -192,6 +212,9 @@ class PageSyncScheduler {
 
 		// Increment processed counter.
 		$batch['processed']++;
+
+		// Clear current_page_id after processing.
+		$batch['current_page_id'] = null;
 
 		// Check if this is the last page.
 		if ( $batch['processed'] >= $batch['total'] ) {

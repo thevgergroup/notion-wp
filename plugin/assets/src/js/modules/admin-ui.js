@@ -247,13 +247,15 @@ export function fallbackCopy(text, button) {
  *
  * @param {string} type    - Notice type: 'success', 'error', 'warning', 'info'
  * @param {string} message - Notice message
+ * @return {HTMLElement} The created notice element
  */
 export function showAdminNotice(type, message) {
 	const container = document.getElementById('notion-sync-messages');
 	if (!container) {
 		// Fallback to alert if container not found.
+		// eslint-disable-next-line no-alert
 		alert(message);
-		return;
+		return null;
 	}
 
 	// Create notice element.

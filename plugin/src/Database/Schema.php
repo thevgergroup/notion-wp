@@ -87,18 +87,26 @@ class Schema {
 			access_count INT UNSIGNED DEFAULT 0,
 			last_accessed_at DATETIME NULL,
 			sync_status ENUM('not_synced', 'synced', 'deleted') DEFAULT 'not_synced',
+			notion_last_edited DATETIME NULL COMMENT 'When the Notion page was last edited',
+			wp_last_synced DATETIME NULL COMMENT 'When we last synced it to WordPress',
+			sync_error TEXT NULL COMMENT 'Error message if last sync failed',
 			created_at DATETIME NOT NULL,
 			updated_at DATETIME NOT NULL,
 			UNIQUE KEY slug (slug),
 			KEY notion_id (notion_id),
 			KEY notion_id_uuid (notion_id_uuid),
 			KEY wp_post_id (wp_post_id),
-			KEY sync_status (sync_status)
+			KEY sync_status (sync_status),
+			KEY notion_last_edited (notion_last_edited),
+			KEY wp_last_synced (wp_last_synced)
 		) {$charset_collate};";
 
 		require_once ABSPATH . 'wp-admin/includes/upgrade.php';
 		dbDelta( $sql );
 		dbDelta( $links_sql );
+
+		// Run migrations to add new columns to existing tables.
+		self::migrate_links_table();
 	}
 
 	/**
@@ -173,5 +181,78 @@ class Schema {
 	public static function get_links_table_name(): string {
 		global $wpdb;
 		return $wpdb->prefix . self::LINKS_TABLE_NAME;
+	}
+
+	/**
+	 * Migrate links table to add new columns.
+	 *
+	 * Safely adds new columns for enhanced sync status tracking.
+	 * Checks for column existence before adding to prevent errors.
+	 *
+	 * @since 1.0.0
+	 */
+	private static function migrate_links_table(): void {
+		global $wpdb;
+
+		$links_table = $wpdb->prefix . self::LINKS_TABLE_NAME;
+
+		// Check if table exists.
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- Schema migration.
+		$table_exists = $wpdb->get_var(
+			$wpdb->prepare(
+				'SHOW TABLES LIKE %s',
+				$links_table
+			)
+		);
+
+		if ( $table_exists !== $links_table ) {
+			return; // Table doesn't exist yet, will be created by dbDelta.
+		}
+
+		// Get existing columns.
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- Schema migration.
+		$columns = $wpdb->get_col(
+			// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- Table name is safe.
+			"SHOW COLUMNS FROM {$links_table}"
+		);
+
+		// Add notion_last_edited column if it doesn't exist.
+		if ( ! in_array( 'notion_last_edited', $columns, true ) ) {
+			// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.DirectDatabaseQuery.SchemaChange, WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- Schema migration, table name is safe.
+			$wpdb->query(
+				"ALTER TABLE {$links_table}
+				ADD COLUMN notion_last_edited DATETIME NULL COMMENT 'When the Notion page was last edited' AFTER sync_status"
+			);
+
+			// Add index for notion_last_edited.
+			// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.DirectDatabaseQuery.SchemaChange, WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- Schema migration, table name is safe.
+			$wpdb->query(
+				"ALTER TABLE {$links_table} ADD KEY notion_last_edited (notion_last_edited)"
+			);
+		}
+
+		// Add wp_last_synced column if it doesn't exist.
+		if ( ! in_array( 'wp_last_synced', $columns, true ) ) {
+			// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.DirectDatabaseQuery.SchemaChange, WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- Schema migration, table name is safe.
+			$wpdb->query(
+				"ALTER TABLE {$links_table}
+				ADD COLUMN wp_last_synced DATETIME NULL COMMENT 'When we last synced it to WordPress' AFTER notion_last_edited"
+			);
+
+			// Add index for wp_last_synced.
+			// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.DirectDatabaseQuery.SchemaChange, WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- Schema migration, table name is safe.
+			$wpdb->query(
+				"ALTER TABLE {$links_table} ADD KEY wp_last_synced (wp_last_synced)"
+			);
+		}
+
+		// Add sync_error column if it doesn't exist.
+		if ( ! in_array( 'sync_error', $columns, true ) ) {
+			// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.DirectDatabaseQuery.SchemaChange, WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- Schema migration, table name is safe.
+			$wpdb->query(
+				"ALTER TABLE {$links_table}
+				ADD COLUMN sync_error TEXT NULL COMMENT 'Error message if last sync failed' AFTER wp_last_synced"
+			);
+		}
 	}
 }

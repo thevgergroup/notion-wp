@@ -309,6 +309,13 @@ class SyncManager {
 			);
 			PerformanceLogger::stop( 'register_link' );
 
+			// Step 8a: Update sync timestamps in link registry for outdated detection.
+			$this->link_registry->update_sync_timestamps(
+				str_replace( '-', '', $notion_page_id ),
+				$page_properties['last_edited_time'] ?? current_time( 'mysql' ),
+				current_time( 'mysql' )
+			);
+
 			// Step 9 (DEPRECATED): Update links across all synced posts.
 			// This old approach is replaced by the link registry system.
 			// Links now use /notion/{slug} format which works before and after sync.
@@ -327,13 +334,21 @@ class SyncManager {
 			);
 
 		} catch ( \Exception $e ) {
+			$error_message = sprintf(
+				'Sync failed with exception: %s',
+				$e->getMessage()
+			);
+
+			// Store error in link registry if entry exists.
+			$this->link_registry->update_sync_error(
+				str_replace( '-', '', $notion_page_id ),
+				$error_message
+			);
+
 			return array(
 				'success' => false,
 				'post_id' => null,
-				'error'   => sprintf(
-					'Sync failed with exception: %s',
-					$e->getMessage()
-				),
+				'error'   => $error_message,
 			);
 		}
 	}

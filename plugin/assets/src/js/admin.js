@@ -20,11 +20,15 @@ import {
 	initAdminNotices,
 	initCopyButtons,
 } from './modules/admin-ui.js';
+import { initStatusBadgeSystem } from './modules/status-badge.js';
 
 /**
  * Initialize all admin functionality when DOM is ready
  */
 function init() {
+	// Initialize status badge system (inject CSS and replace text badges).
+	initStatusBadgeSystem();
+
 	// Initialize connection form handling.
 	initConnectionForm();
 
