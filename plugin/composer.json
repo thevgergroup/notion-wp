@@ -5,7 +5,7 @@
   "license": "GPL-3.0-or-later",
   "require": {
     "php": ">=8.0",
-    "woocommerce/action-scheduler": "^3.7"
+    "woocommerce/action-scheduler": "^3.9"
   },
   "config": {
     "optimize-autoloader": true,

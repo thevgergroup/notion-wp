@@ -116,6 +116,9 @@ function init() {
 
 	// Register Action Scheduler hook for batch processing.
 	if ( function_exists( 'as_schedule_single_action' ) ) {
+		// Configure Action Scheduler for improved reliability.
+		Utils\ActionSchedulerConfig::register();
+
 		add_action(
 			'notion_sync_process_batch',
 			function ( $batch_id, $post_id, $batch_number, $total_batches ) {

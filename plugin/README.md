@@ -21,6 +21,18 @@ This plugin is currently in **Phase 0 (Proof of Concept)**. Right now, you can c
 - A Notion account
 - Notion Internal Integration (free - instructions below)
 
+## Dependencies
+
+This plugin includes **Action Scheduler 3.7.4** as a bundled library for reliable background processing.
+
+**Note**: If you have other plugins that include Action Scheduler (like WooCommerce), WordPress will automatically load the newest version available across all plugins. No separate Action Scheduler plugin installation is required.
+
+Action Scheduler is bundled as a library (recommended best practice) rather than required as a separate plugin. This ensures:
+- Your plugin works standalone without external dependencies
+- Better user experience (one-click installation)
+- Automatic version resolution (newest version loads across all plugins)
+- Full compatibility with WordPress.org plugin directory standards
+
 ## Installation
 
 ### Step 1: Install the Plugin

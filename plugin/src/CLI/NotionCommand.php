@@ -495,4 +495,50 @@ class NotionCommand {
 	public function logs( $args, $assoc_args ) {
 		LogsHandler::handle_logs_command( $assoc_args );
 	}
+
+	/**
+	 * Check Action Scheduler configuration status.
+	 *
+	 * Displays current Action Scheduler configuration including runner type,
+	 * timeout settings, and version information.
+	 *
+	 * ## EXAMPLES
+	 *
+	 *     wp notion scheduler-status
+	 *
+	 * @param array $args Positional arguments.
+	 * @param array $assoc_args Associative arguments.
+	 * @when after_wp_load
+	 */
+	public function scheduler_status( $args, $assoc_args ) {
+		if ( ! class_exists( 'NotionSync\\Utils\\ActionSchedulerConfig' ) ) {
+			\WP_CLI::error( 'ActionSchedulerConfig class not found' );
+		}
+
+		$config = \NotionSync\Utils\ActionSchedulerConfig::get_config_status();
+
+		\WP_CLI::log( \WP_CLI::colorize( '%G' . str_repeat( '=', 60 ) . '%n' ) );
+		\WP_CLI::log( \WP_CLI::colorize( '%GACTION SCHEDULER STATUS%n' ) );
+		\WP_CLI::log( \WP_CLI::colorize( '%G' . str_repeat( '=', 60 ) . '%n' ) );
+		\WP_CLI::log( '' );
+
+		\WP_CLI::log( sprintf( 'Version:          %s', $config['action_scheduler_version'] ) );
+		\WP_CLI::log( sprintf( 'Timeout Period:   %d seconds (%d minutes)', $config['timeout_period'], $config['timeout_period'] / 60 ) );
+		\WP_CLI::log( '' );
+
+		$runner_type = $config['async_runner_enabled'] ? 'Async Request' : 'WP Cron';
+		$runner_color = $config['async_runner_enabled'] ? 'y' : 'g';
+		\WP_CLI::log( \WP_CLI::colorize( sprintf( '%%BRunner Type:%% %s%s%%n', "%{$runner_color}", $runner_type ) ) );
+
+		if ( ! $config['async_runner_enabled'] ) {
+			\WP_CLI::log( \WP_CLI::colorize( '%gWP Cron runner is enabled for improved reliability.%n' ) );
+		} else {
+			\WP_CLI::log( \WP_CLI::colorize( '%yAsync Request runner may experience timeout issues.%n' ) );
+			\WP_CLI::log( \WP_CLI::colorize( '%yConsider forcing WP Cron runner for more reliable background processing.%n' ) );
+		}
+
+		\WP_CLI::log( '' );
+		\WP_CLI::log( \WP_CLI::colorize( '%G' . str_repeat( '=', 60 ) . '%n' ) );
+	}
 }
+
