@@ -135,6 +135,10 @@ if ( ! defined( 'ABSPATH' ) ) {
 					class="nav-tab <?php echo 'databases' === $current_tab ? 'nav-tab-active' : ''; ?>">
 					<?php esc_html_e( 'Databases', 'notion-wp' ); ?>
 				</a>
+				<a href="<?php echo esc_url( add_query_arg( 'tab', 'settings', admin_url( 'admin.php?page=notion-sync' ) ) ); ?>"
+					class="nav-tab <?php echo 'settings' === $current_tab ? 'nav-tab-active' : ''; ?>">
+					<?php esc_html_e( 'Settings', 'notion-wp' ); ?>
+				</a>
 			</h2>
 
 			<?php if ( 'databases' === $current_tab ) : ?>
@@ -167,102 +171,71 @@ if ( ! defined( 'ABSPATH' ) ) {
 					</div>
 				<?php endif; ?>
 
-			<?php else : ?>
+			<?php elseif ( 'settings' === $current_tab ) : ?>
 
-				<!-- Pages Tab Content (existing) -->
+				<!-- Settings Tab Content -->
 
-			<!-- Connected State -->
-			<div class="card connection-card">
-				<h2><?php esc_html_e( 'Connection Status', 'notion-wp' ); ?></h2>
+				<!-- Connection Status -->
+				<div class="card connection-card" style="margin-top: 20px;">
+					<h2><?php esc_html_e( 'Connection Status', 'notion-wp' ); ?></h2>
 
-				<div style="display: flex; align-items: center; gap: 10px; margin-bottom: 20px;">
-					<span class="dashicons dashicons-yes-alt" style="color: #46b450; font-size: 24px;"></span>
-					<strong style="color: #46b450; font-size: 16px;">
-						<?php esc_html_e( 'Connected to Notion', 'notion-wp' ); ?>
-					</strong>
+					<div style="display: flex; align-items: center; gap: 10px; margin-bottom: 20px;">
+						<span class="dashicons dashicons-yes-alt" style="color: #46b450; font-size: 24px;"></span>
+						<strong style="color: #46b450; font-size: 16px;">
+							<?php esc_html_e( 'Connected to Notion', 'notion-wp' ); ?>
+						</strong>
+					</div>
+
+					<table class="form-table" role="presentation">
+						<tbody>
+							<?php if ( ! empty( $workspace_info['workspace_name'] ) ) : ?>
+								<tr>
+									<th scope="row"><?php esc_html_e( 'Workspace', 'notion-wp' ); ?></th>
+									<td><strong><?php echo esc_html( $workspace_info['workspace_name'] ); ?></strong></td>
+								</tr>
+							<?php endif; ?>
+
+							<?php if ( ! empty( $workspace_info['user_name'] ) ) : ?>
+								<tr>
+									<th scope="row"><?php esc_html_e( 'Integration Name', 'notion-wp' ); ?></th>
+									<td><?php echo esc_html( $workspace_info['user_name'] ); ?></td>
+								</tr>
+							<?php endif; ?>
+
+							<?php if ( ! empty( $workspace_info['bot_id'] ) ) : ?>
+								<tr>
+									<th scope="row"><?php esc_html_e( 'Integration ID', 'notion-wp' ); ?></th>
+									<td><code><?php echo esc_html( $workspace_info['bot_id'] ); ?></code></td>
+								</tr>
+							<?php endif; ?>
+						</tbody>
+					</table>
+
+					<form method="post" action="<?php echo esc_url( admin_url( 'admin-post.php' ) ); ?>" style="margin-top: 20px;">
+						<input type="hidden" name="action" value="notion_sync_disconnect">
+						<?php wp_nonce_field( 'notion_sync_disconnect', 'notion_sync_disconnect_nonce' ); ?>
+
+						<button
+							type="submit"
+							class="button button-secondary"
+						onclick="return confirm(
+							<?php
+							echo esc_js(
+								__( 'Are you sure you want to disconnect from Notion? This will remove your API token.', 'notion-wp' )
+							);
+							?>
+						);"
+						>
+							<?php esc_html_e( 'Disconnect', 'notion-wp' ); ?>
+						</button>
+					</form>
 				</div>
 
-				<table class="form-table" role="presentation">
-					<tbody>
-						<?php if ( ! empty( $workspace_info['workspace_name'] ) ) : ?>
-							<tr>
-								<th scope="row"><?php esc_html_e( 'Workspace', 'notion-wp' ); ?></th>
-								<td><strong><?php echo esc_html( $workspace_info['workspace_name'] ); ?></strong></td>
-							</tr>
-						<?php endif; ?>
+			<?php else : ?>
 
-						<?php if ( ! empty( $workspace_info['user_name'] ) ) : ?>
-							<tr>
-								<th scope="row"><?php esc_html_e( 'Integration Name', 'notion-wp' ); ?></th>
-								<td><?php echo esc_html( $workspace_info['user_name'] ); ?></td>
-							</tr>
-						<?php endif; ?>
+				<!-- Pages Tab Content -->
 
-						<?php if ( ! empty( $workspace_info['bot_id'] ) ) : ?>
-							<tr>
-								<th scope="row"><?php esc_html_e( 'Integration ID', 'notion-wp' ); ?></th>
-								<td><code><?php echo esc_html( $workspace_info['bot_id'] ); ?></code></td>
-							</tr>
-						<?php endif; ?>
-					</tbody>
-				</table>
-
-				<form method="post" action="<?php echo esc_url( admin_url( 'admin-post.php' ) ); ?>" style="margin-top: 20px;">
-					<input type="hidden" name="action" value="notion_sync_disconnect">
-					<?php wp_nonce_field( 'notion_sync_disconnect', 'notion_sync_disconnect_nonce' ); ?>
-
-					<button
-						type="submit"
-						class="button button-secondary"
-					onclick="return confirm(
-						<?php
-						echo esc_js(
-							__( 'Are you sure you want to disconnect from Notion? This will remove your API token.', 'notion-wp' )
-						);
-						?>
-					);"
-					>
-						<?php esc_html_e( 'Disconnect', 'notion-wp' ); ?>
-					</button>
-				</form>
-			</div>
-
-			<!-- Link Update Tool -->
-			<div class="card" style="margin-top: 20px;">
-				<h2><?php esc_html_e( 'Maintenance Tools', 'notion-wp' ); ?></h2>
-
-				<p>
-					<?php
-					esc_html_e(
-						'Update internal Notion links in previously synced posts to WordPress permalinks. ' .
-						'This includes links to both pages and databases.',
-						'notion-wp'
-					);
-					?>
-				</p>
-
-				<p class="description">
-					<?php
-					esc_html_e(
-						'This is useful after syncing new content that is referenced by existing posts, ' .
-						'or after enabling database support.',
-						'notion-wp'
-					);
-					?>
-				</p>
-
-				<div id="link-update-messages" style="margin-top: 15px;"></div>
-
-				<p style="margin-top: 15px;">
-					<button type="button" id="update-links-btn" class="button button-secondary">
-						<span class="dashicons dashicons-update" style="margin-top: 3px;"></span>
-						<?php esc_html_e( 'Update All Links', 'notion-wp' ); ?>
-					</button>
-					<span id="link-update-spinner" class="spinner" style="float: none; margin-left: 10px; display: none;"></span>
-				</p>
-			</div>
-
-			<!-- Notion Pages List Table -->
+				<!-- Notion Pages List Table -->
 				<?php if ( null !== $list_table ) : ?>
 				<div class="card" style="margin-top: 20px;">
 					<h2><?php esc_html_e( 'Notion Pages', 'notion-wp' ); ?></h2>

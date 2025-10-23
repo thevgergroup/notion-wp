@@ -12,7 +12,7 @@
  */
 import { handleSyncNow, handleBulkActions } from './page-sync.js';
 import { handleDatabaseSync, handleCancelBatch } from './database-sync.js';
-import { handleCopyNotionId, handleUpdateLinks } from './link-utils.js';
+import { handleCopyNotionId } from './link-utils.js';
 
 /**
  * Re-export table UI functions for backward compatibility
@@ -89,10 +89,4 @@ export function initSyncFunctionality() {
 			handleCopyNotionId(event.target.closest('.notion-copy-id'));
 		}
 	});
-
-	// Handle update links button.
-	const updateLinksBtn = document.getElementById('update-links-btn');
-	if (updateLinksBtn) {
-		updateLinksBtn.addEventListener('click', handleUpdateLinks);
-	}
 }

@@ -214,7 +214,7 @@ class SettingsPage {
 					$db_fetcher      = new \NotionSync\Sync\DatabaseFetcher( $client );
 					$databases_table = new \NotionSync\Admin\DatabasesListTable( $db_fetcher );
 					$databases_table->prepare_items();
-				} else {
+				} elseif ( 'pages' === $current_tab ) {
 					// Initialize pages list table.
 					$fetcher = new \NotionSync\Sync\ContentFetcher( $client );
 					$manager = new SyncManager();
@@ -226,6 +226,7 @@ class SettingsPage {
 
 					$list_table->prepare_items();
 				}
+				// Settings tab doesn't need any list table initialization.
 			} catch ( \Exception $e ) {
 				$error_message = $e->getMessage();
 			}

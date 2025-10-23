@@ -93,14 +93,19 @@ class PagesListTable extends \WP_List_Table {
 	/**
 	 * Get sortable columns.
 	 *
-	 * Defines which columns are sortable (none for MVP - keep it simple).
+	 * Defines which columns are sortable.
 	 *
 	 * @since 1.0.0
 	 *
-	 * @return array Empty array (no sorting in MVP).
+	 * @return array Sortable column key => array( orderby key, default sorted ).
 	 */
 	protected function get_sortable_columns() {
-		return array();
+		return array(
+			'title'       => array( 'title', false ),
+			'type'        => array( 'type', false ),
+			'sync_status' => array( 'sync_status', false ),
+			'last_synced' => array( 'last_synced', false ),
+		);
 	}
 
 	/**
@@ -422,6 +427,89 @@ class PagesListTable extends \WP_List_Table {
 	}
 
 	/**
+	 * Display extra table navigation (filters).
+	 *
+	 * @since 1.0.0
+	 *
+	 * @param string $which Position of the navigation ('top' or 'bottom').
+	 */
+	protected function extra_tablenav( $which ) {
+		if ( 'top' !== $which ) {
+			return;
+		}
+
+		$current_filter = isset( $_GET['filter_status'] ) ? sanitize_text_field( wp_unslash( $_GET['filter_status'] ) ) : '';
+		?>
+		<div class="alignleft actions">
+			<label for="filter-status" class="screen-reader-text"><?php esc_html_e( 'Filter by status', 'notion-wp' ); ?></label>
+			<select name="filter_status" id="filter-status">
+				<option value=""><?php esc_html_e( 'All Statuses', 'notion-wp' ); ?></option>
+				<option value="synced" <?php selected( $current_filter, 'synced' ); ?>><?php esc_html_e( 'Synced', 'notion-wp' ); ?></option>
+				<option value="not_synced" <?php selected( $current_filter, 'not_synced' ); ?>><?php esc_html_e( 'Not Synced', 'notion-wp' ); ?></option>
+			</select>
+			<?php submit_button( __( 'Filter', 'notion-wp' ), 'button', 'filter_action', false ); ?>
+		</div>
+		<?php
+	}
+
+	/**
+	 * Sort pages by specified column.
+	 *
+	 * @since 1.0.0
+	 *
+	 * @param array  $pages   Array of page data.
+	 * @param string $orderby Column to sort by.
+	 * @param string $order   Sort direction ('asc' or 'desc').
+	 * @return array Sorted pages array.
+	 */
+	private function sort_pages( array $pages, string $orderby, string $order ): array {
+		usort(
+			$pages,
+			function ( $a, $b ) use ( $orderby, $order ) {
+				$result = 0;
+
+				switch ( $orderby ) {
+					case 'title':
+						$result = strcasecmp( $a['title'] ?? '', $b['title'] ?? '' );
+						break;
+
+					case 'type':
+						$result = strcasecmp( $a['object_type'] ?? '', $b['object_type'] ?? '' );
+						break;
+
+					case 'sync_status':
+						// Get sync status for comparison.
+						$status_a = $this->manager->get_sync_status( $a['id'] );
+						$status_b = $this->manager->get_sync_status( $b['id'] );
+
+						// Convert boolean to sortable value: synced = 1, not_synced = 0.
+						$val_a = $status_a['is_synced'] ? 1 : 0;
+						$val_b = $status_b['is_synced'] ? 1 : 0;
+
+						$result = $val_a <=> $val_b;
+						break;
+
+					case 'last_synced':
+						// Get last_synced timestamps.
+						$status_a = $this->manager->get_sync_status( $a['id'] );
+						$status_b = $this->manager->get_sync_status( $b['id'] );
+
+						$time_a = $status_a['last_synced'] ?? 0;
+						$time_b = $status_b['last_synced'] ?? 0;
+
+						$result = $time_a <=> $time_b;
+						break;
+				}
+
+				// Apply order direction.
+				return 'desc' === $order ? -$result : $result;
+			}
+		);
+
+		return $pages;
+	}
+
+	/**
 	 * Prepare table items for display.
 	 *
 	 * Fetches Notion pages and prepares them for table display.
@@ -461,6 +549,34 @@ class PagesListTable extends \WP_List_Table {
 				return true;
 			}
 		);
+
+		// Apply status filter if requested.
+		$filter_status = isset( $_GET['filter_status'] ) ? sanitize_text_field( wp_unslash( $_GET['filter_status'] ) ) : '';
+
+		if ( ! empty( $filter_status ) ) {
+			$pages = array_filter(
+				$pages,
+				function ( $page ) use ( $filter_status ) {
+					$sync_status = $this->manager->get_sync_status( $page['id'] );
+
+					if ( 'synced' === $filter_status ) {
+						return $sync_status['is_synced'];
+					} elseif ( 'not_synced' === $filter_status ) {
+						return ! $sync_status['is_synced'];
+					}
+
+					return true;
+				}
+			);
+		}
+
+		// Apply sorting if requested.
+		$orderby = isset( $_GET['orderby'] ) ? sanitize_text_field( wp_unslash( $_GET['orderby'] ) ) : '';
+		$order   = isset( $_GET['order'] ) && 'desc' === strtolower( $_GET['order'] ) ? 'desc' : 'asc';
+
+		if ( ! empty( $orderby ) ) {
+			$pages = $this->sort_pages( $pages, $orderby, $order );
+		}
 
 		// Set items.
 		$this->items = $pages;
