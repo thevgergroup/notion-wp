@@ -39,9 +39,8 @@ class LinkToPageConverter implements BlockConverterInterface {
 	/**
 	 * Convert Notion link_to_page block to Gutenberg content
 	 *
-	 * Creates a paragraph with a link to the referenced page. The link uses the
-	 * /notion/{slug} format which automatically redirects to WordPress if synced
-	 * or Notion if not synced.
+	 * Creates a paragraph with a link to the referenced page. Uses WordPress
+	 * permalink if the target page has been synced, otherwise links to Notion.
 	 *
 	 * @since 1.0.0
 	 *
@@ -72,8 +71,7 @@ class LinkToPageConverter implements BlockConverterInterface {
 		$normalized_id = str_replace( '-', '', $page_id );
 
 		// Register link in registry (creates entry if doesn't exist).
-		// This allows /notion/{slug} URLs to work immediately.
-		// Title will be updated when the page is synced.
+		// Title will be updated when the target page is synced.
 		$registry = new LinkRegistry();
 		$registry->register(
 			array(
@@ -83,19 +81,47 @@ class LinkToPageConverter implements BlockConverterInterface {
 			)
 		);
 
-		// Get slug for this Notion ID.
-		$slug = $registry->get_slug_for_notion_id( $normalized_id );
+		// Fetch the entry to get current title and sync status.
+		$entry = $registry->find_by_notion_id( $normalized_id );
 
-		// Build /notion/{slug} URL.
-		$url = home_url( '/notion/' . $slug );
+		// Determine URL and link text.
+		if ( $entry ) {
+			// Use appropriate URL based on sync status.
+			if ( 'synced' === $entry->sync_status && ! empty( $entry->wp_post_id ) ) {
+				// Synced - use WordPress permalink.
+				$url = get_permalink( $entry->wp_post_id );
+				if ( ! $url ) {
+					// Permalink not available - fall back to Notion.
+					$url = 'https://notion.so/' . $normalized_id;
+				}
+			} else {
+				// Not synced - link to Notion.
+				$url = 'https://notion.so/' . $normalized_id;
+			}
 
-		// Create a paragraph with a link icon and the link.
-		// Include data-notion-id attribute for backward compatibility.
-		// Note: We use "→" as a visual indicator this is a link block.
+			// Use current title from registry.
+			// If title is still a Notion ID (not yet synced), show friendlier text.
+			$link_text = $entry->notion_title;
+			if ( $link_text === $normalized_id ) {
+				$link_text = 'View linked page';
+			}
+
+			// Add icon prefix.
+			$icon      = 'database' === $entry->notion_type ? '📊' : '📄';
+			$link_text = $icon . ' ' . $link_text;
+		} else {
+			// Entry not found (shouldn't happen after register).
+			$url       = 'https://notion.so/' . $normalized_id;
+			$link_text = '📄 View linked page';
+		}
+
+		// Create a paragraph with the link.
+		// Include data-notion-id attribute for future updates.
 		return sprintf(
-			"<!-- wp:paragraph -->\n<p>→ <a href=\"%s\" data-notion-id=\"%s\">View linked page</a></p>\n<!-- /wp:paragraph -->\n\n",
+			"<!-- wp:paragraph -->\n<p><a href=\"%s\" data-notion-id=\"%s\" class=\"notion-link\">%s</a></p>\n<!-- /wp:paragraph -->\n\n",
 			esc_url( $url ),
-			esc_attr( $normalized_id )
+			esc_attr( $normalized_id ),
+			esc_html( $link_text )
 		);
 	}
 }
