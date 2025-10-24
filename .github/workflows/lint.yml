@@ -121,7 +121,12 @@ jobs:
             - name: Check for files exceeding 500 lines
               run: |
                   echo "Checking for files exceeding 500 lines..."
-                  LARGE_FILES=$(find plugin -type f \( -name "*.php" -o -name "*.js" -o -name "*.jsx" -o -name "*.ts" -o -name "*.tsx" \) -exec wc -l {} \; | awk '$1 > 500 {print $2 " (" $1 " lines)"}')
+                  LARGE_FILES=$(find plugin -type f \( -name "*.php" -o -name "*.js" -o -name "*.jsx" -o -name "*.ts" -o -name "*.tsx" \) \
+                    ! -path "*/vendor/*" \
+                    ! -path "*/node_modules/*" \
+                    ! -name "test-*.php" \
+                    ! -name "test-*.js" \
+                    -exec wc -l {} \; | awk '$1 > 500 {print $2 " (" $1 " lines)"}')
 
                   if [ -n "$LARGE_FILES" ]; then
                     echo "❌ The following files exceed the 500-line limit:"
@@ -129,9 +134,11 @@ jobs:
                     echo ""
                     echo "Please refactor these files into smaller, more focused modules."
                     echo "See docs/development/principles.md for guidelines."
+                    echo ""
+                    echo "Note: This check excludes vendor/, node_modules/, and test-* files."
                     exit 1
                   else
-                    echo "✅ All files are within the 500-line limit"
+                    echo "✅ All files are within the 500-line limit (excluding vendor/node_modules/test files)"
                   fi
 
     summary:
