@@ -231,6 +231,29 @@ if ( ! defined( 'ABSPATH' ) ) {
 					</form>
 				</div>
 
+				<!-- Maintenance Tools -->
+				<div class="card" style="margin-top: 20px; max-width: 800px;">
+					<h2><?php esc_html_e( 'Maintenance Tools', 'notion-wp' ); ?></h2>
+
+					<p>
+						<?php esc_html_e( 'Use these tools to troubleshoot issues with the plugin.', 'notion-wp' ); ?>
+					</p>
+
+					<h3 style="margin-top: 20px;"><?php esc_html_e( 'Flush Rewrite Rules', 'notion-wp' ); ?></h3>
+					<p class="description">
+						<?php esc_html_e( 'If /notion/{slug} URLs are not working correctly, click this button to flush and regenerate WordPress rewrite rules.', 'notion-wp' ); ?>
+					</p>
+
+					<form method="post" action="<?php echo esc_url( admin_url( 'admin-post.php' ) ); ?>" style="margin-top: 10px;">
+						<input type="hidden" name="action" value="notion_sync_flush_rewrites">
+						<?php wp_nonce_field( 'notion_sync_flush_rewrites', 'notion_sync_flush_rewrites_nonce' ); ?>
+
+						<button type="submit" class="button button-secondary">
+							<?php esc_html_e( 'Flush Rewrite Rules', 'notion-wp' ); ?>
+						</button>
+					</form>
+				</div>
+
 			<?php else : ?>
 
 				<!-- Pages Tab Content -->
