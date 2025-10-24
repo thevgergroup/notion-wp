@@ -127,7 +127,7 @@ class MediaRegistry {
 
 		$attachment_id = $wpdb->get_var(
 			$wpdb->prepare(
-				"SELECT attachment_id FROM %i WHERE notion_identifier = %s LIMIT 1",
+				'SELECT attachment_id FROM %i WHERE notion_identifier = %s LIMIT 1',
 				self::get_table_name(),
 				$notion_identifier
 			)
@@ -174,7 +174,7 @@ class MediaRegistry {
 
 		$notion_url = $wpdb->get_var(
 			$wpdb->prepare(
-				"SELECT notion_file_url FROM %i WHERE notion_identifier = %s LIMIT 1",
+				'SELECT notion_file_url FROM %i WHERE notion_identifier = %s LIMIT 1',
 				self::get_table_name(),
 				$notion_identifier
 			)
@@ -261,7 +261,7 @@ class MediaRegistry {
 
 		$results = $wpdb->get_col(
 			$wpdb->prepare(
-				"SELECT notion_identifier FROM %i WHERE attachment_id = %d",
+				'SELECT notion_identifier FROM %i WHERE attachment_id = %d',
 				self::get_table_name(),
 				$attachment_id
 			)
@@ -362,7 +362,7 @@ class MediaRegistry {
 	public static function clear_all(): bool {
 		global $wpdb;
 
-		$result = $wpdb->query( "TRUNCATE TABLE " . self::get_table_name() );
+		$result = $wpdb->query( 'TRUNCATE TABLE ' . self::get_table_name() );
 		return $result !== false;
 	}
 

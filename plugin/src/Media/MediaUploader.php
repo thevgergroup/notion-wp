@@ -83,6 +83,7 @@ class MediaUploader {
 		// Insert attachment.
 		$attachment_id = wp_insert_attachment( $attachment_data, $upload_path, $parent_post_id );
 
+		// Check for errors (WP_Error or 0 on failure).
 		if ( is_wp_error( $attachment_id ) ) {
 			unlink( $upload_path );
 			throw new \Exception( 'Failed to insert attachment: ' . $attachment_id->get_error_message() );
@@ -170,7 +171,7 @@ class MediaUploader {
 		// Update post if we have data.
 		if ( ! empty( $update_data ) ) {
 			$result = wp_update_post( $update_data );
-			if ( is_wp_error( $result ) || ! $result ) {
+			if ( ! $result ) {
 				return false;
 			}
 		}

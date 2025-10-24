@@ -305,8 +305,8 @@ class ImageDownloader {
 		// - s3.us-west-2.amazonaws.com/secure.notion-static.com (legacy)
 		// - prod-files-secure.s3.us-west-2.amazonaws.com (current)
 		if ( strpos( $url, 's3.us-west-2.amazonaws.com/secure.notion-static.com' ) !== false ||
-		     strpos( $url, 's3-us-west-2.amazonaws.com/secure.notion-static.com' ) !== false ||
-		     strpos( $url, 'prod-files-secure.s3.us-west-2.amazonaws.com' ) !== false ) {
+			strpos( $url, 's3-us-west-2.amazonaws.com/secure.notion-static.com' ) !== false ||
+			strpos( $url, 'prod-files-secure.s3.us-west-2.amazonaws.com' ) !== false ) {
 			return true;
 		}
 

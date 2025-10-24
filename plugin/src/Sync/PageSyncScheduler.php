@@ -178,7 +178,7 @@ class PageSyncScheduler {
 			$result = $instance->sync_manager->sync_page( $page_id );
 
 			if ( $result['success'] ) {
-				$batch['successful']++;
+				++$batch['successful'];
 				$batch['page_statuses'][ $page_id ] = 'completed';
 				$batch['results'][ $page_id ]       = [
 					'success' => true,
@@ -188,7 +188,7 @@ class PageSyncScheduler {
 				// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log -- Debug logging.
 				error_log( "PageSyncScheduler: Successfully synced page {$page_id} (post {$result['post_id']})" );
 			} else {
-				$batch['failed']++;
+				++$batch['failed'];
 				$batch['page_statuses'][ $page_id ] = 'failed';
 				$batch['results'][ $page_id ]       = [
 					'success' => false,
@@ -199,7 +199,7 @@ class PageSyncScheduler {
 				error_log( "PageSyncScheduler: Failed to sync page {$page_id}: " . ( $result['error'] ?? 'Unknown error' ) );
 			}
 		} catch ( \Exception $e ) {
-			$batch['failed']++;
+			++$batch['failed'];
 			$batch['page_statuses'][ $page_id ] = 'failed';
 			$batch['results'][ $page_id ]       = [
 				'success' => false,
@@ -211,7 +211,7 @@ class PageSyncScheduler {
 		}
 
 		// Increment processed counter.
-		$batch['processed']++;
+		++$batch['processed'];
 
 		// Clear current_page_id after processing.
 		$batch['current_page_id'] = null;

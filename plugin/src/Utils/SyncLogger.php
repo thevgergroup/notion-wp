@@ -40,12 +40,12 @@ class SyncLogger {
 	/**
 	 * Log a sync issue.
 	 *
-	 * @param string      $notion_page_id Notion page ID.
-	 * @param string      $severity       Severity level (info|warning|error).
-	 * @param string      $category       Category (image|block|api|conversion|performance).
-	 * @param string      $message        Human-readable message.
-	 * @param array       $context        Additional context data (optional).
-	 * @param int|null    $wp_post_id     WordPress post ID (optional).
+	 * @param string   $notion_page_id Notion page ID.
+	 * @param string   $severity       Severity level (info|warning|error).
+	 * @param string   $category       Category (image|block|api|conversion|performance).
+	 * @param string   $message        Human-readable message.
+	 * @param array    $context        Additional context data (optional).
+	 * @param int|null $wp_post_id     WordPress post ID (optional).
 	 * @return int|false Insert ID on success, false on failure.
 	 */
 	public static function log(

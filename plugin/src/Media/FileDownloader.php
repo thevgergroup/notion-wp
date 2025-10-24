@@ -253,7 +253,7 @@ class FileDownloader {
 	 */
 	private function is_notion_url( string $url ): bool {
 		return strpos( $url, 's3.us-west-2.amazonaws.com/secure.notion-static.com' ) !== false ||
-		       strpos( $url, 's3-us-west-2.amazonaws.com/secure.notion-static.com' ) !== false;
+				strpos( $url, 's3-us-west-2.amazonaws.com/secure.notion-static.com' ) !== false;
 	}
 
 	/**

@@ -176,7 +176,8 @@ class MediaSyncScheduler {
 			// Clean up batch data.
 			delete_post_meta( $post_id, "_notion_media_batch_{$batch_id}" );
 
-			error_log( "MediaSyncScheduler: Completed batch {$batch_id} - {count( $results )}/{$total} items processed" );
+			$processed_count = count( $results );
+			error_log( "MediaSyncScheduler: Completed batch {$batch_id} - {$processed_count}/{$total} items processed" );
 
 		} catch ( \Exception $e ) {
 			error_log( "MediaSyncScheduler: Batch {$batch_id} failed - " . $e->getMessage() );

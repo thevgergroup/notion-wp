@@ -541,4 +541,3 @@ class NotionCommand {
 		\WP_CLI::log( \WP_CLI::colorize( '%G' . str_repeat( '=', 60 ) . '%n' ) );
 	}
 }
-

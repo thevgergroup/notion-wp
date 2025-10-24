@@ -73,7 +73,7 @@ class PerformanceLogger {
 		// Accumulate measurements.
 		self::$measurements[ $label ]['duration']     += $duration;
 		self::$measurements[ $label ]['memory_delta'] += $memory_delta;
-		self::$measurements[ $label ]['count']++;
+		++self::$measurements[ $label ]['count'];
 
 		// Remove timer.
 		unset( self::$timers[ $label ] );
@@ -109,7 +109,7 @@ class PerformanceLogger {
 		// Accumulate measurements.
 		self::$measurements[ $label ]['duration']     += $duration;
 		self::$measurements[ $label ]['memory_delta'] += $memory_used;
-		self::$measurements[ $label ]['count']++;
+		++self::$measurements[ $label ]['count'];
 
 		// Log measurement.
 		error_log(
