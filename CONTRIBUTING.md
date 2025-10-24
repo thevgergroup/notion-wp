@@ -33,7 +33,7 @@ Before contributing, ensure you have:
 - **Git 2.5+** (for worktree support)
 - **Docker and Docker Compose** (for local WordPress environment)
 - **Node.js 18+** (for asset building)
-- **Composer** (for PHP dependencies)
+- **PHP 8.0+** (composer.phar will be downloaded during setup)
 - **Basic understanding of**:
     - WordPress plugin development
     - PHP 8.0+
@@ -75,10 +75,24 @@ This project uses **git worktrees** with isolated Docker environments for parall
     - Username: `admin`
     - Password: `admin`
 
-3. **Install dependencies**:
+3. **Install Composer** (if not already installed):
+
     ```bash
-    cd ../main/plugin
-    composer install
+    # Download composer.phar to project root
+    cd ../main
+    curl -sS https://getcomposer.org/installer | php
+
+    # Verify installation
+    php composer.phar --version
+    ```
+
+4. **Install dependencies**:
+    ```bash
+    # Install PHP dependencies (from project root)
+    php composer.phar install
+
+    # Install Node dependencies and build assets
+    cd plugin
     npm install
     npm run build
     ```
@@ -143,9 +157,11 @@ make test              # Run tests (when available)
     # Edit files
     vim plugin/src/Converters/MyConverter.php
 
-    # Check linting
+    # Check linting (from project root)
+    php composer.phar lint
+
+    # Check JavaScript/CSS linting (from plugin directory)
     cd plugin
-    composer lint
     npm run lint
 
     # Test changes in browser
@@ -291,19 +307,19 @@ Before committing, always run linters to ensure code quality.
 
 ### PHP Linting
 
-```bash
-cd plugin
+**Note:** All PHP linting commands should be run from the **project root** (not the plugin directory).
 
+```bash
 # Run all PHP linters
-composer lint
+php composer.phar lint
 
 # Individual linters
-composer lint:phpcs          # Code standards
-composer lint:phpstan        # Static analysis
+php composer.phar lint:phpcs          # Code standards
+php composer.phar lint:phpstan        # Static analysis
 
 # Auto-fix issues
-composer lint:fix            # Fix all auto-fixable issues
-composer lint:phpcbf         # Fix coding standards only
+php composer.phar lint:fix            # Fix all auto-fixable issues
+php composer.phar lint:phpcbf         # Fix coding standards only
 ```
 
 ### JavaScript Linting
@@ -379,7 +395,7 @@ As the project grows, we'll add:
 
 ### Before Submitting
 
-- [ ] All linters pass (`composer lint && npm run lint`)
+- [ ] All linters pass (`php composer.phar lint` from root and `npm run lint` from plugin/)
 - [ ] Code follows project standards
 - [ ] No files exceed 500 lines
 - [ ] All output is escaped (security)

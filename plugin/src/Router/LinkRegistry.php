@@ -154,8 +154,38 @@ class LinkRegistry {
 	 * @since 1.0.0
 	 *
 	 * @param string $notion_id Notion ID (with or without dashes).
-	 * @return object{id: int, notion_id: string, notion_id_uuid: string, notion_title: string, notion_type: string, wp_post_id: int|null, wp_post_type: string|null, slug: string, sync_status: string, notion_last_edited: string|null, wp_last_synced: string|null, sync_error: string|null, created_at: string, updated_at: string}|null Link entry object or null if not found.
-	 * @phpstan-return object{id: int, notion_id: string, notion_id_uuid: string, notion_title: string, notion_type: string, wp_post_id: int|null, wp_post_type: string|null, slug: string, sync_status: string, notion_last_edited: string|null, wp_last_synced: string|null, sync_error: string|null, created_at: string, updated_at: string}|null
+	 * @return object{
+	 *     id: int,
+	 *     notion_id: string,
+	 *     notion_id_uuid: string,
+	 *     notion_title: string,
+	 *     notion_type: string,
+	 *     wp_post_id: int|null,
+	 *     wp_post_type: string|null,
+	 *     slug: string,
+	 *     sync_status: string,
+	 *     notion_last_edited: string|null,
+	 *     wp_last_synced: string|null,
+	 *     sync_error: string|null,
+	 *     created_at: string,
+	 *     updated_at: string
+	 * }|null Link entry object or null if not found.
+	 * @phpstan-return object{
+	 *     id: int,
+	 *     notion_id: string,
+	 *     notion_id_uuid: string,
+	 *     notion_title: string,
+	 *     notion_type: string,
+	 *     wp_post_id: int|null,
+	 *     wp_post_type: string|null,
+	 *     slug: string,
+	 *     sync_status: string,
+	 *     notion_last_edited: string|null,
+	 *     wp_last_synced: string|null,
+	 *     sync_error: string|null,
+	 *     created_at: string,
+	 *     updated_at: string
+	 * }|null
 	 */
 	public function find_by_notion_id( string $notion_id ): ?object {
 		global $wpdb;

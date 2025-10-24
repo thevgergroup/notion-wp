@@ -49,7 +49,11 @@ class SyncLogsPage {
 		$menu_title       = 'Sync Logs';
 
 		if ( $unresolved_count > 0 ) {
-			$menu_title .= sprintf( ' <span class="update-plugins count-%d"><span class="plugin-count">%d</span></span>', $unresolved_count, $unresolved_count );
+			$menu_title .= sprintf(
+				' <span class="update-plugins count-%d"><span class="plugin-count">%d</span></span>',
+				$unresolved_count,
+				$unresolved_count
+			);
 		}
 
 		add_submenu_page(
@@ -110,10 +114,30 @@ class SyncLogsPage {
 			<div class="notion-sync-logs">
 				<!-- Filters -->
 				<ul class="subsubsub">
-					<li><a href="<?php echo esc_url( admin_url( 'admin.php?page=' . self::PAGE_SLUG ) ); ?>" <?php echo ! $severity && ! $category ? 'class="current"' : ''; ?>>All <span class="count">(<?php echo esc_html( $total_count ); ?>)</span></a> |</li>
-					<li><a href="<?php echo esc_url( admin_url( 'admin.php?page=' . self::PAGE_SLUG . '&severity=error' ) ); ?>" <?php echo 'error' === $severity ? 'class="current"' : ''; ?>>Errors <span class="count">(<?php echo esc_html( $error_count ); ?>)</span></a> |</li>
-					<li><a href="<?php echo esc_url( admin_url( 'admin.php?page=' . self::PAGE_SLUG . '&severity=warning' ) ); ?>" <?php echo 'warning' === $severity ? 'class="current"' : ''; ?>>Warnings <span class="count">(<?php echo esc_html( $warning_count ); ?>)</span></a> |</li>
-					<li><a href="<?php echo esc_url( admin_url( 'admin.php?page=' . self::PAGE_SLUG . '&severity=info' ) ); ?>" <?php echo 'info' === $severity ? 'class="current"' : ''; ?>>Info <span class="count">(<?php echo esc_html( $info_count ); ?>)</span></a></li>
+					<li>
+						<a href="<?php echo esc_url( admin_url( 'admin.php?page=' . self::PAGE_SLUG ) ); ?>"
+							<?php echo ! $severity && ! $category ? 'class="current"' : ''; ?>>
+							All <span class="count">(<?php echo esc_html( $total_count ); ?>)</span>
+						</a> |
+					</li>
+					<li>
+						<a href="<?php echo esc_url( admin_url( 'admin.php?page=' . self::PAGE_SLUG . '&severity=error' ) ); ?>"
+							<?php echo 'error' === $severity ? 'class="current"' : ''; ?>>
+							Errors <span class="count">(<?php echo esc_html( $error_count ); ?>)</span>
+						</a> |
+					</li>
+					<li>
+						<a href="<?php echo esc_url( admin_url( 'admin.php?page=' . self::PAGE_SLUG . '&severity=warning' ) ); ?>"
+							<?php echo 'warning' === $severity ? 'class="current"' : ''; ?>>
+							Warnings <span class="count">(<?php echo esc_html( $warning_count ); ?>)</span>
+						</a> |
+					</li>
+					<li>
+						<a href="<?php echo esc_url( admin_url( 'admin.php?page=' . self::PAGE_SLUG . '&severity=info' ) ); ?>"
+							<?php echo 'info' === $severity ? 'class="current"' : ''; ?>>
+							Info <span class="count">(<?php echo esc_html( $info_count ); ?>)</span>
+						</a>
+					</li>
 				</ul>
 
 				<div style="clear: both;"></div>
@@ -160,7 +184,11 @@ class SyncLogsPage {
 															<?php if ( ! empty( $log['context']['url'] ) ) : ?>
 																<tr>
 																	<th style="width: 120px; text-align: left;">URL</th>
-																	<td><a href="<?php echo esc_url( $log['context']['url'] ); ?>" target="_blank"><?php echo esc_html( $log['context']['url'] ); ?></a></td>
+																	<td>
+																		<a href="<?php echo esc_url( $log['context']['url'] ); ?>" target="_blank">
+																			<?php echo esc_html( $log['context']['url'] ); ?>
+																		</a>
+																	</td>
 																</tr>
 															<?php endif; ?>
 															<?php if ( ! empty( $log['context']['mime_type'] ) ) : ?>
@@ -180,7 +208,8 @@ class SyncLogsPage {
 
 													<?php if ( $log['wp_post_id'] ) : ?>
 														<p style="margin-top: 12px; margin-bottom: 0;">
-															<a href="<?php echo esc_url( get_edit_post_link( $log['wp_post_id'] ) ); ?>" class="button button-small">
+															<a href="<?php echo esc_url( get_edit_post_link( $log['wp_post_id'] ) ); ?>"
+																class="button button-small">
 																Edit Post #<?php echo esc_html( $log['wp_post_id'] ); ?>
 															</a>
 														</p>
@@ -189,7 +218,12 @@ class SyncLogsPage {
 											</details>
 										<?php endif; ?>
 									</td>
-									<td><?php echo esc_html( human_time_diff( strtotime( $log['created_at'] ), current_time( 'timestamp' ) ) ); ?> ago</td>
+									<td>
+										<?php
+										echo esc_html( human_time_diff( strtotime( $log['created_at'] ), current_time( 'timestamp' ) ) );
+										?>
+										ago
+									</td>
 									<td>
 										<form method="post" action="<?php echo esc_url( admin_url( 'admin-post.php' ) ); ?>" style="display: inline;">
 											<?php wp_nonce_field( 'notion_sync_resolve_log', 'notion_sync_nonce' ); ?>
@@ -281,6 +315,7 @@ class SyncLogsPage {
 		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
 		$wpdb->query(
 			$wpdb->prepare(
+				// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- Table name is safe.
 				"UPDATE {$table_name} SET resolved = 1, resolved_at = %s, resolved_by = %d WHERE resolved = 0",
 				current_time( 'mysql' ),
 				get_current_user_id()

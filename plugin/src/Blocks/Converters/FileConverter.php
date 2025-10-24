@@ -211,14 +211,22 @@ class FileConverter implements BlockConverterInterface {
 
 		// Generate download button text.
 		$button_text = sprintf( 'Download %s', esc_html( $file_name ) );
+		$caption_html = $caption
+			? sprintf( '<figcaption class="wp-element-caption">%s</figcaption>', wp_kses_post( $caption ) )
+			: '';
 
-		return sprintf(
-			"<!-- wp:file {\"id\":%d,\"href\":\"%s\"} -->\n<div class=\"wp-block-file\"><a href=\"%s\" class=\"wp-block-file__button\" download>%s</a>%s</div>\n<!-- /wp:file -->\n\n",
-			$attachment_id,
-			esc_url( $file_url ),
+		$block_attrs = sprintf( '<!-- wp:file {"id":%d,"href":"%s"} -->', $attachment_id, esc_url( $file_url ) );
+		$block_content = sprintf(
+			'<div class="wp-block-file"><a href="%s" class="wp-block-file__button" download>%s</a>%s</div>',
 			esc_url( $file_url ),
 			$button_text,
-			$caption ? sprintf( '<figcaption class="wp-element-caption">%s</figcaption>', wp_kses_post( $caption ) ) : ''
+			$caption_html
+		);
+
+		return sprintf(
+			"%s\n%s\n<!-- /wp:file -->\n\n",
+			$block_attrs,
+			$block_content
 		);
 	}
 
@@ -230,12 +238,22 @@ class FileConverter implements BlockConverterInterface {
 	 * @return string Gutenberg PDF embed block HTML.
 	 */
 	private function generate_pdf_block( string $file_url, string $file_name ): string {
-		return sprintf(
-			"<!-- wp:file {\"href\":\"%s\"} -->\n<div class=\"wp-block-file\"><object class=\"wp-block-file__embed\" data=\"%s\" type=\"application/pdf\" style=\"width:100%%;height:600px\" aria-label=\"%s\"></object><a href=\"%s\" class=\"wp-block-file__button\" download aria-label=\"Download PDF\">Download</a></div>\n<!-- /wp:file -->\n\n",
+		$block_attrs = sprintf( '<!-- wp:file {"href":"%s"} -->', esc_url( $file_url ) );
+		$object_tag = sprintf(
+			'<object class="wp-block-file__embed" data="%s" type="application/pdf" style="width:100%%;height:600px" aria-label="%s"></object>',
 			esc_url( $file_url ),
-			esc_url( $file_url ),
-			esc_attr( $file_name ),
+			esc_attr( $file_name )
+		);
+		$download_link = sprintf(
+			'<a href="%s" class="wp-block-file__button" download aria-label="Download PDF">Download</a>',
 			esc_url( $file_url )
+		);
+
+		return sprintf(
+			"%s\n<div class=\"wp-block-file\">%s%s</div>\n<!-- /wp:file -->\n\n",
+			$block_attrs,
+			$object_tag,
+			$download_link
 		);
 	}
 

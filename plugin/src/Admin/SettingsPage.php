@@ -474,6 +474,9 @@ class SettingsPage {
 		flush_rewrite_rules();
 
 		// Redirect with success message.
-		$this->redirect_with_message( 'success', __( 'Rewrite rules have been flushed. /notion/{slug} URLs should now work correctly.', 'notion-wp' ) );
+		$this->redirect_with_message(
+			'success',
+			__( 'Rewrite rules have been flushed. /notion/{slug} URLs should now work correctly.', 'notion-wp' )
+		);
 	}
 }

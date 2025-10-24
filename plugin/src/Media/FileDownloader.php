@@ -46,11 +46,11 @@ class FileDownloader {
 	 *
 	 * @var array
 	 */
-	private const ALLOWED_MIME_TYPES = [
-		// PDF
+	private const ALLOWED_MIME_TYPES = array(
+		// PDF.
 		'application/pdf',
 
-		// Microsoft Office
+		// Microsoft Office.
 		'application/msword',
 		'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
 		'application/vnd.ms-excel',
@@ -58,22 +58,22 @@ class FileDownloader {
 		'application/vnd.ms-powerpoint',
 		'application/vnd.openxmlformats-officedocument.presentationml.presentation',
 
-		// Text files
+		// Text files.
 		'text/plain',
 		'text/csv',
 		'text/markdown',
 
-		// Archives
+		// Archives.
 		'application/zip',
 		'application/x-zip-compressed',
 		'application/x-rar-compressed',
 		'application/x-7z-compressed',
 
-		// Other common formats
+		// Other common formats.
 		'application/json',
 		'application/xml',
 		'text/xml',
-	];
+	);
 
 	/**
 	 * Temporary directory for downloads.
@@ -110,13 +110,15 @@ class FileDownloader {
 	 *     @type int    $file_size   File size in bytes.
 	 *     @type string $source_url  Original URL.
 	 * }
+	 * @throws \InvalidArgumentException If invalid URL provided.
 	 * @throws \Exception If download fails after all retries.
 	 */
-	public function download( string $url, array $options = [] ): array {
+	public function download( string $url, array $options = array() ): array {
 		$validate = $options['validate'] ?? true;
 
 		// Validate URL.
 		if ( ! filter_var( $url, FILTER_VALIDATE_URL ) ) {
+			// phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- Internal error message for debugging.
 			throw new \InvalidArgumentException( 'Invalid URL provided: ' . $url );
 		}
 
@@ -153,6 +155,7 @@ class FileDownloader {
 		}
 
 		// All retries failed.
+		// phpcs:disable WordPress.Security.EscapeOutput.ExceptionNotEscaped
 		throw new \Exception(
 			sprintf(
 				'Failed to download file after %d attempts: %s',
@@ -162,6 +165,7 @@ class FileDownloader {
 			0,
 			$last_exception
 		);
+		// phpcs:enable WordPress.Security.EscapeOutput.ExceptionNotEscaped
 	}
 
 	/**
@@ -180,42 +184,46 @@ class FileDownloader {
 		// Download using WordPress HTTP API.
 		$response = wp_remote_get(
 			$url,
-			[
+			array(
 				'timeout'  => self::TIMEOUT_SECONDS,
 				'stream'   => true,
 				'filename' => $temp_path,
-			]
+			)
 		);
 
 		// Check for HTTP errors.
 		if ( is_wp_error( $response ) ) {
+			// phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- Internal error message for debugging.
 			throw new \Exception( 'HTTP request failed: ' . $response->get_error_message() );
 		}
 
 		$response_code = wp_remote_retrieve_response_code( $response );
-		if ( $response_code !== 200 ) {
+		if ( 200 !== $response_code ) {
+			// phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- Internal error message for debugging.
 			throw new \Exception( 'HTTP request returned status code: ' . $response_code );
 		}
 
 		// Verify file was created.
 		if ( ! file_exists( $temp_path ) ) {
+			// phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- Internal error message for debugging.
 			throw new \Exception( 'Downloaded file not found at: ' . $temp_path );
 		}
 
 		// Check file size.
 		$file_size = filesize( $temp_path );
-		if ( $file_size === false ) {
-			unlink( $temp_path );
+		if ( false === $file_size ) {
+			wp_delete_file( $temp_path );
 			throw new \Exception( 'Could not determine file size' );
 		}
 
-		if ( $file_size === 0 ) {
-			unlink( $temp_path );
+		if ( 0 === $file_size ) {
+			wp_delete_file( $temp_path );
 			throw new \Exception( 'Downloaded file is empty' );
 		}
 
 		if ( $file_size > self::MAX_FILE_SIZE ) {
-			unlink( $temp_path );
+			wp_delete_file( $temp_path );
+			// phpcs:disable WordPress.Security.EscapeOutput.ExceptionNotEscaped
 			throw new \Exception(
 				sprintf(
 					'File size (%d bytes) exceeds maximum allowed size (%d bytes)',
@@ -223,6 +231,7 @@ class FileDownloader {
 					self::MAX_FILE_SIZE
 				)
 			);
+			// phpcs:enable WordPress.Security.EscapeOutput.ExceptionNotEscaped
 		}
 
 		// Detect MIME type.
@@ -231,18 +240,19 @@ class FileDownloader {
 		// Validate MIME type if requested.
 		if ( $options['validate'] ?? true ) {
 			if ( ! in_array( $mime_type, self::ALLOWED_MIME_TYPES, true ) ) {
-				unlink( $temp_path );
+				wp_delete_file( $temp_path );
+				// phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- Internal error message for debugging.
 				throw new \Exception( 'Invalid MIME type for file: ' . $mime_type );
 			}
 		}
 
-		return [
+		return array(
 			'file_path'  => $temp_path,
 			'filename'   => basename( $temp_path ),
 			'mime_type'  => $mime_type,
 			'file_size'  => $file_size,
 			'source_url' => $url,
-		];
+		);
 	}
 
 	/**

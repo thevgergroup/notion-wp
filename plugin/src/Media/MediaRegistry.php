@@ -101,7 +101,7 @@ class MediaRegistry {
 			[ '%s', '%d', '%s', '%s' ]
 		);
 
-		if ( $result === false ) {
+		if ( false === $result ) {
 			error_log(
 				sprintf(
 					'MediaRegistry: Failed to register %s → %d: %s',
@@ -160,7 +160,7 @@ class MediaRegistry {
 		}
 
 		$url = wp_get_attachment_url( $attachment_id );
-		return $url ?: null;
+		return $url ? $url : null;
 	}
 
 	/**
@@ -180,7 +180,7 @@ class MediaRegistry {
 			)
 		);
 
-		return $notion_url ?: null;
+		return $notion_url ? $notion_url : null;
 	}
 
 	/**
@@ -218,7 +218,7 @@ class MediaRegistry {
 			[ '%s' ]
 		);
 
-		if ( $result === false ) {
+		if ( false === $result ) {
 			error_log(
 				sprintf(
 					'MediaRegistry: Failed to update %s: %s',
@@ -247,7 +247,7 @@ class MediaRegistry {
 			[ '%s' ]
 		);
 
-		return $result !== false;
+		return false !== $result;
 	}
 
 	/**
@@ -267,7 +267,7 @@ class MediaRegistry {
 			)
 		);
 
-		return $results ?: [];
+		return $results ? $results : [];
 	}
 
 	/**
@@ -311,18 +311,22 @@ class MediaRegistry {
 		$table_name = self::get_table_name();
 
 		// Total entries.
+		// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- Table name is safe.
 		$total = (int) $wpdb->get_var( "SELECT COUNT(*) FROM {$table_name}" );
 
 		// Unique attachments.
+		// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- Table name is safe.
 		$unique = (int) $wpdb->get_var( "SELECT COUNT(DISTINCT attachment_id) FROM {$table_name}" );
 
 		// Orphaned entries (attachment deleted).
+		// phpcs:disable WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- Table name is safe.
 		$orphaned = (int) $wpdb->get_var(
 			"SELECT COUNT(*)
 			FROM {$table_name} r
 			LEFT JOIN {$wpdb->posts} p ON r.attachment_id = p.ID
 			WHERE p.ID IS NULL"
 		);
+		// phpcs:enable WordPress.DB.PreparedSQL.InterpolatedNotPrepared
 
 		return [
 			'total_entries'     => $total,
@@ -343,13 +347,15 @@ class MediaRegistry {
 
 		$table_name = self::get_table_name();
 
+		// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- Table name is safe.
 		$result = $wpdb->query(
+			// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- Table name is safe.
 			"DELETE r FROM {$table_name} r
 			LEFT JOIN {$wpdb->posts} p ON r.attachment_id = p.ID
 			WHERE p.ID IS NULL"
 		);
 
-		return $result !== false ? (int) $result : 0;
+		return false !== $result ? (int) $result : 0;
 	}
 
 	/**
@@ -362,8 +368,9 @@ class MediaRegistry {
 	public static function clear_all(): bool {
 		global $wpdb;
 
+		// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared,WordPress.DB.PreparedSQL.NotPrepared -- Table name is safe.
 		$result = $wpdb->query( 'TRUNCATE TABLE ' . self::get_table_name() );
-		return $result !== false;
+		return false !== $result;
 	}
 
 	/**

@@ -39,7 +39,7 @@ class MediaUploader {
 	public function upload( string $file_path, array $metadata = [], ?int $parent_post_id = null ): int {
 		// Validate file exists.
 		if ( ! file_exists( $file_path ) ) {
-			throw new \Exception( 'File not found: ' . $file_path );
+			throw new \Exception( 'File not found: ' . esc_html( $file_path ) );
 		}
 
 		// Get filename.
@@ -51,7 +51,7 @@ class MediaUploader {
 		// Prepare upload.
 		$upload_dir = wp_upload_dir();
 		if ( ! empty( $upload_dir['error'] ) ) {
-			throw new \Exception( 'Upload directory error: ' . $upload_dir['error'] );
+			throw new \Exception( 'Upload directory error: ' . esc_html( $upload_dir['error'] ) );
 		}
 
 		// Generate unique filename to avoid collisions.
@@ -84,13 +84,14 @@ class MediaUploader {
 		$attachment_id = wp_insert_attachment( $attachment_data, $upload_path, $parent_post_id );
 
 		// Check for errors (WP_Error or 0 on failure).
+		// @phpstan-ignore-next-line -- wp_insert_attachment can return WP_Error despite what stubs indicate.
 		if ( is_wp_error( $attachment_id ) ) {
-			unlink( $upload_path );
-			throw new \Exception( 'Failed to insert attachment: ' . $attachment_id->get_error_message() );
+			wp_delete_file( $upload_path );
+			throw new \Exception( 'Failed to insert attachment: ' . esc_html( $attachment_id->get_error_message() ) );
 		}
 
 		if ( ! $attachment_id ) {
-			unlink( $upload_path );
+			wp_delete_file( $upload_path );
 			throw new \Exception( 'Failed to insert attachment: Unknown error' );
 		}
 
@@ -199,7 +200,7 @@ class MediaUploader {
 	 */
 	public function get_attachment_url( int $attachment_id ): ?string {
 		$url = wp_get_attachment_url( $attachment_id );
-		return $url ?: null;
+		return $url ? $url : null;
 	}
 
 	/**
@@ -222,7 +223,7 @@ class MediaUploader {
 			'title'       => $post->post_title,
 			'caption'     => $post->post_excerpt,
 			'description' => $post->post_content,
-			'alt_text'    => $alt_text ?: '',
+			'alt_text'    => $alt_text ? $alt_text : '',
 			'mime_type'   => $post->post_mime_type,
 			'file_size'   => filesize( get_attached_file( $attachment_id ) ),
 		];
@@ -237,7 +238,7 @@ class MediaUploader {
 	 */
 	public function delete_attachment( int $attachment_id, bool $force_delete = false ): bool {
 		$result = wp_delete_attachment( $attachment_id, $force_delete );
-		return $result !== false && $result !== null;
+		return false !== $result && null !== $result;
 	}
 
 	/**

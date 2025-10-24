@@ -78,8 +78,10 @@ class PageSyncScheduler {
 		// Check if Action Scheduler is available.
 		// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log -- Debug logging.
 		error_log( 'PageSyncScheduler: Checking Action Scheduler availability' );
-		error_log( 'PageSyncScheduler: function_exists(as_schedule_single_action) = ' . ( function_exists( 'as_schedule_single_action' ) ? 'true' : 'false' ) );
-		error_log( 'PageSyncScheduler: class_exists(ActionScheduler) = ' . ( class_exists( 'ActionScheduler' ) ? 'true' : 'false' ) );
+		$fn_exists = function_exists( 'as_schedule_single_action' ) ? 'true' : 'false';
+		error_log( 'PageSyncScheduler: function_exists(as_schedule_single_action) = ' . $fn_exists );
+		$class_exists = class_exists( 'ActionScheduler' ) ? 'true' : 'false';
+		error_log( 'PageSyncScheduler: class_exists(ActionScheduler) = ' . $class_exists );
 
 		if ( ! function_exists( 'as_schedule_single_action' ) ) {
 			// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log -- Debug logging.

@@ -195,7 +195,7 @@ class LogsHandler {
 	private static function resolve_all_logs(): void {
 		$count = SyncLogger::get_unresolved_count();
 
-		if ( $count === 0 ) {
+		if ( 0 === $count ) {
 			WP_CLI::success( 'No unresolved logs to resolve!' );
 			return;
 		}
@@ -208,6 +208,7 @@ class LogsHandler {
 		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
 		$result = $wpdb->query(
 			$wpdb->prepare(
+		// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- Table name is safe.
 				"UPDATE {$table_name} SET resolved = 1, resolved_at = %s WHERE resolved = 0",
 				current_time( 'mysql' )
 			)

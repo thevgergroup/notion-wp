@@ -161,16 +161,16 @@ class SyncLogger {
 		$limit  = absint( $args['limit'] ?? 100 );
 		$offset = absint( $args['offset'] ?? 0 );
 
-		$query = "SELECT * FROM {$table_name} WHERE {$where_clause} ORDER BY created_at DESC LIMIT {$limit} OFFSET {$offset}";
+		// Build query with placeholders for LIMIT and OFFSET.
+		// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- Table name is safe.
+		$query = "SELECT * FROM {$table_name} WHERE {$where_clause} ORDER BY created_at DESC LIMIT %d OFFSET %d";
 
-		// Prepare query if we have parameters.
-		if ( ! empty( $prepare ) ) {
-			// phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
-			$query = $wpdb->prepare( $query, $prepare );
-		}
+		// Add limit and offset to prepare array.
+		$prepare[] = $limit;
+		$prepare[] = $offset;
 
 		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.NotPrepared
-		$results = $wpdb->get_results( $query, ARRAY_A );
+		$results = $wpdb->get_results( $wpdb->prepare( $query, $prepare ), ARRAY_A );
 
 		// Decode context JSON.
 		foreach ( $results as &$result ) {
@@ -201,10 +201,12 @@ class SyncLogger {
 
 		$where_clause = implode( ' AND ', $where );
 
+		// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- Table name is safe.
 		$query = "SELECT * FROM {$table_name} WHERE {$where_clause} ORDER BY created_at DESC";
 
-		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.NotPrepared
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
 		$results = $wpdb->get_results(
+			// phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- Query is prepared, variable contains prepared SQL.
 			$wpdb->prepare( $query, $notion_page_id ),
 			ARRAY_A
 		);
@@ -260,6 +262,7 @@ class SyncLogger {
 		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
 		$result = $wpdb->query(
 			$wpdb->prepare(
+				// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- Table name is safe.
 				"UPDATE {$table_name} SET resolved = 1, resolved_at = %s, resolved_by = %d WHERE notion_page_id = %s AND resolved = 0",
 				current_time( 'mysql' ),
 				get_current_user_id(),
@@ -301,11 +304,12 @@ class SyncLogger {
 
 		$where_clause = implode( ' AND ', $where );
 
+		// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- Table name is safe.
 		$query = "SELECT COUNT(*) FROM {$table_name} WHERE {$where_clause}";
 
 		if ( ! empty( $prepare ) ) {
-			// phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
-			$query = $wpdb->prepare( $query, $prepare );
+			// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.NotPrepared
+			return (int) $wpdb->get_var( $wpdb->prepare( $query, $prepare ) );
 		}
 
 		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.NotPrepared
@@ -326,6 +330,7 @@ class SyncLogger {
 		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
 		$result = $wpdb->query(
 			$wpdb->prepare(
+				// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- Table name is safe.
 				"DELETE FROM {$table_name} WHERE resolved = 1 AND resolved_at < DATE_SUB(NOW(), INTERVAL %d DAY)",
 				$days_old
 			)

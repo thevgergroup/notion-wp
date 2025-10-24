@@ -48,7 +48,7 @@ class ImageDownloader {
 	 *
 	 * @var array
 	 */
-	private const ALLOWED_MIME_TYPES = [
+	private const ALLOWED_MIME_TYPES = array(
 		'image/jpeg',
 		'image/jpg',
 		'image/png',
@@ -56,17 +56,17 @@ class ImageDownloader {
 		'image/webp',
 		'image/svg+xml',
 		'image/bmp',
-	];
+	);
 
 	/**
 	 * Unsupported MIME types that should be linked instead of downloaded.
 	 *
 	 * @var array
 	 */
-	private const UNSUPPORTED_MIME_TYPES = [
+	private const UNSUPPORTED_MIME_TYPES = array(
 		'image/tiff',
 		'image/tif',
-	];
+	);
 
 	/**
 	 * Temporary directory for downloads.
@@ -108,19 +108,22 @@ class ImageDownloader {
 	 *     @type bool        $unsupported   True if file type is unsupported.
 	 *     @type string|null $linked_url    URL to use for linking (for unsupported types).
 	 * }
+	 * @throws \InvalidArgumentException If invalid URL provided.
 	 * @throws \Exception If download fails after all retries.
 	 */
-	public function download( string $url, array $options = [] ): array {
+	public function download( string $url, array $options = array() ): array {
 		$validate = $options['validate'] ?? true;
 		$force    = $options['force'] ?? false;
 
 		// Validate URL.
 		if ( ! filter_var( $url, FILTER_VALIDATE_URL ) ) {
+			// phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- Internal error message for debugging.
 			throw new \InvalidArgumentException( 'Invalid URL provided: ' . $url );
 		}
 
 		// Check if URL should be downloaded (unless forced).
 		if ( ! $force && ! $this->should_download( $url ) ) {
+			// phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- Internal error message for debugging.
 			throw new \Exception( 'URL should not be downloaded (external URL): ' . $url );
 		}
 
@@ -152,6 +155,7 @@ class ImageDownloader {
 		}
 
 		// All retries failed.
+		// phpcs:disable WordPress.Security.EscapeOutput.ExceptionNotEscaped
 		throw new \Exception(
 			sprintf(
 				'Failed to download image after %d attempts: %s',
@@ -161,6 +165,7 @@ class ImageDownloader {
 			0,
 			$last_exception
 		);
+		// phpcs:enable WordPress.Security.EscapeOutput.ExceptionNotEscaped
 	}
 
 	/**
@@ -179,42 +184,46 @@ class ImageDownloader {
 		// Download using WordPress HTTP API.
 		$response = wp_remote_get(
 			$url,
-			[
+			array(
 				'timeout'  => self::TIMEOUT_SECONDS,
 				'stream'   => true,
 				'filename' => $temp_path,
-			]
+			)
 		);
 
 		// Check for HTTP errors.
 		if ( is_wp_error( $response ) ) {
+			// phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- Internal error message for debugging.
 			throw new \Exception( 'HTTP request failed: ' . $response->get_error_message() );
 		}
 
 		$response_code = wp_remote_retrieve_response_code( $response );
-		if ( $response_code !== 200 ) {
+		if ( 200 !== $response_code ) {
+			// phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- Internal error message for debugging.
 			throw new \Exception( 'HTTP request returned status code: ' . $response_code );
 		}
 
 		// Verify file was created.
 		if ( ! file_exists( $temp_path ) ) {
+			// phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- Internal error message for debugging.
 			throw new \Exception( 'Downloaded file not found at: ' . $temp_path );
 		}
 
 		// Check file size.
 		$file_size = filesize( $temp_path );
-		if ( $file_size === false ) {
-			unlink( $temp_path );
+		if ( false === $file_size ) {
+			wp_delete_file( $temp_path );
 			throw new \Exception( 'Could not determine file size' );
 		}
 
-		if ( $file_size === 0 ) {
-			unlink( $temp_path );
+		if ( 0 === $file_size ) {
+			wp_delete_file( $temp_path );
 			throw new \Exception( 'Downloaded file is empty' );
 		}
 
 		if ( $file_size > self::MAX_FILE_SIZE ) {
-			unlink( $temp_path );
+			wp_delete_file( $temp_path );
+			// phpcs:disable WordPress.Security.EscapeOutput.ExceptionNotEscaped
 			throw new \Exception(
 				sprintf(
 					'File size (%d bytes) exceeds maximum allowed size (%d bytes)',
@@ -222,6 +231,7 @@ class ImageDownloader {
 					self::MAX_FILE_SIZE
 				)
 			);
+			// phpcs:enable WordPress.Security.EscapeOutput.ExceptionNotEscaped
 		}
 
 		// Detect MIME type.
@@ -230,7 +240,7 @@ class ImageDownloader {
 		// Check if MIME type is unsupported (e.g., TIFF).
 		if ( in_array( $mime_type, self::UNSUPPORTED_MIME_TYPES, true ) ) {
 			// Clean up downloaded file.
-			unlink( $temp_path );
+			wp_delete_file( $temp_path );
 
 			// Log the issue.
 			$notion_page_id = $options['notion_page_id'] ?? null;
@@ -242,11 +252,11 @@ class ImageDownloader {
 					SyncLogger::SEVERITY_WARNING,
 					SyncLogger::CATEGORY_IMAGE,
 					sprintf( 'Unsupported image format (%s) cannot be imported. Image will be linked to original URL.', $mime_type ),
-					[
+					array(
 						'url'       => $url,
 						'mime_type' => $mime_type,
 						'filename'  => basename( $url ),
-					],
+					),
 					$wp_post_id
 				);
 			}
@@ -260,7 +270,7 @@ class ImageDownloader {
 			);
 
 			// Return special result indicating unsupported type.
-			return [
+			return array(
 				'file_path'   => null,
 				'filename'    => basename( wp_parse_url( $url, PHP_URL_PATH ) ?? 'image' ),
 				'mime_type'   => $mime_type,
@@ -268,18 +278,19 @@ class ImageDownloader {
 				'source_url'  => $url,
 				'unsupported' => true,
 				'linked_url'  => $url,
-			];
+			);
 		}
 
 		// Validate MIME type if requested.
 		if ( $options['validate'] ?? true ) {
 			if ( ! in_array( $mime_type, self::ALLOWED_MIME_TYPES, true ) ) {
-				unlink( $temp_path );
+				wp_delete_file( $temp_path );
+				// phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- Internal error message for debugging.
 				throw new \Exception( 'Invalid MIME type: ' . $mime_type );
 			}
 		}
 
-		return [
+		return array(
 			'file_path'   => $temp_path,
 			'filename'    => basename( $temp_path ),
 			'mime_type'   => $mime_type,
@@ -287,7 +298,7 @@ class ImageDownloader {
 			'source_url'  => $url,
 			'unsupported' => false,
 			'linked_url'  => null,
-		];
+		);
 	}
 
 	/**
@@ -302,8 +313,8 @@ class ImageDownloader {
 	public function should_download( string $url ): bool {
 		// Check if it's a Notion S3 URL (must download - expires in 1 hour).
 		// Notion uses multiple S3 bucket patterns:
-		// - s3.us-west-2.amazonaws.com/secure.notion-static.com (legacy)
-		// - prod-files-secure.s3.us-west-2.amazonaws.com (current)
+		// - s3.us-west-2.amazonaws.com/secure.notion-static.com (legacy).
+		// - prod-files-secure.s3.us-west-2.amazonaws.com (current).
 		if ( strpos( $url, 's3.us-west-2.amazonaws.com/secure.notion-static.com' ) !== false ||
 			strpos( $url, 's3-us-west-2.amazonaws.com/secure.notion-static.com' ) !== false ||
 			strpos( $url, 'prod-files-secure.s3.us-west-2.amazonaws.com' ) !== false ) {
@@ -323,7 +334,7 @@ class ImageDownloader {
 		// Check user preference for other external URLs.
 		$strategy = get_option( 'notion_sync_external_media_strategy', 'link' );
 
-		return $strategy === 'download';
+		return 'download' === $strategy;
 	}
 
 	/**

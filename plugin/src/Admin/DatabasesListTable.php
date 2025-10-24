@@ -94,11 +94,17 @@ class DatabasesListTable extends \WP_List_Table {
 		$current_filter = isset( $_GET['filter_status'] ) ? sanitize_text_field( wp_unslash( $_GET['filter_status'] ) ) : '';
 		?>
 		<div class="alignleft actions">
-			<label for="filter-status" class="screen-reader-text"><?php esc_html_e( 'Filter by status', 'notion-wp' ); ?></label>
+			<label for="filter-status" class="screen-reader-text">
+				<?php esc_html_e( 'Filter by status', 'notion-wp' ); ?>
+			</label>
 			<select name="filter_status" id="filter-status">
 				<option value=""><?php esc_html_e( 'All Statuses', 'notion-wp' ); ?></option>
-				<option value="synced" <?php selected( $current_filter, 'synced' ); ?>><?php esc_html_e( 'Synced', 'notion-wp' ); ?></option>
-				<option value="not_synced" <?php selected( $current_filter, 'not_synced' ); ?>><?php esc_html_e( 'Not Synced', 'notion-wp' ); ?></option>
+				<option value="synced" <?php selected( $current_filter, 'synced' ); ?>>
+					<?php esc_html_e( 'Synced', 'notion-wp' ); ?>
+				</option>
+				<option value="not_synced" <?php selected( $current_filter, 'not_synced' ); ?>>
+					<?php esc_html_e( 'Not Synced', 'notion-wp' ); ?>
+				</option>
 			</select>
 			<?php submit_button( __( 'Filter', 'notion-wp' ), 'button', 'filter_action', false ); ?>
 		</div>
@@ -191,7 +197,9 @@ class DatabasesListTable extends \WP_List_Table {
 
 			// Apply sorting if requested.
 			$orderby = isset( $_GET['orderby'] ) ? sanitize_text_field( wp_unslash( $_GET['orderby'] ) ) : '';
-			$order   = isset( $_GET['order'] ) && 'desc' === strtolower( $_GET['order'] ) ? 'desc' : 'asc';
+			$order   = isset( $_GET['order'] ) && 'desc' === strtolower( sanitize_text_field( wp_unslash( $_GET['order'] ) ) ) ?
+				'desc' :
+				'asc';
 
 			if ( ! empty( $orderby ) ) {
 				$databases = $this->sort_databases( $databases, $orderby, $order );
@@ -265,17 +273,23 @@ class DatabasesListTable extends \WP_List_Table {
 
 		if ( $is_synced ) {
 			return sprintf(
-				'<span class="notion-sync-badge notion-sync-badge-synced" data-database-id="%s" title="%s" style="display: inline-flex; align-items: center; padding: 4px 8px; background: #e7f5ec; border-radius: 3px;">
-					<span class="dashicons dashicons-yes-alt" style="color: #00a32a; font-size: 18px; width: 18px; height: 18px;"></span>
-				</span>',
+				'<span class="notion-sync-badge notion-sync-badge-synced" data-database-id="%s" title="%s"' .
+				' style="display: inline-flex; align-items: center; padding: 4px 8px; background: #e7f5ec;' .
+				' border-radius: 3px;">' .
+					'<span class="dashicons dashicons-yes-alt"' .
+					' style="color: #00a32a; font-size: 18px; width: 18px; height: 18px;"></span>' .
+				'</span>',
 				esc_attr( $item['id'] ),
 				esc_attr__( 'Synced - WordPress post is up-to-date', 'notion-wp' )
 			);
 		} else {
 			return sprintf(
-				'<span class="notion-sync-badge notion-sync-badge-not-synced" data-database-id="%s" title="%s" style="display: inline-flex; align-items: center; padding: 4px 8px; background: #f0f0f1; border-radius: 3px;">
-					<span class="dashicons dashicons-minus" style="color: #8c8f94; font-size: 18px; width: 18px; height: 18px;"></span>
-				</span>',
+				'<span class="notion-sync-badge notion-sync-badge-not-synced" data-database-id="%s" title="%s"' .
+				' style="display: inline-flex; align-items: center; padding: 4px 8px; background: #f0f0f1;' .
+				' border-radius: 3px;">' .
+					'<span class="dashicons dashicons-minus"' .
+					' style="color: #8c8f94; font-size: 18px; width: 18px; height: 18px;"></span>' .
+				'</span>',
 				esc_attr( $item['id'] ),
 				esc_attr__( 'Not Synced - This database has not been synced yet', 'notion-wp' )
 			);

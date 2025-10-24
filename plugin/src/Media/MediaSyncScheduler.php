@@ -269,7 +269,9 @@ class MediaSyncScheduler {
 		];
 
 		if ( 'completed' === $status ) {
-			$result['results'] = get_post_meta( $post_id, '_notion_media_batch_results', true ) ?: [];
+			$result['results'] = get_post_meta( $post_id, '_notion_media_batch_results', true ) ?
+				get_post_meta( $post_id, '_notion_media_batch_results', true ) :
+				[];
 		}
 
 		if ( 'failed' === $status ) {
@@ -294,12 +296,14 @@ class MediaSyncScheduler {
 
 		// Clean up any orphaned batch data.
 		global $wpdb;
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
 		$wpdb->query(
 			$wpdb->prepare(
 				"DELETE FROM {$wpdb->postmeta}
 				WHERE post_id = %d
-				AND meta_key LIKE '_notion_media_batch_%'",
-				$post_id
+				AND meta_key LIKE %s",
+				$post_id,
+				'_notion_media_batch_%'
 			)
 		);
 	}

@@ -131,6 +131,7 @@ class ActionSchedulerConfig {
 	 * @return bool True if using async requests, false if using WP Cron.
 	 */
 	public static function is_using_async_runner(): bool {
+		// phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedHooknameFound -- Action Scheduler hook.
 		return apply_filters( 'action_scheduler_allow_async_request_runner', true );
 	}
 
@@ -140,6 +141,7 @@ class ActionSchedulerConfig {
 	 * @return int Timeout period in seconds.
 	 */
 	public static function get_timeout_period(): int {
+		// phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedHooknameFound -- Action Scheduler hook.
 		return apply_filters( 'action_scheduler_timeout_period', 300 );
 	}
 

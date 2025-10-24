@@ -165,7 +165,7 @@ class NotionCommand {
 	public function sync( $args, $assoc_args ) {
 		$notion_id  = $args[0];
 		$force      = isset( $assoc_args['force'] );
-		$batch_size = intval( $assoc_args['batch-size'] ?? 20 );
+		$batch_size = intval( $assoc_args['batch-size'] ?? 20 ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName
 
 		try {
 			// Get Notion client.
@@ -184,7 +184,9 @@ class NotionCommand {
 			} elseif ( 'database' === $resource_type ) {
 				SyncHandler::sync_database( $notion_id, $client, $batch_size );
 			} else {
-				\WP_CLI::error( 'Unable to determine resource type. Please check the Notion ID and integration access.' );
+				\WP_CLI::error(
+					'Unable to determine resource type. Please check the Notion ID and integration access.'
+				);
 			}
 		} catch ( \Exception $e ) {
 			\WP_CLI::error( 'Sync failed: ' . $e->getMessage() );
@@ -523,7 +525,13 @@ class NotionCommand {
 		\WP_CLI::log( '' );
 
 		\WP_CLI::log( sprintf( 'Version:          %s', $config['action_scheduler_version'] ) );
-		\WP_CLI::log( sprintf( 'Timeout Period:   %d seconds (%d minutes)', $config['timeout_period'], $config['timeout_period'] / 60 ) );
+		\WP_CLI::log(
+			sprintf(
+				'Timeout Period:   %d seconds (%d minutes)',
+				$config['timeout_period'],
+				$config['timeout_period'] / 60
+			)
+		);
 		\WP_CLI::log( '' );
 
 		$runner_type = $config['async_runner_enabled'] ? 'Async Request' : 'WP Cron';
@@ -531,10 +539,16 @@ class NotionCommand {
 		\WP_CLI::log( \WP_CLI::colorize( sprintf( '%%BRunner Type:%% %s%s%%n', "%{$runner_color}", $runner_type ) ) );
 
 		if ( ! $config['async_runner_enabled'] ) {
-			\WP_CLI::log( \WP_CLI::colorize( '%gWP Cron runner is enabled for improved reliability.%n' ) );
+			\WP_CLI::log(
+				\WP_CLI::colorize( '%gWP Cron runner is enabled for improved reliability.%n' )
+			);
 		} else {
-			\WP_CLI::log( \WP_CLI::colorize( '%yAsync Request runner may experience timeout issues.%n' ) );
-			\WP_CLI::log( \WP_CLI::colorize( '%yConsider forcing WP Cron runner for more reliable background processing.%n' ) );
+			\WP_CLI::log(
+				\WP_CLI::colorize( '%yAsync Request runner may experience timeout issues.%n' )
+			);
+			\WP_CLI::log(
+				\WP_CLI::colorize( '%yConsider forcing WP Cron runner for more reliable background processing.%n' )
+			);
 		}
 
 		\WP_CLI::log( '' );

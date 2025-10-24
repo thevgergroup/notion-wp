@@ -270,7 +270,6 @@ class SyncManager {
 				);
 			}
 
-
 			// Step 7: Store Notion metadata.
 			$this->store_post_metadata( $post_id, $notion_page_id, $page_properties );
 

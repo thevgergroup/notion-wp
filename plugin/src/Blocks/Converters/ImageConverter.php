@@ -155,7 +155,7 @@ class ImageConverter implements BlockConverterInterface {
 
 		// Extract caption.
 		$caption = $this->extract_caption( $image_data );
-		$alt     = $caption ?: 'External image';
+		$alt     = $caption ? $caption : 'External image';
 
 		return $this->generate_external_image_block( $external_url, $alt, $caption );
 	}
@@ -194,7 +194,7 @@ class ImageConverter implements BlockConverterInterface {
 			if ( is_string( $result ) ) {
 				// Unsupported type - link to original URL.
 				$caption = $this->extract_caption( $image_data );
-				$alt     = $caption ?: 'Unsupported image type';
+				$alt     = $caption ? $caption : 'Unsupported image type';
 				return $this->generate_external_image_block( $result, $alt, $caption );
 			}
 
@@ -232,7 +232,7 @@ class ImageConverter implements BlockConverterInterface {
 		// Extract metadata from Notion.
 		$caption = $this->extract_caption( $image_data );
 		$metadata = [
-			'alt_text' => $caption ?: 'Image from Notion',
+			'alt_text' => $caption ? $caption : 'Image from Notion',
 			'caption'  => $caption,
 		];
 
@@ -262,20 +262,33 @@ class ImageConverter implements BlockConverterInterface {
 			return $this->generate_placeholder( 'Attachment URL not found' );
 		}
 
-		$alt     = get_post_meta( $attachment_id, '_wp_attachment_image_alt', true ) ?: '';
+		$alt     = get_post_meta( $attachment_id, '_wp_attachment_image_alt', true );
+		$alt     = $alt ? $alt : '';
 		$caption = $this->extract_caption( $image_data );
 
 		$caption_html = $caption ? sprintf( '<figcaption class="wp-element-caption">%s</figcaption>', wp_kses_post( $caption ) ) : '';
 
 		// Note: Do NOT add inline width/height attributes - Gutenberg handles sizing through
 		// the sizeSlug attribute and WordPress automatically adds responsive image attributes.
-		return sprintf(
-			"<!-- wp:image {\"id\":%d,\"sizeSlug\":\"large\"} -->\n<figure class=\"wp-block-image size-large\"><img src=\"%s\" alt=\"%s\" class=\"wp-image-%d\"/>%s</figure>\n<!-- /wp:image -->\n\n",
-			$attachment_id,
+		$block_attrs = sprintf( '<!-- wp:image {"id":%d,"sizeSlug":"large"} -->', $attachment_id );
+		$figure_start = '<figure class="wp-block-image size-large">';
+		$img_tag = sprintf(
+			'<img src="%s" alt="%s" class="wp-image-%d"/>',
 			esc_url( $image_url ),
 			esc_attr( $alt ),
-			$attachment_id,
-			$caption_html
+			$attachment_id
+		);
+		$figure_end = '</figure>';
+		$block_end = '<!-- /wp:image -->';
+
+		return sprintf(
+			"%s\n%s%s%s%s\n%s\n\n",
+			$block_attrs,
+			$figure_start,
+			$img_tag,
+			$caption_html,
+			$figure_end,
+			$block_end
 		);
 	}
 

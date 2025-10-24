@@ -241,7 +241,13 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 					<h3 style="margin-top: 20px;"><?php esc_html_e( 'Flush Rewrite Rules', 'notion-wp' ); ?></h3>
 					<p class="description">
-						<?php esc_html_e( 'If /notion/{slug} URLs are not working correctly, click this button to flush and regenerate WordPress rewrite rules.', 'notion-wp' ); ?>
+						<?php
+						esc_html_e(
+							'If /notion/{slug} URLs are not working correctly, ' .
+							'click this button to flush and regenerate WordPress rewrite rules.',
+							'notion-wp'
+						);
+						?>
 					</p>
 
 					<form method="post" action="<?php echo esc_url( admin_url( 'admin-post.php' ) ); ?>" style="margin-top: 10px;">

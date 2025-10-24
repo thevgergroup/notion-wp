@@ -220,6 +220,7 @@ class Schema {
 		if ( ! in_array( 'notion_last_edited', $columns, true ) ) {
 			// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.DirectDatabaseQuery.SchemaChange, WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- Schema migration, table name is safe.
 			$wpdb->query(
+		// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- Table name is safe.
 				"ALTER TABLE {$links_table}
 				ADD COLUMN notion_last_edited DATETIME NULL COMMENT 'When the Notion page was last edited' AFTER sync_status"
 			);
@@ -227,6 +228,7 @@ class Schema {
 			// Add index for notion_last_edited.
 			// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.DirectDatabaseQuery.SchemaChange, WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- Schema migration, table name is safe.
 			$wpdb->query(
+		// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- Table name is safe.
 				"ALTER TABLE {$links_table} ADD KEY notion_last_edited (notion_last_edited)"
 			);
 		}
@@ -235,13 +237,14 @@ class Schema {
 		if ( ! in_array( 'wp_last_synced', $columns, true ) ) {
 			// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.DirectDatabaseQuery.SchemaChange, WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- Schema migration, table name is safe.
 			$wpdb->query(
+				// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- Table name is safe.
 				"ALTER TABLE {$links_table}
 				ADD COLUMN wp_last_synced DATETIME NULL COMMENT 'When we last synced it to WordPress' AFTER notion_last_edited"
 			);
 
-			// Add index for wp_last_synced.
 			// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.DirectDatabaseQuery.SchemaChange, WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- Schema migration, table name is safe.
 			$wpdb->query(
+				// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- Table name is safe.
 				"ALTER TABLE {$links_table} ADD KEY wp_last_synced (wp_last_synced)"
 			);
 		}
@@ -250,6 +253,7 @@ class Schema {
 		if ( ! in_array( 'sync_error', $columns, true ) ) {
 			// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.DirectDatabaseQuery.SchemaChange, WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- Schema migration, table name is safe.
 			$wpdb->query(
+				// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- Table name is safe.
 				"ALTER TABLE {$links_table}
 				ADD COLUMN sync_error TEXT NULL COMMENT 'Error message if last sync failed' AFTER wp_last_synced"
 			);
