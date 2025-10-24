@@ -55,6 +55,7 @@ class DatabasesListTable extends \WP_List_Table {
 		return array(
 			'title'       => __( 'Database Title', 'notion-wp' ),
 			'notion_id'   => __( 'Notion ID', 'notion-wp' ),
+			'sync_status' => __( 'Status', 'notion-wp' ),
 			'entries'     => __( 'Entries', 'notion-wp' ),
 			'last_synced' => __( 'Last Synced', 'notion-wp' ),
 			'wp_post'     => __( 'WordPress Post', 'notion-wp' ),
@@ -63,12 +64,109 @@ class DatabasesListTable extends \WP_List_Table {
 	}
 
 	/**
+	 * Get sortable columns.
+	 *
+	 * @since 1.0.0
+	 *
+	 * @return array Sortable column key => array( orderby key, default sorted ).
+	 */
+	protected function get_sortable_columns() {
+		return array(
+			'title'       => array( 'title', false ),
+			'sync_status' => array( 'sync_status', false ),
+			'entries'     => array( 'entries', false ),
+			'last_synced' => array( 'last_synced', false ),
+		);
+	}
+
+	/**
+	 * Display extra table navigation (filters).
+	 *
+	 * @since 1.0.0
+	 *
+	 * @param string $which Position of the navigation ('top' or 'bottom').
+	 */
+	protected function extra_tablenav( $which ) {
+		if ( 'top' !== $which ) {
+			return;
+		}
+
+		$current_filter = isset( $_GET['filter_status'] ) ? sanitize_text_field( wp_unslash( $_GET['filter_status'] ) ) : '';
+		?>
+		<div class="alignleft actions">
+			<label for="filter-status" class="screen-reader-text">
+				<?php esc_html_e( 'Filter by status', 'notion-wp' ); ?>
+			</label>
+			<select name="filter_status" id="filter-status">
+				<option value=""><?php esc_html_e( 'All Statuses', 'notion-wp' ); ?></option>
+				<option value="synced" <?php selected( $current_filter, 'synced' ); ?>>
+					<?php esc_html_e( 'Synced', 'notion-wp' ); ?>
+				</option>
+				<option value="not_synced" <?php selected( $current_filter, 'not_synced' ); ?>>
+					<?php esc_html_e( 'Not Synced', 'notion-wp' ); ?>
+				</option>
+			</select>
+			<?php submit_button( __( 'Filter', 'notion-wp' ), 'button', 'filter_action', false ); ?>
+		</div>
+		<?php
+	}
+
+	/**
+	 * Sort databases by specified column.
+	 *
+	 * @since 1.0.0
+	 *
+	 * @param array  $databases Array of database data.
+	 * @param string $orderby   Column to sort by.
+	 * @param string $order     Sort direction ('asc' or 'desc').
+	 * @return array Sorted databases array.
+	 */
+	private function sort_databases( array $databases, string $orderby, string $order ): array {
+		usort(
+			$databases,
+			function ( $a, $b ) use ( $orderby, $order ) {
+				$result = 0;
+
+				switch ( $orderby ) {
+					case 'title':
+						$result = strcasecmp( $a['title'] ?? '', $b['title'] ?? '' );
+						break;
+
+					case 'sync_status':
+						$val_a = ! empty( $a['wp_post_id'] ) ? 1 : 0;
+						$val_b = ! empty( $b['wp_post_id'] ) ? 1 : 0;
+						$result = $val_a <=> $val_b;
+						break;
+
+					case 'entries':
+						$result = ( $a['entry_count'] ?? 0 ) <=> ( $b['entry_count'] ?? 0 );
+						break;
+
+					case 'last_synced':
+						$time_a = ! empty( $a['last_synced'] ) ? strtotime( $a['last_synced'] ) : 0;
+						$time_b = ! empty( $b['last_synced'] ) ? strtotime( $b['last_synced'] ) : 0;
+						$result = $time_a <=> $time_b;
+						break;
+				}
+
+				return 'desc' === $order ? -$result : $result;
+			}
+		);
+
+		return $databases;
+	}
+
+	/**
 	 * Prepare items for display.
 	 *
 	 * Fetches databases from Notion API and prepares for table display.
 	 */
 	public function prepare_items(): void {
-		$this->_column_headers = array( $this->get_columns(), array(), array() );
+		$columns  = $this->get_columns();
+		$hidden   = array();
+		$sortable = $this->get_sortable_columns();
+
+		$this->_column_headers = array( $columns, $hidden, $sortable );
 
 		try {
 			$databases = $this->fetcher->get_databases();
@@ -78,6 +176,33 @@ class DatabasesListTable extends \WP_List_Table {
 				$database['wp_post_id']  = $this->find_database_post( $database['id'] );
 				$database['entry_count'] = $this->get_database_entry_count( $database['id'] );
 				$database['last_synced'] = $this->get_last_synced_time( $database['wp_post_id'] );
+			}
+
+			// Apply status filter if requested.
+			$filter_status = isset( $_GET['filter_status'] ) ? sanitize_text_field( wp_unslash( $_GET['filter_status'] ) ) : '';
+
+			if ( ! empty( $filter_status ) ) {
+				$databases = array_filter(
+					$databases,
+					function ( $database ) use ( $filter_status ) {
+						if ( 'synced' === $filter_status ) {
+							return ! empty( $database['wp_post_id'] );
+						} elseif ( 'not_synced' === $filter_status ) {
+							return empty( $database['wp_post_id'] );
+						}
+						return true;
+					}
+				);
+			}
+
+			// Apply sorting if requested.
+			$orderby = isset( $_GET['orderby'] ) ? sanitize_text_field( wp_unslash( $_GET['orderby'] ) ) : '';
+			$order   = isset( $_GET['order'] ) && 'desc' === strtolower( sanitize_text_field( wp_unslash( $_GET['order'] ) ) ) ?
+				'desc' :
+				'asc';
+
+			if ( ! empty( $orderby ) ) {
+				$databases = $this->sort_databases( $databases, $orderby, $order );
 			}
 
 			$this->items = $databases;
@@ -131,6 +256,44 @@ class DatabasesListTable extends \WP_List_Table {
 		}
 
 		return $title . $this->row_actions( $actions );
+	}
+
+	/**
+	 * Render sync status column.
+	 *
+	 * Displays icon-based sync status badge.
+	 *
+	 * @since 1.0.0
+	 *
+	 * @param array $item Database item.
+	 * @return string Column content.
+	 */
+	protected function column_sync_status( $item ) {
+		$is_synced = ! empty( $item['wp_post_id'] );
+
+		if ( $is_synced ) {
+			return sprintf(
+				'<span class="notion-sync-badge notion-sync-badge-synced" data-database-id="%s" title="%s"' .
+				' style="display: inline-flex; align-items: center; padding: 4px 8px; background: #e7f5ec;' .
+				' border-radius: 3px;">' .
+					'<span class="dashicons dashicons-yes-alt"' .
+					' style="color: #00a32a; font-size: 18px; width: 18px; height: 18px;"></span>' .
+				'</span>',
+				esc_attr( $item['id'] ),
+				esc_attr__( 'Synced - WordPress post is up-to-date', 'notion-wp' )
+			);
+		} else {
+			return sprintf(
+				'<span class="notion-sync-badge notion-sync-badge-not-synced" data-database-id="%s" title="%s"' .
+				' style="display: inline-flex; align-items: center; padding: 4px 8px; background: #f0f0f1;' .
+				' border-radius: 3px;">' .
+					'<span class="dashicons dashicons-minus"' .
+					' style="color: #8c8f94; font-size: 18px; width: 18px; height: 18px;"></span>' .
+				'</span>',
+				esc_attr( $item['id'] ),
+				esc_attr__( 'Not Synced - This database has not been synced yet', 'notion-wp' )
+			);
+		}
 	}
 
 	/**

@@ -3,7 +3,7 @@
  * Plugin Name: Notion Sync
  * Plugin URI: https://github.com/thevgergroup/notion-wp
  * Description: Bi-directional synchronization between Notion and WordPress
- * Version: 0.1.0-dev
+ * Version: 0.2.0-dev
  * Requires at least: 6.0
  * Requires PHP: 8.0
  * Author: The Verger Group
@@ -24,7 +24,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 // Plugin constants.
-define( 'NOTION_SYNC_VERSION', '0.1.0-dev' );
+define( 'NOTION_SYNC_VERSION', '0.2.0-dev' );
 define( 'NOTION_SYNC_FILE', __FILE__ );
 define( 'NOTION_SYNC_PATH', plugin_dir_path( __FILE__ ) );
 define( 'NOTION_SYNC_URL', plugin_dir_url( __FILE__ ) );
@@ -95,6 +95,9 @@ function init() {
 		$database_view_page = new Admin\DatabaseViewPage();
 		$database_view_page->register();
 
+		$sync_logs_page = new Admin\SyncLogsPage();
+		$sync_logs_page->register();
+
 		$admin_notices = new Admin\AdminNotices();
 		$admin_notices->register();
 	}
@@ -108,11 +111,17 @@ function init() {
 
 			$link_rest_controller = new API\LinkRegistryRestController();
 			$link_rest_controller->register_routes();
+
+			$sync_status_controller = new API\SyncStatusRestController();
+			$sync_status_controller->register_routes();
 		}
 	);
 
 	// Register Action Scheduler hook for batch processing.
 	if ( function_exists( 'as_schedule_single_action' ) ) {
+		// Configure Action Scheduler for improved reliability.
+		Utils\ActionSchedulerConfig::register();
+
 		add_action(
 			'notion_sync_process_batch',
 			function ( $batch_id, $post_id, $batch_number, $total_batches ) {
@@ -137,6 +146,12 @@ function init() {
 			10,
 			4
 		);
+
+		// Register Media Sync Scheduler hooks.
+		Media\MediaSyncScheduler::register_hooks();
+
+		// Register Page Sync Scheduler hooks.
+		Sync\PageSyncScheduler::register_hooks();
 	}
 
 	// Register WP-CLI commands if WP-CLI is available.
@@ -144,10 +159,43 @@ function init() {
 		\WP_CLI::add_command( 'notion', 'NotionSync\\CLI\\NotionCommand' );
 	}
 
+	// Add filter to prepend icon emoji to post titles.
+	add_filter( 'the_title', __NAMESPACE__ . '\prepend_notion_icon_to_title', 10, 2 );
+
 	// Plugin loaded hook for extensibility.
 	do_action( 'notion_sync_loaded' );
 }
 add_action( 'init', __NAMESPACE__ . '\init' );
+
+/**
+ * Prepend Notion icon emoji to post titles.
+ *
+ * Adds the Notion page icon (emoji or image) before the post title if available.
+ * Only applies to synced posts with a Notion icon.
+ *
+ * @param string $title   The post title.
+ * @param int    $post_id The post ID.
+ * @return string Modified title with icon prepended.
+ */
+function prepend_notion_icon_to_title( string $title, $post_id = null ): string {
+	if ( ! $post_id ) {
+		return $title;
+	}
+
+	$icon_type = get_post_meta( $post_id, '_notion_icon_type', true );
+	$icon      = get_post_meta( $post_id, '_notion_icon', true );
+
+	if ( empty( $icon ) ) {
+		return $title;
+	}
+
+	// Only prepend emoji icons (not image URLs).
+	if ( 'emoji' === $icon_type ) {
+		return $icon . ' ' . $title;
+	}
+
+	return $title;
+}
 
 /**
  * Activation hook.
@@ -165,6 +213,7 @@ function activate() {
 
 	// Create custom database tables.
 	\NotionSync\Database\Schema::create_tables();
+	\NotionSync\Media\MediaRegistry::create_table();
 
 	// Register database CPT before flushing rewrite rules.
 	$database_cpt = new \NotionSync\Database\DatabasePostType();
@@ -174,6 +223,9 @@ function activate() {
 	$link_registry = new \NotionSync\Router\LinkRegistry();
 	$notion_router = new \NotionSync\Router\NotionRouter( $link_registry );
 	$notion_router->register_rewrite_rules();
+
+	// Create sync log database table.
+	\NotionSync\Database\SyncLogSchema::create_table();
 
 	// Flush rewrite rules.
 	flush_rewrite_rules();

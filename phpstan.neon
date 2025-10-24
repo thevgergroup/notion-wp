@@ -18,6 +18,10 @@ parameters:
 		- plugin/dist
 		- plugin/assets/ENQUEUE-SNIPPET.php
 		- plugin/templates/admin/settings-sample.php
+		- */test-*.php
+		- test-media.php
+		- test-scheduler.php
+		- test-rest-api.php
 
 	# Bootstrap file for WordPress functions
 	bootstrapFiles:
@@ -53,6 +57,14 @@ parameters:
 		- '#Constant NOTION_SYNC_PATH not found#'
 		# False positives from strict type checking
 		- '#Variable \$query_params in empty\(\) always exists and is not falsy#'
+		# Ignore test files in root directory
+		-
+			message: '#.*#'
+			path: test-*.php
+		# wp_insert_attachment can return int|WP_Error, checking both is correct
+		-
+			message: '#is_wp_error\(int.*\) will always evaluate to false#'
+			path: src/Media/MediaUploader.php
 
 	# WordPress-specific stub files to understand WP core functions
 	# These will be loaded if available via composer

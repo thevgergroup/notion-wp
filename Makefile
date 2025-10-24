@@ -39,7 +39,7 @@ help: ## Show this help message
 	@echo "$(CYAN)WordPress Plugin Development - Docker Commands$(NC)"
 	@echo ""
 	@echo "$(GREEN)Available commands:$(NC)"
-	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | awk 'BEGIN {FS = ":.*?## "}; {printf "  $(CYAN)%-15s$(NC) %s\n", $$1, $$2}'
+	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' Makefile | awk 'BEGIN {FS = ":.*?## "}; {printf "  $(CYAN)%-20s$(NC) %s\n", $$1, $$2}'
 	@echo ""
 	@echo "$(YELLOW)Examples:$(NC)"
 	@echo "  make up install          # Start and install WordPress"
@@ -102,6 +102,36 @@ logs-wp: ## View WordPress logs only
 .PHONY: logs-db
 logs-db: ## View database logs only
 	@$(COMPOSE) logs -f db
+
+.PHONY: logs-php
+logs-php: ## View PHP error logs (last 100 lines)
+	@echo "$(CYAN)PHP Error Logs (last 100 lines):$(NC)"
+	@$(COMPOSE) logs --tail=100 wordpress 2>&1 | grep -E "\[php:|error_log" || echo "$(YELLOW)No PHP errors found in recent logs$(NC)"
+
+.PHONY: logs-errors
+logs-errors: ## View all error logs (last 100 lines)
+	@echo "$(CYAN)All Error Logs (last 100 lines):$(NC)"
+	@$(COMPOSE) logs --tail=100 wordpress 2>&1 | grep -iE "error|warning|failed" || echo "$(YELLOW)No errors found in recent logs$(NC)"
+
+.PHONY: logs-perf
+logs-perf: ## View performance logs (last 100 lines)
+	@echo "$(CYAN)Performance Logs (last 100 lines):$(NC)"
+	@$(COMPOSE) logs --tail=100 wordpress 2>&1 | grep "\[PERF" || echo "$(YELLOW)No performance logs found in recent logs$(NC)"
+
+.PHONY: logs-perf-summary
+logs-perf-summary: ## View performance summary only
+	@echo "$(CYAN)Performance Summary:$(NC)"
+	@$(COMPOSE) logs --tail=2000 wordpress 2>&1 | grep -A 30 "PERF SUMMARY" || echo "$(YELLOW)No performance summaries found in recent logs$(NC)"
+
+.PHONY: logs-sync
+logs-sync: ## View sync-related logs (last 100 lines)
+	@echo "$(CYAN)Sync Logs (last 100 lines):$(NC)"
+	@$(COMPOSE) logs --tail=100 wordpress 2>&1 | grep -E "PageSyncScheduler|NotionSync|ImageConverter|ImageDownloader" || echo "$(YELLOW)No sync logs found in recent logs$(NC)"
+
+.PHONY: logs-live
+logs-live: ## Live tail all logs with color filtering
+	@echo "$(CYAN)Live logs (CTRL+C to exit):$(NC)"
+	@$(COMPOSE) logs -f wordpress 2>&1 | grep --line-buffered -E "\[PERF|\[php:|error_log|PageSyncScheduler|NotionSync" || true
 
 .PHONY: shell
 shell: ## Open bash shell in WordPress container

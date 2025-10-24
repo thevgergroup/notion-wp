@@ -17,6 +17,8 @@
 	<exclude-pattern>*/ENQUEUE-SNIPPET.php</exclude-pattern>
 	<exclude-pattern>tests/bootstrap.php</exclude-pattern>
 	<exclude-pattern>*/settings-sample.php</exclude-pattern>
+	<!-- Exclude manual test scripts (these are development-only files) -->
+	<exclude-pattern>plugin/test-*.php</exclude-pattern>
 
 	<!-- How to scan -->
 	<arg value="sp"/> <!-- Show sniff and progress -->

@@ -29,6 +29,7 @@ class SettingsPage {
 		add_action( 'admin_menu', array( $this, 'add_menu_page' ) );
 		add_action( 'admin_post_notion_sync_connect', array( $this, 'handle_connect' ) );
 		add_action( 'admin_post_notion_sync_disconnect', array( $this, 'handle_disconnect' ) );
+		add_action( 'admin_post_notion_sync_flush_rewrites', array( $this, 'handle_flush_rewrites' ) );
 		add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_assets' ) );
 
 		// Register AJAX handlers via dedicated handler classes.
@@ -86,6 +87,15 @@ class SettingsPage {
 			true
 		);
 
+		// Enqueue Preact sync dashboard.
+		wp_enqueue_script(
+			'notion-sync-dashboard',
+			NOTION_SYNC_URL . 'assets/build/sync-dashboard.js',
+			array(),
+			NOTION_SYNC_VERSION,
+			true
+		);
+
 		// Add type="module" attribute for ES6 imports.
 		add_filter(
 			'script_loader_tag',
@@ -105,7 +115,9 @@ class SettingsPage {
 			'notionSyncAdmin',
 			array(
 				'ajaxUrl' => admin_url( 'admin-ajax.php' ),
+				'restUrl' => rest_url( 'notion-sync/v1/sync-status' ),
 				'nonce'   => wp_create_nonce( 'notion_sync_ajax' ),
+				'restNonce' => wp_create_nonce( 'wp_rest' ),
 				'i18n'    => array(
 					'connecting'           => __( 'Connecting...', 'notion-wp' ),
 					'connected'            => __( 'Connected!', 'notion-wp' ),
@@ -203,7 +215,7 @@ class SettingsPage {
 					$db_fetcher      = new \NotionSync\Sync\DatabaseFetcher( $client );
 					$databases_table = new \NotionSync\Admin\DatabasesListTable( $db_fetcher );
 					$databases_table->prepare_items();
-				} else {
+				} elseif ( 'pages' === $current_tab ) {
 					// Initialize pages list table.
 					$fetcher = new \NotionSync\Sync\ContentFetcher( $client );
 					$manager = new SyncManager();
@@ -215,6 +227,7 @@ class SettingsPage {
 
 					$list_table->prepare_items();
 				}
+				// Settings tab doesn't need any list table initialization.
 			} catch ( \Exception $e ) {
 				$error_message = $e->getMessage();
 			}
@@ -421,5 +434,49 @@ class SettingsPage {
 	 */
 	private function clear_rate_limit() {
 		delete_transient( 'notion_sync_attempts_' . get_current_user_id() );
+	}
+
+	/**
+	 * Handle flush rewrite rules request.
+	 *
+	 * Flushes WordPress rewrite rules to ensure /notion/{slug} URLs work correctly.
+	 *
+	 * @since 1.0.0
+	 *
+	 * @return void
+	 */
+	public function handle_flush_rewrites() {
+		// Check user capabilities.
+		if ( ! current_user_can( 'manage_options' ) ) {
+			wp_die(
+				esc_html__( 'You do not have sufficient permissions to perform this action.', 'notion-wp' ),
+				esc_html__( 'Insufficient Permissions', 'notion-wp' ),
+				array( 'response' => 403 )
+			);
+		}
+
+		// Verify nonce.
+		if ( ! isset( $_POST['notion_sync_flush_rewrites_nonce'] ) ||
+			! wp_verify_nonce( sanitize_text_field( wp_unslash( $_POST['notion_sync_flush_rewrites_nonce'] ) ), 'notion_sync_flush_rewrites' ) ) {
+			wp_die(
+				esc_html__( 'Security check failed. Please try again.', 'notion-wp' ),
+				esc_html__( 'Security Error', 'notion-wp' ),
+				array( 'response' => 403 )
+			);
+		}
+
+		// Register rewrite rules before flushing.
+		$link_registry = new \NotionSync\Router\LinkRegistry();
+		$notion_router = new \NotionSync\Router\NotionRouter( $link_registry );
+		$notion_router->register_rewrite_rules();
+
+		// Flush rewrite rules.
+		flush_rewrite_rules();
+
+		// Redirect with success message.
+		$this->redirect_with_message(
+			'success',
+			__( 'Rewrite rules have been flushed. /notion/{slug} URLs should now work correctly.', 'notion-wp' )
+		);
 	}
 }

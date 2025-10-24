@@ -59,8 +59,8 @@ class PagesListTable extends \WP_List_Table {
 	public function __construct( ContentFetcher $fetcher, SyncManager $manager ) {
 		parent::__construct(
 			array(
-				'singular' => 'page',
-				'plural'   => 'pages',
+				'singular' => 'notion_page',
+				'plural'   => 'notion_pages',
 				'ajax'     => true,
 			)
 		);
@@ -93,14 +93,19 @@ class PagesListTable extends \WP_List_Table {
 	/**
 	 * Get sortable columns.
 	 *
-	 * Defines which columns are sortable (none for MVP - keep it simple).
+	 * Defines which columns are sortable.
 	 *
 	 * @since 1.0.0
 	 *
-	 * @return array Empty array (no sorting in MVP).
+	 * @return array Sortable column key => array( orderby key, default sorted ).
 	 */
 	protected function get_sortable_columns() {
-		return array();
+		return array(
+			'title'       => array( 'title', false ),
+			'type'        => array( 'type', false ),
+			'sync_status' => array( 'sync_status', false ),
+			'last_synced' => array( 'last_synced', false ),
+		);
 	}
 
 	/**
@@ -128,7 +133,7 @@ class PagesListTable extends \WP_List_Table {
 	 */
 	protected function column_cb( $item ) {
 		return sprintf(
-			'<input type="checkbox" name="page_ids[]" value="%s" />',
+			'<input type="checkbox" name="notion_page[]" value="%s" />',
 			esc_attr( $item['id'] )
 		);
 	}
@@ -282,21 +287,25 @@ class PagesListTable extends \WP_List_Table {
 
 		if ( $sync_status['is_synced'] ) {
 			return sprintf(
-				'<span class="notion-sync-badge notion-sync-badge-synced" data-page-id="%s">
-					<span class="dashicons dashicons-yes" aria-hidden="true"></span>
-					%s
-				</span>',
+				'<span class="notion-sync-badge notion-sync-badge-synced" data-page-id="%s" title="%s"' .
+				' style="display: inline-flex; align-items: center; padding: 4px 8px; background: #e7f5ec;' .
+				' border-radius: 3px;">' .
+					'<span class="dashicons dashicons-yes-alt"' .
+					' style="color: #00a32a; font-size: 18px; width: 18px; height: 18px;"></span>' .
+				'</span>',
 				esc_attr( $item['id'] ),
-				esc_html__( 'Synced', 'notion-wp' )
+				esc_attr__( 'Synced - WordPress post is up-to-date', 'notion-wp' )
 			);
 		} else {
 			return sprintf(
-				'<span class="notion-sync-badge notion-sync-badge-not-synced" data-page-id="%s">
-					<span class="dashicons dashicons-minus" aria-hidden="true"></span>
-					%s
-				</span>',
+				'<span class="notion-sync-badge notion-sync-badge-not-synced" data-page-id="%s" title="%s"' .
+				' style="display: inline-flex; align-items: center; padding: 4px 8px; background: #f0f0f1;' .
+				' border-radius: 3px;">' .
+					'<span class="dashicons dashicons-minus"' .
+					' style="color: #8c8f94; font-size: 18px; width: 18px; height: 18px;"></span>' .
+				'</span>',
 				esc_attr( $item['id'] ),
-				esc_html__( 'Not Synced', 'notion-wp' )
+				esc_attr__( 'Not Synced - This page has not been synced yet', 'notion-wp' )
 			);
 		}
 	}
@@ -386,28 +395,130 @@ class PagesListTable extends \WP_List_Table {
 	/**
 	 * Process bulk actions.
 	 *
-	 * Handles bulk sync operations for selected pages by delegating
-	 * to BulkSyncProcessor. This method should be called before prepare_items().
+	 * NOTE: Bulk sync is handled entirely via JavaScript/AJAX (see page-sync.js).
+	 * This method handles the fallback case when JavaScript fails to intercept.
+	 * It prevents WordPress's "Please select at least one item" error by validating
+	 * and gracefully handling the bulk_sync action server-side.
 	 *
 	 * @since 1.0.0
 	 */
 	public function process_bulk_action() {
-		// Check if bulk sync action was triggered.
 		$action = $this->current_action();
 
+		// Only handle bulk_sync action.
 		if ( 'bulk_sync' !== $action ) {
 			return;
 		}
 
-		// Verify nonce.
-		check_admin_referer( 'bulk-' . $this->_args['plural'] );
+		// Check if any pages were selected.
+		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Nonce verified in SettingsPage.
+		$page_ids = isset( $_REQUEST['notion_page'] ) ? array_map( 'sanitize_text_field', wp_unslash( (array) $_REQUEST['notion_page'] ) ) : array();
 
-		// Get selected page IDs.
-		$page_ids = isset( $_REQUEST['page_ids'] ) ? array_map( 'sanitize_text_field', wp_unslash( (array) $_REQUEST['page_ids'] ) ) : array();
+		if ( empty( $page_ids ) ) {
+			// No pages selected - JavaScript should have prevented this, but handle gracefully.
+			// Don't show an error; the JavaScript will handle it.
+			return;
+		}
 
-		// Delegate to bulk sync processor.
-		$processor = new BulkSyncProcessor( $this->manager );
-		$processor->process( $page_ids );
+		// If we reach here, it means JavaScript failed to intercept the form submission.
+		// Fall back to a simple redirect with a notice that JavaScript is required.
+		add_settings_error(
+			'notion_sync',
+			'bulk_sync_js_required',
+			__( 'Bulk sync requires JavaScript to be enabled. Please enable JavaScript and try again.', 'notion-wp' ),
+			'warning'
+		);
+	}
+
+	/**
+	 * Display extra table navigation (filters).
+	 *
+	 * @since 1.0.0
+	 *
+	 * @param string $which Position of the navigation ('top' or 'bottom').
+	 */
+	protected function extra_tablenav( $which ) {
+		if ( 'top' !== $which ) {
+			return;
+		}
+
+		$current_filter = isset( $_GET['filter_status'] ) ?
+			sanitize_text_field( wp_unslash( $_GET['filter_status'] ) ) :
+			'';
+		?>
+		<div class="alignleft actions">
+			<label for="filter-status" class="screen-reader-text">
+				<?php esc_html_e( 'Filter by status', 'notion-wp' ); ?>
+			</label>
+			<select name="filter_status" id="filter-status">
+				<option value=""><?php esc_html_e( 'All Statuses', 'notion-wp' ); ?></option>
+				<option value="synced" <?php selected( $current_filter, 'synced' ); ?>>
+					<?php esc_html_e( 'Synced', 'notion-wp' ); ?>
+				</option>
+				<option value="not_synced" <?php selected( $current_filter, 'not_synced' ); ?>>
+					<?php esc_html_e( 'Not Synced', 'notion-wp' ); ?>
+				</option>
+			</select>
+			<?php submit_button( __( 'Filter', 'notion-wp' ), 'button', 'filter_action', false ); ?>
+		</div>
+		<?php
+	}
+
+	/**
+	 * Sort pages by specified column.
+	 *
+	 * @since 1.0.0
+	 *
+	 * @param array  $pages   Array of page data.
+	 * @param string $orderby Column to sort by.
+	 * @param string $order   Sort direction ('asc' or 'desc').
+	 * @return array Sorted pages array.
+	 */
+	private function sort_pages( array $pages, string $orderby, string $order ): array {
+		usort(
+			$pages,
+			function ( $a, $b ) use ( $orderby, $order ) {
+				$result = 0;
+
+				switch ( $orderby ) {
+					case 'title':
+						$result = strcasecmp( $a['title'] ?? '', $b['title'] ?? '' );
+						break;
+
+					case 'type':
+						$result = strcasecmp( $a['object_type'] ?? '', $b['object_type'] ?? '' );
+						break;
+
+					case 'sync_status':
+						// Get sync status for comparison.
+						$status_a = $this->manager->get_sync_status( $a['id'] );
+						$status_b = $this->manager->get_sync_status( $b['id'] );
+
+						// Convert boolean to sortable value: synced = 1, not_synced = 0.
+						$val_a = $status_a['is_synced'] ? 1 : 0;
+						$val_b = $status_b['is_synced'] ? 1 : 0;
+
+						$result = $val_a <=> $val_b;
+						break;
+
+					case 'last_synced':
+						// Get last_synced timestamps.
+						$status_a = $this->manager->get_sync_status( $a['id'] );
+						$status_b = $this->manager->get_sync_status( $b['id'] );
+
+						$time_a = $status_a['last_synced'] ?? 0;
+						$time_b = $status_b['last_synced'] ?? 0;
+
+						$result = $time_a <=> $time_b;
+						break;
+				}
+
+				// Apply order direction.
+				return 'desc' === $order ? -$result : $result;
+			}
+		);
+
+		return $pages;
 	}
 
 	/**
@@ -426,7 +537,60 @@ class PagesListTable extends \WP_List_Table {
 		$this->_column_headers = array( $columns, $hidden, $sortable );
 
 		// Fetch pages from Notion.
-		$pages = $this->fetcher->fetch_pages_list( 100 );
+		$all_pages = $this->fetcher->fetch_pages_list( 100 );
+
+		// Filter out:
+		// 1. Databases (object_type = 'database') - shown on Databases tab
+		// 2. Database entries (parent_type = 'database_id') - synced via database sync
+		$pages = array_filter(
+			$all_pages,
+			function ( $page ) {
+				$object_type = $page['object_type'] ?? 'page';
+				$parent_type = $page['parent_type'] ?? 'unknown';
+
+				// Exclude databases themselves.
+				if ( 'database' === $object_type ) {
+					return false;
+				}
+
+				// Exclude database entries (rows from databases).
+				if ( 'database_id' === $parent_type ) {
+					return false;
+				}
+
+				return true;
+			}
+		);
+
+		// Apply status filter if requested.
+		$filter_status = isset( $_GET['filter_status'] ) ? sanitize_text_field( wp_unslash( $_GET['filter_status'] ) ) : '';
+
+		if ( ! empty( $filter_status ) ) {
+			$pages = array_filter(
+				$pages,
+				function ( $page ) use ( $filter_status ) {
+					$sync_status = $this->manager->get_sync_status( $page['id'] );
+
+					if ( 'synced' === $filter_status ) {
+						return $sync_status['is_synced'];
+					} elseif ( 'not_synced' === $filter_status ) {
+						return ! $sync_status['is_synced'];
+					}
+
+					return true;
+				}
+			);
+		}
+
+		// Apply sorting if requested.
+		$orderby = isset( $_GET['orderby'] ) ? sanitize_text_field( wp_unslash( $_GET['orderby'] ) ) : '';
+		$order   = isset( $_GET['order'] ) && 'desc' === strtolower( sanitize_text_field( wp_unslash( $_GET['order'] ) ) ) ?
+			'desc' :
+			'asc';
+
+		if ( ! empty( $orderby ) ) {
+			$pages = $this->sort_pages( $pages, $orderby, $order );
+		}
 
 		// Set items.
 		$this->items = $pages;

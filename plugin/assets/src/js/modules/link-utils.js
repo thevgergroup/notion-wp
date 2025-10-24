@@ -1,16 +1,10 @@
 /**
  * Link Utilities Module
  *
- * Handles link-related functionality including copying Notion IDs
- * and updating links in posts.
+ * Handles link-related functionality including copying Notion IDs.
  *
  * @package
  */
-
-/**
- * Internal dependencies
- */
-import { escapeHtml } from './table-ui.js';
 
 /**
  * Handle copy Notion ID button
@@ -78,85 +72,4 @@ function fallbackCopy(text, button) {
 	}
 
 	document.body.removeChild(textarea);
-}
-
-/**
- * Handle update links button click
- *
- * Updates all Notion links in synced posts to WordPress permalinks.
- * This includes both page links and database links.
- */
-export function handleUpdateLinks() {
-	const button = document.getElementById('update-links-btn');
-	const messagesContainer = document.getElementById('link-update-messages');
-
-	if (!button || !messagesContainer) {
-		return;
-	}
-
-	// Disable button and show loading state.
-	button.disabled = true;
-	const spinner = document.getElementById('link-update-spinner');
-	if (spinner) {
-		spinner.style.display = 'inline-block';
-	}
-
-	// Clear previous messages.
-	messagesContainer.innerHTML = '';
-
-	// Make AJAX request.
-	fetch(notionSyncAdmin.ajaxUrl, {
-		method: 'POST',
-		headers: {
-			'Content-Type': 'application/x-www-form-urlencoded',
-		},
-		body: new URLSearchParams({
-			action: 'notion_sync_update_links',
-			nonce: notionSyncAdmin.nonce,
-		}),
-	})
-		.then((response) => response.json())
-		.then((data) => {
-			// Re-enable button and hide spinner.
-			button.disabled = false;
-			if (spinner) {
-				spinner.style.display = 'none';
-			}
-
-			if (data.success) {
-				// Show success message with statistics.
-				const message = document.createElement('div');
-				message.className = 'notice notice-success';
-				message.innerHTML = `<p><strong>Link Update Complete</strong></p>
-					<ul style="margin-left: 20px;">
-						<li>Posts checked: ${data.data.posts_checked}</li>
-						<li>Posts updated: ${data.data.posts_updated}</li>
-						<li>Links rewritten: ${data.data.links_rewritten}</li>
-					</ul>`;
-				messagesContainer.appendChild(message);
-			} else {
-				// Show error message.
-				const message = document.createElement('div');
-				message.className = 'notice notice-error';
-				message.innerHTML = `<p>${escapeHtml(
-					data.data || 'Failed to update links. Please try again.'
-				)}</p>`;
-				messagesContainer.appendChild(message);
-			}
-		})
-		.catch((error) => {
-			// Re-enable button and hide spinner.
-			button.disabled = false;
-			if (spinner) {
-				spinner.style.display = 'none';
-			}
-
-			// Show error message.
-			const message = document.createElement('div');
-			message.className = 'notice notice-error';
-			message.innerHTML =
-				'<p>Network error updating links. Please try again.</p>';
-			messagesContainer.appendChild(message);
-			console.error('Link update error:', error);
-		});
 }

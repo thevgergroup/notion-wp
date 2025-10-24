@@ -25,3 +25,6 @@ docker/
 
 # Logs
 *.log
+
+# Markdown files - no value in auto-formatting documentation
+*.md

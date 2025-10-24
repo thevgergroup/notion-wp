@@ -154,7 +154,38 @@ class LinkRegistry {
 	 * @since 1.0.0
 	 *
 	 * @param string $notion_id Notion ID (with or without dashes).
-	 * @return object|null Link entry object or null if not found.
+	 * @return object{
+	 *     id: int,
+	 *     notion_id: string,
+	 *     notion_id_uuid: string,
+	 *     notion_title: string,
+	 *     notion_type: string,
+	 *     wp_post_id: int|null,
+	 *     wp_post_type: string|null,
+	 *     slug: string,
+	 *     sync_status: string,
+	 *     notion_last_edited: string|null,
+	 *     wp_last_synced: string|null,
+	 *     sync_error: string|null,
+	 *     created_at: string,
+	 *     updated_at: string
+	 * }|null Link entry object or null if not found.
+	 * @phpstan-return object{
+	 *     id: int,
+	 *     notion_id: string,
+	 *     notion_id_uuid: string,
+	 *     notion_title: string,
+	 *     notion_type: string,
+	 *     wp_post_id: int|null,
+	 *     wp_post_type: string|null,
+	 *     slug: string,
+	 *     sync_status: string,
+	 *     notion_last_edited: string|null,
+	 *     wp_last_synced: string|null,
+	 *     sync_error: string|null,
+	 *     created_at: string,
+	 *     updated_at: string
+	 * }|null
 	 */
 	public function find_by_notion_id( string $notion_id ): ?object {
 		global $wpdb;
@@ -235,6 +266,265 @@ class LinkRegistry {
 			array( '%d', '%s', '%s', '%s' ),
 			array( '%d' )
 		);
+	}
+
+	/**
+	 * Update sync timestamps for a link.
+	 *
+	 * Called after successfully syncing a page to update the timestamps
+	 * used for detecting outdated content.
+	 *
+	 * @since 1.0.0
+	 *
+	 * @param string $notion_id          Notion ID (with or without dashes).
+	 * @param string $notion_last_edited Notion's last_edited_time timestamp.
+	 * @param string $wp_last_synced     WordPress sync timestamp.
+	 * @return bool True on success, false on failure.
+	 */
+	public function update_sync_timestamps( string $notion_id, string $notion_last_edited, string $wp_last_synced ): bool {
+		global $wpdb;
+
+		$entry = $this->find_by_notion_id( $notion_id );
+
+		if ( ! $entry ) {
+			return false;
+		}
+
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- Repository pattern.
+		return false !== $wpdb->update(
+			$this->table_name,
+			array(
+				'notion_last_edited' => $notion_last_edited,
+				'wp_last_synced'     => $wp_last_synced,
+				'sync_error'         => null, // Clear any previous errors on successful sync.
+				'updated_at'         => current_time( 'mysql' ),
+			),
+			array( 'id' => $entry->id ),
+			array( '%s', '%s', '%s', '%s' ),
+			array( '%d' )
+		);
+	}
+
+	/**
+	 * Update sync error for a link.
+	 *
+	 * Called when a sync operation fails to store the error message.
+	 *
+	 * @since 1.0.0
+	 *
+	 * @param string $notion_id    Notion ID (with or without dashes).
+	 * @param string $error_message Error message from sync operation.
+	 * @return bool True on success, false on failure.
+	 */
+	public function update_sync_error( string $notion_id, string $error_message ): bool {
+		global $wpdb;
+
+		$entry = $this->find_by_notion_id( $notion_id );
+
+		if ( ! $entry ) {
+			return false;
+		}
+
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- Repository pattern.
+		return false !== $wpdb->update(
+			$this->table_name,
+			array(
+				'sync_error' => $error_message,
+				'updated_at' => current_time( 'mysql' ),
+			),
+			array( 'id' => $entry->id ),
+			array( '%s', '%s' ),
+			array( '%d' )
+		);
+	}
+
+	/**
+	 * Get comprehensive status for a Notion page.
+	 *
+	 * Determines the current sync status based on multiple factors:
+	 * - Existence in link registry
+	 * - Active batch processing
+	 * - Sync errors
+	 * - Timestamp comparison for outdated detection
+	 *
+	 * @since 1.0.0
+	 *
+	 * @param string $notion_id Notion ID (with or without dashes).
+	 * @return array {
+	 *     Comprehensive status information.
+	 *
+	 *     @type string      $status      Status: 'synced', 'not_synced', 'outdated', 'syncing', 'failed'.
+	 *     @type string      $label       Human-readable status label.
+	 *     @type string      $icon        Dashicon CSS class.
+	 *     @type string      $color       Text color (hex).
+	 *     @type string      $bg          Background color (hex).
+	 *     @type string      $tooltip     Tooltip text.
+	 *     @type bool        $animated    Whether to show animation (for syncing state).
+	 *     @type int|null    $wp_post_id  WordPress post ID if synced.
+	 *     @type string|null $error       Error message if failed.
+	 *     @type array|null  $batch_info  Batch information if currently syncing.
+	 * }
+	 */
+	public function get_comprehensive_status( string $notion_id ): array {
+		// Default status for pages not in registry.
+		$default_status = array(
+			'status'     => 'not_synced',
+			'label'      => 'Not Synced',
+			'icon'       => 'dashicons-minus',
+			'color'      => '#757575',
+			'bg'         => '#f0f0f0',
+			'tooltip'    => 'This page has not been synced to WordPress yet',
+			'animated'   => false,
+			'wp_post_id' => null,
+			'error'      => null,
+			'batch_info' => null,
+		);
+
+		// Find link entry.
+		$entry = $this->find_by_notion_id( $notion_id );
+
+		if ( ! $entry ) {
+			return $default_status;
+		}
+
+		// Check if currently syncing (in an active batch).
+		$batch_info = $this->get_active_batch_for_page( $notion_id );
+
+		if ( $batch_info ) {
+			return array(
+				'status'     => 'syncing',
+				'label'      => 'Syncing',
+				'icon'       => 'dashicons-update',
+				'color'      => '#2271b1',
+				'bg'         => '#e5f5fa',
+				'tooltip'    => 'This page is currently being synced',
+				'animated'   => true,
+				'wp_post_id' => $entry->wp_post_id ?? null,
+				'error'      => null,
+				'batch_info' => $batch_info,
+			);
+		}
+
+		// Check for sync errors.
+		if ( ! empty( $entry->sync_error ) ) {
+			return array(
+				'status'     => 'failed',
+				'label'      => 'Sync Failed',
+				'icon'       => 'dashicons-warning',
+				'color'      => '#d63638',
+				'bg'         => '#fcf0f1',
+				'tooltip'    => 'Last sync failed: ' . esc_attr( $entry->sync_error ),
+				'animated'   => false,
+				'wp_post_id' => $entry->wp_post_id ?? null,
+				'error'      => $entry->sync_error,
+				'batch_info' => null,
+			);
+		}
+
+		// Check if synced but outdated.
+		if ( 'synced' === $entry->sync_status ) {
+			// Detect outdated content: notion_last_edited > wp_last_synced.
+			if (
+				! empty( $entry->notion_last_edited ) &&
+				! empty( $entry->wp_last_synced ) &&
+				strtotime( $entry->notion_last_edited ) > strtotime( $entry->wp_last_synced )
+			) {
+				return array(
+					'status'     => 'outdated',
+					'label'      => 'Outdated',
+					'icon'       => 'dashicons-update-alt',
+					'color'      => '#996800',
+					'bg'         => '#fcf9e8',
+					'tooltip'    => 'Content has been modified in Notion since last sync',
+					'animated'   => false,
+					'wp_post_id' => $entry->wp_post_id,
+					'error'      => null,
+					'batch_info' => null,
+				);
+			}
+
+			// Synced and up-to-date.
+			return array(
+				'status'     => 'synced',
+				'label'      => 'Synced',
+				'icon'       => 'dashicons-yes-alt',
+				'color'      => '#00a32a',
+				'bg'         => '#e7f5ec',
+				'tooltip'    => 'Content is synced and up-to-date',
+				'animated'   => false,
+				'wp_post_id' => $entry->wp_post_id,
+				'error'      => null,
+				'batch_info' => null,
+			);
+		}
+
+		// Entry exists but not yet synced.
+		return $default_status;
+	}
+
+	/**
+	 * Get active batch information for a page.
+	 *
+	 * Checks if a page is currently being processed in an active batch.
+	 *
+	 * @since 1.0.0
+	 *
+	 * @param string $notion_id Notion ID (with or without dashes).
+	 * @return array|null Batch information or null if not in active batch.
+	 */
+	private function get_active_batch_for_page( string $notion_id ): ?array {
+		global $wpdb;
+
+		// Normalize ID for comparison.
+		$normalized_id = str_replace( '-', '', $notion_id );
+
+		// Query all batch options to find active batches containing this page.
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- Batch status check.
+		$batches = $wpdb->get_results(
+			$wpdb->prepare(
+				"SELECT option_name, option_value
+				FROM {$wpdb->options}
+				WHERE option_name LIKE %s
+				AND option_name LIKE %s",
+				'%notion_sync_page_batch_%',
+				'%' . $wpdb->esc_like( 'notion_sync_page_batch_' ) . '%'
+			)
+		);
+
+		foreach ( $batches as $batch_option ) {
+			$batch = maybe_unserialize( $batch_option->option_value );
+
+			if ( ! is_array( $batch ) ) {
+				continue;
+			}
+
+			// Check if batch is active (queued or processing).
+			if ( ! in_array( $batch['status'] ?? '', array( 'queued', 'processing' ), true ) ) {
+				continue;
+			}
+
+			// Check if this page is in the batch.
+			$page_ids = $batch['page_ids'] ?? array();
+
+			foreach ( $page_ids as $page_id ) {
+				if ( str_replace( '-', '', $page_id ) === $normalized_id ) {
+					// Extract batch ID from option name.
+					$batch_id = str_replace( 'notion_sync_page_batch_', '', $batch_option->option_name );
+
+					// Get page-specific status from results.
+					$page_status = $batch['page_statuses'][ $page_id ] ?? 'queued';
+
+					return array(
+						'batch_id'    => $batch_id,
+						'page_status' => $page_status,
+						'batch_total' => $batch['total'] ?? 0,
+						'batch_processed' => $batch['processed'] ?? 0,
+					);
+				}
+			}
+		}
+
+		return null;
 	}
 
 	/**

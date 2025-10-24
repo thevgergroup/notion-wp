@@ -11,11 +11,12 @@
  */
 import { showAdminNotice } from './admin-ui.js';
 import {
-	updateStatusBadge,
 	updateWpPostColumn,
 	updateLastSyncedColumn,
 	updateRowActions,
 } from './table-ui.js';
+import { updateStatusBadge, getStatusBadgeForPage } from './status-badge.js';
+import { watchBatchStatus } from './sync-status-poller.js';
 
 /**
  * Handle individual page sync ("Sync Now" button)
@@ -38,10 +39,10 @@ export function handleSyncNow(button) {
 	const originalText = button.textContent;
 	button.textContent = notionSyncAdmin.i18n.syncing;
 
-	// Update status badge.
-	const statusBadge = row.querySelector('.notion-sync-badge');
+	// Update status badge to syncing state.
+	const statusBadge = getStatusBadgeForPage(pageId);
 	if (statusBadge) {
-		updateStatusBadge(statusBadge, 'syncing', notionSyncAdmin.i18n.syncing);
+		updateStatusBadge(statusBadge, { status: 'syncing' });
 	}
 
 	// Make AJAX request.
@@ -65,11 +66,7 @@ export function handleSyncNow(button) {
 			if (data.success) {
 				// Update status badge to synced.
 				if (statusBadge) {
-					updateStatusBadge(
-						statusBadge,
-						'synced',
-						notionSyncAdmin.i18n.synced
-					);
+					updateStatusBadge(statusBadge, { status: 'synced' });
 				}
 
 				// Update WordPress post column.
@@ -91,13 +88,12 @@ export function handleSyncNow(button) {
 					data.data.view_url
 				);
 			} else {
-				// Update status badge to error.
+				// Update status badge to failed.
 				if (statusBadge) {
-					updateStatusBadge(
-						statusBadge,
-						'error',
-						notionSyncAdmin.i18n.syncError
-					);
+					updateStatusBadge(statusBadge, {
+						status: 'failed',
+						error: data.data.message || 'Sync failed',
+					});
 				}
 
 				// Show error notice.
@@ -113,13 +109,12 @@ export function handleSyncNow(button) {
 			button.disabled = false;
 			button.textContent = originalText;
 
-			// Update status badge to error.
+			// Update status badge to failed.
 			if (statusBadge) {
-				updateStatusBadge(
-					statusBadge,
-					'error',
-					notionSyncAdmin.i18n.syncError
-				);
+				updateStatusBadge(statusBadge, {
+					status: 'failed',
+					error: 'Network error',
+				});
 			}
 
 			// Show error notice.
@@ -134,83 +129,171 @@ export function handleSyncNow(button) {
  * @param {HTMLFormElement} form - The bulk actions form
  */
 export function handleBulkActions(form) {
-	form.addEventListener('submit', (event) => {
-		// Get selected action.
-		const actionSelect = form.querySelector('select[name="action"]');
-		const actionSelect2 = form.querySelector('select[name="action2"]');
-		const action = actionSelect?.value || actionSelect2?.value;
+	// Create progress dashboard (will be inserted before the table).
+	let dashboardContainer = document.getElementById(
+		'bulk-sync-progress-container'
+	);
+	if (!dashboardContainer) {
+		dashboardContainer = document.createElement('div');
+		dashboardContainer.id = 'bulk-sync-progress-container';
+		dashboardContainer.style.display = 'none';
 
-		// Only handle our bulk sync action.
-		if (action !== 'bulk_sync') {
-			return;
-		}
+		// Insert before the form.
+		form.parentNode.insertBefore(dashboardContainer, form);
+	}
 
-		// Prevent default form submission.
-		event.preventDefault();
+	form.addEventListener(
+		'submit',
+		(event) => {
+			// Get selected action.
+			const actionSelect = form.querySelector('select[name="action"]');
+			const actionSelect2 = form.querySelector('select[name="action2"]');
+			const action = actionSelect?.value || actionSelect2?.value;
 
-		// Get selected page IDs.
-		const checkboxes = form.querySelectorAll(
-			'input[name="page_ids[]"]:checked'
-		);
-		const pageIds = Array.from(checkboxes).map((cb) => cb.value);
+			// Only handle our bulk sync action.
+			if (action !== 'bulk_sync') {
+				return;
+			}
 
-		if (pageIds.length === 0) {
-			showAdminNotice('warning', notionSyncAdmin.i18n.selectPages);
-			return;
-		}
+			// Prevent default form submission IMMEDIATELY and stop all propagation.
+			event.preventDefault();
+			event.stopPropagation();
+			event.stopImmediatePropagation();
 
-		// Confirm bulk action.
-		if (!confirm(notionSyncAdmin.i18n.confirmBulkSync)) {
-			return;
-		}
+			// Also return false as an extra safeguard.
+			if (event.returnValue !== undefined) {
+				event.returnValue = false;
+			}
 
-		// Disable all checkboxes and form controls.
-		const formControls = form.querySelectorAll('input, select, button');
-		formControls.forEach((control) => (control.disabled = true));
+			// Get selected page IDs.
+			const checkboxes = form.querySelectorAll(
+				'input[name="notion_page[]"]:checked'
+			);
+			const pageIds = Array.from(checkboxes).map((cb) => cb.value);
 
-		// Show loading notice.
-		showAdminNotice('info', `Syncing ${pageIds.length} pages...`);
+			if (pageIds.length === 0) {
+				showAdminNotice('warning', notionSyncAdmin.i18n.selectPages);
+				return;
+			}
 
-		// Build form body to properly send array as PHP expects.
-		const formBody = new URLSearchParams();
-		formBody.append('action', 'notion_bulk_sync');
-		formBody.append('nonce', notionSyncAdmin.nonce);
-		pageIds.forEach((pageId) => formBody.append('page_ids[]', pageId));
+			// Confirm bulk action.
+			if (!confirm(notionSyncAdmin.i18n.confirmBulkSync)) {
+				return;
+			}
 
-		fetch(notionSyncAdmin.ajaxUrl, {
-			method: 'POST',
-			headers: {
-				'Content-Type': 'application/x-www-form-urlencoded',
-			},
-			body: formBody,
-		})
-			.then((response) => response.json())
-			.then((data) => {
-				// Re-enable form controls.
-				formControls.forEach((control) => (control.disabled = false));
+			// Disable all checkboxes and form controls.
+			const formControls = form.querySelectorAll('input, select, button');
+			formControls.forEach((control) => (control.disabled = true));
 
-				if (data.success) {
-					// Show success message.
-					showAdminNotice('success', data.data.message);
+			// Queue bulk sync with Action Scheduler.
+			(async () => {
+				try {
+					const queueBody = new URLSearchParams();
+					queueBody.append('action', 'notion_queue_bulk_sync');
+					queueBody.append('nonce', notionSyncAdmin.nonce);
+					pageIds.forEach((id) => queueBody.append('page_ids[]', id));
 
-					// Reload page to show updated sync status.
-					setTimeout(() => {
-						window.location.reload();
-					}, 1500);
-				} else {
+					const queueResponse = await fetch(notionSyncAdmin.ajaxUrl, {
+						method: 'POST',
+						headers: {
+							'Content-Type': 'application/x-www-form-urlencoded',
+						},
+						body: queueBody,
+					});
+
+					const queueData = await queueResponse.json();
+
+					if (!queueData.success) {
+						showAdminNotice(
+							'error',
+							queueData.data.message ||
+								'Failed to queue bulk sync.'
+						);
+						formControls.forEach(
+							(control) => (control.disabled = false)
+						);
+						return;
+					}
+
+					const batchId = queueData.data.batch_id;
+
+					// Start Preact dashboard with immediate "Queuing" feedback.
+					if (typeof window.startSyncDashboard === 'function') {
+						window.startSyncDashboard(batchId, pageIds.length);
+					}
+
+					// Start watching batch with REST API poller.
+					watchBatchStatus(batchId, {
+						onProgress: (batchData) => {
+							// Preact dashboard auto-updates via polling
+
+							// Update individual page status badges.
+							if (batchData.page_statuses) {
+								Object.entries(batchData.page_statuses).forEach(
+									([pageId, status]) => {
+										const badge =
+											getStatusBadgeForPage(pageId);
+										if (badge) {
+											// Map batch status to badge status.
+											let badgeStatus = 'not_synced';
+											if (status === 'completed') {
+												badgeStatus = 'synced';
+											} else if (status === 'failed') {
+												badgeStatus = 'failed';
+											} else if (
+												status === 'processing'
+											) {
+												badgeStatus = 'syncing';
+											}
+
+											updateStatusBadge(badge, {
+												status: badgeStatus,
+											});
+										}
+									}
+								);
+							}
+						},
+						onComplete: (batchData) => {
+							// Re-enable form controls.
+							formControls.forEach(
+								(control) => (control.disabled = false)
+							);
+
+							// Show completion notice.
+							const failed = batchData.failed || 0;
+							const message =
+								failed > 0
+									? `Bulk sync completed with ${failed} failed pages.`
+									: 'Bulk sync completed successfully!';
+
+							showAdminNotice(
+								failed > 0 ? 'warning' : 'success',
+								message
+							);
+
+							// Reload page after 30 seconds to allow users to see dashboard completion state
+							// (increased from 3 seconds to give dashboard time to display)
+							setTimeout(() => {
+								window.location.reload();
+							}, 30000);
+						},
+						onError: (error) => {
+							console.error('Batch status polling error:', error);
+						},
+					});
+				} catch (error) {
+					console.error('Error queueing bulk sync:', error);
 					showAdminNotice(
 						'error',
-						data.data.message ||
-							'Bulk sync failed. Please try again.'
+						'Network error. Please try again.'
+					);
+					formControls.forEach(
+						(control) => (control.disabled = false)
 					);
 				}
-			})
-			.catch((error) => {
-				// Re-enable form controls.
-				formControls.forEach((control) => (control.disabled = false));
-
-				showAdminNotice('error', 'Network error during bulk sync.');
-				console.error('Bulk sync error:', error);
-			});
-	});
+			})();
+		},
+		true // Use capture phase to intercept BEFORE other handlers.
+	);
 }

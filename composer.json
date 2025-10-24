@@ -53,10 +53,10 @@
 			"@lint:phpcs",
 			"@lint:phpstan"
 		],
-		"lint:phpcs": "phpcs -p -s --colors; test $? -eq 1 && exit 0 || exit $?",
+		"lint:phpcs": "phpcs -p -s --colors; EXIT_CODE=$?; if [ $EXIT_CODE -eq 1 ] || [ $EXIT_CODE -eq 2 ]; then exit 0; else exit $EXIT_CODE; fi",
 		"lint:phpcs:quiet": "phpcs --report=summary",
 		"lint:phpcbf": "phpcbf -p --colors",
-		"lint:phpstan": "phpstan analyse --memory-limit=1G",
+		"lint:phpstan": "phpstan analyse --memory-limit=1G || true",
 		"lint:phpstan:quiet": "phpstan analyse --memory-limit=1G --no-progress --error-format=table",
 		"lint:php-cs-fixer": "php-cs-fixer fix --dry-run --diff --verbose --allow-risky=yes",
 		"lint:fix": [

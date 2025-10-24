@@ -70,8 +70,16 @@ class ChildDatabaseConverter implements BlockConverterInterface {
 		$registry = new LinkRegistry();
 		$entry    = $registry->find_by_notion_id( $normalized_id );
 
-		// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log, Generic.Files.LineLength.TooLong, Generic.Files.LineLength.MaxExceeded -- Debug logging.
-		error_log( sprintf( '[ChildDatabaseConverter] Database: %s, ID: %s, Entry exists: %s, Entry title: %s', $title, $normalized_id, $entry ? 'yes' : 'no', $entry ? $entry->notion_title : 'N/A' ) );
+		// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log -- Debug logging.
+		error_log(
+			sprintf(
+				'[ChildDatabaseConverter] Database: %s, ID: %s, Entry exists: %s, Entry title: %s',
+				$title,
+				$normalized_id,
+				$entry ? 'yes' : 'no',
+				$entry ? $entry->notion_title : 'N/A'
+			)
+		);
 
 		if ( $entry && $entry->notion_title === $normalized_id ) {
 			// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log -- Debug logging.

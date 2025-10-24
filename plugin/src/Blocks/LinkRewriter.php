@@ -116,23 +116,23 @@ class LinkRewriter {
 			);
 		}
 
-		// Get the slug for this Notion ID from the registry.
-		$slug = $registry->get_slug_for_notion_id( $notion_id );
+		// Determine appropriate URL based on sync status.
+		if ( $post_id || $database_post_id ) {
+			// Already synced - use WordPress permalink directly.
+			$target_post_id = $post_id ? $post_id : $database_post_id;
+			$permalink      = get_permalink( $target_post_id );
 
-		if ( ! $slug ) {
-			// Fallback if registration somehow failed.
-			return array(
-				'url'            => 'https://notion.so/' . $notion_id,
-				'notion_page_id' => $notion_id,
-			);
+			if ( $permalink ) {
+				return array(
+					'url'            => $permalink,
+					'notion_page_id' => $notion_id,
+				);
+			}
 		}
 
-		// Build /notion/{slug} URL.
-		// The NotionRouter will handle redirecting based on sync status.
-		$notion_url = home_url( '/notion/' . $slug );
-
+		// Not synced or permalink unavailable - link to Notion.
 		return array(
-			'url'            => $notion_url,
+			'url'            => 'https://notion.so/' . $notion_id,
 			'notion_page_id' => $notion_id,
 		);
 	}

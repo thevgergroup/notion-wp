@@ -12,7 +12,7 @@
  */
 import { handleSyncNow, handleBulkActions } from './page-sync.js';
 import { handleDatabaseSync, handleCancelBatch } from './database-sync.js';
-import { handleCopyNotionId, handleUpdateLinks } from './link-utils.js';
+import { handleCopyNotionId } from './link-utils.js';
 
 /**
  * Re-export table UI functions for backward compatibility
@@ -54,6 +54,31 @@ export function initSyncFunctionality() {
 	// Handle bulk sync form submission.
 	const bulkForm = document.getElementById('notion-pages-form');
 	if (bulkForm) {
+		// Disable WordPress's built-in bulk action validation for our custom form.
+		// WordPress validates on submit, but we're using AJAX, so we need to bypass it.
+		const originalOnSubmit = bulkForm.onsubmit;
+		bulkForm.onsubmit = function (event) {
+			const actionSelect = bulkForm.querySelector(
+				'select[name="action"]'
+			);
+			const actionSelect2 = bulkForm.querySelector(
+				'select[name="action2"]'
+			);
+			const action = actionSelect?.value || actionSelect2?.value;
+
+			// If it's our bulk_sync action, bypass WordPress validation.
+			if (action === 'bulk_sync') {
+				// Our event listener will handle it.
+				return true;
+			}
+
+			// For other actions, use WordPress's original validation.
+			if (originalOnSubmit) {
+				return originalOnSubmit.call(this, event);
+			}
+			return true;
+		};
+
 		handleBulkActions(bulkForm);
 	}
 
@@ -64,10 +89,4 @@ export function initSyncFunctionality() {
 			handleCopyNotionId(event.target.closest('.notion-copy-id'));
 		}
 	});
-
-	// Handle update links button.
-	const updateLinksBtn = document.getElementById('update-links-btn');
-	if (updateLinksBtn) {
-		updateLinksBtn.addEventListener('click', handleUpdateLinks);
-	}
 }

@@ -39,8 +39,20 @@ use NotionSync\Security\Encryption;
  *     # Sync a specific page
  *     $ wp notion sync 75424b1c35d0476b836cbb0e776f3f7c
  *
+ *     # Sync a database with batch processing
+ *     $ wp notion sync database-id-here --batch-size=50
+ *
  *     # Force re-sync even if already synced
  *     $ wp notion sync 75424b1c35d0476b836cbb0e776f3f7c --force
+ *
+ *     # View sync logs
+ *     $ wp notion logs
+ *
+ *     # View only errors
+ *     $ wp notion logs --severity=error
+ *
+ *     # View log statistics
+ *     $ wp notion logs --stats
  *
  *     # Show page details
  *     $ wp notion show 75424b1c35d0476b836cbb0e776f3f7c
@@ -153,7 +165,7 @@ class NotionCommand {
 	public function sync( $args, $assoc_args ) {
 		$notion_id  = $args[0];
 		$force      = isset( $assoc_args['force'] );
-		$batch_size = intval( $assoc_args['batch-size'] ?? 20 );
+		$batch_size = intval( $assoc_args['batch-size'] ?? 20 ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName
 
 		try {
 			// Get Notion client.
@@ -172,7 +184,9 @@ class NotionCommand {
 			} elseif ( 'database' === $resource_type ) {
 				SyncHandler::sync_database( $notion_id, $client, $batch_size );
 			} else {
-				\WP_CLI::error( 'Unable to determine resource type. Please check the Notion ID and integration access.' );
+				\WP_CLI::error(
+					'Unable to determine resource type. Please check the Notion ID and integration access.'
+				);
 			}
 		} catch ( \Exception $e ) {
 			\WP_CLI::error( 'Sync failed: ' . $e->getMessage() );
@@ -405,5 +419,139 @@ class NotionCommand {
 	public function update_links( $args, $assoc_args ) {
 		$post_id = absint( $args[0] );
 		RegistryHandler::update_post_links( $post_id );
+	}
+
+	/**
+	 * View and manage sync logs.
+	 *
+	 * ## OPTIONS
+	 *
+	 * [--severity=<severity>]
+	 * : Filter by severity level
+	 * ---
+	 * options:
+	 *   - error
+	 *   - warning
+	 *   - info
+	 * ---
+	 *
+	 * [--category=<category>]
+	 * : Filter by category
+	 * ---
+	 * options:
+	 *   - image
+	 *   - block
+	 *   - api
+	 *   - conversion
+	 *   - performance
+	 * ---
+	 *
+	 * [--notion-page-id=<id>]
+	 * : Filter by Notion page ID
+	 *
+	 * [--wp-post-id=<id>]
+	 * : Filter by WordPress post ID
+	 *
+	 * [--limit=<limit>]
+	 * : Maximum number of logs to display (default: 20)
+	 * ---
+	 * default: 20
+	 * ---
+	 *
+	 * [--resolve=<log-id>]
+	 * : Mark a specific log entry as resolved
+	 *
+	 * [--resolve-all]
+	 * : Mark all unresolved logs as resolved
+	 *
+	 * [--stats]
+	 * : Show log statistics instead of listing logs
+	 *
+	 * ## EXAMPLES
+	 *
+	 *     # View all unresolved logs
+	 *     wp notion logs
+	 *
+	 *     # View only errors
+	 *     wp notion logs --severity=error
+	 *
+	 *     # View logs for specific page
+	 *     wp notion logs --notion-page-id=75424b1c35d0476b836cbb0e776f3f7c
+	 *
+	 *     # View image-related warnings
+	 *     wp notion logs --severity=warning --category=image
+	 *
+	 *     # Resolve a specific log
+	 *     wp notion logs --resolve=123
+	 *
+	 *     # Resolve all logs
+	 *     wp notion logs --resolve-all
+	 *
+	 *     # Show statistics
+	 *     wp notion logs --stats
+	 *
+	 * @param array $args Positional arguments.
+	 * @param array $assoc_args Associative arguments.
+	 * @when after_wp_load
+	 */
+	public function logs( $args, $assoc_args ) {
+		LogsHandler::handle_logs_command( $assoc_args );
+	}
+
+	/**
+	 * Check Action Scheduler configuration status.
+	 *
+	 * Displays current Action Scheduler configuration including runner type,
+	 * timeout settings, and version information.
+	 *
+	 * ## EXAMPLES
+	 *
+	 *     wp notion scheduler-status
+	 *
+	 * @param array $args Positional arguments.
+	 * @param array $assoc_args Associative arguments.
+	 * @when after_wp_load
+	 */
+	public function scheduler_status( $args, $assoc_args ) {
+		if ( ! class_exists( 'NotionSync\\Utils\\ActionSchedulerConfig' ) ) {
+			\WP_CLI::error( 'ActionSchedulerConfig class not found' );
+		}
+
+		$config = \NotionSync\Utils\ActionSchedulerConfig::get_config_status();
+
+		\WP_CLI::log( \WP_CLI::colorize( '%G' . str_repeat( '=', 60 ) . '%n' ) );
+		\WP_CLI::log( \WP_CLI::colorize( '%GACTION SCHEDULER STATUS%n' ) );
+		\WP_CLI::log( \WP_CLI::colorize( '%G' . str_repeat( '=', 60 ) . '%n' ) );
+		\WP_CLI::log( '' );
+
+		\WP_CLI::log( sprintf( 'Version:          %s', $config['action_scheduler_version'] ) );
+		\WP_CLI::log(
+			sprintf(
+				'Timeout Period:   %d seconds (%d minutes)',
+				$config['timeout_period'],
+				$config['timeout_period'] / 60
+			)
+		);
+		\WP_CLI::log( '' );
+
+		$runner_type = $config['async_runner_enabled'] ? 'Async Request' : 'WP Cron';
+		$runner_color = $config['async_runner_enabled'] ? 'y' : 'g';
+		\WP_CLI::log( \WP_CLI::colorize( sprintf( '%%BRunner Type:%% %s%s%%n', "%{$runner_color}", $runner_type ) ) );
+
+		if ( ! $config['async_runner_enabled'] ) {
+			\WP_CLI::log(
+				\WP_CLI::colorize( '%gWP Cron runner is enabled for improved reliability.%n' )
+			);
+		} else {
+			\WP_CLI::log(
+				\WP_CLI::colorize( '%yAsync Request runner may experience timeout issues.%n' )
+			);
+			\WP_CLI::log(
+				\WP_CLI::colorize( '%yConsider forcing WP Cron runner for more reliable background processing.%n' )
+			);
+		}
+
+		\WP_CLI::log( '' );
+		\WP_CLI::log( \WP_CLI::colorize( '%G' . str_repeat( '=', 60 ) . '%n' ) );
 	}
 }
