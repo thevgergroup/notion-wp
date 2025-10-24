@@ -101,11 +101,20 @@ class NotionLinkShortcode {
 			return '';
 		}
 
-		// Always use /notion/{slug} route for consistency.
-		// The NotionRouter will handle redirecting to:
-		// - WordPress post permalink if synced
-		// - Notion.so URL if not synced
-		$url = home_url( '/notion/' . $entry->slug );
+		// Use appropriate URL based on sync status.
+		// If synced to WordPress, link directly to the post permalink.
+		// If not synced, link to Notion.
+		if ( 'synced' === $entry->sync_status && ! empty( $entry->wp_post_id ) ) {
+			// Synced - use WordPress permalink.
+			$url = get_permalink( $entry->wp_post_id );
+			if ( ! $url ) {
+				// Permalink not available - fall back to Notion.
+				$url = 'https://notion.so/' . $entry->notion_id;
+			}
+		} else {
+			// Not synced - link directly to Notion.
+			$url = 'https://notion.so/' . $entry->notion_id;
+		}
 
 		// Determine link text.
 		$link_text = ! empty( $atts['text'] ) ? $atts['text'] : $entry->notion_title;
