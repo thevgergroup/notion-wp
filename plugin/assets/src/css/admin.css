@@ -18,10 +18,15 @@
    ========================================================================== */
 
 .notion-sync-settings {
-	max-width: 800px;
 	margin: 20px 0;
 	font-size: 13px;
 	line-height: 1.5;
+}
+
+/* Constrain connection form for better UX, but let tables breathe */
+.notion-sync-connection-form,
+.notion-sync-workspace-info {
+	max-width: 800px;
 }
 
 /* =============================================================================
@@ -585,16 +590,18 @@
 	border: 1px solid #c3c4c7;
 	border-radius: 4px;
 	padding: 0;
+	width: 100%;
 }
 
 #notion-pages-form .wp-list-table {
 	border: none;
 	margin: 0;
+	width: 100%;
 }
 
 #notion-pages-form .wp-list-table th,
 #notion-pages-form .wp-list-table td {
-	padding: 12px 10px;
+	padding: 14px 16px;
 }
 
 /* Column widths for optimal layout */
@@ -604,15 +611,15 @@
 }
 
 .column-title {
-	width: 30%;
+	width: 35%;
 }
 
 .column-notion_id {
-	width: 15%;
+	width: 18%;
 }
 
 .column-sync_status {
-	width: 15%;
+	width: 10%;
 }
 
 .column-wp_post {
@@ -620,7 +627,7 @@
 }
 
 .column-last_synced {
-	width: 20%;
+	width: 15%;
 }
 
 /* Admin message container */
@@ -688,6 +695,29 @@
 }
 
 /* =============================================================================
+   Desktop Optimization for List Table
+   ========================================================================== */
+
+@media screen and (min-width: 1280px) {
+	/* More generous spacing on large screens */
+	#notion-pages-form .wp-list-table th,
+	#notion-pages-form .wp-list-table td {
+		padding: 16px 20px;
+	}
+
+	/* Larger title column on wide screens */
+	.column-title {
+		width: 40%;
+	}
+
+	/* More breathing room for action buttons */
+	.column-actions .button {
+		padding: 6px 14px;
+		font-size: 13px;
+	}
+}
+
+/* =============================================================================
    Mobile Responsive for List Table
    ========================================================================== */
 
@@ -711,6 +741,27 @@
 	.column-last_synced {
 		display: table-cell !important;
 		font-size: 12px;
+	}
+
+	/* Reduce column widths on narrow screens */
+	.column-actions {
+		min-width: 85px;
+		font-size: 12px;
+	}
+
+	.column-entries {
+		min-width: 50px;
+		font-size: 12px;
+	}
+
+	.column-sync_status {
+		min-width: 60px;
+	}
+
+	/* Make action buttons smaller */
+	.column-actions .button {
+		padding: 2px 8px;
+		font-size: 11px;
 	}
 
 	/* Make badges smaller on mobile */
@@ -750,6 +801,44 @@
 	.column-wp_post {
 		width: 25%;
 	}
+
+	/* Further reduce column widths on very small screens */
+	.column-actions {
+		min-width: 75px;
+	}
+
+	.column-entries {
+		min-width: 45px;
+	}
+
+	/* Simplify action buttons for very small screens */
+	.column-actions .button {
+		padding: 2px 6px;
+		font-size: 10px;
+	}
+}
+
+/* =============================================================================
+   Table Column Widths
+   ========================================================================== */
+
+/* Actions column for databases table */
+.column-actions {
+	min-width: 100px;
+	white-space: nowrap;
+}
+
+/* Entries column for databases table */
+.column-entries {
+	min-width: 60px;
+	text-align: center;
+	white-space: nowrap;
+}
+
+/* Sync status column */
+.column-sync_status {
+	min-width: 80px;
+	white-space: nowrap;
 }
 
 /* =============================================================================
