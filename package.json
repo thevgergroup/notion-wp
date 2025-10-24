@@ -19,8 +19,8 @@
 		"lint:css:fix": "stylelint 'plugin/**/*.{css,scss,sass}' --fix",
 		"lint:all": "npm-run-all lint:js lint:css format:check",
 		"lint:fix": "npm-run-all lint:js:fix lint:css:fix format",
-		"format": "prettier --write '**/*.{js,jsx,ts,tsx,json,css,scss,sass,md,yml,yaml}'",
-		"format:check": "prettier --check '**/*.{js,jsx,ts,tsx,json,css,scss,sass,md,yml,yaml}'",
+		"format": "prettier --write '**/*.{js,jsx,ts,tsx,json,css,scss,sass,yml,yaml}'",
+		"format:check": "prettier --check '**/*.{js,jsx,ts,tsx,json,css,scss,sass,yml,yaml}'",
 		"prepare": "husky install",
 		"precommit": "lint-staged",
 		"postinstall": "echo '\n✓ npm dependencies installed successfully\n' && echo 'Run npm run lint to check code quality\n'"
@@ -63,7 +63,7 @@
 			"prettier --write",
 			"git add"
 		],
-		"*.{json,md,yml,yaml}": [
+		"*.{json,yml,yaml}": [
 			"prettier --write",
 			"git add"
 		]
