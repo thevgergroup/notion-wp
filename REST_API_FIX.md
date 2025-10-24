@@ -9,25 +9,26 @@ The `/notion-sync/v1/sync-status` REST endpoint was registered and visible in th
 The issue was caused by WordPress URL canonicalization redirects:
 
 1. **Original Code** used `get_rest_url()` which returns pretty permalinks:
-   - URL: `http://phase3.localtest.me/wp-json/notion-sync/v1/sync-status`
-   - Result: **301 redirect** to `http://phase3.localtest.me/wp-json/notion-sync/v1/sync-status/` (with trailing slash)
+    - URL: `http://phase3.localtest.me/wp-json/notion-sync/v1/sync-status`
+    - Result: **301 redirect** to `http://phase3.localtest.me/wp-json/notion-sync/v1/sync-status/` (with trailing slash)
 
 2. **Redirect Behavior**:
-   - When fetch() follows the 301 redirect, the `X-WP-Nonce` authentication header is **not preserved** (security feature)
-   - Without authentication, the endpoint returns 401 or routing fails entirely
-   - JavaScript sees this as a 404 error
+    - When fetch() follows the 301 redirect, the `X-WP-Nonce` authentication header is **not preserved** (security feature)
+    - Without authentication, the endpoint returns 401 or routing fails entirely
+    - JavaScript sees this as a 404 error
 
 3. **Testing revealed**:
-   ```bash
-   # Pretty permalink format - CAUSES 301 REDIRECT
-   curl -I "http://phase3.localtest.me/wp-json/notion-sync/v1/sync-status"
-   # HTTP/1.1 301 Moved Permanently
-   # X-Redirect-By: WordPress
 
-   # Query string format - WORKS CORRECTLY
-   curl "http://phase3.localtest.me/?rest_route=/notion-sync/v1/sync-status"
-   # HTTP/1.1 401 Unauthorized (correct - needs auth)
-   ```
+    ```bash
+    # Pretty permalink format - CAUSES 301 REDIRECT
+    curl -I "http://phase3.localtest.me/wp-json/notion-sync/v1/sync-status"
+    # HTTP/1.1 301 Moved Permanently
+    # X-Redirect-By: WordPress
+
+    # Query string format - WORKS CORRECTLY
+    curl "http://phase3.localtest.me/?rest_route=/notion-sync/v1/sync-status"
+    # HTTP/1.1 401 Unauthorized (correct - needs auth)
+    ```
 
 ## Solution
 
@@ -44,6 +45,7 @@ Changed the REST URL construction in `SettingsPage.php` from `get_rest_url()` to
 ### Why This Works
 
 WordPress's `rest_url()` function returns the **query string format** which doesn't trigger canonicalization redirects:
+
 - Returns: `http://phase3.localtest.me/index.php?rest_route=/notion-sync/v1/sync-status`
 - No redirect occurs
 - Authentication headers are preserved
@@ -52,10 +54,10 @@ WordPress's `rest_url()` function returns the **query string format** which does
 ## Files Modified
 
 1. **`plugin/src/Admin/SettingsPage.php`** (line 108)
-   - Changed `get_rest_url()` to `rest_url()`
+    - Changed `get_rest_url()` to `rest_url()`
 
 2. **`plugin/assets/src/js/modules/sync-status-poller.js`** (line 186)
-   - Added explicit `redirect: 'follow'` for clarity (though this is default behavior)
+    - Added explicit `redirect: 'follow'` for clarity (though this is default behavior)
 
 ## Verification
 
@@ -79,15 +81,16 @@ curl "http://phase3.localtest.me/index.php?rest_route=/notion-sync/v1/sync-statu
 WordPress supports multiple URL formats for REST endpoints:
 
 1. **Pretty Permalinks** (requires mod_rewrite):
-   ```
-   /wp-json/namespace/v1/endpoint
-   ```
+
+    ```
+    /wp-json/namespace/v1/endpoint
+    ```
 
 2. **Query String** (always works):
-   ```
-   /?rest_route=/namespace/v1/endpoint
-   /index.php?rest_route=/namespace/v1/endpoint
-   ```
+    ```
+    /?rest_route=/namespace/v1/endpoint
+    /index.php?rest_route=/namespace/v1/endpoint
+    ```
 
 ### Best Practices
 

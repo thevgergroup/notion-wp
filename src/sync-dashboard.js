@@ -79,19 +79,16 @@ function SyncDashboard({ batchId: initialBatchId, totalPages = 0 }) {
 						},
 					},
 					[
-						h(
-							'div',
-							{
-								style: {
-									width: '20px',
-									height: '20px',
-									border: '3px solid #f0f0f1',
-									borderTopColor: '#2271b1',
-									borderRadius: '50%',
-									animation: 'spin 1s linear infinite',
-								},
-							}
-						),
+						h('div', {
+							style: {
+								width: '20px',
+								height: '20px',
+								border: '3px solid #f0f0f1',
+								borderTopColor: '#2271b1',
+								borderRadius: '50%',
+								animation: 'spin 1s linear infinite',
+							},
+						}),
 						h('strong', null, 'Queuing sync...'),
 					]
 				),
@@ -107,11 +104,15 @@ function SyncDashboard({ batchId: initialBatchId, totalPages = 0 }) {
 					`Preparing to sync ${totalPages} page${totalPages !== 1 ? 's' : ''}...`
 				),
 				// Add spinner animation
-				h('style', null, `
+				h(
+					'style',
+					null,
+					`
 					@keyframes spin {
 						to { transform: rotate(360deg); }
 					}
-				`),
+				`
+				),
 			]
 		);
 	}
@@ -247,19 +248,23 @@ if (container) {
 	// Check for active syncs on page load
 	const checkForActiveSyncs = async () => {
 		try {
-			const res = await fetch(
-				`${window.notionSyncAdmin.restUrl}`,
-				{
-					headers: {
-						'X-WP-Nonce': window.notionSyncAdmin.restNonce,
-					},
-				}
-			);
+			const res = await fetch(`${window.notionSyncAdmin.restUrl}`, {
+				headers: {
+					'X-WP-Nonce': window.notionSyncAdmin.restNonce,
+				},
+			});
 			const data = await res.json();
 
 			// If there's an active batch, show it
-			if (data.batch && (data.batch.status === 'processing' || data.batch.status === 'queued')) {
-				window.startSyncDashboard(data.batch.batch_id, data.batch.total);
+			if (
+				data.batch &&
+				(data.batch.status === 'processing' ||
+					data.batch.status === 'queued')
+			) {
+				window.startSyncDashboard(
+					data.batch.batch_id,
+					data.batch.total
+				);
 			}
 		} catch (error) {
 			// Silently fail - don't block page load

@@ -10,14 +10,15 @@ A Notion page can contain several types of media:
 ### 1. Page Properties (Metadata)
 
 #### Cover Image (`page.cover`)
+
 ```json
 {
-  "cover": {
-    "type": "external",
-    "external": {
-      "url": "https://images.unsplash.com/photo-..."
-    }
-  }
+	"cover": {
+		"type": "external",
+		"external": {
+			"url": "https://images.unsplash.com/photo-..."
+		}
+	}
 }
 ```
 
@@ -25,27 +26,29 @@ A Notion page can contain several types of media:
 
 ```json
 {
-  "cover": {
-    "type": "file",
-    "file": {
-      "url": "https://s3.us-west-2.amazonaws.com/secure.notion-static.com/...",
-      "expiry_time": "2024-01-15T12:00:00.000Z"
-    }
-  }
+	"cover": {
+		"type": "file",
+		"file": {
+			"url": "https://s3.us-west-2.amazonaws.com/secure.notion-static.com/...",
+			"expiry_time": "2024-01-15T12:00:00.000Z"
+		}
+	}
 }
 ```
 
 **Types:**
+
 - `external` - URL from Unsplash, Giphy, or other external source
 - `file` - Uploaded to Notion (hosted on Notion's S3)
 
 #### Page Icon (`page.icon`)
+
 ```json
 {
-  "icon": {
-    "type": "emoji",
-    "emoji": "📚"
-  }
+	"icon": {
+		"type": "emoji",
+		"emoji": "📚"
+	}
 }
 ```
 
@@ -53,12 +56,12 @@ A Notion page can contain several types of media:
 
 ```json
 {
-  "icon": {
-    "type": "external",
-    "external": {
-      "url": "https://example.com/icon.png"
-    }
-  }
+	"icon": {
+		"type": "external",
+		"external": {
+			"url": "https://example.com/icon.png"
+		}
+	}
 }
 ```
 
@@ -66,17 +69,18 @@ A Notion page can contain several types of media:
 
 ```json
 {
-  "icon": {
-    "type": "file",
-    "file": {
-      "url": "https://s3.us-west-2.amazonaws.com/...",
-      "expiry_time": "..."
-    }
-  }
+	"icon": {
+		"type": "file",
+		"file": {
+			"url": "https://s3.us-west-2.amazonaws.com/...",
+			"expiry_time": "..."
+		}
+	}
 }
 ```
 
 **Types:**
+
 - `emoji` - Unicode emoji character (e.g., 📚, 🎓, 💡)
 - `external` - External URL
 - `file` - Uploaded custom icon
@@ -84,6 +88,7 @@ A Notion page can contain several types of media:
 ### 2. Content Blocks (Within Page)
 
 #### Image Block
+
 ```json
 {
   "type": "image",
@@ -102,17 +107,18 @@ A Notion page can contain several types of media:
 
 ```json
 {
-  "type": "image",
-  "image": {
-    "type": "external",
-    "external": {
-      "url": "https://images.unsplash.com/..."
-    }
-  }
+	"type": "image",
+	"image": {
+		"type": "external",
+		"external": {
+			"url": "https://images.unsplash.com/..."
+		}
+	}
 }
 ```
 
 #### File/PDF Block
+
 ```json
 {
   "type": "file",
@@ -128,25 +134,27 @@ A Notion page can contain several types of media:
 ```
 
 #### Video Block
+
 ```json
 {
-  "type": "video",
-  "video": {
-    "type": "external",
-    "external": {
-      "url": "https://www.youtube.com/watch?v=..."
-    }
-  }
+	"type": "video",
+	"video": {
+		"type": "external",
+		"external": {
+			"url": "https://www.youtube.com/watch?v=..."
+		}
+	}
 }
 ```
 
 #### Embed Block
+
 ```json
 {
-  "type": "embed",
-  "embed": {
-    "url": "https://twitter.com/..."
-  }
+	"type": "embed",
+	"embed": {
+		"url": "https://twitter.com/..."
+	}
 }
 ```
 
@@ -157,6 +165,7 @@ A Notion page can contain several types of media:
 **Strategy: Link, Don't Download**
 
 **Why?**
+
 - Copyright/licensing concerns
 - Unsplash/Giphy have their own CDN
 - URLs don't expire (unlike Notion S3 URLs)
@@ -287,6 +296,7 @@ class PageSyncManager {
 ### Displaying Cover & Icon in WordPress
 
 **Option 1: Use WordPress Featured Image**
+
 ```php
 // Cover becomes featured image
 set_post_thumbnail($post_id, $attachment_id);
@@ -295,6 +305,7 @@ set_post_thumbnail($post_id, $attachment_id);
 ```
 
 **Option 2: Custom Template**
+
 ```php
 // In theme or custom template
 $icon_emoji = get_post_meta($post_id, 'notion_icon_emoji', true);
@@ -310,6 +321,7 @@ if ($icon_emoji) {
 ```
 
 **Option 3: Prepend to Content**
+
 ```php
 $content = get_post_field('post_content', $post_id);
 
@@ -337,18 +349,18 @@ wp_update_post([
 
 ## Decision Matrix
 
-| Media Type | Source | Download? | Storage | WordPress Mapping |
-|------------|--------|-----------|---------|-------------------|
-| **Cover Image (Unsplash/Giphy)** | External URL | ❌ No | Post meta URL | Featured image or prepend to content |
-| **Cover Image (Uploaded)** | Notion S3 | ✅ Yes | Media Library | Featured image |
-| **Icon (Emoji)** | Unicode | N/A | Post meta | Display in template or prepend |
-| **Icon (External URL)** | External | ❌ No | Post meta URL | Display in template |
-| **Icon (Uploaded)** | Notion S3 | ✅ Yes | Media Library | Display in template |
-| **Image Block (Unsplash/Giphy)** | External URL | ❌ No | Inline in content | External `<img>` in Gutenberg block |
-| **Image Block (Uploaded)** | Notion S3 | ✅ Yes | Media Library | Gutenberg image block |
-| **File/PDF Block** | Notion S3 | ✅ Yes | Media Library | Gutenberg file block |
-| **Video (YouTube)** | External embed | ❌ No | Inline in content | Gutenberg embed block |
-| **Embed (Twitter, etc.)** | External embed | ❌ No | Inline in content | Gutenberg embed block |
+| Media Type                       | Source         | Download? | Storage           | WordPress Mapping                    |
+| -------------------------------- | -------------- | --------- | ----------------- | ------------------------------------ |
+| **Cover Image (Unsplash/Giphy)** | External URL   | ❌ No     | Post meta URL     | Featured image or prepend to content |
+| **Cover Image (Uploaded)**       | Notion S3      | ✅ Yes    | Media Library     | Featured image                       |
+| **Icon (Emoji)**                 | Unicode        | N/A       | Post meta         | Display in template or prepend       |
+| **Icon (External URL)**          | External       | ❌ No     | Post meta URL     | Display in template                  |
+| **Icon (Uploaded)**              | Notion S3      | ✅ Yes    | Media Library     | Display in template                  |
+| **Image Block (Unsplash/Giphy)** | External URL   | ❌ No     | Inline in content | External `<img>` in Gutenberg block  |
+| **Image Block (Uploaded)**       | Notion S3      | ✅ Yes    | Media Library     | Gutenberg image block                |
+| **File/PDF Block**               | Notion S3      | ✅ Yes    | Media Library     | Gutenberg file block                 |
+| **Video (YouTube)**              | External embed | ❌ No     | Inline in content | Gutenberg embed block                |
+| **Embed (Twitter, etc.)**        | External embed | ❌ No     | Inline in content | Gutenberg embed block                |
 
 ## Legal & Licensing Considerations
 
@@ -357,11 +369,13 @@ wp_update_post([
 **Terms:** Free to use, but attribution recommended
 
 **Our Approach:**
+
 - Link to original URL (don't download)
 - Preserve caption if it contains attribution
 - Let Unsplash CDN serve the image
 
 **Why not download?**
+
 - Unsplash license allows usage but downloading copies might violate spirit
 - Their CDN is optimized
 - Saves WordPress storage
@@ -371,6 +385,7 @@ wp_update_post([
 **Terms:** Embed via Giphy API/URLs only
 
 **Our Approach:**
+
 - MUST link to Giphy URL (don't download)
 - Violates TOS to download and re-host
 - Use their embed code or direct URL
@@ -380,6 +395,7 @@ wp_update_post([
 **Terms:** User owns the content
 
 **Our Approach:**
+
 - Download to WordPress Media Library
 - User has full rights to their content
 - Necessary because Notion S3 URLs expire
@@ -534,12 +550,14 @@ class SyncManager {
 ## Summary
 
 ### Download to WordPress Media Library ✅
+
 - Notion S3 URLs (expire in 1 hour)
 - User-uploaded cover images
 - User-uploaded icons
 - User-uploaded files/PDFs
 
 ### Link Externally (Don't Download) ✅
+
 - Unsplash images (licensing, CDN)
 - Giphy images (TOS violation to download)
 - YouTube embeds
@@ -547,11 +565,13 @@ class SyncManager {
 - Other external embeds
 
 ### Store as Post Meta 📝
+
 - Emoji icons (Unicode characters)
 - External cover URLs
 - External icon URLs
 
 ### WordPress Mapping
+
 - **Cover Image**: WordPress Featured Image (if downloaded) or post meta
 - **Icon**: Post meta (display in theme/template)
 - **Content Images**: Gutenberg image blocks (downloaded or external)
@@ -560,6 +580,7 @@ class SyncManager {
 ## User Configurable
 
 Plugin settings let users choose:
+
 1. **Link external images** (recommended, legal, saves space)
 2. **Download external images** (risk copyright issues)
 3. **Skip external images** (text only)

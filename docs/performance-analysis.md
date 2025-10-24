@@ -11,12 +11,12 @@ The sync operation took **18.574 seconds** total, with **image downloads consumi
 
 ### Top Time Consumers
 
-| Operation | Time | % of Total | Calls | Avg Time |
-|-----------|------|------------|-------|----------|
-| **Image Conversion** | 16.681s | 89.8% | 4 | 4.170s |
-| Notion API Requests | 1.256s | 6.8% | 3 | 0.419s |
-| Cover Image Sync | 0.608s | 3.3% | 1 | 0.608s |
-| Block Conversion (non-image) | 0.015s | 0.1% | 145 | <0.001s |
+| Operation                    | Time    | % of Total | Calls | Avg Time |
+| ---------------------------- | ------- | ---------- | ----- | -------- |
+| **Image Conversion**         | 16.681s | 89.8%      | 4     | 4.170s   |
+| Notion API Requests          | 1.256s  | 6.8%       | 3     | 0.419s   |
+| Cover Image Sync             | 0.608s  | 3.3%       | 1     | 0.608s   |
+| Block Conversion (non-image) | 0.015s  | 0.1%       | 145   | <0.001s  |
 
 ### Detailed Metrics
 
@@ -49,13 +49,15 @@ Component Breakdown:
 **Problem**: 4 images took 16.681 seconds (average 4.17s per image)
 
 **Root Causes**:
+
 - **TIFF Format Issues**: 2 images failed completely due to "Invalid MIME type: image/tiff"
-  - WordPress doesn't support TIFF images by default
-  - Each failed image triggered 3 retry attempts (9 seconds wasted)
+    - WordPress doesn't support TIFF images by default
+    - Each failed image triggered 3 retry attempts (9 seconds wasted)
 - **S3 Download Speed**: Notion's S3 URLs are time-limited and may have rate limiting
 - **No Parallel Downloads**: Images are downloaded sequentially, not in parallel
 
 **Failed Images**:
+
 ```
 1. Layer.tiff (9c50c0d0-d0f9-49b9-9ee3-2490e80055ca) - 3 attempts × ~3s = 9s
 2. Layer.tiff (538d1f3b-23b0-47cf-8fea-38ce393ae063) - 3 attempts × ~3s = 9s
@@ -82,6 +84,7 @@ Component Breakdown:
 ### 4. Unsupported Block Types
 
 The page contains several unsupported block types:
+
 - **quote** (6 occurrences)
 - **divider** (8 occurrences)
 - **table** (1 occurrence)
@@ -93,6 +96,7 @@ These are rendered as HTML comments/placeholders.
 ### Why Post #39 Was Initially Blank
 
 **Root Cause**: The initial sync likely failed or was interrupted during image conversion, leaving only the placeholder content:
+
 ```html
 <p><!-- Syncing content from Notion... --></p>
 <!-- wp:paragraph -->
@@ -115,6 +119,7 @@ These are rendered as HTML comments/placeholders.
 **Problem**: TIFF images fail completely, wasting 9 seconds per image on retries.
 
 **Solution**:
+
 ```php
 // In ImageConverter or ImageDownloader:
 // 1. Detect TIFF format from URL or content-type
@@ -129,6 +134,7 @@ These are rendered as HTML comments/placeholders.
 **Problem**: Images download sequentially (4.17s × 4 = 16.68s)
 
 **Solution**:
+
 ```php
 // Queue images for background processing
 // Or use parallel HTTP requests (curl_multi_init)
@@ -141,6 +147,7 @@ These are rendered as HTML comments/placeholders.
 **Problem**: Re-syncs may create duplicate media library entries.
 
 **Solution**:
+
 ```php
 // Store image URL hash in postmeta
 // Check if image already exists before downloading
@@ -154,6 +161,7 @@ These are rendered as HTML comments/placeholders.
 **Missing**: quote, divider, table
 
 **Solution**:
+
 ```php
 // QuoteConverter.php - Convert to wp:quote
 // DividerConverter.php - Convert to wp:separator
@@ -167,6 +175,7 @@ These are rendered as HTML comments/placeholders.
 **Problem**: 3 retries × 3 seconds = 9 seconds wasted per unsupported image
 
 **Solution**:
+
 ```php
 // Fail fast on unsupported MIME types
 // Don't retry if error is "Invalid MIME type"
@@ -176,12 +185,12 @@ These are rendered as HTML comments/placeholders.
 
 ## Performance Targets
 
-| Metric | Current | Target | Strategy |
-|--------|---------|--------|----------|
-| Image download time | 16.68s | <2s | Parallel downloads + TIFF conversion |
-| API request time | 1.26s | 1.26s | Already optimal |
-| Block conversion | 0.015s | 0.015s | Already optimal |
-| **Total sync time** | **18.57s** | **<4s** | All optimizations combined |
+| Metric              | Current    | Target  | Strategy                             |
+| ------------------- | ---------- | ------- | ------------------------------------ |
+| Image download time | 16.68s     | <2s     | Parallel downloads + TIFF conversion |
+| API request time    | 1.26s      | 1.26s   | Already optimal                      |
+| Block conversion    | 0.015s     | 0.015s  | Already optimal                      |
+| **Total sync time** | **18.57s** | **<4s** | All optimizations combined           |
 
 ## Testing Recommendations
 

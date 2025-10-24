@@ -11,11 +11,13 @@ This document describes how media downloading/uploading integrates with page and
 ## Architecture Principle: Registry Pattern
 
 **Proven Pattern from Phase 2:**
+
 ```
 LinkRegistry: notion_page_id → wordpress_post_id → permalink
 ```
 
 **Extended to Media:**
+
 ```
 MediaRegistry: notion_file_url|block_id → wordpress_attachment_id → media_url
 ```
@@ -27,6 +29,7 @@ MediaRegistry: notion_file_url|block_id → wordpress_attachment_id → media_ur
 **When:** Syncing a Notion page that contains image blocks
 
 **Flow:**
+
 ```
 1. Start page sync
 2. Create WordPress post (draft)
@@ -38,6 +41,7 @@ MediaRegistry: notion_file_url|block_id → wordpress_attachment_id → media_ur
 ```
 
 **Code Example:**
+
 ```php
 class SyncManager {
     public function sync_page(string $notion_page_id): int {
@@ -66,14 +70,15 @@ class SyncManager {
 ```
 
 **Timing:**
+
 - **Small pages (<10 images):** Synchronous - download during sync
 - **Large pages (10+ images):**
-  ```
-  1. Create post with placeholder comments: <!-- Image: downloading... -->
-  2. Queue background job for media
-  3. Background job downloads, updates post content
-  4. Publish post when complete
-  ```
+    ```
+    1. Create post with placeholder comments: <!-- Image: downloading... -->
+    2. Queue background job for media
+    3. Background job downloads, updates post content
+    4. Publish post when complete
+    ```
 
 ### Scenario 2: Database Rows with Media (Phase 2 + Future)
 
@@ -91,6 +96,7 @@ CREATE TABLE wp_notion_database_rows (
 ```
 
 **Example Row JSON:**
+
 ```json
 {
   "properties": {
@@ -117,6 +123,7 @@ CREATE TABLE wp_notion_database_rows (
 **No Media Downloaded** during database sync - URLs stored as-is.
 
 **Why?**
+
 - Database might have 1000s of rows
 - Not all rows will become posts
 - Notion URLs expire in 1 hour (would need constant re-fetching)
@@ -178,6 +185,7 @@ class RowToPostConverter {
 ```
 
 **User Workflow:**
+
 ```
 1. Sync database (stores JSON with URLs)
 2. View rows in admin
@@ -203,6 +211,7 @@ If we sync Page B before Page A, the image doesn't exist yet!
 **Solution: Two-Pass Sync with MediaRegistry**
 
 **Pass 1: Create All Posts, Download All Media**
+
 ```php
 class MediaRegistry {
     /**
@@ -357,6 +366,7 @@ Done ✅
 ```
 
 **Timeline:**
+
 - Post visible immediately
 - Images complete in ~2-3 minutes
 
@@ -387,6 +397,7 @@ Done ✅
 ```
 
 **Timeline:**
+
 - Database sync: ~1-2 minutes (no media)
 - Row → Post conversion: ~10 seconds per row
 
@@ -432,6 +443,7 @@ CREATE TABLE wp_notion_media_registry (
 ```
 
 **Why Two Identifiers?**
+
 - `notion_identifier`: Unique key - could be block ID (preferred) or file URL hash
 - `notion_file_url`: Full URL for debugging/logging
 
@@ -520,6 +532,7 @@ class ImageConverter {
 ✅ **Performance**: Registry lookup is fast (indexed table)
 
 ✅ **Flexibility**: Can handle:
+
 - Inline images in pages
 - Database row media (future)
 - Cross-page references
@@ -530,6 +543,7 @@ class ImageConverter {
 ## Edge Cases Handled
 
 ### 1. Notion URL Expiration
+
 ```php
 // URLs expire after 1 hour
 // Always download during sync, not lazily
@@ -541,6 +555,7 @@ if (time() - strtotime($block['created_time']) > 3600) {
 ```
 
 ### 2. Image Changed in Notion
+
 ```php
 // Check if file URL changed (indicates replacement)
 $existing_url = MediaRegistry::get_file_url($block_id);
@@ -553,6 +568,7 @@ if ($existing_url !== $current_url) {
 ```
 
 ### 3. Deleted Media in Notion
+
 ```php
 // If media no longer in Notion page but exists in WP
 if (!in_array($attachment_id, $current_page_media)) {
@@ -566,6 +582,7 @@ if (!in_array($attachment_id, $current_page_media)) {
 ## Future Enhancements
 
 ### Phase 4: Galleries
+
 ```php
 // Multiple images in sequence → WordPress gallery block
 if ($this->is_image_sequence($blocks)) {
@@ -578,6 +595,7 @@ if ($this->is_image_sequence($blocks)) {
 ```
 
 ### Phase 5: Image CDN Integration
+
 ```php
 // Optionally use CDN for Notion images instead of downloading
 if (get_option('notion_sync_use_cdn')) {
@@ -588,11 +606,11 @@ if (get_option('notion_sync_use_cdn')) {
 
 ## Summary
 
-| Scenario | Media Handling | Timing | Registry |
-|----------|---------------|--------|----------|
-| **Page with inline images** | Download during sync | Synchronous (<10 images) or Background (10+) | MediaRegistry tracks block_id → attachment_id |
-| **Database rows with files** | Store URLs in JSON | No download during DB sync | Download only when row → post |
-| **Cross-page references** | Two-pass sync | Pass 1: Download all, Pass 2: Update refs | MediaRegistry enables lookup |
-| **Synced blocks** | Deduplicate via registry | Check registry first | Prevents duplicate uploads |
+| Scenario                     | Media Handling           | Timing                                       | Registry                                      |
+| ---------------------------- | ------------------------ | -------------------------------------------- | --------------------------------------------- |
+| **Page with inline images**  | Download during sync     | Synchronous (<10 images) or Background (10+) | MediaRegistry tracks block_id → attachment_id |
+| **Database rows with files** | Store URLs in JSON       | No download during DB sync                   | Download only when row → post                 |
+| **Cross-page references**    | Two-pass sync            | Pass 1: Download all, Pass 2: Update refs    | MediaRegistry enables lookup                  |
+| **Synced blocks**            | Deduplicate via registry | Check registry first                         | Prevents duplicate uploads                    |
 
 **Key Principle**: Extend the proven LinkRegistry pattern to media, enabling the same two-pass sync strategy that handles cross-references elegantly.

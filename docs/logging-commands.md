@@ -16,14 +16,17 @@ make logs-live           # Live tail all logs with color filtering
 ## Detailed Command Descriptions
 
 ### `make logs-php`
+
 **Purpose**: View PHP error logs from the WordPress container.
 
 **Shows**:
+
 - PHP errors and warnings
 - `error_log()` output
 - PHP notices
 
 **Example Output**:
+
 ```
 [php:notice] [pid 828:tid 828] PageSyncScheduler: Successfully synced page 2654dac9...
 [php:notice] ImageConverter: Failed to convert image block...
@@ -34,14 +37,17 @@ make logs-live           # Live tail all logs with color filtering
 ---
 
 ### `make logs-errors`
+
 **Purpose**: View all error messages, warnings, and failures.
 
 **Shows**:
+
 - Errors from all sources
 - Warnings
 - Failed operations
 
 **Example Output**:
+
 ```
 ImageDownloader: Attempt 1/3 failed for https://... Invalid MIME type: image/tiff
 [php:error] Fatal error in file...
@@ -52,14 +58,17 @@ ImageDownloader: Attempt 1/3 failed for https://... Invalid MIME type: image/tif
 ---
 
 ### `make logs-perf`
+
 **Purpose**: View performance profiling logs.
 
 **Shows**:
+
 - Individual operation timings
 - Memory usage
 - Call counts
 
 **Example Output**:
+
 ```
 [PERF] api_get_page: 0.229s, 0 B memory
 [PERF] fetch_page_blocks: 1.027s, 2 MB memory
@@ -71,9 +80,11 @@ ImageDownloader: Attempt 1/3 failed for https://... Invalid MIME type: image/tif
 ---
 
 ### `make logs-perf-summary`
+
 **Purpose**: View aggregated performance summaries from sync operations.
 
 **Shows**:
+
 - Total time per operation
 - Average time per operation
 - Call counts
@@ -81,6 +92,7 @@ ImageDownloader: Attempt 1/3 failed for https://... Invalid MIME type: image/tif
 - Operations sorted by total time (slowest first)
 
 **Example Output**:
+
 ```
 [PERF SUMMARY] Sync Complete: 75424b1c... -> Post 39:
 ================================================================================
@@ -99,15 +111,18 @@ ImageDownloader: Attempt 1/3 failed for https://... Invalid MIME type: image/tif
 ---
 
 ### `make logs-sync`
+
 **Purpose**: View sync-related logs only.
 
 **Shows**:
+
 - PageSyncScheduler messages
 - NotionSync operations
 - ImageConverter activity
 - ImageDownloader status
 
 **Example Output**:
+
 ```
 PageSyncScheduler: Scheduled 19 pages for batch page_sync_68f9aa516be1c1.28750623
 PageSyncScheduler: Successfully synced page 2654dac9... (post 61)
@@ -119,15 +134,18 @@ ImageConverter: Failed to convert image block 2644dac9... Invalid MIME type
 ---
 
 ### `make logs-live`
+
 **Purpose**: Live tail all important logs with filtering.
 
 **Shows** (in real-time):
+
 - Performance logs
 - PHP errors
 - Sync operations
 - All NotionSync-related activity
 
 **Example Output**:
+
 ```
 [PERF] convert_block_paragraph: 0.000s, 0 B memory
 PageSyncScheduler: Successfully synced page...
@@ -135,6 +153,7 @@ PageSyncScheduler: Successfully synced page...
 ```
 
 **When to use**:
+
 - Monitoring sync operations in real-time
 - Watching performance during active syncs
 - Debugging issues as they happen
@@ -204,6 +223,7 @@ convert_block_image | Total: 16.681s | Avg: 4.170s | Calls: 4 | Memory: 6 MB
 ### Identifying Bottlenecks
 
 Look for operations with:
+
 1. **High total time** - Primary bottleneck
 2. **High average time** - Slow per-operation
 3. **Many calls** - Frequent operations (optimization candidates)
@@ -217,6 +237,7 @@ convert_block_paragraph            | Total: 0.000s  | Avg: 0.000s  | Calls: 36 â
 ```
 
 **Interpretation**:
+
 - Image conversion is the bottleneck (89.8% of total time)
 - Text blocks are very efficient
 - Focus optimization efforts on image handling
@@ -226,21 +247,22 @@ convert_block_paragraph            | Total: 0.000s  | Avg: 0.000s  | Calls: 36 â
 1. **Log Retention**: Logs are stored in Docker and rotate automatically. The commands show the most recent 100-2000 lines.
 
 2. **No Logs Found**: If you see "No X logs found in recent logs", either:
-   - The operation hasn't run recently
-   - The logs have rotated out
-   - Increase the `--tail` value in the Makefile
+    - The operation hasn't run recently
+    - The logs have rotated out
+    - Increase the `--tail` value in the Makefile
 
 3. **Combining Commands**: Pipe to other tools for analysis:
-   ```bash
-   make logs-perf | grep "convert_block" | wc -l  # Count block conversions
-   ```
+
+    ```bash
+    make logs-perf | grep "convert_block" | wc -l  # Count block conversions
+    ```
 
 4. **Timing**: Run performance analysis immediately after a sync for best results.
 
 5. **Color Output**: The terminal colors help distinguish:
-   - Cyan: Command names
-   - Yellow: Warnings/no results
-   - Normal: Log content
+    - Cyan: Command names
+    - Yellow: Warnings/no results
+    - Normal: Log content
 
 ## Related Documentation
 

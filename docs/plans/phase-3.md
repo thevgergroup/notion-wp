@@ -1317,14 +1317,14 @@ add_action( 'notion_sync_media', function( $job_id, $page_id, $post_id, $blocks 
 
 ## 🚧 Risks & Mitigation
 
-| Risk                        | Impact | Mitigation                         |
-| --------------------------- | ------ | ---------------------------------- |
-| Expired Notion URLs         | High   | Download immediately during sync   |
-| Large file timeouts         | High   | Background processing via scheduler |
-| Memory exhaustion           | Medium | Process in batches, cleanup temps  |
-| Network failures            | Medium | Retry logic with exponential backoff |
-| Duplicate images            | Medium | Track by Notion block ID           |
-| Unsupported image formats   | Low    | Validate MIME type before upload   |
+| Risk                      | Impact | Mitigation                           |
+| ------------------------- | ------ | ------------------------------------ |
+| Expired Notion URLs       | High   | Download immediately during sync     |
+| Large file timeouts       | High   | Background processing via scheduler  |
+| Memory exhaustion         | Medium | Process in batches, cleanup temps    |
+| Network failures          | Medium | Retry logic with exponential backoff |
+| Duplicate images          | Medium | Track by Notion block ID             |
+| Unsupported image formats | Low    | Validate MIME type before upload     |
 
 ---
 
