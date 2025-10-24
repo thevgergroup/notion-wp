@@ -287,21 +287,19 @@ class PagesListTable extends \WP_List_Table {
 
 		if ( $sync_status['is_synced'] ) {
 			return sprintf(
-				'<span class="notion-sync-badge notion-sync-badge-synced" data-page-id="%s">
-					<span class="dashicons dashicons-yes" aria-hidden="true"></span>
-					%s
+				'<span class="notion-sync-badge notion-sync-badge-synced" data-page-id="%s" title="%s" style="display: inline-flex; align-items: center; padding: 4px 8px; background: #e7f5ec; border-radius: 3px;">
+					<span class="dashicons dashicons-yes-alt" style="color: #00a32a; font-size: 18px; width: 18px; height: 18px;"></span>
 				</span>',
 				esc_attr( $item['id'] ),
-				esc_html__( 'Synced', 'notion-wp' )
+				esc_attr__( 'Synced - WordPress post is up-to-date', 'notion-wp' )
 			);
 		} else {
 			return sprintf(
-				'<span class="notion-sync-badge notion-sync-badge-not-synced" data-page-id="%s">
-					<span class="dashicons dashicons-minus" aria-hidden="true"></span>
-					%s
+				'<span class="notion-sync-badge notion-sync-badge-not-synced" data-page-id="%s" title="%s" style="display: inline-flex; align-items: center; padding: 4px 8px; background: #f0f0f1; border-radius: 3px;">
+					<span class="dashicons dashicons-minus" style="color: #8c8f94; font-size: 18px; width: 18px; height: 18px;"></span>
 				</span>',
 				esc_attr( $item['id'] ),
-				esc_html__( 'Not Synced', 'notion-wp' )
+				esc_attr__( 'Not Synced - This page has not been synced yet', 'notion-wp' )
 			);
 		}
 	}
