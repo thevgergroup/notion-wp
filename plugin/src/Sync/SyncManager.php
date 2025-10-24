@@ -270,17 +270,6 @@ class SyncManager {
 				);
 			}
 
-			// Check for WordPress errors.
-			if ( is_wp_error( $post_id ) ) {
-				return array(
-					'success' => false,
-					'post_id' => null,
-					'error'   => sprintf(
-						'WordPress post creation failed: %s',
-						$post_id->get_error_message()
-					),
-				);
-			}
 
 			// Step 7: Store Notion metadata.
 			$this->store_post_metadata( $post_id, $notion_page_id, $page_properties );
