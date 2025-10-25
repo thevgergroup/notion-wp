@@ -34,11 +34,25 @@
             <directory suffix=".php">plugin/src</directory>
         </include>
         <exclude>
-            <!-- Exclude admin UI templates (low value, visual components) -->
+            <!--
+                Coverage Exclusions Strategy:
+                These directories are excluded from UNIT test coverage but will be covered
+                by integration tests in Phase 2 (planned Q1 2025). They contain code that
+                requires WordPress runtime context (database, REST API, admin screens).
+
+                Target coverage goals by test type:
+                - Unit tests: 75%+ of business logic
+                - Integration tests: 60%+ of WordPress-dependent code
+                - Combined: 70%+ overall coverage
+            -->
+
+            <!-- Exclude admin UI templates (visual components, tested via integration/e2e) -->
             <directory>plugin/src/Admin</directory>
-            <!-- Exclude REST API controllers (require WordPress REST API bootstrap) -->
+
+            <!-- Exclude REST API controllers (require WordPress REST API bootstrap for integration tests) -->
             <directory>plugin/src/API</directory>
-            <!-- Exclude database schema (WordPress handles most logic) -->
+
+            <!-- Exclude database schema (WordPress handles DDL, will be tested via integration tests) -->
             <file>plugin/src/Database/Schema.php</file>
             <file>plugin/src/Database/SyncLogSchema.php</file>
         </exclude>
