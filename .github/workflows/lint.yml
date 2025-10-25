@@ -24,9 +24,26 @@ on:
             - '.eslintrc.json'
             - '.stylelintrc.json'
     push:
-        branches:
-            - main
-            - develop
+        paths:
+            - '**.php'
+            - '**.js'
+            - '**.jsx'
+            - '**.ts'
+            - '**.tsx'
+            - '**.css'
+            - '**.scss'
+            - '**.sass'
+            - 'composer.json'
+            - 'composer.lock'
+            - 'package.json'
+            - 'package-lock.json'
+            - 'phpcs.xml.dist'
+            - 'phpstan.neon'
+            - '.php-cs-fixer.php'
+            - '.eslintrc.json'
+            - '.stylelintrc.json'
+            - '.github/workflows/lint.yml'
+    workflow_dispatch:  # Enable manual triggering
 
 # Cancel in-progress runs when a new workflow with the same group is triggered
 concurrency:
