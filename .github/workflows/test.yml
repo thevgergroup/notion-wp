@@ -18,6 +18,8 @@ on:
             - 'composer.lock'
             - 'phpunit.xml'
             - 'tests/**'
+            - '.github/workflows/test.yml'
+    workflow_dispatch:  # Enable manual triggering
 
 # Cancel in-progress runs when a new workflow with the same group is triggered
 concurrency:
