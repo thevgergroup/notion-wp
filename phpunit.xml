@@ -2,7 +2,7 @@
 <phpunit
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
     xsi:noNamespaceSchemaLocation="https://schema.phpunit.de/9.6/phpunit.xsd"
-    bootstrap="bootstrap.php"
+    bootstrap="tests/bootstrap.php"
     colors="true"
     stopOnFailure="false"
     verbose="true"
@@ -14,35 +14,35 @@
     <testsuites>
         <!-- Fast unit tests run first -->
         <testsuite name="unit">
-            <directory>unit</directory>
+            <directory>tests/unit</directory>
         </testsuite>
 
         <!-- Integration tests (require WordPress) -->
         <testsuite name="integration">
-            <directory>integration</directory>
+            <directory>tests/integration</directory>
         </testsuite>
 
         <!-- E2E tests (slowest, run last) -->
         <testsuite name="e2e">
-            <directory>e2e</directory>
+            <directory>tests/e2e</directory>
         </testsuite>
     </testsuites>
 
     <!-- Code Coverage Configuration -->
     <coverage processUncoveredFiles="true">
         <include>
-            <directory suffix=".php">../plugin/src</directory>
+            <directory suffix=".php">plugin/src</directory>
         </include>
         <exclude>
             <!-- Exclude admin UI templates (low value, visual components) -->
-            <directory>../plugin/src/Admin</directory>
+            <directory>plugin/src/Admin</directory>
             <!-- Exclude database schema (WordPress handles most logic) -->
-            <file>../plugin/src/Database/Schema.php</file>
-            <file>../plugin/src/Database/SyncLogSchema.php</file>
+            <file>plugin/src/Database/Schema.php</file>
+            <file>plugin/src/Database/SyncLogSchema.php</file>
         </exclude>
         <report>
-            <html outputDirectory="../coverage-html"/>
-            <clover outputFile="../coverage.xml"/>
+            <html outputDirectory="coverage-html"/>
+            <clover outputFile="coverage.xml"/>
             <text outputFile="php://stdout" showUncoveredFiles="true"/>
         </report>
     </coverage>
