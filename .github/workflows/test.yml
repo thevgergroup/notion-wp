@@ -12,9 +12,12 @@ on:
             - 'phpunit.xml'
             - 'tests/**'
     push:
-        branches:
-            - main
-            - develop
+        paths:
+            - '**.php'
+            - 'composer.json'
+            - 'composer.lock'
+            - 'phpunit.xml'
+            - 'tests/**'
 
 # Cancel in-progress runs when a new workflow with the same group is triggered
 concurrency:
