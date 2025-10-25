@@ -85,7 +85,7 @@ EOF
 echo -e "${GREEN}Created .env file${NC}"
 
 # Step 3: Install vendor dependencies (before Docker to avoid conflicts)
-echo -e "${YELLOW}[3/9] Installing vendor dependencies...${NC}"
+echo -e "${YELLOW}[3/10] Installing vendor dependencies...${NC}"
 
 # Install Composer dependencies
 if [ -f "composer.json" ]; then
@@ -114,6 +114,14 @@ else
 fi
 
 echo -e "${GREEN}Vendor dependencies installed${NC}"
+
+# Step 3.1: Install PCOV for code coverage
+echo -e "${YELLOW}[3.1/10] Setting up code coverage (PCOV)...${NC}"
+if [ -f "scripts/install-pcov.sh" ]; then
+    bash scripts/install-pcov.sh || echo -e "${YELLOW}PCOV installation skipped (optional)${NC}"
+else
+    echo -e "${YELLOW}scripts/install-pcov.sh not found, skipping PCOV install${NC}"
+fi
 
 # Step 4: Configure Serena MCP (via Docker)
 echo -e "${YELLOW}[4/10] Configuring Serena MCP...${NC}"

@@ -11,12 +11,12 @@
 namespace NotionSync\Tests\Unit\Blocks;
 
 use NotionSync\Blocks\BlockConverter;
-use PHPUnit\Framework\TestCase;
+use NotionSync\Tests\Unit\BaseTestCase;
 
 /**
  * Test complete block conversion pipeline
  */
-class IntegrationTest extends TestCase {
+class IntegrationTest extends BaseTestCase {
 	/**
 	 * Converter instance
 	 *

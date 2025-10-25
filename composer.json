@@ -44,12 +44,14 @@
 	},
 	"autoload": {
 		"psr-4": {
-			"NotionWP\\": "plugin/src/"
+			"NotionWP\\": "plugin/src/",
+			"NotionSync\\": "plugin/src/"
 		}
 	},
 	"autoload-dev": {
 		"psr-4": {
-			"NotionWP\\Tests\\": "tests/"
+			"NotionWP\\Tests\\": "tests/",
+			"NotionSync\\Tests\\": "tests/"
 		}
 	},
 	"scripts": {

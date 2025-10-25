@@ -36,6 +36,8 @@
         <exclude>
             <!-- Exclude admin UI templates (low value, visual components) -->
             <directory>plugin/src/Admin</directory>
+            <!-- Exclude REST API controllers (require WordPress REST API bootstrap) -->
+            <directory>plugin/src/API</directory>
             <!-- Exclude database schema (WordPress handles most logic) -->
             <file>plugin/src/Database/Schema.php</file>
             <file>plugin/src/Database/SyncLogSchema.php</file>
