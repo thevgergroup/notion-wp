@@ -142,6 +142,13 @@ if ( is_dir( $plugin_src_dir ) ) {
 	// No manual require_once needed if composer autoload is properly configured.
 }
 
+// CRITICAL: Explicitly load base test case classes
+// PHPUnit loads test files directly (not via autoloader), so we must manually
+// require base classes that tests extend. Otherwise, when PHPUnit tries to
+// load a test file that extends a base class, PHP will throw "Class not found".
+require_once __DIR__ . '/unit/BaseTestCase.php';
+require_once __DIR__ . '/unit/Blocks/Converters/BaseConverterTestCase.php';
+
 // Test environment flag.
 if ( ! defined( 'NOTION_TEST_MODE' ) ) {
 	define( 'NOTION_TEST_MODE', true );
