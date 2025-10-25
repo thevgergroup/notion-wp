@@ -60,7 +60,9 @@ jobs:
                       ${{ runner.os }}-php${{ matrix.php }}-composer-
 
             - name: Install Composer dependencies
-              run: composer install --prefer-dist --no-progress --no-interaction
+              run: |
+                  composer install --prefer-dist --no-progress --no-interaction
+                  composer dump-autoload --optimize
 
             - name: Run unit tests
               run: php vendor/bin/phpunit --testsuite=unit --testdox --colors=always
@@ -98,7 +100,9 @@ jobs:
                   tools: composer:v2
 
             - name: Install Composer dependencies
-              run: composer install --prefer-dist --no-progress --no-interaction
+              run: |
+                  composer install --prefer-dist --no-progress --no-interaction
+                  composer dump-autoload --optimize
 
             - name: Generate coverage report
               run: php vendor/bin/phpunit --testsuite=unit --coverage-clover coverage.xml --coverage-text | tee coverage-output.txt
