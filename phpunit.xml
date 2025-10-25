@@ -1,0 +1,91 @@
+<?xml version="1.0"?>
+<phpunit
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:noNamespaceSchemaLocation="https://schema.phpunit.de/9.6/phpunit.xsd"
+    bootstrap="tests/bootstrap.php"
+    colors="true"
+    stopOnFailure="false"
+    verbose="true"
+    convertDeprecationsToExceptions="true"
+    convertErrorsToExceptions="true"
+    convertNoticesToExceptions="true"
+    convertWarningsToExceptions="true"
+>
+    <testsuites>
+        <!-- Fast unit tests run first -->
+        <testsuite name="unit">
+            <directory>tests/unit</directory>
+        </testsuite>
+
+        <!-- Integration tests (require WordPress) -->
+        <testsuite name="integration">
+            <directory>tests/integration</directory>
+        </testsuite>
+
+        <!-- E2E tests (slowest, run last) -->
+        <testsuite name="e2e">
+            <directory>tests/e2e</directory>
+        </testsuite>
+    </testsuites>
+
+    <!-- Code Coverage Configuration -->
+    <coverage processUncoveredFiles="true">
+        <include>
+            <directory suffix=".php">plugin/src</directory>
+        </include>
+        <exclude>
+            <!--
+                Coverage Exclusions Strategy:
+                These directories are excluded from UNIT test coverage but will be covered
+                by integration tests in Phase 2 (planned Q1 2025). They contain code that
+                requires WordPress runtime context (database, REST API, admin screens).
+
+                Target coverage goals by test type:
+                - Unit tests: 75%+ of business logic
+                - Integration tests: 60%+ of WordPress-dependent code
+                - Combined: 70%+ overall coverage
+            -->
+
+            <!-- Exclude admin UI templates (visual components, tested via integration/e2e) -->
+            <directory>plugin/src/Admin</directory>
+
+            <!-- Exclude REST API controllers (require WordPress REST API bootstrap for integration tests) -->
+            <directory>plugin/src/API</directory>
+
+            <!-- Exclude database schema (WordPress handles DDL, will be tested via integration tests) -->
+            <file>plugin/src/Database/Schema.php</file>
+            <file>plugin/src/Database/SyncLogSchema.php</file>
+        </exclude>
+        <report>
+            <html outputDirectory="coverage-html"/>
+            <clover outputFile="coverage.xml"/>
+            <text outputFile="php://stdout" showUncoveredFiles="true"/>
+        </report>
+    </coverage>
+
+    <!-- Environment Variables -->
+    <php>
+        <!-- WordPress Test Suite Configuration (for integration tests) -->
+        <env name="WP_TESTS_DIR" value="/tmp/wordpress-tests-lib"/>
+        <env name="WP_CORE_DIR" value="/tmp/wordpress/"/>
+
+        <!-- WordPress Debug Settings -->
+        <const name="WP_DEBUG" value="true"/>
+        <const name="WP_DEBUG_LOG" value="false"/>
+        <const name="WP_DEBUG_DISPLAY" value="false"/>
+
+        <!-- Plugin Constants -->
+        <const name="NOTION_WP_VERSION" value="0.1.0-test"/>
+        <const name="NOTION_WP_PLUGIN_DIR" value="../plugin"/>
+        <const name="NOTION_WP_PLUGIN_URL" value="http://localhost/wp-content/plugins/notion-wp/"/>
+
+        <!-- Test-specific settings -->
+        <env name="NOTION_TEST_MODE" value="true"/>
+        <env name="NOTION_SKIP_LIVE_API" value="true"/>
+    </php>
+
+    <!-- Logging -->
+    <logging>
+        <testdoxText outputFile="php://stdout"/>
+    </logging>
+</phpunit>

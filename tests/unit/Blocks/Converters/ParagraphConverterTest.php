@@ -9,12 +9,11 @@
 namespace NotionSync\Tests\Unit\Blocks\Converters;
 
 use NotionSync\Blocks\Converters\ParagraphConverter;
-use PHPUnit\Framework\TestCase;
 
 /**
  * Test ParagraphConverter functionality
  */
-class ParagraphConverterTest extends TestCase {
+class ParagraphConverterTest extends BaseConverterTestCase {
 	/**
 	 * Converter instance
 	 *

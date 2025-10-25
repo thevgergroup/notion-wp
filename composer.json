@@ -26,7 +26,11 @@
 		"friendsofphp/php-cs-fixer": "^3.40",
 		"php-stubs/wordpress-stubs": "^6.4",
 		"php-stubs/wp-cli-stubs": "^2.10",
-		"dealerdirect/phpcodesniffer-composer-installer": "^1.0"
+		"dealerdirect/phpcodesniffer-composer-installer": "^1.0",
+		"phpunit/phpunit": "^9.6",
+		"mockery/mockery": "^1.6",
+		"brain/monkey": "^2.6",
+		"yoast/phpunit-polyfills": "^2.0"
 	},
 	"config": {
 		"allow-plugins": {
@@ -40,12 +44,14 @@
 	},
 	"autoload": {
 		"psr-4": {
-			"NotionWP\\": "plugin/src/"
+			"NotionWP\\": "plugin/src/",
+			"NotionSync\\": "plugin/src/"
 		}
 	},
 	"autoload-dev": {
 		"psr-4": {
-			"NotionWP\\Tests\\": "tests/"
+			"NotionWP\\Tests\\": "tests/",
+			"NotionSync\\Tests\\": "tests/"
 		}
 	},
 	"scripts": {
@@ -72,7 +78,11 @@
 			"@lint",
 			"@analyze"
 		],
-		"test": "echo 'Tests not yet configured'",
+		"test": "phpunit --testdox --colors=always",
+		"test:unit": "phpunit --testsuite=unit --testdox --colors=always",
+		"test:integration": "phpunit --testsuite=integration --testdox --colors=always",
+		"test:coverage": "phpunit --coverage-html coverage-html --coverage-text",
+		"test:watch": "phpunit-watcher watch",
 		"post-install-cmd": [
 			"@php -r \"echo '\\n\\033[32m✓ Composer dependencies installed successfully\\033[0m\\n';\"",
 			"@php -r \"echo '\\033[33mRun \\033[1mcomposer lint\\033[0m\\033[33m to check code quality\\033[0m\\n\\n';\""
@@ -90,6 +100,10 @@
 		"lint:fix": "Auto-fix all PHP code style issues",
 		"analyze": "Run static analysis tools",
 		"check": "Run all checks (linting and analysis)",
-		"test": "Run PHPUnit tests (not yet configured)"
+		"test": "Run all PHPUnit tests with readable output",
+		"test:unit": "Run unit tests only (fast, no WordPress required)",
+		"test:integration": "Run integration tests (requires WordPress test suite)",
+		"test:coverage": "Generate code coverage report in coverage-html/",
+		"test:watch": "Watch for file changes and re-run tests automatically"
 	}
 }

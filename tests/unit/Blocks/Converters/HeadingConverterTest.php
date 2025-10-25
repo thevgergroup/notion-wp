@@ -9,12 +9,11 @@
 namespace NotionSync\Tests\Unit\Blocks\Converters;
 
 use NotionSync\Blocks\Converters\HeadingConverter;
-use PHPUnit\Framework\TestCase;
 
 /**
  * Test HeadingConverter functionality
  */
-class HeadingConverterTest extends TestCase {
+class HeadingConverterTest extends BaseConverterTestCase {
 	/**
 	 * Converter instance
 	 *

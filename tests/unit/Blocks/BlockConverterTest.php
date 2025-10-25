@@ -8,6 +8,9 @@
 
 namespace NotionSync\Tests\Unit\Blocks;
 
+use Brain\Monkey;
+use Brain\Monkey\Functions;
+use Mockery\Adapter\Phpunit\MockeryPHPUnitIntegration;
 use NotionSync\Blocks\BlockConverter;
 use NotionSync\Blocks\BlockConverterInterface;
 use PHPUnit\Framework\TestCase;
@@ -16,6 +19,8 @@ use PHPUnit\Framework\TestCase;
  * Test BlockConverter registry functionality
  */
 class BlockConverterTest extends TestCase {
+	use MockeryPHPUnitIntegration;
+
 	/**
 	 * Converter instance
 	 *
@@ -28,7 +33,34 @@ class BlockConverterTest extends TestCase {
 	 */
 	protected function setUp(): void {
 		parent::setUp();
+		Monkey\setUp();
+
+		// Mock WordPress functions that are called during block conversion
+		// apply_filters passes through the value unchanged
+		Functions\when( 'apply_filters' )->alias(
+			function ( $filter_name, $value ) {
+				return $value;
+			}
+		);
+
+		// esc_html just returns the input
+		Functions\when( 'esc_html' )->returnArg();
+
+		// esc_attr just returns the input
+		Functions\when( 'esc_attr' )->returnArg();
+
+		// wp_kses_post just returns the input
+		Functions\when( 'wp_kses_post' )->returnArg();
+
 		$this->converter = new BlockConverter();
+	}
+
+	/**
+	 * Tear down test environment
+	 */
+	protected function tearDown(): void {
+		Monkey\tearDown();
+		parent::tearDown();
 	}
 
 	/**
@@ -37,7 +69,9 @@ class BlockConverterTest extends TestCase {
 	public function test_default_converters_registered(): void {
 		$converters = $this->converter->get_converters();
 
-		$this->assertCount( 4, $converters );
+		// Should have 12 default converters: paragraph, heading, bulleted_list, numbered_list,
+		// quote, divider, table, child_page, child_database, link_to_page, image, file
+		$this->assertCount( 12, $converters );
 		$this->assertContainsOnlyInstancesOf( BlockConverterInterface::class, $converters );
 	}
 
@@ -49,7 +83,8 @@ class BlockConverterTest extends TestCase {
 		$this->converter->register_converter( 'custom', $custom_converter );
 
 		$converters = $this->converter->get_converters();
-		$this->assertCount( 5, $converters );
+		// Should have 12 defaults + 1 custom = 13
+		$this->assertCount( 13, $converters );
 	}
 
 	/**

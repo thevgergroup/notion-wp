@@ -1,5 +1,12 @@
 # Notion-WP Sync Plugin
 
+[![Tests](https://github.com/thevgergroup/notion-wp/actions/workflows/test.yml/badge.svg)](https://github.com/thevgergroup/notion-wp/actions/workflows/test.yml)
+[![Code Quality](https://github.com/thevgergroup/notion-wp/actions/workflows/lint.yml/badge.svg)](https://github.com/thevgergroup/notion-wp/actions/workflows/lint.yml)
+[![codecov](https://codecov.io/gh/thevgergroup/notion-wp/branch/main/graph/badge.svg)](https://codecov.io/gh/thevgergroup/notion-wp)
+[![PHP Version](https://img.shields.io/badge/php-8.0%2B-blue)](https://www.php.net/)
+[![WordPress](https://img.shields.io/badge/wordpress-6.0%2B-blue)](https://wordpress.org/)
+[![License](https://img.shields.io/badge/license-GPL--2.0--or--later-green)](LICENSE)
+
 A WordPress plugin for bi-directional synchronization between Notion and WordPress, designed for enterprise-grade performance and extensibility.
 
 ## Project Overview
