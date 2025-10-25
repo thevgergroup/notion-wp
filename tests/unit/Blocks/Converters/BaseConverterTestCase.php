@@ -13,16 +13,14 @@ namespace NotionSync\Tests\Unit\Blocks\Converters;
 
 use Brain\Monkey;
 use Brain\Monkey\Functions;
-use Mockery\Adapter\Phpunit\MockeryPHPUnitIntegration;
-use PHPUnit\Framework\TestCase;
+use NotionSync\Tests\Unit\BaseTestCase;
 
 /**
  * Base test case for block converter tests
  *
  * Automatically sets up Brain\Monkey and mocks common WordPress functions.
  */
-abstract class BaseConverterTestCase extends TestCase {
-	use MockeryPHPUnitIntegration;
+abstract class BaseConverterTestCase extends BaseTestCase {
 
 	/**
 	 * Set up test environment
@@ -31,19 +29,10 @@ abstract class BaseConverterTestCase extends TestCase {
 	 * used across all block converters.
 	 */
 	protected function setUp(): void {
-		parent::setUp();
-		Monkey\setUp();
+		parent::setUp(); // BaseTestCase handles Brain\Monkey setup
 
-		// Mock common WordPress functions
+		// Mock common WordPress functions (additional to BaseTestCase)
 		$this->setup_wordpress_mocks();
-	}
-
-	/**
-	 * Tear down test environment
-	 */
-	protected function tearDown(): void {
-		Monkey\tearDown();
-		parent::tearDown();
 	}
 
 	/**
