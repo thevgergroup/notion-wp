@@ -2,37 +2,78 @@
 
 ## Problem
 
-Action Scheduler tasks are not processing automatically because WP-Cron cannot make HTTP requests from inside the Docker container to trigger itself.
+Action Scheduler tasks are not processing automatically in the Phase 4 development environment.
 
 **Symptoms:**
 - Pending actions stuck in "pending" status
 - "In progress" actions never complete
 - Sync operations don't run automatically
 
-## Root Cause
+## Root Cause (And Why It Worked Before!)
 
-From inside the WordPress Docker container:
+**Action Scheduler uses WP-Cron** (configured in `ActionSchedulerConfig.php`), which means it **triggers on page loads**.
+
+### Why Syncs Worked in Earlier Phases
+
+When you were actively using the admin interface:
+1. You'd trigger a sync from the admin panel
+2. Navigate to other pages, check status, refresh
+3. **Each page load triggered WP-Cron**
+4. Action Scheduler processed tasks in the background
+5. Syncs completed successfully!
+
+### Why It's Not Working in Phase 4
+
+During development/testing:
+- Less active admin browsing
+- Fewer page loads = fewer WP-Cron triggers
+- Tasks pile up in the queue waiting for page loads
+- You notice tasks aren't processing
+
+**This is actually working as designed for WordPress!** WP-Cron is "pseudo-cron" that piggybacks on page visits.
+
+### Secondary Issue (Docker Environment)
+
+Additionally, WP-Cron spawn (the HTTP self-request) fails in Docker:
+- From inside the WordPress Docker container
 - WP-Cron tries to connect to `http://phase4.localtest.me`
 - This hostname doesn't resolve from inside the container
 - WP-Cron spawn fails with "Could not connect to server"
-- Action Scheduler queue runner never executes
+
+However, because we have `action_scheduler_allow_async_request_runner` set to `false`, Action Scheduler processes the queue **directly during page loads** rather than via spawn, so this doesn't block processing.
 
 ## Solutions
 
-### Option 1: Manual Queue Processing (Quick Fix)
+### Option 0: Just Use the Admin! (Simplest)
 
-Run this command to manually process the queue:
+**This is how it worked before!** Simply browse the WordPress admin after triggering syncs:
+
+1. Trigger a sync from Notion Sync admin page
+2. Navigate to other pages (Dashboard, Posts, etc.)
+3. Check back on Databases page
+4. Refresh as needed
+
+**Each page load processes the queue!** This is the normal WordPress way and requires no additional setup.
+
+### Option 1: Manual Queue Processing (Development Workflow)
+
+Use the new Makefile commands for more control:
 
 ```bash
-make wp ARGS="cron event run action_scheduler_run_queue"
+# Check queue status
+make cron-status
+
+# Process queue once
+make cron
+
+# Process 10 times to clear backlog
+make cron-loop
+
+# Reset stuck actions
+make cron-reset
 ```
 
-To process multiple times (recommended):
-
-```bash
-# Run 10 times to clear backlog
-for i in {1..10}; do make wp ARGS="cron event run action_scheduler_run_queue"; sleep 1; done
-```
+**When to use:** After triggering syncs via WP-CLI or when developing without browsing admin.
 
 ### Option 2: System Cron Job (Recommended for Production)
 
