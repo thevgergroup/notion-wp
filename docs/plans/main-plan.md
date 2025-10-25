@@ -27,8 +27,8 @@ flowchart TD
 | Phase 0 | Prove authentication and API access work | S          | 3-5 days  | ✅ Complete       |
 | Phase 1 | Import a single Notion page to WordPress | M          | 1-2 weeks | ✅ Complete       |
 | Phase 2 | Sync Notion databases to WordPress posts | M          | 1-2 weeks | 📋 Ready to Start |
-| Phase 3 | Download and manage images               | M          | 1 week    | Not Started       |
-| Phase 4 | Support advanced block types             | L          | 2 weeks   | Not Started       |
+| Phase 3 | Download and manage images               | M          | 1 week    | ✅ Complete       |
+| Phase 4 | Support advanced block types             | L          | 2 weeks   | 🚧 In Progress    |
 | Phase 5 | Handle page hierarchy and menus          | M          | 1-2 weeks | Not Started       |
 | Phase 6 | WordPress.org submission prep            | M          | 1 week    | Not Started       |
 
