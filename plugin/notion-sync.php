@@ -31,13 +31,15 @@ define( 'NOTION_SYNC_URL', plugin_dir_url( __FILE__ ) );
 define( 'NOTION_SYNC_BASENAME', plugin_basename( __FILE__ ) );
 
 // Load composer autoloader for Action Scheduler and other dependencies.
-if ( file_exists( __DIR__ . '/vendor/autoload.php' ) ) {
-	require_once __DIR__ . '/vendor/autoload.php';
+// Note: vendor directory is inside the plugin directory for Docker mount compatibility.
+if ( file_exists( NOTION_SYNC_PATH . 'vendor/autoload.php' ) ) {
+	require_once NOTION_SYNC_PATH . 'vendor/autoload.php';
 }
 
 // Initialize Action Scheduler (WooCommerce library for background processing).
-if ( file_exists( __DIR__ . '/vendor/woocommerce/action-scheduler/action-scheduler.php' ) ) {
-	require_once __DIR__ . '/vendor/woocommerce/action-scheduler/action-scheduler.php';
+// This must be loaded before WordPress init to ensure proper initialization.
+if ( file_exists( NOTION_SYNC_PATH . 'vendor/woocommerce/action-scheduler/action-scheduler.php' ) ) {
+	require_once NOTION_SYNC_PATH . 'vendor/woocommerce/action-scheduler/action-scheduler.php';
 }
 
 // PSR-4 autoloader.

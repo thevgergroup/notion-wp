@@ -36,7 +36,8 @@
 		"sort-packages": true,
 		"platform": {
 			"php": "8.0"
-		}
+		},
+		"vendor-dir": "plugin/vendor"
 	},
 	"autoload": {
 		"psr-4": {
