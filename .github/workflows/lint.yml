@@ -43,7 +43,7 @@ on:
             - '.eslintrc.json'
             - '.stylelintrc.json'
             - '.github/workflows/lint.yml'
-    workflow_dispatch:  # Enable manual triggering
+    workflow_dispatch: # Enable manual triggering
 
 # Cancel in-progress runs when a new workflow with the same group is triggered
 concurrency:

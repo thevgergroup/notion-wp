@@ -1,45 +1,45 @@
 {
-  "object": "page",
-  "id": "abc12345-6789-4def-0123-456789abcdef",
-  "created_time": "2025-10-20T10:00:00.000Z",
-  "last_edited_time": "2025-10-20T11:30:00.000Z",
-  "created_by": {
-    "object": "user",
-    "id": "user-id-123"
-  },
-  "last_edited_by": {
-    "object": "user",
-    "id": "user-id-123"
-  },
-  "parent": {
-    "type": "workspace",
-    "workspace": true
-  },
-  "archived": false,
-  "properties": {
-    "title": {
-      "id": "title",
-      "type": "title",
-      "title": [
-        {
-          "type": "text",
-          "text": {
-            "content": "Simple Test Page",
-            "link": null
-          },
-          "annotations": {
-            "bold": false,
-            "italic": false,
-            "strikethrough": false,
-            "underline": false,
-            "code": false,
-            "color": "default"
-          },
-          "plain_text": "Simple Test Page",
-          "href": null
-        }
-      ]
-    }
-  },
-  "url": "https://www.notion.so/Simple-Test-Page-abc123456789"
+	"object": "page",
+	"id": "abc12345-6789-4def-0123-456789abcdef",
+	"created_time": "2025-10-20T10:00:00.000Z",
+	"last_edited_time": "2025-10-20T11:30:00.000Z",
+	"created_by": {
+		"object": "user",
+		"id": "user-id-123"
+	},
+	"last_edited_by": {
+		"object": "user",
+		"id": "user-id-123"
+	},
+	"parent": {
+		"type": "workspace",
+		"workspace": true
+	},
+	"archived": false,
+	"properties": {
+		"title": {
+			"id": "title",
+			"type": "title",
+			"title": [
+				{
+					"type": "text",
+					"text": {
+						"content": "Simple Test Page",
+						"link": null
+					},
+					"annotations": {
+						"bold": false,
+						"italic": false,
+						"strikethrough": false,
+						"underline": false,
+						"code": false,
+						"color": "default"
+					},
+					"plain_text": "Simple Test Page",
+					"href": null
+				}
+			]
+		}
+	},
+	"url": "https://www.notion.so/Simple-Test-Page-abc123456789"
 }
