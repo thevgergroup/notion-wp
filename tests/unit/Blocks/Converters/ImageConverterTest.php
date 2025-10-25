@@ -62,41 +62,6 @@ class ImageConverterTest extends BaseConverterTestCase {
 	}
 
 	/**
-	 * Set up wpdb mock for MediaRegistry
-	 */
-	protected function setup_wpdb_mock(): void {
-		global $wpdb;
-
-		$wpdb         = Mockery::mock( 'wpdb' );
-		$wpdb->prefix = 'wp_';
-
-		// Mock get_var to return null by default (not found)
-		$wpdb->shouldReceive( 'get_var' )
-			->andReturnNull()
-			->byDefault();
-
-		// Mock prepare
-		$wpdb->shouldReceive( 'prepare' )
-			->andReturnUsing(
-				function ( $query ) {
-					$args = func_get_args();
-					array_shift( $args );
-					foreach ( $args as $arg ) {
-						$query = preg_replace( '/%[sdi]|%i/', "'" . $arg . "'", $query, 1 );
-					}
-					return $query;
-				}
-			);
-
-		// Mock insert
-		$wpdb->shouldReceive( 'insert' )
-			->andReturn( 1 )
-			->byDefault();
-
-		$wpdb->insert_id = 1;
-	}
-
-	/**
 	 * Test converting external image to Gutenberg block
 	 *
 	 * External images (Unsplash, etc.) should be kept as external URLs

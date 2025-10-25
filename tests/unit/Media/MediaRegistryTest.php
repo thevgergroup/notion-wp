@@ -12,38 +12,23 @@
 namespace NotionSync\Tests\Unit\Media;
 
 use NotionSync\Media\MediaRegistry;
-use PHPUnit\Framework\TestCase;
-use Brain\Monkey;
+use NotionSync\Tests\Unit\BaseTestCase;
 use Brain\Monkey\Functions;
 use Mockery;
-use Mockery\Adapter\Phpunit\MockeryPHPUnitIntegration;
 
 /**
  * Test MediaRegistry functionality
  */
-class MediaRegistryTest extends TestCase {
-	use MockeryPHPUnitIntegration;
+class MediaRegistryTest extends BaseTestCase {
 
 	/**
 	 * Set up test environment
 	 */
 	protected function setUp(): void {
-		parent::setUp();
-		Monkey\setUp();
+		parent::setUp(); // BaseTestCase sets up Brain\Monkey and WordPress mocks
 
-		// Mock WordPress database functions
-		$this->setup_wordpress_mocks();
-
-		// Mock global wpdb
+		// Mock global wpdb (provided by BaseTestCase)
 		$this->setup_wpdb_mock();
-	}
-
-	/**
-	 * Tear down test environment
-	 */
-	protected function tearDown(): void {
-		Monkey\tearDown();
-		parent::tearDown();
 	}
 
 	/**
@@ -141,61 +126,4 @@ class MediaRegistryTest extends TestCase {
 	// If these features are needed in the future, implement them THEN write tests.
 	// Don't write tests for code that doesn't exist!
 
-	/**
-	 * Set up WordPress function mocks
-	 *
-	 * Creates default mocks for WordPress functions used by MediaRegistry.
-	 */
-	private function setup_wordpress_mocks(): void {
-		Functions\when( 'get_option' )->justReturn( array() );
-		Functions\when( 'update_option' )->justReturn( true );
-		Functions\when( 'delete_option' )->justReturn( true );
-		Functions\when( 'get_post' )->justReturn( (object) array( 'ID' => 42 ) );
-		Functions\when( 'current_time' )->justReturn( '2025-10-25 10:00:00' );
-	}
-
-	/**
-	 * Set up wpdb mock
-	 *
-	 * Creates a mock wpdb object and sets it as the global $wpdb.
-	 */
-	private function setup_wpdb_mock(): void {
-		global $wpdb;
-
-		// Create a mock wpdb object
-		$wpdb         = Mockery::mock( 'wpdb' );
-		$wpdb->prefix = 'wp_';
-
-		// Mock get_var to return null by default (not found)
-		$wpdb->shouldReceive( 'get_var' )
-			->andReturnNull()
-			->byDefault();
-
-		// Mock prepare to just return the query
-		$wpdb->shouldReceive( 'prepare' )
-			->andReturnUsing(
-				function ( $query ) {
-					// Simple prepare mock - just return the query with placeholders replaced
-					$args = func_get_args();
-					array_shift( $args ); // Remove query
-					foreach ( $args as $arg ) {
-						$query = preg_replace( '/%[sdi]|%i/', "'" . $arg . "'", $query, 1 );
-					}
-					return $query;
-				}
-			);
-
-		// Mock insert
-		$wpdb->shouldReceive( 'insert' )
-			->andReturn( 1 )
-			->byDefault();
-
-		// Mock delete
-		$wpdb->shouldReceive( 'delete' )
-			->andReturn( 1 )
-			->byDefault();
-
-		// Set insert_id
-		$wpdb->insert_id = 1;
-	}
 }
