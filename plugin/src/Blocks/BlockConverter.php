@@ -49,18 +49,36 @@ class BlockConverter {
 	 */
 	private function register_default_converters(): void {
 		$default_converters = array(
+			// Basic text blocks.
 			new Converters\ParagraphConverter(),
 			new Converters\HeadingConverter(),
 			new Converters\BulletedListConverter(),
 			new Converters\NumberedListConverter(),
 			new Converters\QuoteConverter(),
 			new Converters\DividerConverter(),
+
+			// Advanced blocks (Phase 4).
+			new Converters\CalloutConverter(),
+			new Converters\CodeConverter(),
+			new Converters\ToggleConverter(),
+
+			// Layout blocks.
 			new Converters\TableConverter(),
+			new Converters\ColumnConverter(),
+
+			// Media and embeds.
+			new Converters\ImageConverter(),
+			new Converters\FileConverter(),
+			new Converters\EmbedConverter(),
+
+			// Navigation blocks.
 			new Converters\ChildPageConverter(),
 			new Converters\ChildDatabaseConverter(),
 			new Converters\LinkToPageConverter(),
-			new Converters\ImageConverter(),
-			new Converters\FileConverter(),
+
+			// IMPORTANT: FallbackConverter must be LAST.
+			// It acts as a catch-all for unsupported block types.
+			new Converters\FallbackConverter(),
 		);
 
 		/**

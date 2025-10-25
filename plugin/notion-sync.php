@@ -162,10 +162,40 @@ function init() {
 	// Add filter to prepend icon emoji to post titles.
 	add_filter( 'the_title', __NAMESPACE__ . '\prepend_notion_icon_to_title', 10, 2 );
 
+	// Enqueue frontend CSS for advanced blocks.
+	add_action( 'wp_enqueue_scripts', __NAMESPACE__ . '\enqueue_frontend_assets' );
+
 	// Plugin loaded hook for extensibility.
 	do_action( 'notion_sync_loaded' );
 }
 add_action( 'init', __NAMESPACE__ . '\init' );
+
+/**
+ * Enqueue frontend CSS for advanced Notion blocks.
+ *
+ * Loads styling for callout and toggle blocks converted from Notion.
+ *
+ * @return void
+ */
+function enqueue_frontend_assets(): void {
+	// Enqueue callout block styles.
+	wp_enqueue_style(
+		'notion-sync-callout-blocks',
+		NOTION_SYNC_URL . 'assets/css/callout-blocks.css',
+		array(),
+		NOTION_SYNC_VERSION,
+		'all'
+	);
+
+	// Enqueue toggle block styles.
+	wp_enqueue_style(
+		'notion-sync-toggle-blocks',
+		NOTION_SYNC_URL . 'assets/css/toggle-blocks.css',
+		array(),
+		NOTION_SYNC_VERSION,
+		'all'
+	);
+}
 
 /**
  * Prepend Notion icon emoji to post titles.
