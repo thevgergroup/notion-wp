@@ -298,5 +298,10 @@ cron-reset: ## Reset stuck "in-progress" actions (marks as failed for retry)
 	@echo ""
 	@$(MAKE) cron-status
 
+.PHONY: cron-log
+cron-log: ## View automated cron execution log
+	@echo "$(CYAN)Automated Cron Log (last 50 lines):$(NC)"
+	@docker exec $(COMPOSE_PROJECT_NAME)_wp tail -50 /var/log/wp-cron.log 2>/dev/null || echo "$(YELLOW)No cron log available yet$(NC)"
+
 # Default target
 .DEFAULT_GOAL := help

@@ -1,17 +1,35 @@
 # Action Scheduler Setup Guide
 
-## Problem
+## Automated Setup (Phase 4+)
 
-Action Scheduler tasks are not processing automatically in the Phase 4 development environment.
+**Good news!** Starting with Phase 4, automated cron is built into the Docker environment.
 
-**Symptoms:**
-- Pending actions stuck in "pending" status
-- "In progress" actions never complete
-- Sync operations don't run automatically
+When you start the Docker containers with `make up`, the system automatically:
+1. Installs WP-CLI in the WordPress container
+2. Sets up a system cron job to run every minute
+3. Processes the Action Scheduler queue automatically
 
-## Root Cause (And Why It Worked Before!)
+**No manual intervention needed!** The queue processes in the background every 60 seconds.
 
-**Action Scheduler uses WP-Cron** (configured in `ActionSchedulerConfig.php`), which means it **triggers on page loads**.
+### Verify Automated Cron
+
+Check that automated cron is working:
+
+```bash
+# View cron execution log
+make cron-log
+
+# Check Action Scheduler queue status
+make cron-status
+```
+
+The cron log will show WP-Cron running every minute. Once WordPress is installed, you should see successful queue processing.
+
+---
+
+## Background: How Action Scheduler Works
+
+**Action Scheduler uses WP-Cron** (configured in `ActionSchedulerConfig.php`), which traditionally **triggers on page loads**.
 
 ### Why Syncs Worked in Earlier Phases
 
@@ -22,7 +40,7 @@ When you were actively using the admin interface:
 4. Action Scheduler processed tasks in the background
 5. Syncs completed successfully!
 
-### Why It's Not Working in Phase 4
+### Why Manual Processing Was Needed
 
 During development/testing:
 - Less active admin browsing
@@ -31,6 +49,10 @@ During development/testing:
 - You notice tasks aren't processing
 
 **This is actually working as designed for WordPress!** WP-Cron is "pseudo-cron" that piggybacks on page visits.
+
+### The Solution: Automated System Cron
+
+Phase 4+ includes automated system cron in Docker, eliminating the need for manual queue processing during development.
 
 ### Secondary Issue (Docker Environment)
 
@@ -42,28 +64,20 @@ Additionally, WP-Cron spawn (the HTTP self-request) fails in Docker:
 
 However, because we have `action_scheduler_allow_async_request_runner` set to `false`, Action Scheduler processes the queue **directly during page loads** rather than via spawn, so this doesn't block processing.
 
-## Solutions
+## Manual Queue Processing (Optional)
 
-### Option 0: Just Use the Admin! (Simplest)
+While automated cron handles queue processing, you can still manually process the queue if needed:
 
-**This is how it worked before!** Simply browse the WordPress admin after triggering syncs:
-
-1. Trigger a sync from Notion Sync admin page
-2. Navigate to other pages (Dashboard, Posts, etc.)
-3. Check back on Databases page
-4. Refresh as needed
-
-**Each page load processes the queue!** This is the normal WordPress way and requires no additional setup.
-
-### Option 1: Manual Queue Processing (Development Workflow)
-
-Use the new Makefile commands for more control:
+### Manual Commands
 
 ```bash
 # Check queue status
 make cron-status
 
-# Process queue once
+# View automated cron log
+make cron-log
+
+# Manually process queue once
 make cron
 
 # Process 10 times to clear backlog
@@ -73,73 +87,71 @@ make cron-loop
 make cron-reset
 ```
 
-**When to use:** After triggering syncs via WP-CLI or when developing without browsing admin.
+**When to use manual commands:**
+- Testing queue processing immediately
+- Debugging queue issues
+- Clearing a large backlog quickly
 
-### Option 2: System Cron Job (Recommended for Production)
+### Alternative Approaches (For Reference)
 
-Set up a real cron job on your host machine to trigger WP-Cron:
+#### Option A: Just Use the Admin
 
-**On macOS/Linux:**
+Browse the WordPress admin after triggering syncs:
+1. Trigger a sync from Notion Sync admin page
+2. Navigate to other pages (Dashboard, Posts, etc.)
+3. Each page load processes the queue
 
-1. Open crontab:
-   ```bash
-   crontab -e
-   ```
+**Note:** With automated cron (Phase 4+), this is no longer necessary.
 
-2. Add this line (replace path with your actual path):
-   ```bash
-   * * * * * cd /Users/patrick/Projects/thevgergroup/notion-wp/worktrees/phase-4-advanced-blocks && make wp ARGS="cron event run --due-now" >> /tmp/wp-cron.log 2>&1
-   ```
+#### Option B: Host Machine Cron (Production)
 
-3. Save and exit. Cron will now run every minute.
+For production environments, set up a cron job on your host machine:
 
-### Option 3: Disable WP-Cron, Use System Cron (Alternative)
+```bash
+# Add to crontab (crontab -e)
+* * * * * cd /path/to/project && make wp ARGS="cron event run --due-now" >> /tmp/wp-cron.log 2>&1
+```
 
-For better reliability, disable WordPress's built-in cron and use system cron:
+#### Option C: Disable WP-Cron (Advanced)
+
+For production with system cron:
 
 1. Add to `.env`:
    ```bash
    WORDPRESS_CONFIG_EXTRA="define('DISABLE_WP_CRON', true);"
    ```
 
-2. Restart containers:
-   ```bash
-   make down && make up
-   ```
-
-3. Set up system cron (see Option 2)
-
-### Option 4: Development Workaround (During Active Development)
-
-When actively developing and testing syncs, trigger cron after each operation:
-
-```bash
-# After triggering a sync
-make wp ARGS="cron event run action_scheduler_run_queue"
-```
-
-Or create an alias:
-
-```bash
-# Add to ~/.bashrc or ~/.zshrc
-alias wp-cron="cd /Users/patrick/Projects/thevgergroup/notion-wp/worktrees/phase-4-advanced-blocks && make wp ARGS='cron event run action_scheduler_run_queue'"
-```
-
-Then just run: `wp-cron`
+2. Set up system cron (see Option B)
 
 ## Verification
 
-Check if cron is working:
+### Verify Automated Cron is Running
 
 ```bash
+# Check cron execution log - should show activity every minute
+make cron-log
+
+# Verify cron daemon is running in container
+docker exec notionwp_phase4_wp ps aux | grep cron
+
+# View the cron job configuration
+docker exec notionwp_phase4_wp cat /etc/cron.d/wordpress-cron
+```
+
+### Verify Queue Processing
+
+Once WordPress is installed:
+
+```bash
+# Check Action Scheduler queue status
+make cron-status
+
 # Check for pending actions
 make wp ARGS="db query 'SELECT action_id, hook, status, scheduled_date_gmt FROM wp_actionscheduler_actions ORDER BY scheduled_date_gmt DESC LIMIT 10'"
 
-# Run cron
-make wp ARGS="cron event run action_scheduler_run_queue"
-
-# Check again - pending should have decreased
-make wp ARGS="db query 'SELECT action_id, hook, status, scheduled_date_gmt FROM wp_actionscheduler_actions ORDER BY scheduled_date_gmt DESC LIMIT 10'"
+# Wait 60 seconds and check again - pending should decrease automatically
+sleep 60
+make cron-status
 ```
 
 ## Monitoring
@@ -199,13 +211,43 @@ If queue processing is slow:
    ```
    Should return `DISABLED`
 
+## Implementation Details (Phase 4+)
+
+The automated cron system consists of three components:
+
+### 1. Setup Script (`docker/config/setup-cron.sh`)
+
+Runs when the WordPress container starts:
+- Installs system cron daemon
+- Installs WP-CLI if not present
+- Creates `/etc/cron.d/wordpress-cron` configuration
+- Starts cron daemon in background
+- Creates `/var/log/wp-cron.log` for monitoring
+
+### 2. Docker Compose Integration (`docker/compose.yml`)
+
+The WordPress service:
+- Mounts `setup-cron.sh` into the container
+- Executes the script on startup (before Apache)
+- Runs both cron daemon and Apache in the same container
+
+### 3. Cron Job Configuration
+
+The cron job (`/etc/cron.d/wordpress-cron`):
+```bash
+* * * * * www-data cd /var/www/html && wp cron event run --due-now --path=/var/www/html --quiet >> /var/log/wp-cron.log 2>&1
+```
+
+Runs every minute as `www-data` user to process all due WP-Cron events.
+
 ## Best Practices
 
-1. **Use system cron** for production environments
-2. **Monitor the queue** regularly via WordPress admin
-3. **Check logs** when syncs don't complete
-4. **Clear failed actions** periodically to prevent bloat
-5. **Test with manual triggers** before relying on automatic processing
+1. **Development:** Automated cron (Phase 4+) handles queue processing automatically
+2. **Production:** Use host machine cron or disable WP-Cron for better reliability
+3. **Monitor the queue** regularly via WordPress admin or `make cron-status`
+4. **Check logs** when syncs don't complete (`make cron-log`)
+5. **Clear failed actions** periodically to prevent bloat
+6. **Test with manual triggers** for immediate processing (`make cron`)
 
 ## Additional Resources
 
