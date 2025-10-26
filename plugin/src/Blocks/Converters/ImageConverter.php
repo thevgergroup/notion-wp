@@ -376,29 +376,40 @@ class ImageConverter implements BlockConverterInterface {
 	}
 
 	/**
-	 * Generate pending image placeholder.
+	 * Generate pending image placeholder using dynamic block.
 	 *
-	 * Creates an HTML comment with data attributes that can be replaced
-	 * after the image is downloaded in the background.
+	 * Creates a notion-sync/notion-image dynamic block that checks MediaRegistry
+	 * at render time and automatically shows the image once downloaded.
+	 *
+	 * Benefits over static HTML:
+	 * - No post content updates needed
+	 * - Self-healing: automatically shows image once available
+	 * - Single source of truth: MediaRegistry
 	 *
 	 * @param string $block_id    Notion block ID.
-	 * @param string $notion_url  Notion S3 URL (for display).
+	 * @param string $notion_url  Notion S3 URL (for fallback display).
 	 * @param array  $image_data  Image data for caption.
-	 * @return string HTML comment placeholder.
+	 * @return string Gutenberg dynamic block.
 	 */
 	private function generate_pending_image_placeholder( string $block_id, string $notion_url, array $image_data ): string {
-		$caption = $this->extract_caption( $image_data );
-		$caption_text = $caption ? esc_attr( $caption ) : 'Image from Notion';
+		$caption  = $this->extract_caption( $image_data );
+		$alt_text = $caption ? $caption : 'Image from Notion';
 
-		// Use external image block as temporary placeholder with Notion URL.
-		// This will be replaced with proper attachment after background download.
+		// Generate dynamic block attributes as JSON.
+		$attributes = array(
+			'blockId'   => $block_id,
+			'notionUrl' => $notion_url,
+			'caption'   => $caption,
+			'altText'   => $alt_text,
+		);
+
+		// Encode attributes for block comment.
+		$attributes_json = wp_json_encode( $attributes );
+
+		// Return dynamic block that will check MediaRegistry at render time.
 		return sprintf(
-			"<!-- wp:html -->\n<!-- notion-image-pending block_id=\"%s\" caption=\"%s\" -->\n<figure class=\"wp-block-image notion-image-pending\">\n\t<img src=\"%s\" alt=\"%s\" class=\"pending-download\"/>\n\t%s\n</figure>\n<!-- /notion-image-pending -->\n<!-- /wp:html -->\n\n",
-			esc_attr( $block_id ),
-			$caption_text,
-			esc_url( $notion_url ),
-			esc_attr( $caption_text ),
-			$caption ? sprintf( '<figcaption class="wp-element-caption">%s (downloading...)</figcaption>', wp_kses_post( $caption ) ) : '<figcaption class="wp-element-caption">Image downloading in background...</figcaption>'
+			"<!-- wp:notion-sync/notion-image %s /-->\n\n",
+			$attributes_json
 		);
 	}
 
