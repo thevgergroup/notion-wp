@@ -154,6 +154,7 @@ class SyncStatusRestController extends WP_REST_Controller {
 					'completed_at'   => $batch_progress['completed_at'] ?? null,
 					'current_page_id' => $batch_progress['current_page_id'] ?? null,
 					'page_statuses'  => $batch_progress['page_statuses'] ?? array(),
+					'page_ids'       => $batch_progress['page_ids'] ?? array(),
 					'results'        => $batch_progress['results'] ?? array(),
 				);
 
@@ -175,7 +176,98 @@ class SyncStatusRestController extends WP_REST_Controller {
 			}
 		}
 
+		// Add image queue statistics (global media queue status).
+		$response['media_queue'] = $this->get_media_queue_stats();
+
 		return new WP_REST_Response( $response, 200 );
+	}
+
+	/**
+	 * Get media queue statistics from Action Scheduler.
+	 *
+	 * Queries Action Scheduler for tasks in the 'notion-sync-media' group
+	 * and returns counts by status.
+	 *
+	 * @since 0.3.0
+	 *
+	 * @return array {
+	 *     Media queue statistics.
+	 *
+	 *     @type int $pending    Number of pending image downloads.
+	 *     @type int $in_progress Number of in-progress downloads.
+	 *     @type int $completed  Number of completed downloads.
+	 *     @type int $failed     Number of failed downloads.
+	 *     @type int $total      Total tasks in queue.
+	 * }
+	 */
+	private function get_media_queue_stats(): array {
+		global $wpdb;
+
+		// Default stats structure.
+		$stats = array(
+			'pending'     => 0,
+			'in_progress' => 0,
+			'completed'   => 0,
+			'failed'      => 0,
+			'total'       => 0,
+		);
+
+		// Check if Action Scheduler tables exist.
+		$table_exists = $wpdb->get_var(
+			$wpdb->prepare(
+				'SHOW TABLES LIKE %s',
+				$wpdb->esc_like( $wpdb->prefix . 'actionscheduler_actions' )
+			)
+		);
+
+		if ( ! $table_exists ) {
+			return $stats;
+		}
+
+		// Query Action Scheduler for media tasks by status.
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery
+		$results = $wpdb->get_results(
+			$wpdb->prepare(
+				"SELECT a.status, COUNT(*) as count
+				FROM {$wpdb->prefix}actionscheduler_actions a
+				INNER JOIN {$wpdb->prefix}actionscheduler_groups g ON a.group_id = g.group_id
+				WHERE a.hook = %s
+				AND g.slug = %s
+				GROUP BY a.status",
+				'notion_sync_download_image',
+				'notion-sync-media'
+			),
+			ARRAY_A
+		);
+
+		if ( empty( $results ) ) {
+			return $stats;
+		}
+
+		// Map Action Scheduler statuses to our stats structure.
+		foreach ( $results as $row ) {
+			$status = $row['status'];
+			$count  = (int) $row['count'];
+
+			switch ( $status ) {
+				case 'pending':
+					$stats['pending'] = $count;
+					break;
+				case 'in-progress':
+					$stats['in_progress'] = $count;
+					break;
+				case 'complete':
+					$stats['completed'] = $count;
+					break;
+				case 'failed':
+					$stats['failed'] = $count;
+					break;
+			}
+
+			$stats['total'] += $count;
+		}
+
+		return $stats;
 	}
 
 	/**
