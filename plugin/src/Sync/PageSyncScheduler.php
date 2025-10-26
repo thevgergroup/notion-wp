@@ -132,7 +132,13 @@ class PageSyncScheduler {
 		}
 
 		// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log -- Debug logging.
-		error_log( "PageSyncScheduler: Scheduled {$total} pages for batch {$batch_id}" );
+		error_log(
+			sprintf(
+				'[PageSync] ══ BATCH SCHEDULED ══ %d pages queued for batch %s',
+				$total,
+				substr( $batch_id, -8 )
+			)
+		);
 
 		return [
 			'status'   => 'scheduled',
@@ -175,41 +181,80 @@ class PageSyncScheduler {
 		$batch['page_statuses'][ $page_id ] = 'processing';
 		update_option( "notion_sync_page_batch_{$batch_id}", $batch, false );
 
+		// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log -- Debug logging.
+		error_log(
+			sprintf(
+				'[PageSync] Starting sync for page %s (batch %s, %d/%d)',
+				substr( $page_id, 0, 8 ),
+				substr( $batch_id, -8 ),
+				$batch['processed'] + 1,
+				$batch['total']
+			)
+		);
+
 		try {
 			// Sync the page.
-			$result = $instance->sync_manager->sync_page( $page_id );
+			$start_time = microtime( true );
+			$result     = $instance->sync_manager->sync_page( $page_id );
+			$duration   = microtime( true ) - $start_time;
 
 			if ( $result['success'] ) {
 				++$batch['successful'];
 				$batch['page_statuses'][ $page_id ] = 'completed';
 				$batch['results'][ $page_id ]       = [
-					'success' => true,
-					'post_id' => $result['post_id'],
+					'success'  => true,
+					'post_id'  => $result['post_id'],
+					'duration' => $duration,
 				];
 
 				// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log -- Debug logging.
-				error_log( "PageSyncScheduler: Successfully synced page {$page_id} (post {$result['post_id']})" );
+				error_log(
+					sprintf(
+						'[PageSync] ✓ Success: page %s -> post %d (%.2fs)',
+						substr( $page_id, 0, 8 ),
+						$result['post_id'],
+						$duration
+					)
+				);
 			} else {
 				++$batch['failed'];
 				$batch['page_statuses'][ $page_id ] = 'failed';
 				$batch['results'][ $page_id ]       = [
-					'success' => false,
-					'error'   => $result['error'] ?? 'Unknown error',
+					'success'  => false,
+					'error'    => $result['error'] ?? 'Unknown error',
+					'duration' => $duration,
 				];
 
 				// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log -- Debug logging.
-				error_log( "PageSyncScheduler: Failed to sync page {$page_id}: " . ( $result['error'] ?? 'Unknown error' ) );
+				error_log(
+					sprintf(
+						'[PageSync] ✗ Failed: page %s - %s (%.2fs)',
+						substr( $page_id, 0, 8 ),
+						$result['error'] ?? 'Unknown error',
+						$duration
+					)
+				);
 			}
 		} catch ( \Exception $e ) {
+			$duration = isset( $start_time ) ? microtime( true ) - $start_time : 0;
+
 			++$batch['failed'];
 			$batch['page_statuses'][ $page_id ] = 'failed';
 			$batch['results'][ $page_id ]       = [
-				'success' => false,
-				'error'   => $e->getMessage(),
+				'success'  => false,
+				'error'    => $e->getMessage(),
+				'duration' => $duration,
 			];
 
 			// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log -- Debug logging.
-			error_log( "PageSyncScheduler: Exception syncing page {$page_id}: " . $e->getMessage() );
+			error_log(
+				sprintf(
+					'[PageSync] ✗ Exception: page %s - %s (%.2fs)',
+					substr( $page_id, 0, 8 ),
+					$e->getMessage(),
+					$duration
+				)
+			);
 		}
 
 		// Increment processed counter.
@@ -223,15 +268,36 @@ class PageSyncScheduler {
 			$batch['status']       = 'completed';
 			$batch['completed_at'] = current_time( 'mysql' );
 
+			// Calculate total duration.
+			$total_duration = 0;
+			foreach ( $batch['results'] as $page_result ) {
+				$total_duration += $page_result['duration'] ?? 0;
+			}
+
 			// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log -- Debug logging.
 			error_log(
 				sprintf(
-					'PageSyncScheduler: Batch %s completed - %d successful, %d failed',
-					$batch_id,
+					'[PageSync] ═══ BATCH COMPLETE ═══ Batch %s: %d successful, %d failed (%.2fs total)',
+					substr( $batch_id, -8 ),
 					$batch['successful'],
-					$batch['failed']
+					$batch['failed'],
+					$total_duration
 				)
 			);
+
+			// Log individual results for debugging.
+			foreach ( $batch['results'] as $result_page_id => $result ) {
+				if ( ! $result['success'] ) {
+					// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log -- Debug logging.
+					error_log(
+						sprintf(
+							'[PageSync] Failed page %s: %s',
+							substr( $result_page_id, 0, 8 ),
+							$result['error']
+						)
+					);
+				}
+			}
 		}
 
 		// Save updated batch metadata.

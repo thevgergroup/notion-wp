@@ -154,6 +154,86 @@ function init() {
 
 		// Register Page Sync Scheduler hooks.
 		Sync\PageSyncScheduler::register_hooks();
+
+		// Register image download hook for queued downloads.
+		add_action(
+			'notion_sync_download_image',
+			function ( $args ) {
+				$block_id       = $args['block_id'] ?? '';
+				$notion_url     = $args['notion_url'] ?? '';
+				$notion_page_id = $args['notion_page_id'] ?? null;
+				$wp_post_id     = $args['wp_post_id'] ?? null;
+				$caption        = $args['caption'] ?? '';
+
+				if ( empty( $block_id ) || empty( $notion_url ) ) {
+					// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log -- Background task logging.
+					error_log( 'Image download task: Missing block_id or notion_url' );
+					return;
+				}
+
+				try {
+					// Initialize dependencies.
+					$downloader = new Media\ImageDownloader();
+					$uploader   = new Media\MediaUploader();
+
+					// Download image.
+					$downloaded = $downloader->download(
+						$notion_url,
+						[
+							'notion_page_id' => $notion_page_id,
+							'wp_post_id'     => $wp_post_id,
+						]
+					);
+
+					// Check if unsupported type.
+					if ( ! empty( $downloaded['unsupported'] ) ) {
+						// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log -- Background task logging.
+						error_log( "Image download: Unsupported type for block {$block_id}, skipping upload" );
+						return;
+					}
+
+					// Upload to Media Library.
+					$metadata      = [
+						'alt_text' => $caption ? $caption : 'Image from Notion',
+						'caption'  => $caption,
+					];
+					$attachment_id = $uploader->upload(
+						$downloaded['file_path'],
+						$metadata,
+						$wp_post_id
+					);
+
+					// Register in MediaRegistry.
+					Media\MediaRegistry::register( $block_id, $attachment_id, $notion_url );
+
+					// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log -- Background task logging.
+					error_log(
+						sprintf(
+							'Image download: Successfully processed block %s -> attachment %d (post %d)',
+							$block_id,
+							$attachment_id,
+							$wp_post_id ?? 0
+						)
+					);
+
+					// TODO: Update post content to replace placeholder with actual attachment.
+					// This could be done via a post-save hook or a separate batch update process.
+
+				} catch ( \Exception $e ) {
+					// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log -- Background task logging.
+					error_log(
+						sprintf(
+							'Image download failed for block %s: %s',
+							$block_id,
+							$e->getMessage()
+						)
+					);
+					throw $e; // Re-throw to mark Action Scheduler task as failed.
+				}
+			},
+			10,
+			1
+		);
 	}
 
 	// Register WP-CLI commands if WP-CLI is available.

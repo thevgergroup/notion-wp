@@ -163,12 +163,12 @@ class ImageConverter implements BlockConverterInterface {
 	/**
 	 * Handle Notion-hosted file.
 	 *
-	 * Downloads to WordPress Media Library with deduplication.
+	 * Queues image for background download or returns existing attachment.
 	 *
 	 * @param array  $image_data Image data from Notion.
 	 * @param string $block_id   Notion block ID.
 	 * @return string Gutenberg image block HTML.
-	 * @throws \Exception If download or upload fails.
+	 * @throws \Exception If queueing fails.
 	 */
 	private function handle_notion_file( array $image_data, string $block_id ): string {
 		$notion_url = $image_data['file']['url'] ?? '';
@@ -182,23 +182,17 @@ class ImageConverter implements BlockConverterInterface {
 
 		// Check if we need to re-upload (image changed in Notion).
 		if ( $attachment_id && MediaRegistry::needs_reupload( $block_id, $notion_url ) ) {
-			error_log( "ImageConverter: Image changed in Notion, re-uploading block {$block_id}" );
+			error_log( "ImageConverter: Image changed in Notion, queueing re-upload for block {$block_id}" );
 			$attachment_id = null;
 		}
 
-		// If not found or needs re-upload, download and upload.
+		// If image not yet downloaded, queue it for background processing.
 		if ( ! $attachment_id ) {
-			$result = $this->download_and_upload( $notion_url, $block_id, $image_data );
+			// Queue image for background download.
+			$this->queue_image_download( $block_id, $notion_url, $image_data );
 
-			// Check if result is a URL (unsupported type) or attachment ID.
-			if ( is_string( $result ) ) {
-				// Unsupported type - link to original URL.
-				$caption = $this->extract_caption( $image_data );
-				$alt     = $caption ? $caption : 'Unsupported image type';
-				return $this->generate_external_image_block( $result, $alt, $caption );
-			}
-
-			$attachment_id = $result;
+			// Return placeholder that will be replaced after background processing.
+			return $this->generate_pending_image_placeholder( $block_id, $notion_url, $image_data );
 		}
 
 		return $this->generate_wordpress_image_block( $attachment_id, $image_data );
@@ -338,6 +332,74 @@ class ImageConverter implements BlockConverterInterface {
 		}
 
 		return trim( $caption_text );
+	}
+
+	/**
+	 * Queue image for background download.
+	 *
+	 * @param string $block_id    Notion block ID.
+	 * @param string $notion_url  Notion S3 URL.
+	 * @param array  $image_data  Image data for metadata.
+	 * @return void
+	 */
+	private function queue_image_download( string $block_id, string $notion_url, array $image_data ): void {
+		if ( ! function_exists( 'as_schedule_single_action' ) ) {
+			error_log( 'ImageConverter: Action Scheduler not available, cannot queue image download' );
+			return;
+		}
+
+		// Extract caption for metadata.
+		$caption = $this->extract_caption( $image_data );
+
+		// Schedule background download task.
+		as_schedule_single_action(
+			time(),
+			'notion_sync_download_image',
+			[
+				'block_id'        => $block_id,
+				'notion_url'      => $notion_url,
+				'notion_page_id'  => $this->notion_page_id,
+				'wp_post_id'      => $this->parent_post_id,
+				'caption'         => $caption,
+			],
+			'notion-sync-media'
+		);
+
+		error_log(
+			sprintf(
+				'ImageConverter: Queued image download for block %s (post %d, page %s)',
+				$block_id,
+				$this->parent_post_id ?? 0,
+				$this->notion_page_id ?? 'unknown'
+			)
+		);
+	}
+
+	/**
+	 * Generate pending image placeholder.
+	 *
+	 * Creates an HTML comment with data attributes that can be replaced
+	 * after the image is downloaded in the background.
+	 *
+	 * @param string $block_id    Notion block ID.
+	 * @param string $notion_url  Notion S3 URL (for display).
+	 * @param array  $image_data  Image data for caption.
+	 * @return string HTML comment placeholder.
+	 */
+	private function generate_pending_image_placeholder( string $block_id, string $notion_url, array $image_data ): string {
+		$caption = $this->extract_caption( $image_data );
+		$caption_text = $caption ? esc_attr( $caption ) : 'Image from Notion';
+
+		// Use external image block as temporary placeholder with Notion URL.
+		// This will be replaced with proper attachment after background download.
+		return sprintf(
+			"<!-- wp:html -->\n<!-- notion-image-pending block_id=\"%s\" caption=\"%s\" -->\n<figure class=\"wp-block-image notion-image-pending\">\n\t<img src=\"%s\" alt=\"%s\" class=\"pending-download\"/>\n\t%s\n</figure>\n<!-- /notion-image-pending -->\n<!-- /wp:html -->\n\n",
+			esc_attr( $block_id ),
+			$caption_text,
+			esc_url( $notion_url ),
+			esc_attr( $caption_text ),
+			$caption ? sprintf( '<figcaption class="wp-element-caption">%s (downloading...)</figcaption>', wp_kses_post( $caption ) ) : '<figcaption class="wp-element-caption">Image downloading in background...</figcaption>'
+		);
 	}
 
 	/**
