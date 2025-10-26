@@ -110,6 +110,8 @@ class NotionImageBlock {
 	 * @phpcs:ignore Generic.CodeAnalysis.UnusedFunctionParameter.FoundAfterLastUsed -- $content required by block API.
 	 */
 	public function render_block( array $attributes, string $content = '' ): string {
+		error_log( '[NotionImageBlock] render_block called with: ' . wp_json_encode( $attributes ) );
+
 		$block_id   = $attributes['blockId'] ?? '';
 		$notion_url = $attributes['notionUrl'] ?? '';
 		$caption    = $attributes['caption'] ?? '';
