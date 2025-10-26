@@ -132,6 +132,9 @@ class ContentFetcher {
 	 * Retrieves all content blocks from a Notion page. Handles Notion's pagination
 	 * automatically (100 blocks per request) by making multiple API calls as needed.
 	 *
+	 * For blocks that have children (table, toggle, column, column_list, synced_block),
+	 * this method recursively fetches the children and populates them in the 'children' array.
+	 *
 	 * @param string $page_id Notion page ID (with or without dashes).
 	 * @return array Array of block objects in Notion's native format.
 	 *               Returns empty array on error.
@@ -193,6 +196,19 @@ class ContentFetcher {
 				);
 			}
 
+			// Phase 4: Recursively fetch children for blocks that have them.
+			$all_blocks = $this->fetch_children_for_blocks( $all_blocks );
+
+			// Log total blocks fetched.
+		// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log -- Debug logging.
+			error_log(
+				sprintf(
+					'[PERF] Fetched %d blocks for page %s',
+					count( $all_blocks ),
+					$page_id
+				)
+			);
+
 			return $all_blocks;
 
 		} catch ( \Exception $e ) {
@@ -250,6 +266,104 @@ class ContentFetcher {
 				),
 			);
 		}
+	}
+
+	/**
+	 * Recursively fetch children for blocks that have them.
+	 *
+	 * Certain Notion block types contain children that must be fetched separately:
+	 * - table: Contains table_row blocks
+	 * - toggle: Contains nested blocks
+	 * - column_list: Contains column blocks
+	 * - column: Contains nested blocks
+	 * - synced_block: Contains nested blocks
+	 *
+	 * This method checks the has_children flag and fetches children for applicable blocks.
+	 *
+	 * @since 0.4.0 (Phase 4)
+	 *
+	 * @param array $blocks Array of block objects.
+	 * @return array Blocks with children populated in 'children' array.
+	 */
+	private function fetch_children_for_blocks( array $blocks ): array {
+		// Block types that require fetching children.
+		$blocks_with_children = array( 'table', 'toggle', 'column_list', 'column', 'synced_block' );
+
+		foreach ( $blocks as &$block ) {
+			$block_type   = $block['type'] ?? '';
+			$has_children = $block['has_children'] ?? false;
+
+			// Skip blocks that don't have children or aren't in our list.
+			if ( ! $has_children || ! in_array( $block_type, $blocks_with_children, true ) ) {
+				continue;
+			}
+
+			$block_id = $block['id'] ?? '';
+			if ( empty( $block_id ) ) {
+				continue;
+			}
+
+			// Fetch children for this block.
+			$children = $this->fetch_block_children_recursive( $block_id );
+
+			// Populate children array.
+			if ( ! empty( $children ) ) {
+				$block['children'] = $children;
+
+				// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log -- Debug logging.
+				error_log(
+					sprintf(
+						'[ContentFetcher] Fetched %d children for %s block %s',
+						count( $children ),
+						$block_type,
+						substr( $block_id, 0, 8 )
+					)
+				);
+			}
+		}
+
+		return $blocks;
+	}
+
+	/**
+	 * Recursively fetch all children for a block.
+	 *
+	 * Similar to fetch_page_blocks() but works on any block ID and handles pagination.
+	 *
+	 * @since 0.4.0 (Phase 4)
+	 *
+	 * @param string $block_id Block ID to fetch children from.
+	 * @return array Array of child block objects.
+	 */
+	private function fetch_block_children_recursive( string $block_id ): array {
+		$all_children = array();
+		$has_more     = true;
+		$cursor       = null;
+		$batch_count  = 0;
+		$max_batches  = 10; // Reasonable limit for nested children.
+
+		// Normalize block ID.
+		$normalized_id = str_replace( '-', '', $block_id );
+
+		// Fetch children in batches.
+		while ( $has_more && $batch_count < $max_batches ) {
+			$batch_result = $this->fetch_blocks_batch( $normalized_id, $cursor );
+
+			if ( empty( $batch_result ) || isset( $batch_result['error'] ) ) {
+				break;
+			}
+
+			// Add blocks from this batch.
+			if ( isset( $batch_result['blocks'] ) && is_array( $batch_result['blocks'] ) ) {
+				$all_children = array_merge( $all_children, $batch_result['blocks'] );
+			}
+
+			$has_more = $batch_result['has_more'] ?? false;
+			$cursor   = $batch_result['next_cursor'] ?? null;
+			++$batch_count;
+		}
+
+		return $all_children;
 	}
 
 	/**
