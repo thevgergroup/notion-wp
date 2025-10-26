@@ -99,7 +99,7 @@ class NotionImageBlock {
 	 *
 	 * Checks MediaRegistry to see if image has been downloaded.
 	 * If yes: renders proper WordPress image block.
-	 * If no: renders placeholder with download status.
+	 * If no: fetches fresh S3 URL from Notion and renders placeholder.
 	 *
 	 * @since 0.4.0
 	 *
@@ -127,12 +127,99 @@ class NotionImageBlock {
 		$attachment_id = MediaRegistry::find( $block_id );
 
 		if ( $attachment_id ) {
-			// Image downloaded - render proper WordPress image block.
-			return $this->render_wordpress_image( $attachment_id, $caption, $alt_text );
+			// Verify attachment still exists in Media Library.
+			if ( ! wp_get_attachment_url( $attachment_id ) ) {
+				// Attachment deleted - try to get fresh Notion URL.
+				$notion_url = $this->get_fresh_notion_url( $block_id );
+			} else {
+				// Image downloaded and exists - render proper WordPress image block.
+				return $this->render_wordpress_image( $attachment_id, $caption, $alt_text );
+			}
+		}
+
+		// Image not yet downloaded or attachment missing - fetch fresh URL if needed.
+		if ( empty( $notion_url ) || $this->is_url_expired( $notion_url ) ) {
+			$notion_url = $this->get_fresh_notion_url( $block_id );
 		}
 
 		// Image not yet downloaded - render placeholder.
 		return $this->render_placeholder( $notion_url, $caption, $alt_text );
+	}
+
+	/**
+	 * Get fresh S3 URL from Notion API.
+	 *
+	 * Notion S3 URLs expire after 1 hour. This fetches a fresh authenticated URL.
+	 *
+	 * @since 0.4.0
+	 *
+	 * @param string $block_id Notion block ID.
+	 * @return string Fresh Notion S3 URL, or empty string on error.
+	 */
+	private function get_fresh_notion_url( string $block_id ): string {
+		// Get Notion API token.
+		$encrypted_token = get_option( 'notion_wp_token' );
+		if ( empty( $encrypted_token ) ) {
+			return '';
+		}
+
+		try {
+			$client = new \NotionSync\API\NotionClient( \NotionSync\Security\Encryption::decrypt( $encrypted_token ) );
+			$block  = $client->get_block( $block_id );
+
+			if ( isset( $block['type'] ) && 'image' === $block['type'] ) {
+				// Check for file type (Notion-hosted).
+				if ( isset( $block['image']['file']['url'] ) ) {
+					return $block['image']['file']['url'];
+				}
+				// Check for external type (Unsplash, etc.).
+				if ( isset( $block['image']['external']['url'] ) ) {
+					return $block['image']['external']['url'];
+				}
+			}
+		} catch ( \Exception $e ) {
+			error_log( '[NotionImageBlock] Failed to fetch fresh URL for block ' . $block_id . ': ' . $e->getMessage() );
+		}
+
+		return '';
+	}
+
+	/**
+	 * Check if Notion S3 URL has expired.
+	 *
+	 * Notion S3 URLs contain X-Amz-Date and X-Amz-Expires parameters.
+	 *
+	 * @since 0.4.0
+	 *
+	 * @param string $url Notion S3 URL.
+	 * @return bool True if URL has expired or expires soon (within 5 minutes).
+	 */
+	private function is_url_expired( string $url ): bool {
+		// Parse URL and query parameters.
+		$parsed = wp_parse_url( $url );
+		if ( ! isset( $parsed['query'] ) ) {
+			return false;
+		}
+
+		parse_str( $parsed['query'], $params );
+
+		// Check for X-Amz-Date and X-Amz-Expires.
+		if ( ! isset( $params['X-Amz-Date'] ) || ! isset( $params['X-Amz-Expires'] ) ) {
+			return false;
+		}
+
+		// Parse X-Amz-Date (format: 20251026T184942Z).
+		$amz_date = \DateTime::createFromFormat( 'Ymd\THis\Z', $params['X-Amz-Date'], new \DateTimeZone( 'UTC' ) );
+		if ( ! $amz_date ) {
+			return false;
+		}
+
+		// Calculate expiration time.
+		$expires_seconds = (int) $params['X-Amz-Expires'];
+		$expiration_time = $amz_date->getTimestamp() + $expires_seconds;
+
+		// Consider expired if within 5 minutes of expiration (300 seconds buffer).
+		return ( time() + 300 ) >= $expiration_time;
 	}
 
 	/**

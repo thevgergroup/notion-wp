@@ -85,6 +85,54 @@ class ImageDownloader {
 	}
 
 	/**
+	 * Check content-type of URL without downloading (HEAD request).
+	 *
+	 * Saves bandwidth by checking if file is supported before downloading.
+	 *
+	 * @since 0.4.0
+	 *
+	 * @param string $url URL to check.
+	 * @return array {
+	 *     Content type information.
+	 *
+	 *     @type string|null $content_type  Content-Type header value.
+	 *     @type bool        $is_supported  True if type is in ALLOWED_MIME_TYPES.
+	 *     @type bool        $is_unsupported True if type is in UNSUPPORTED_MIME_TYPES.
+	 * }
+	 */
+	public function check_content_type( string $url ): array {
+		$response = wp_remote_head(
+			$url,
+			array(
+				'timeout'     => 10,
+				'redirection' => 5,
+			)
+		);
+
+		if ( is_wp_error( $response ) ) {
+			return array(
+				'content_type'   => null,
+				'is_supported'   => false,
+				'is_unsupported' => false,
+			);
+		}
+
+		$content_type = wp_remote_retrieve_header( $response, 'content-type' );
+
+		// Remove charset if present (e.g., "image/jpeg; charset=utf-8").
+		if ( $content_type && strpos( $content_type, ';' ) !== false ) {
+			list( $content_type ) = explode( ';', $content_type, 2 );
+			$content_type = trim( $content_type );
+		}
+
+		return array(
+			'content_type'   => $content_type,
+			'is_supported'   => $content_type ? in_array( $content_type, self::ALLOWED_MIME_TYPES, true ) : false,
+			'is_unsupported' => $content_type ? in_array( $content_type, self::UNSUPPORTED_MIME_TYPES, true ) : false,
+		);
+	}
+
+	/**
 	 * Download an image from a URL.
 	 *
 	 * @param string $url     Image URL (typically Notion S3 URL).

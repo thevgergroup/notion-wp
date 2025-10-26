@@ -91,6 +91,32 @@ class ImageDownloadHandler {
 				return;
 			}
 
+			// Check content-type before downloading (saves bandwidth for unsupported types).
+			$downloader    = new ImageDownloader();
+			$content_check = $downloader->check_content_type( $notion_url );
+
+			if ( $content_check['is_unsupported'] ) {
+				error_log(
+					sprintf(
+						'[ImageDownloadHandler] Unsupported content-type %s for block %s, skipping',
+						$content_check['content_type'],
+						substr( $block_id, 0, 8 )
+					)
+				);
+				// Don't register - dynamic block will use Notion URL as fallback.
+				return;
+			}
+
+			if ( ! $content_check['is_supported'] && $content_check['content_type'] ) {
+				error_log(
+					sprintf(
+						'[ImageDownloadHandler] Unknown content-type %s for block %s, attempting download anyway',
+						$content_check['content_type'],
+						substr( $block_id, 0, 8 )
+					)
+				);
+			}
+
 			// Download from Notion S3.
 			$downloader = new ImageDownloader();
 			$downloaded = $downloader->download(
