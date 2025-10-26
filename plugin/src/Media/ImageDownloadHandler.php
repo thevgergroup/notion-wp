@@ -41,7 +41,7 @@ class ImageDownloadHandler {
 	 */
 	public static function register_hooks(): void {
 		if ( function_exists( 'as_schedule_single_action' ) ) {
-			add_action( self::ACTION_HOOK, array( __CLASS__, 'process_download' ), 10, 1 );
+			add_action( self::ACTION_HOOK, array( __CLASS__, 'process_download' ), 10, 5 );
 		}
 	}
 
@@ -56,23 +56,14 @@ class ImageDownloadHandler {
 	 *
 	 * @since 0.4.0
 	 *
-	 * @param array $args {
-	 *     Download job arguments.
-	 *
-	 *     @type string $block_id       Notion block ID.
-	 *     @type string $notion_url     Notion S3 URL.
-	 *     @type string $notion_page_id Notion page ID (for logging).
-	 *     @type int    $wp_post_id     WordPress post ID (for attachment parent).
-	 *     @type string $caption        Image caption.
-	 * }
+	 * @param string $block_id       Notion block ID.
+	 * @param string $notion_url     Notion S3 URL.
+	 * @param string $notion_page_id Notion page ID (for logging).
+	 * @param int    $wp_post_id     WordPress post ID (for attachment parent).
+	 * @param string $caption        Image caption.
 	 * @return void
 	 */
-	public static function process_download( array $args ): void {
-		$block_id       = $args['block_id'] ?? '';
-		$notion_url     = $args['notion_url'] ?? '';
-		$notion_page_id = $args['notion_page_id'] ?? '';
-		$wp_post_id     = $args['wp_post_id'] ?? 0;
-		$caption        = $args['caption'] ?? '';
+	public static function process_download( string $block_id, string $notion_url, string $notion_page_id = '', int $wp_post_id = 0, string $caption = '' ): void {
 
 		// Validate required arguments.
 		if ( empty( $block_id ) || empty( $notion_url ) ) {

@@ -352,15 +352,16 @@ class ImageConverter implements BlockConverterInterface {
 		$caption = $this->extract_caption( $image_data );
 
 		// Schedule background download task.
+		// Pass parameters as separate args (not array) - Action Scheduler unpacks them.
 		as_schedule_single_action(
 			time(),
 			'notion_sync_download_image',
 			[
-				'block_id'        => $block_id,
-				'notion_url'      => $notion_url,
-				'notion_page_id'  => $this->notion_page_id,
-				'wp_post_id'      => $this->parent_post_id,
-				'caption'         => $caption,
+				$block_id,
+				$notion_url,
+				$this->notion_page_id ?? '',
+				$this->parent_post_id ?? 0,
+				$caption,
 			],
 			'notion-sync-media'
 		);
