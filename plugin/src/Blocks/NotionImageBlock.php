@@ -123,8 +123,18 @@ class NotionImageBlock {
 			return '';
 		}
 
-		// Check if image has been downloaded.
+		// Check MediaRegistry for status.
+		$status        = MediaRegistry::get_status( $block_id );
 		$attachment_id = MediaRegistry::find( $block_id );
+
+		// If image is marked as unsupported, show permanent Notion URL fallback.
+		if ( 'unsupported' === $status ) {
+			// Fetch fresh URL if expired.
+			if ( empty( $notion_url ) || $this->is_url_expired( $notion_url ) ) {
+				$notion_url = $this->get_fresh_notion_url( $block_id );
+			}
+			return $this->render_unsupported_placeholder( $notion_url, $caption, $alt_text );
+		}
 
 		if ( $attachment_id ) {
 			// Verify attachment still exists in Media Library.
@@ -332,6 +342,53 @@ class NotionImageBlock {
 			'<figure class="wp-block-image notion-image-pending" data-notion-status="downloading">
 				<div class="notion-image-spinner" style="min-height: 200px; display: flex; align-items: center; justify-content: center; background: #f0f0f1; border: 1px solid #ddd; border-radius: 4px;">
 					<span style="font-size: 48px;">⏳</span>
+				</div>
+				<figcaption class="wp-element-caption">%s</figcaption>
+			</figure>',
+			$placeholder_caption
+		);
+	}
+
+	/**
+	 * Render placeholder for unsupported image type.
+	 *
+	 * Shows Notion URL with message explaining the image format is not supported.
+	 *
+	 * @since 0.4.0
+	 *
+	 * @param string $notion_url Notion S3 URL (temporary, expires in 1 hour).
+	 * @param string $caption    Image caption.
+	 * @param string $alt_text   Image alt text.
+	 * @return string Rendered HTML.
+	 */
+	private function render_unsupported_placeholder( string $notion_url, string $caption, string $alt_text ): string {
+		// Unsupported format (e.g., TIFF) - show Notion URL with explanation.
+		$placeholder_caption = $caption
+			? sprintf( '%s <em>(unsupported format - linked to Notion)</em>', wp_kses_post( $caption ) )
+			: '<em>Unsupported image format - linked to Notion</em>';
+
+		if ( empty( $alt_text ) ) {
+			$alt_text = $caption ? $caption : 'Image from Notion';
+		}
+
+		// Show Notion URL as temporary image.
+		if ( ! empty( $notion_url ) ) {
+			return sprintf(
+				'<figure class="wp-block-image notion-image-unsupported" data-notion-status="unsupported">
+					<img src="%s" alt="%s" class="unsupported-format" loading="lazy"/>
+					<figcaption class="wp-element-caption">⚠️ %s</figcaption>
+				</figure>',
+				esc_url( $notion_url ),
+				esc_attr( $alt_text ),
+				$placeholder_caption
+			);
+		}
+
+		// No Notion URL - show error placeholder.
+		return sprintf(
+			'<figure class="wp-block-image notion-image-unsupported" data-notion-status="unsupported">
+				<div class="notion-image-error" style="min-height: 200px; display: flex; align-items: center; justify-content: center; background: #fff3cd; border: 1px solid #ffc107; border-radius: 4px;">
+					<span style="font-size: 48px;">⚠️</span>
 				</div>
 				<figcaption class="wp-element-caption">%s</figcaption>
 			</figure>',

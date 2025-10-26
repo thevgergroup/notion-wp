@@ -103,7 +103,8 @@ class ImageDownloadHandler {
 						substr( $block_id, 0, 8 )
 					)
 				);
-				// Don't register - dynamic block will use Notion URL as fallback.
+				// Register as unsupported so dynamic block knows to show Notion URL permanently.
+				MediaRegistry::register( $block_id, null, $notion_url, 'unsupported' );
 				return;
 			}
 
@@ -135,7 +136,8 @@ class ImageDownloadHandler {
 						substr( $block_id, 0, 8 )
 					)
 				);
-				// Don't register unsupported types - dynamic block will show Notion URL.
+				// Register as unsupported so dynamic block knows to show Notion URL permanently.
+				MediaRegistry::register( $block_id, null, $notion_url, 'unsupported' );
 				return;
 			}
 

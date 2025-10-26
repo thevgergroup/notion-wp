@@ -56,13 +56,15 @@ class MediaRegistry {
 		$sql = "CREATE TABLE {$table_name} (
 			id bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT,
 			notion_identifier varchar(255) NOT NULL,
-			attachment_id bigint(20) UNSIGNED NOT NULL,
+			attachment_id bigint(20) UNSIGNED DEFAULT NULL,
 			notion_file_url text,
+			status varchar(20) NOT NULL DEFAULT 'uploaded',
 			registered_at datetime NOT NULL,
 			PRIMARY KEY  (id),
 			UNIQUE KEY notion_identifier (notion_identifier),
 			KEY attachment_id (attachment_id),
-			KEY registered_at (registered_at)
+			KEY registered_at (registered_at),
+			KEY status (status)
 		) {$charset_collate};";
 
 		require_once ABSPATH . 'wp-admin/includes/upgrade.php';
@@ -72,20 +74,22 @@ class MediaRegistry {
 	/**
 	 * Register a Notion media file in the registry.
 	 *
-	 * @param string $notion_identifier Notion block ID or file URL hash.
-	 * @param int    $attachment_id     WordPress attachment ID.
-	 * @param string $notion_file_url   Optional original Notion file URL.
+	 * @param string   $notion_identifier Notion block ID or file URL hash.
+	 * @param int|null $attachment_id     WordPress attachment ID (null for unsupported/external).
+	 * @param string   $notion_file_url   Optional original Notion file URL.
+	 * @param string   $status            Status: 'uploaded', 'unsupported', 'external'.
 	 * @return bool True on success.
 	 */
 	public static function register(
 		string $notion_identifier,
-		int $attachment_id,
-		string $notion_file_url = ''
+		?int $attachment_id = null,
+		string $notion_file_url = '',
+		string $status = 'uploaded'
 	): bool {
 		global $wpdb;
 
-		// Verify attachment exists.
-		if ( ! get_post( $attachment_id ) ) {
+		// Verify attachment exists if attachment_id provided.
+		if ( null !== $attachment_id && ! get_post( $attachment_id ) ) {
 			error_log( "MediaRegistry: Attachment ID {$attachment_id} does not exist" );
 			return false;
 		}
@@ -96,17 +100,18 @@ class MediaRegistry {
 				'notion_identifier' => $notion_identifier,
 				'attachment_id'     => $attachment_id,
 				'notion_file_url'   => $notion_file_url,
+				'status'            => $status,
 				'registered_at'     => current_time( 'mysql' ),
 			],
-			[ '%s', '%d', '%s', '%s' ]
+			[ '%s', '%d', '%s', '%s', '%s' ]
 		);
 
 		if ( false === $result ) {
 			error_log(
 				sprintf(
-					'MediaRegistry: Failed to register %s → %d: %s',
+					'MediaRegistry: Failed to register %s → %s: %s',
 					$notion_identifier,
-					$attachment_id,
+					$attachment_id ? $attachment_id : 'null',
 					$wpdb->last_error
 				)
 			);
@@ -143,7 +148,37 @@ class MediaRegistry {
 	 * @return bool True if exists.
 	 */
 	public static function exists( string $notion_identifier ): bool {
-		return self::find( $notion_identifier ) !== null;
+		global $wpdb;
+
+		$count = $wpdb->get_var(
+			$wpdb->prepare(
+				'SELECT COUNT(*) FROM %i WHERE notion_identifier = %s LIMIT 1',
+				self::get_table_name(),
+				$notion_identifier
+			)
+		);
+
+		return (int) $count > 0;
+	}
+
+	/**
+	 * Get status of a Notion identifier.
+	 *
+	 * @param string $notion_identifier Notion block ID or file URL hash.
+	 * @return string|null Status ('uploaded', 'unsupported', 'external') or null if not found.
+	 */
+	public static function get_status( string $notion_identifier ): ?string {
+		global $wpdb;
+
+		$status = $wpdb->get_var(
+			$wpdb->prepare(
+				'SELECT status FROM %i WHERE notion_identifier = %s LIMIT 1',
+				self::get_table_name(),
+				$notion_identifier
+			)
+		);
+
+		return $status ? $status : null;
 	}
 
 	/**
@@ -188,20 +223,22 @@ class MediaRegistry {
 	 *
 	 * Used when media is replaced in Notion.
 	 *
-	 * @param string $notion_identifier Notion block ID or file URL hash.
-	 * @param int    $attachment_id     New WordPress attachment ID.
-	 * @param string $notion_file_url   New Notion file URL.
+	 * @param string   $notion_identifier Notion block ID or file URL hash.
+	 * @param int|null $attachment_id     New WordPress attachment ID.
+	 * @param string   $notion_file_url   New Notion file URL.
+	 * @param string   $status            Status: 'uploaded', 'unsupported', 'external'.
 	 * @return bool True on success.
 	 */
 	public static function update(
 		string $notion_identifier,
-		int $attachment_id,
-		string $notion_file_url = ''
+		?int $attachment_id = null,
+		string $notion_file_url = '',
+		string $status = 'uploaded'
 	): bool {
 		global $wpdb;
 
-		// Verify attachment exists.
-		if ( ! get_post( $attachment_id ) ) {
+		// Verify attachment exists if provided.
+		if ( null !== $attachment_id && ! get_post( $attachment_id ) ) {
 			error_log( "MediaRegistry: Attachment ID {$attachment_id} does not exist" );
 			return false;
 		}
@@ -211,10 +248,11 @@ class MediaRegistry {
 			[
 				'attachment_id'   => $attachment_id,
 				'notion_file_url' => $notion_file_url,
+				'status'          => $status,
 				'registered_at'   => current_time( 'mysql' ),
 			],
 			[ 'notion_identifier' => $notion_identifier ],
-			[ '%d', '%s', '%s' ],
+			[ '%d', '%s', '%s', '%s' ],
 			[ '%s' ]
 		);
 
