@@ -176,6 +176,9 @@ function init() {
 	// Enqueue frontend CSS for advanced blocks.
 	add_action( 'wp_enqueue_scripts', __NAMESPACE__ . '\enqueue_frontend_assets' );
 
+	// Enqueue block editor assets (JavaScript for block registration).
+	add_action( 'enqueue_block_editor_assets', __NAMESPACE__ . '\enqueue_block_editor_assets' );
+
 	// Plugin loaded hook for extensibility.
 	do_action( 'notion_sync_loaded' );
 }
@@ -206,6 +209,45 @@ function enqueue_frontend_assets(): void {
 		NOTION_SYNC_VERSION,
 		'all'
 	);
+}
+
+/**
+ * Enqueue block editor JavaScript assets.
+ *
+ * Loads JavaScript files needed for block registration in the Gutenberg editor.
+ * This includes client-side registration for dynamic blocks that are rendered server-side.
+ *
+ * @return void
+ */
+function enqueue_block_editor_assets(): void {
+	// Get file path for cache busting with filemtime.
+	$script_path = NOTION_SYNC_PATH . 'assets/js/blocks/notion-image-block.js';
+	$script_url  = NOTION_SYNC_URL . 'assets/js/blocks/notion-image-block.js';
+
+	// Only enqueue if file exists.
+	if ( ! file_exists( $script_path ) ) {
+		// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log -- Debug logging for missing assets.
+		error_log( 'Notion Sync: Block editor script not found at ' . $script_path );
+		return;
+	}
+
+	// Enqueue Notion Image block editor script.
+	wp_enqueue_script(
+		'notion-sync-image-block',
+		$script_url,
+		array( 'wp-blocks', 'wp-element', 'wp-block-editor', 'wp-i18n' ),
+		filemtime( $script_path ),
+		false
+	);
+
+	// Set script translations if available.
+	if ( function_exists( 'wp_set_script_translations' ) ) {
+		wp_set_script_translations(
+			'notion-sync-image-block',
+			'notion-sync',
+			NOTION_SYNC_PATH . 'languages'
+		);
+	}
 }
 
 /**
