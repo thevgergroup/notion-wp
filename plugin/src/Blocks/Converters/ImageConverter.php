@@ -408,9 +408,11 @@ class ImageConverter implements BlockConverterInterface {
 		$attributes_json = wp_json_encode( $attributes );
 
 		// Return dynamic block that will check MediaRegistry at render time.
-		// NOTE: Must use opening/closing tags (not self-closing) for render_callback to fire.
+		// NOTE: WordPress dynamic blocks require inner content (even if empty paragraph)
+		// for render_callback to be properly invoked. The inner content is replaced
+		// by the render_callback output on the frontend.
 		return sprintf(
-			"<!-- wp:notion-sync/notion-image %s -->\n<!-- /wp:notion-sync/notion-image -->\n\n",
+			"<!-- wp:notion-sync/notion-image %s -->\n<p></p>\n<!-- /wp:notion-sync/notion-image -->\n\n",
 			$attributes_json
 		);
 	}

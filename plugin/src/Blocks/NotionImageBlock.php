@@ -56,11 +56,21 @@ class NotionImageBlock {
 	/**
 	 * Register the Gutenberg block.
 	 *
+	 * Uses WordPress dynamic block API with server-side rendering via render_callback.
+	 * The block will be rendered on every page load, checking MediaRegistry for the
+	 * latest image status.
+	 *
 	 * @since 0.4.0
 	 */
 	public function register_block(): void {
+		// Verify WP_Block_Type_Registry is available.
+		if ( ! class_exists( 'WP_Block_Type_Registry' ) ) {
+			error_log( '[NotionImageBlock] WP_Block_Type_Registry not available - cannot register block' );
+			return;
+		}
+
 		// Register as a dynamic block with server-side rendering.
-		register_block_type(
+		$result = register_block_type(
 			self::FULL_BLOCK_NAME,
 			array(
 				'api_version'     => 2,
@@ -90,8 +100,13 @@ class NotionImageBlock {
 			)
 		);
 
-		// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log -- Debug logging.
-		error_log( '[NotionImageBlock] Block registered: ' . self::FULL_BLOCK_NAME );
+		if ( $result instanceof \WP_Block_Type ) {
+			// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log -- Debug logging.
+			error_log( '[NotionImageBlock] Block registered successfully: ' . self::FULL_BLOCK_NAME );
+		} else {
+			// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log -- Debug logging.
+			error_log( '[NotionImageBlock] Block registration failed for: ' . self::FULL_BLOCK_NAME );
+		}
 	}
 
 	/**
@@ -104,13 +119,22 @@ class NotionImageBlock {
 	 * @since 0.4.0
 	 *
 	 * @param array  $attributes Block attributes.
-	 * @param string $content    Block content (not used for dynamic blocks).
+	 * @param string $content    Block content (inner HTML from post_content).
 	 * @return string Rendered HTML.
 	 *
 	 * @phpcs:ignore Generic.CodeAnalysis.UnusedFunctionParameter.FoundAfterLastUsed -- $content required by block API.
 	 */
 	public function render_block( array $attributes, string $content = '' ): string {
-		error_log( '[NotionImageBlock] render_block called with: ' . wp_json_encode( $attributes ) );
+		// Enhanced debug logging to verify render_callback is being invoked.
+		// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log -- Debug logging.
+		error_log(
+			sprintf(
+				'[NotionImageBlock] render_block CALLED - Attributes: %s | Content length: %d | Content preview: %s',
+				wp_json_encode( $attributes ),
+				strlen( $content ),
+				substr( $content, 0, 100 )
+			)
+		);
 
 		$block_id   = $attributes['blockId'] ?? '';
 		$notion_url = $attributes['notionUrl'] ?? '';
