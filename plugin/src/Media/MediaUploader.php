@@ -96,9 +96,19 @@ class MediaUploader {
 		}
 
 		// Generate attachment metadata and thumbnails.
+		// For bulk imports, we skip thumbnail generation to avoid performance issues.
+		// WordPress will generate thumbnails on-demand when a specific size is requested.
+		// This is the standard approach used by WP All Import and other bulk import plugins.
 		require_once ABSPATH . 'wp-admin/includes/image.php';
+
+		// Temporarily disable intermediate image sizes (thumbnails).
+		add_filter( 'intermediate_image_sizes_advanced', '__return_empty_array' );
+
 		$attachment_metadata = wp_generate_attachment_metadata( $attachment_id, $upload_path );
 		wp_update_attachment_metadata( $attachment_id, $attachment_metadata );
+
+		// Re-enable intermediate image sizes for other plugins/processes.
+		remove_filter( 'intermediate_image_sizes_advanced', '__return_empty_array' );
 
 		// Set alt text for images.
 		if ( ! empty( $metadata['alt_text'] ) && strpos( $mime_type, 'image/' ) === 0 ) {

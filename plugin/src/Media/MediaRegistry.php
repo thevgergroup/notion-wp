@@ -170,11 +170,29 @@ class MediaRegistry {
 	public static function get_status( string $notion_identifier ): ?string {
 		global $wpdb;
 
-		$status = $wpdb->get_var(
-			$wpdb->prepare(
-				'SELECT status FROM %i WHERE notion_identifier = %s LIMIT 1',
-				self::get_table_name(),
-				$notion_identifier
+		$query = $wpdb->prepare(
+			'SELECT status FROM %i WHERE notion_identifier = %s LIMIT 1',
+			self::get_table_name(),
+			$notion_identifier
+		);
+
+		// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log -- Debug logging.
+		error_log(
+			sprintf(
+				'[MediaRegistry] get_status - identifier: %s | query: %s',
+				substr( $notion_identifier, 0, 20 ),
+				$query
+			)
+		);
+
+		$status = $wpdb->get_var( $query );
+
+		// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log -- Debug logging.
+		error_log(
+			sprintf(
+				'[MediaRegistry] get_status result - status: %s | wpdb error: %s',
+				$status ?? 'NULL',
+				$wpdb->last_error ? $wpdb->last_error : 'none'
 			)
 		);
 

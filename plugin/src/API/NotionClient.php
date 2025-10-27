@@ -222,6 +222,28 @@ class NotionClient {
 	}
 
 	/**
+	 * Retrieve a single block by ID.
+	 *
+	 * Returns block data including type, content, and metadata.
+	 * Useful for refreshing S3 URLs for image/file blocks.
+	 *
+	 * @since 0.4.0
+	 *
+	 * @param string $block_id Block ID to retrieve.
+	 * @return array Block data or error array.
+	 */
+	public function get_block( $block_id ) {
+		try {
+			$response = $this->request( 'GET', '/blocks/' . $block_id );
+			return $response;
+		} catch ( \Exception $e ) {
+			return array(
+				'error' => $e->getMessage(),
+			);
+		}
+	}
+
+	/**
 	 * Get block children (content blocks from a page or block).
 	 *
 	 * @param string      $block_id Block or page ID to fetch children from.

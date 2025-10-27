@@ -288,6 +288,54 @@ class NotionCommand {
 	}
 
 	/**
+	 * Get raw block data from Notion API.
+	 *
+	 * ## OPTIONS
+	 *
+	 * <block-id>
+	 * : Notion block ID (with or without dashes)
+	 *
+	 * ## EXAMPLES
+	 *
+	 *     # Get raw block data
+	 *     wp notion get-block 2644dac9-b96e-80fb-a447-df447773129b
+	 *
+	 * @param array $args Positional arguments.
+	 * @param array $assoc_args Associative arguments.
+	 * @when after_wp_load
+	 */
+	public function get_block( $args, $assoc_args ) {
+		$block_id = $args[0];
+
+		try {
+			list( $client, $error ) = CommandHelpers::get_notion_client();
+			if ( $error ) {
+				\WP_CLI::error( $error );
+			}
+
+			\WP_CLI::log( "Fetching block $block_id..." );
+			$block = $client->get_block( $block_id );
+
+			if ( isset( $block['error'] ) ) {
+				\WP_CLI::error( 'API Error: ' . $block['error'] );
+			}
+
+			\WP_CLI::log( "\nBlock Type: " . ( $block['type'] ?? 'unknown' ) );
+			\WP_CLI::log( "\nRaw JSON:" );
+			\WP_CLI::log( json_encode( $block, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES ) );
+
+			// If it's an image block, extract the URL for convenience
+			if ( isset( $block['image']['file']['url'] ) ) {
+				\WP_CLI::log( "\n=== Image URL ===" );
+				\WP_CLI::log( $block['image']['file']['url'] );
+			}
+
+		} catch ( \Exception $e ) {
+			\WP_CLI::error( 'Failed to fetch block: ' . $e->getMessage() );
+		}
+	}
+
+	/**
 	 * Show Notion links found in a WordPress post.
 	 *
 	 * ## OPTIONS
