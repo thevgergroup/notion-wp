@@ -32,7 +32,7 @@ flowchart TD
 | Phase 2 | Sync Notion databases to WordPress posts | M          | 1-2 weeks | ✅ Complete       |
 | Phase 3 | Download and manage images               | M          | 1 week    | ✅ Complete       |
 | Phase 4 | Support advanced block types             | L          | 2 weeks   | ✅ Complete       |
-| Phase 5 | Handle page hierarchy and menus          | M          | 1-2 weeks | Not Started       |
+| Phase 5 | Hierarchy, menus, database views         | L          | 5-6 weeks | 📋 Ready to Start |
 | Phase 6 | WordPress.org submission prep            | M          | 1 week    | Not Started       |
 
 ---
@@ -526,10 +526,13 @@ Many block types with varying complexity.
 
 ## Phase 5: Hierarchy & Navigation
 
-**Goal:** Sync page hierarchies and automatically generate WordPress navigation menus.
+**Goal:** Sync page hierarchies, render embedded database views, and automatically generate WordPress navigation menus.
+
+**Detailed Plan:** See [Phase 5 Detailed Plan](./phase-5-hierarchy-navigation.md) for comprehensive breakdown.
 
 ### Success Criteria
 
+#### Core Hierarchy & Navigation
 - [ ] Child pages in Notion sync as child pages in WordPress
 - [ ] Parent-child relationships preserved
 - [ ] WordPress menu auto-generated from structure
@@ -537,6 +540,15 @@ Many block types with varying complexity.
 - [ ] Menu updates on re-sync (adds new, removes deleted)
 - [ ] User can choose which menu to update
 - [ ] Works with 3+ levels of nesting
+
+#### Embedded Database Views
+- [ ] Inline database views render with filtered/sorted entries
+- [ ] Linked database views apply view-specific filters
+- [ ] Database view display modes (table, list, gallery, board)
+- [ ] View pagination and limits respected
+- [ ] Filter configurations applied correctly
+- [ ] Sort configurations applied correctly
+- [ ] Embedded entries link to synced WordPress posts when available
 
 ### Dependencies
 
@@ -582,15 +594,27 @@ Many block types with varying complexity.
 
 **Technical:**
 
-- `includes/class-hierarchy-sync.php` - Page tree handling
-- `includes/class-menu-generator.php` - Menu creation
-- `includes/class-link-converter.php` - Link transformation
+- `src/Hierarchy/HierarchyManager.php` - Page tree handling
+- `src/Navigation/MenuGenerator.php` - Menu creation
+- `src/Router/LinkRegistry.php` (enhanced) - Link resolution
+- `src/Database/DatabaseViewRenderer.php` - Database view rendering
+- `src/Database/DatabaseViewParser.php` - View configuration parsing
+- Custom Gutenberg blocks (database-table, database-list, database-gallery, database-board)
+- Enhanced `ChildDatabaseConverter` with inline rendering
 - Menu assignment interface in admin
 - Recursive sync support
 
-### Estimated Complexity: M (Medium)
+### Estimated Complexity: L (Large)
 
-Clear requirements but needs careful handling of relationships.
+**Duration:** 5-6 weeks
+
+Originally scoped as Medium complexity for basic hierarchy and navigation. Now expanded to Large due to addition of:
+- Embedded database view rendering (4 view types)
+- Database filter/sort parsing and application
+- Custom Gutenberg blocks for database displays
+- Advanced link resolution with validation
+
+See [Phase 5 Detailed Plan](./phase-5-hierarchy-navigation.md) for full breakdown and implementation phases.
 
 ---
 
