@@ -46,6 +46,11 @@ class MediaRegistryTest extends BaseTestCase {
 		// Note: get_post is already mocked in BaseTestCase setup_wordpress_mocks()
 		// to return a valid post object
 
+		// Mock wp_cache_delete for cache invalidation
+		Functions\expect( 'wp_cache_delete' )
+			->once()
+			->andReturn( true );
+
 		// Mock wpdb->insert to verify data is inserted
 		$wpdb->shouldReceive( 'insert' )
 			->once()
@@ -82,6 +87,16 @@ class MediaRegistryTest extends BaseTestCase {
 		$notion_media_id = 'notion-image-123';
 		$attachment_id   = 42;
 
+		// Mock wp_cache_get to return false (cache miss)
+		Functions\expect( 'wp_cache_get' )
+			->once()
+			->andReturn( false );
+
+		// Mock wp_cache_set to store result in cache
+		Functions\expect( 'wp_cache_set' )
+			->once()
+			->andReturn( true );
+
 		// Mock wpdb->get_var to return the attachment ID
 		$wpdb->shouldReceive( 'get_var' )
 			->once()
@@ -103,6 +118,16 @@ class MediaRegistryTest extends BaseTestCase {
 		global $wpdb;
 
 		$notion_media_id = 'nonexistent-media-id';
+
+		// Mock wp_cache_get to return false (cache miss)
+		Functions\expect( 'wp_cache_get' )
+			->once()
+			->andReturn( false );
+
+		// Mock wp_cache_set to store null result in cache
+		Functions\expect( 'wp_cache_set' )
+			->once()
+			->andReturn( true );
 
 		// Mock wpdb->get_var to return null (not found)
 		$wpdb->shouldReceive( 'get_var' )
