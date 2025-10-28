@@ -61,7 +61,7 @@ class CalloutConverter implements BlockConverterInterface {
 		return sprintf(
 			"<!-- wp:html -->\n<div class=\"notion-callout %s\">\n\t%s<div class=\"notion-callout-text\">%s</div>\n</div>\n<!-- /wp:html -->\n\n",
 			esc_attr( $color_class ),
-			$icon_html,
+			wp_kses_post( $icon_html ),
 			wp_kses_post( $text )
 		);
 	}

@@ -43,6 +43,27 @@ class NotionImageBlock {
 	private const FULL_BLOCK_NAME = 'notion-sync/notion-image';
 
 	/**
+	 * Log debug message if debug mode is enabled.
+	 *
+	 * Debug mode can be enabled by defining NOTION_SYNC_DEBUG constant as true
+	 * or setting 'notion_wp_debug' option to true.
+	 *
+	 * @since 0.4.0
+	 *
+	 * @param string $message Debug message to log.
+	 */
+	private static function debug_log( string $message ): void {
+		// Check if debug mode is enabled via constant or option.
+		$debug_enabled = ( defined( 'NOTION_SYNC_DEBUG' ) && NOTION_SYNC_DEBUG ) ||
+						get_option( 'notion_wp_debug', false );
+
+		if ( $debug_enabled ) {
+			// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log -- Debug logging.
+			error_log( $message );
+		}
+	}
+
+	/**
 	 * Register WordPress hooks.
 	 *
 	 * Called during init.
@@ -65,7 +86,7 @@ class NotionImageBlock {
 	public function register_block(): void {
 		// Verify WP_Block_Type_Registry is available.
 		if ( ! class_exists( 'WP_Block_Type_Registry' ) ) {
-			error_log( '[NotionImageBlock] WP_Block_Type_Registry not available - cannot register block' );
+			self::debug_log( '[NotionImageBlock] WP_Block_Type_Registry not available - cannot register block' );
 			return;
 		}
 
@@ -102,10 +123,10 @@ class NotionImageBlock {
 
 		if ( $result instanceof \WP_Block_Type ) {
 			// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log -- Debug logging.
-			error_log( '[NotionImageBlock] Block registered successfully: ' . self::FULL_BLOCK_NAME );
+			self::debug_log( '[NotionImageBlock] Block registered successfully: ' . self::FULL_BLOCK_NAME );
 		} else {
 			// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log -- Debug logging.
-			error_log( '[NotionImageBlock] Block registration failed for: ' . self::FULL_BLOCK_NAME );
+			self::debug_log( '[NotionImageBlock] Block registration failed for: ' . self::FULL_BLOCK_NAME );
 		}
 	}
 
@@ -127,7 +148,7 @@ class NotionImageBlock {
 	public function render_block( array $attributes, string $content = '' ): string {
 		// Enhanced debug logging to verify render_callback is being invoked.
 		// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log -- Debug logging.
-		error_log(
+		self::debug_log(
 			sprintf(
 				'[NotionImageBlock] render_block CALLED - Attributes: %s | Content length: %d | Content preview: %s',
 				wp_json_encode( $attributes ),
@@ -142,7 +163,7 @@ class NotionImageBlock {
 		$alt_text   = $attributes['altText'] ?? '';
 
 		// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log -- Debug logging.
-		error_log(
+		self::debug_log(
 			sprintf(
 				'[NotionImageBlock] Extracted values - block_id: %s | notion_url length: %d | caption: %s',
 				substr( $block_id, 0, 8 ),
@@ -153,7 +174,7 @@ class NotionImageBlock {
 
 		if ( empty( $block_id ) ) {
 			// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log -- Debug logging.
-			error_log( '[NotionImageBlock] EARLY RETURN: Empty block_id' );
+			self::debug_log( '[NotionImageBlock] EARLY RETURN: Empty block_id' );
 			// No block ID - show error for users with proper capabilities only.
 			if ( current_user_can( 'manage_options' ) || current_user_can( 'edit_posts' ) ) {
 				return '<p class="notion-image-error">⚠️ Notion image missing block ID</p>';
@@ -166,7 +187,7 @@ class NotionImageBlock {
 		$attachment_id = MediaRegistry::find( $block_id );
 
 		// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log -- Debug logging.
-		error_log(
+		self::debug_log(
 			sprintf(
 				'[NotionImageBlock] MediaRegistry lookup - status: %s | attachment_id: %s',
 				$status ?? 'null',
@@ -177,10 +198,10 @@ class NotionImageBlock {
 		// If image is marked as unsupported, show permanent Notion URL fallback.
 		if ( 'unsupported' === $status ) {
 			// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log -- Debug logging.
-			error_log( '[NotionImageBlock] Rendering UNSUPPORTED placeholder' );
+			self::debug_log( '[NotionImageBlock] Rendering UNSUPPORTED placeholder' );
 			// Fetch fresh URL if expired.
 			// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log -- Debug logging.
-			error_log(
+			self::debug_log(
 				sprintf(
 					'[NotionImageBlock] Checking URL expiration - empty: %s | expired: %s | url preview: %s',
 					empty( $notion_url ) ? 'YES' : 'NO',
@@ -190,14 +211,14 @@ class NotionImageBlock {
 			);
 			if ( empty( $notion_url ) || $this->is_url_expired( $notion_url ) ) {
 				// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log -- Debug logging.
-				error_log( '[NotionImageBlock] URL expired or empty, fetching fresh URL for unsupported image' );
+				self::debug_log( '[NotionImageBlock] URL expired or empty, fetching fresh URL for unsupported image' );
 				$notion_url = $this->get_fresh_notion_url( $block_id );
 				// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log -- Debug logging.
-				error_log( '[NotionImageBlock] Fresh URL length: ' . strlen( $notion_url ) );
+				self::debug_log( '[NotionImageBlock] Fresh URL length: ' . strlen( $notion_url ) );
 			}
 			$html = $this->render_unsupported_placeholder( $notion_url, $caption, $alt_text );
 			// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log -- Debug logging.
-			error_log( '[NotionImageBlock] Unsupported HTML length: ' . strlen( $html ) );
+			self::debug_log( '[NotionImageBlock] Unsupported HTML length: ' . strlen( $html ) );
 			return $html;
 		}
 
@@ -205,16 +226,16 @@ class NotionImageBlock {
 			// Verify attachment still exists in Media Library.
 			if ( ! wp_get_attachment_url( $attachment_id ) ) {
 				// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log -- Debug logging.
-				error_log( '[NotionImageBlock] Attachment deleted, fetching fresh URL' );
+				self::debug_log( '[NotionImageBlock] Attachment deleted, fetching fresh URL' );
 				// Attachment deleted - try to get fresh Notion URL.
 				$notion_url = $this->get_fresh_notion_url( $block_id );
 			} else {
 				// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log -- Debug logging.
-				error_log( '[NotionImageBlock] Rendering WORDPRESS IMAGE for attachment ' . $attachment_id );
+				self::debug_log( '[NotionImageBlock] Rendering WORDPRESS IMAGE for attachment ' . $attachment_id );
 				// Image downloaded and exists - render proper WordPress image block.
 				$html = $this->render_wordpress_image( $attachment_id, $caption, $alt_text );
 				// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log -- Debug logging.
-				error_log( '[NotionImageBlock] WordPress image HTML length: ' . strlen( $html ) );
+				self::debug_log( '[NotionImageBlock] WordPress image HTML length: ' . strlen( $html ) );
 				return $html;
 			}
 		}
@@ -222,18 +243,18 @@ class NotionImageBlock {
 		// Image not yet downloaded or attachment missing - fetch fresh URL if needed.
 		if ( empty( $notion_url ) || $this->is_url_expired( $notion_url ) ) {
 			// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log -- Debug logging.
-			error_log( '[NotionImageBlock] Fetching fresh Notion URL' );
+			self::debug_log( '[NotionImageBlock] Fetching fresh Notion URL' );
 			$notion_url = $this->get_fresh_notion_url( $block_id );
 			// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log -- Debug logging.
-			error_log( '[NotionImageBlock] Fresh URL length: ' . strlen( $notion_url ) );
+			self::debug_log( '[NotionImageBlock] Fresh URL length: ' . strlen( $notion_url ) );
 		}
 
 		// Image not yet downloaded - render placeholder.
 		// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log -- Debug logging.
-		error_log( '[NotionImageBlock] Rendering PLACEHOLDER' );
+		self::debug_log( '[NotionImageBlock] Rendering PLACEHOLDER' );
 		$html = $this->render_placeholder( $notion_url, $caption, $alt_text );
 		// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log -- Debug logging.
-		error_log( '[NotionImageBlock] Placeholder HTML length: ' . strlen( $html ) );
+		self::debug_log( '[NotionImageBlock] Placeholder HTML length: ' . strlen( $html ) );
 		return $html;
 	}
 
@@ -248,6 +269,12 @@ class NotionImageBlock {
 	 * @return string Fresh Notion S3 URL, or empty string on error.
 	 */
 	private function get_fresh_notion_url( string $block_id ): string {
+		// Validate block_id is a valid UUID to prevent API abuse.
+		if ( ! $this->is_valid_uuid( $block_id ) ) {
+			self::debug_log( '[NotionImageBlock] Invalid block_id format: ' . $block_id );
+			return '';
+		}
+
 		// Get Notion API token.
 		$encrypted_token = get_option( 'notion_wp_token' );
 		if ( empty( $encrypted_token ) ) {
@@ -269,7 +296,7 @@ class NotionImageBlock {
 				}
 			}
 		} catch ( \Exception $e ) {
-			error_log( '[NotionImageBlock] Failed to fetch fresh URL for block ' . $block_id . ': ' . $e->getMessage() );
+			self::debug_log( '[NotionImageBlock] Failed to fetch fresh URL for block ' . $block_id . ': ' . $e->getMessage() );
 		}
 
 		return '';
@@ -492,5 +519,23 @@ class NotionImageBlock {
 			</figure>',
 			$error_caption
 		);
+	}
+
+	/**
+	 * Validate UUID format for Notion block IDs.
+	 *
+	 * Notion uses UUIDs in both hyphenated (8-4-4-4-12) and non-hyphenated formats.
+	 *
+	 * @since 0.4.0
+	 *
+	 * @param string $uuid UUID string to validate.
+	 * @return bool True if valid UUID format.
+	 */
+	private function is_valid_uuid( string $uuid ): bool {
+		// Remove hyphens for validation (Notion accepts both formats).
+		$uuid = str_replace( '-', '', $uuid );
+
+		// Must be exactly 32 hexadecimal characters.
+		return preg_match( '/^[0-9a-f]{32}$/i', $uuid ) === 1;
 	}
 }
