@@ -28,7 +28,7 @@
 }
 
 .notion-toggle summary::before {
-	content: '▶';
+	content: "▶";
 	display: inline-block;
 	margin-right: 8px;
 	transition: transform 0.2s ease;
