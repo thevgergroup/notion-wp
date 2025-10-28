@@ -19,7 +19,7 @@ namespace NotionSync\Media;
 /**
  * Class ImageDownloadHandler
  *
- * Handles background processing of individual image downloads.
+ * Handles background processing of individual image downloads via Action Scheduler.
  *
  * @since 0.4.0
  */
