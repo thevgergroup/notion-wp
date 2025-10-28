@@ -49,37 +49,33 @@ jobs:
 
             - name: Get Composer cache directory
               id: composer-cache
-              working-directory: plugin
               run: echo "dir=$(composer config cache-files-dir)" >> $GITHUB_OUTPUT
 
             - name: Cache Composer dependencies
               uses: actions/cache@v4
               with:
                   path: ${{ steps.composer-cache.outputs.dir }}
-                  key: ${{ runner.os }}-php${{ matrix.php }}-composer-${{ hashFiles('plugin/composer.lock') }}
+                  key: ${{ runner.os }}-php${{ matrix.php }}-composer-${{ hashFiles('**/composer.lock') }}
                   restore-keys: |
                       ${{ runner.os }}-php${{ matrix.php }}-composer-
 
             - name: Install Composer dependencies
-              working-directory: plugin
               run: |
                   composer install --prefer-dist --no-progress --no-interaction
                   composer dump-autoload --optimize
 
             - name: Run unit tests
-              working-directory: plugin
-              run: php vendor/bin/phpunit --testsuite=unit --testdox --colors=always
+              run: php plugin/vendor/bin/phpunit --testsuite=unit --testdox --colors=always
 
             - name: Generate coverage report (PHP 8.3 only)
               if: matrix.php == '8.3'
-              working-directory: plugin
-              run: php vendor/bin/phpunit --testsuite=unit --coverage-clover coverage.xml --coverage-text
+              run: php plugin/vendor/bin/phpunit --testsuite=unit --coverage-clover coverage.xml --coverage-text
 
             - name: Upload coverage to Codecov
               if: matrix.php == '8.3'
               uses: codecov/codecov-action@v4
               with:
-                  files: ./plugin/coverage.xml
+                  files: ./coverage.xml
                   flags: unit
                   name: unit-tests-php-8.3
                   fail_ci_if_error: false
@@ -104,18 +100,15 @@ jobs:
                   tools: composer:v2
 
             - name: Install Composer dependencies
-              working-directory: plugin
               run: |
                   composer install --prefer-dist --no-progress --no-interaction
                   composer dump-autoload --optimize
 
             - name: Generate coverage report
-              working-directory: plugin
-              run: php vendor/bin/phpunit --testsuite=unit --coverage-clover coverage.xml --coverage-text | tee coverage-output.txt
+              run: php plugin/vendor/bin/phpunit --testsuite=unit --coverage-clover coverage.xml --coverage-text | tee coverage-output.txt
 
             - name: Extract coverage percentage
               id: coverage
-              working-directory: plugin
               run: |
                   COVERAGE=$(grep -oP 'Lines:\s+\K[\d.]+' coverage-output.txt | head -1)
                   echo "percentage=$COVERAGE" >> $GITHUB_OUTPUT
