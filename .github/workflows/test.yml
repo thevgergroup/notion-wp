@@ -127,7 +127,7 @@ jobs:
 
             - name: Create coverage badge
               uses: schneegans/dynamic-badges-action@v1.7.0
-              continue-on-error: true  # Don't fail if gist isn't configured
+              continue-on-error: true # Don't fail if gist isn't configured
               with:
                   auth: ${{ secrets.GIST_SECRET }}
                   gistID: ${{ secrets.GIST_ID }}

@@ -115,3 +115,4 @@ This plugin aims to address:
 - Technical Requirements: `docs/requirements/requirements.md`
 - Product Research Document: `docs/product/prd.md`
 - Notion API: https://developers.notion.com/reference
+- never use --no-verify with git, do not bypass pre-commit hooks. That is the worst sin possible
