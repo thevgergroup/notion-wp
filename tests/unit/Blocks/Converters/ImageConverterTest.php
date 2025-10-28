@@ -5,11 +5,11 @@
  * Tests conversion of Notion image blocks to WordPress Gutenberg image blocks.
  * Covers external images, Notion-hosted files, captions, and media library integration.
  *
- * @package NotionSync
+ * @package NotionWP
  * @since 1.0.0
  */
 
-namespace NotionSync\Tests\Unit\Blocks\Converters;
+namespace NotionWP\Tests\Unit\Blocks\Converters;
 
 use NotionSync\Blocks\Converters\ImageConverter;
 use Brain\Monkey\Functions;
@@ -235,5 +235,4 @@ class ImageConverterTest extends BaseConverterTestCase {
 	public function test_converts_image_from_fixture(): void {
 		$this->markTestSkipped( 'Fixture file not yet created - TODO: create fixtures/notion-responses/blocks-image.json' );
 	}
-
 }

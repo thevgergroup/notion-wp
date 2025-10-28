@@ -88,6 +88,14 @@ services:
 
       # Custom PHP configuration
       - ./config/php.ini:/usr/local/etc/php/conf.d/custom.ini:ro
+
+      # Mount cron setup script for automated Action Scheduler processing
+      - ./config/setup-cron.sh:/docker-entrypoint-init.d/setup-cron.sh:ro
+    command: >
+      bash -c "
+      bash /docker-entrypoint-init.d/setup-cron.sh &
+      apache2-foreground
+      "
     depends_on:
       db:
         condition: service_healthy

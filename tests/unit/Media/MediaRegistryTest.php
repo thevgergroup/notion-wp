@@ -5,14 +5,14 @@
  * Tests the media deduplication registry that prevents duplicate downloads
  * of the same Notion media on re-sync.
  *
- * @package NotionSync
+ * @package NotionWP
  * @since 1.0.0
  */
 
-namespace NotionSync\Tests\Unit\Media;
+namespace NotionWP\Tests\Unit\Media;
 
 use NotionSync\Media\MediaRegistry;
-use NotionSync\Tests\Unit\BaseTestCase;
+use NotionWP\Tests\Unit\BaseTestCase;
 use Brain\Monkey\Functions;
 use Mockery;
 
@@ -45,6 +45,11 @@ class MediaRegistryTest extends BaseTestCase {
 
 		// Note: get_post is already mocked in BaseTestCase setup_wordpress_mocks()
 		// to return a valid post object
+
+		// Mock wp_cache_delete for cache invalidation
+		Functions\expect( 'wp_cache_delete' )
+			->once()
+			->andReturn( true );
 
 		// Mock wpdb->insert to verify data is inserted
 		$wpdb->shouldReceive( 'insert' )
@@ -82,6 +87,16 @@ class MediaRegistryTest extends BaseTestCase {
 		$notion_media_id = 'notion-image-123';
 		$attachment_id   = 42;
 
+		// Mock wp_cache_get to return false (cache miss)
+		Functions\expect( 'wp_cache_get' )
+			->once()
+			->andReturn( false );
+
+		// Mock wp_cache_set to store result in cache
+		Functions\expect( 'wp_cache_set' )
+			->once()
+			->andReturn( true );
+
 		// Mock wpdb->get_var to return the attachment ID
 		$wpdb->shouldReceive( 'get_var' )
 			->once()
@@ -104,6 +119,16 @@ class MediaRegistryTest extends BaseTestCase {
 
 		$notion_media_id = 'nonexistent-media-id';
 
+		// Mock wp_cache_get to return false (cache miss)
+		Functions\expect( 'wp_cache_get' )
+			->once()
+			->andReturn( false );
+
+		// Mock wp_cache_set to store null result in cache
+		Functions\expect( 'wp_cache_set' )
+			->once()
+			->andReturn( true );
+
 		// Mock wpdb->get_var to return null (not found)
 		$wpdb->shouldReceive( 'get_var' )
 			->once()
@@ -125,5 +150,4 @@ class MediaRegistryTest extends BaseTestCase {
 	//
 	// If these features are needed in the future, implement them THEN write tests.
 	// Don't write tests for code that doesn't exist!
-
 }

@@ -1,0 +1,257 @@
+<?php
+/**
+ * Image Download Handler
+ *
+ * Processes background image downloads queued via Action Scheduler.
+ * Downloads images from Notion S3 and uploads to WordPress Media Library.
+ *
+ * Benefits of background processing:
+ * - No PHP timeouts (pages with 100+ images sync in seconds)
+ * - Deduplication via MediaRegistry
+ * - Self-healing with dynamic blocks (no post content updates needed)
+ *
+ * @package NotionSync\Media
+ * @since 0.4.0
+ */
+
+namespace NotionSync\Media;
+
+/**
+ * Class ImageDownloadHandler
+ *
+ * Handles background processing of individual image downloads.
+ *
+ * @since 0.4.0
+ */
+class ImageDownloadHandler {
+
+	/**
+	 * Action hook name for processing individual images.
+	 *
+	 * @var string
+	 */
+	private const ACTION_HOOK = 'notion_sync_download_image';
+
+	/**
+	 * Register Action Scheduler hooks.
+	 *
+	 * @since 0.4.0
+	 *
+	 * @return void
+	 */
+	public static function register_hooks(): void {
+		if ( function_exists( 'as_schedule_single_action' ) ) {
+			add_action( self::ACTION_HOOK, array( __CLASS__, 'process_download' ), 10, 5 );
+			// Handle final failures after all retries exhausted.
+			add_action( 'action_scheduler_failed_action', array( __CLASS__, 'handle_final_failure' ), 10, 2 );
+		}
+	}
+
+	/**
+	 * Process image download (Action Scheduler callback).
+	 *
+	 * Downloads image from Notion S3, uploads to WordPress Media Library,
+	 * and registers in MediaRegistry for deduplication.
+	 *
+	 * No post content updates needed - dynamic block will automatically
+	 * show the image on next page load.
+	 *
+	 * @since 0.4.0
+	 *
+	 * @param string $block_id       Notion block ID.
+	 * @param string $notion_url     Notion S3 URL.
+	 * @param string $notion_page_id Notion page ID (for logging).
+	 * @param int    $wp_post_id     WordPress post ID (for attachment parent).
+	 * @param string $caption        Image caption.
+	 * @return void
+	 * @throws \InvalidArgumentException If required parameters are missing.
+	 * @throws \Exception If download or upload fails (caught and rethrown for retry).
+	 */
+	public static function process_download( string $block_id, string $notion_url, string $notion_page_id = '', int $wp_post_id = 0, string $caption = '' ): void {
+
+		// Validate required arguments - throw exception to trigger Action Scheduler retry.
+		if ( empty( $block_id ) ) {
+			throw new \InvalidArgumentException( 'block_id cannot be empty' );
+		}
+		if ( empty( $notion_url ) ) {
+			throw new \InvalidArgumentException( 'notion_url cannot be empty' );
+		}
+
+		try {
+			// Check if already processed (deduplication).
+			if ( MediaRegistry::exists( $block_id ) ) {
+				$existing_id = MediaRegistry::find( $block_id );
+				error_log(
+					sprintf(
+						'[ImageDownloadHandler] Image already exists: block %s → attachment %d',
+						substr( $block_id, 0, 8 ),
+						$existing_id
+					)
+				);
+				return;
+			}
+
+			// Check content-type before downloading (saves bandwidth for unsupported types).
+			$downloader    = new ImageDownloader();
+			$content_check = $downloader->check_content_type( $notion_url );
+
+			if ( $content_check['is_unsupported'] ) {
+				error_log(
+					sprintf(
+						'[ImageDownloadHandler] Unsupported content-type %s for block %s, skipping',
+						$content_check['content_type'],
+						substr( $block_id, 0, 8 )
+					)
+				);
+				// Register as unsupported so dynamic block knows to show Notion URL permanently.
+				MediaRegistry::register( $block_id, null, $notion_url, 'unsupported' );
+				return;
+			}
+
+			if ( ! $content_check['is_supported'] && $content_check['content_type'] ) {
+				error_log(
+					sprintf(
+						'[ImageDownloadHandler] Unknown content-type %s for block %s, attempting download anyway',
+						$content_check['content_type'],
+						substr( $block_id, 0, 8 )
+					)
+				);
+			}
+
+			// Download from Notion S3.
+			$downloader = new ImageDownloader();
+			$downloaded = $downloader->download(
+				$notion_url,
+				array(
+					'notion_page_id' => $notion_page_id,
+					'wp_post_id'     => $wp_post_id,
+				)
+			);
+
+			// Check if image type is unsupported (e.g., TIFF).
+			if ( ! empty( $downloaded['unsupported'] ) ) {
+				error_log(
+					sprintf(
+						'[ImageDownloadHandler] Unsupported image type for block %s, skipping upload',
+						substr( $block_id, 0, 8 )
+					)
+				);
+				// Register as unsupported so dynamic block knows to show Notion URL permanently.
+				MediaRegistry::register( $block_id, null, $notion_url, 'unsupported' );
+				return;
+			}
+
+			// Upload to WordPress Media Library.
+			$uploader      = new MediaUploader();
+			$attachment_id = $uploader->upload(
+				$downloaded['file_path'],
+				array(
+					'alt_text' => $caption ? $caption : 'Image from Notion',
+					'caption'  => $caption,
+				),
+				$wp_post_id
+			);
+
+			// Register in MediaRegistry (enables deduplication and dynamic block rendering).
+			MediaRegistry::register( $block_id, $attachment_id, $notion_url );
+
+			error_log(
+				sprintf(
+					'[ImageDownloadHandler] Successfully processed: block %s → attachment %d (post %d)',
+					substr( $block_id, 0, 8 ),
+					$attachment_id,
+					$wp_post_id
+				)
+			);
+
+		} catch ( \Exception $e ) {
+			error_log(
+				sprintf(
+					'[ImageDownloadHandler] Failed to process block %s: %s',
+					substr( $block_id, 0, 8 ),
+					$e->getMessage()
+				)
+			);
+
+			// Track error in MediaRegistry (but don't mark as 'failed' since Action Scheduler will retry).
+			global $wpdb;
+			$table_name = $wpdb->prefix . 'notion_media_registry';
+
+			// Increment error count and store error message.
+			// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
+			$wpdb->query(
+				$wpdb->prepare(
+					"UPDATE {$table_name} SET error_count = error_count + 1, last_error = %s, updated_at = %s WHERE notion_identifier = %s", // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+					$e->getMessage(),
+					current_time( 'mysql' ),
+					$block_id
+				)
+			);
+
+			// Let Action Scheduler handle retries automatically.
+			throw $e;
+		}
+	}
+
+	/**
+	 * Check if Action Scheduler is available.
+	 *
+	 * @since 0.4.0
+	 *
+	 * @return bool True if Action Scheduler is available.
+	 */
+	public static function is_action_scheduler_available(): bool {
+		return function_exists( 'as_schedule_single_action' );
+	}
+
+	/**
+	 * Handle final failure after all retries exhausted.
+	 *
+	 * Updates MediaRegistry status to 'failed' so images aren't stuck in 'processing' state.
+	 *
+	 * @since 0.4.0
+	 *
+	 * @param int    $action_id The Action Scheduler action ID.
+	 * @param object $action    The Action Scheduler action object.
+	 *
+	 * @return void
+	 */
+	public static function handle_final_failure( int $action_id, $action ): void {
+		// Only handle our image download actions.
+		if ( ! isset( $action ) || self::ACTION_HOOK !== $action->get_hook() ) {
+			return;
+		}
+
+		$args = $action->get_args();
+		if ( empty( $args[0] ) ) {
+			return;
+		}
+
+		$block_id = $args[0];
+
+		error_log(
+			sprintf(
+				'[ImageDownloadHandler] Final failure for block %s after all retries exhausted',
+				substr( $block_id, 0, 8 )
+			)
+		);
+
+		// Update MediaRegistry to mark as failed so it's not stuck in processing state.
+		global $wpdb;
+		$table_name = $wpdb->prefix . 'notion_media_registry';
+
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
+		$wpdb->update(
+			$table_name,
+			array(
+				'status'       => 'failed',
+				'updated_at'   => current_time( 'mysql' ),
+				'error_count'  => 99, // Mark as max retries exhausted.
+				'last_error'   => 'Action Scheduler exhausted all retries',
+			),
+			array( 'notion_identifier' => $block_id ),
+			array( '%s', '%s', '%d', '%s' ),
+			array( '%s' )
+		);
+	}
+}

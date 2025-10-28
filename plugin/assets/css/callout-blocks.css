@@ -1,0 +1,96 @@
+/**
+ * Callout Block Styles
+ *
+ * Styles for Notion callout blocks converted to WordPress.
+ *
+ * @package NotionSync
+ * @since 1.0.0
+ */
+
+.notion-callout {
+	display: flex;
+	padding: 16px;
+	margin: 16px 0;
+	border-radius: 3px;
+	border-left: 4px solid;
+	background-color: #f7f7f5;
+	border-left-color: #e0e0e0;
+}
+
+.notion-callout-icon {
+	flex-shrink: 0;
+	margin-right: 12px;
+	font-size: 1.5em;
+	line-height: 1.4;
+	width: 24px;
+	height: 24px;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+}
+
+.notion-callout-text {
+	flex: 1;
+	min-width: 0;
+	word-wrap: break-word;
+}
+
+/* Color variants */
+.notion-callout-gray {
+	background-color: #f7f6f3;
+	border-left-color: #9b9a97;
+}
+
+.notion-callout-brown {
+	background-color: #f4eeee;
+	border-left-color: #937264;
+}
+
+.notion-callout-orange {
+	background-color: #fbf3db;
+	border-left-color: #d9730d;
+}
+
+.notion-callout-yellow {
+	background-color: #fef3c7;
+	border-left-color: #dfab01;
+}
+
+.notion-callout-green {
+	background-color: #edf3ec;
+	border-left-color: #4d6461;
+}
+
+.notion-callout-blue {
+	background-color: #e7f3f8;
+	border-left-color: #0b6e99;
+}
+
+.notion-callout-purple {
+	background-color: #f6f3f9;
+	border-left-color: #6940a5;
+}
+
+.notion-callout-pink {
+	background-color: #faf1f5;
+	border-left-color: #ad1a72;
+}
+
+.notion-callout-red {
+	background-color: #fdebec;
+	border-left-color: #e03e3e;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+	.notion-callout {
+		padding: 12px;
+	}
+
+	.notion-callout-icon {
+		font-size: 1.2em;
+		width: 20px;
+		height: 20px;
+		margin-right: 8px;
+	}
+}

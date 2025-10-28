@@ -85,6 +85,54 @@ class ImageDownloader {
 	}
 
 	/**
+	 * Check content-type of URL without downloading (HEAD request).
+	 *
+	 * Saves bandwidth by checking if file is supported before downloading.
+	 *
+	 * @since 0.4.0
+	 *
+	 * @param string $url URL to check.
+	 * @return array {
+	 *     Content type information.
+	 *
+	 *     @type string|null $content_type  Content-Type header value.
+	 *     @type bool        $is_supported  True if type is in ALLOWED_MIME_TYPES.
+	 *     @type bool        $is_unsupported True if type is in UNSUPPORTED_MIME_TYPES.
+	 * }
+	 */
+	public function check_content_type( string $url ): array {
+		$response = wp_remote_head(
+			$url,
+			array(
+				'timeout'     => 10,
+				'redirection' => 5,
+			)
+		);
+
+		if ( is_wp_error( $response ) ) {
+			return array(
+				'content_type'   => null,
+				'is_supported'   => false,
+				'is_unsupported' => false,
+			);
+		}
+
+		$content_type = wp_remote_retrieve_header( $response, 'content-type' );
+
+		// Remove charset if present (e.g., "image/jpeg; charset=utf-8").
+		if ( $content_type && strpos( $content_type, ';' ) !== false ) {
+			list( $content_type ) = explode( ';', $content_type, 2 );
+			$content_type = trim( $content_type );
+		}
+
+		return array(
+			'content_type'   => $content_type,
+			'is_supported'   => $content_type ? in_array( $content_type, self::ALLOWED_MIME_TYPES, true ) : false,
+			'is_unsupported' => $content_type ? in_array( $content_type, self::UNSUPPORTED_MIME_TYPES, true ) : false,
+		);
+	}
+
+	/**
 	 * Download an image from a URL.
 	 *
 	 * @param string $url     Image URL (typically Notion S3 URL).
@@ -115,11 +163,8 @@ class ImageDownloader {
 		$validate = $options['validate'] ?? true;
 		$force    = $options['force'] ?? false;
 
-		// Validate URL.
-		if ( ! filter_var( $url, FILTER_VALIDATE_URL ) ) {
-			// phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- Internal error message for debugging.
-			throw new \InvalidArgumentException( 'Invalid URL provided: ' . $url );
-		}
+		// Validate URL security (SSRF protection).
+		$this->validate_url_security( $url );
 
 		// Check if URL should be downloaded (unless forced).
 		if ( ! $force && ! $this->should_download( $url ) ) {
@@ -166,6 +211,48 @@ class ImageDownloader {
 			$last_exception
 		);
 		// phpcs:enable WordPress.Security.EscapeOutput.ExceptionNotEscaped
+	}
+
+	/**
+	 * Validate URL for security vulnerabilities (SSRF protection).
+	 *
+	 * Prevents Server-Side Request Forgery attacks by blocking:
+	 * - Internal/private IP ranges
+	 * - Non-HTTP/HTTPS protocols
+	 * - URLs that fail WordPress security validation
+	 *
+	 * @since 0.4.0
+	 *
+	 * @param string $url URL to validate.
+	 * @return void
+	 * @throws \InvalidArgumentException If URL is invalid or potentially dangerous.
+	 */
+	private function validate_url_security( string $url ): void {
+		// 1. Basic format validation.
+		if ( ! filter_var( $url, FILTER_VALIDATE_URL ) ) {
+			// phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- Internal error message for debugging.
+			throw new \InvalidArgumentException( 'Invalid URL format: ' . $url );
+		}
+
+		// 2. Only allow HTTP/HTTPS.
+		$parsed = wp_parse_url( $url );
+		if ( ! isset( $parsed['scheme'] ) || ! in_array( $parsed['scheme'], array( 'http', 'https' ), true ) ) {
+			throw new \InvalidArgumentException( 'Only HTTP/HTTPS protocols allowed' );
+		}
+
+		// 3. Block internal/private IP ranges.
+		if ( isset( $parsed['host'] ) ) {
+			$ip = gethostbyname( $parsed['host'] );
+
+			if ( filter_var( $ip, FILTER_VALIDATE_IP, FILTER_FLAG_NO_PRIV_RANGE | FILTER_FLAG_NO_RES_RANGE ) === false ) {
+				throw new \InvalidArgumentException( 'Access to internal/private IPs not allowed' );
+			}
+		}
+
+		// 4. WordPress validation.
+		if ( ! wp_http_validate_url( $url ) ) {
+			throw new \InvalidArgumentException( 'URL failed WordPress security validation' );
+		}
 	}
 
 	/**
@@ -237,48 +324,69 @@ class ImageDownloader {
 		// Detect MIME type.
 		$mime_type = $this->detect_mime_type( $temp_path );
 
-		// Check if MIME type is unsupported (e.g., TIFF).
+		// Check if MIME type needs conversion (e.g., TIFF → PNG).
 		if ( in_array( $mime_type, self::UNSUPPORTED_MIME_TYPES, true ) ) {
-			// Clean up downloaded file.
-			wp_delete_file( $temp_path );
+			// Try to convert to PNG using Imagick.
+			$converted_path = $this->convert_to_png( $temp_path, $mime_type );
 
-			// Log the issue.
-			$notion_page_id = $options['notion_page_id'] ?? null;
-			$wp_post_id     = $options['wp_post_id'] ?? null;
+			if ( $converted_path ) {
+				// Conversion successful - use converted file.
+				error_log(
+					sprintf(
+						'ImageDownloader: Converted %s to PNG: %s',
+						$mime_type,
+						basename( $converted_path )
+					)
+				);
 
-			if ( $notion_page_id ) {
-				SyncLogger::log(
-					$notion_page_id,
-					SyncLogger::SEVERITY_WARNING,
-					SyncLogger::CATEGORY_IMAGE,
-					sprintf( 'Unsupported image format (%s) cannot be imported. Image will be linked to original URL.', $mime_type ),
-					array(
-						'url'       => $url,
-						'mime_type' => $mime_type,
-						'filename'  => basename( $url ),
-					),
-					$wp_post_id
+				// Clean up original file.
+				wp_delete_file( $temp_path );
+
+				// Update temp_path and mime_type to use converted file.
+				$temp_path = $converted_path;
+				$mime_type = 'image/png';
+			} else {
+				// Conversion failed - clean up and return unsupported.
+				wp_delete_file( $temp_path );
+
+				// Log the issue.
+				$notion_page_id = $options['notion_page_id'] ?? null;
+				$wp_post_id     = $options['wp_post_id'] ?? null;
+
+				if ( $notion_page_id ) {
+					SyncLogger::log(
+						$notion_page_id,
+						SyncLogger::SEVERITY_WARNING,
+						SyncLogger::CATEGORY_IMAGE,
+						sprintf( 'Unsupported image format (%s) could not be converted. Image will be linked to original URL.', $mime_type ),
+						array(
+							'url'       => $url,
+							'mime_type' => $mime_type,
+							'filename'  => basename( $url ),
+						),
+						$wp_post_id
+					);
+				}
+
+				error_log(
+					sprintf(
+						'ImageDownloader: Failed to convert %s for URL %s - will link instead of download',
+						$mime_type,
+						$url
+					)
+				);
+
+				// Return special result indicating unsupported type.
+				return array(
+					'file_path'   => null,
+					'filename'    => basename( wp_parse_url( $url, PHP_URL_PATH ) ?? 'image' ),
+					'mime_type'   => $mime_type,
+					'file_size'   => 0,
+					'source_url'  => $url,
+					'unsupported' => true,
+					'linked_url'  => $url,
 				);
 			}
-
-			error_log(
-				sprintf(
-					'ImageDownloader: Unsupported MIME type %s for URL %s - will link instead of download',
-					$mime_type,
-					$url
-				)
-			);
-
-			// Return special result indicating unsupported type.
-			return array(
-				'file_path'   => null,
-				'filename'    => basename( wp_parse_url( $url, PHP_URL_PATH ) ?? 'image' ),
-				'mime_type'   => $mime_type,
-				'file_size'   => 0,
-				'source_url'  => $url,
-				'unsupported' => true,
-				'linked_url'  => $url,
-			);
 		}
 
 		// Validate MIME type if requested.
@@ -411,5 +519,66 @@ class ImageDownloader {
 	 */
 	public static function is_allowed_mime_type( string $mime_type ): bool {
 		return in_array( $mime_type, self::ALLOWED_MIME_TYPES, true );
+	}
+
+	/**
+	 * Convert unsupported image format to PNG using Imagick.
+	 *
+	 * Converts formats like TIFF to PNG so they can be uploaded to WordPress.
+	 *
+	 * @since 0.4.0
+	 *
+	 * @param string $file_path Path to file to convert.
+	 * @param string $mime_type MIME type of source file.
+	 * @return string|null Path to converted PNG file, or null on failure.
+	 */
+	private function convert_to_png( string $file_path, string $mime_type ): ?string {
+		// Check if Imagick extension is available.
+		if ( ! extension_loaded( 'imagick' ) ) {
+			error_log( 'ImageDownloader: Imagick extension not available for image conversion' );
+			return null;
+		}
+
+		try {
+			// Create Imagick object.
+			$imagick = new \Imagick( $file_path );
+
+			// Set format to PNG.
+			$imagick->setImageFormat( 'png' );
+
+			// Set compression quality (0-100, higher = better quality, larger file).
+			$imagick->setImageCompressionQuality( 90 );
+
+			// Generate new filename.
+			$png_path = preg_replace( '/\.[^.]+$/', '.png', $file_path );
+
+			// Write PNG file.
+			$imagick->writeImage( $png_path );
+
+			// Clean up.
+			$imagick->clear();
+			$imagick->destroy();
+
+			error_log(
+				sprintf(
+					'ImageDownloader: Successfully converted %s to PNG (%s → %s)',
+					$mime_type,
+					basename( $file_path ),
+					basename( $png_path )
+				)
+			);
+
+			return $png_path;
+
+		} catch ( \Exception $e ) {
+			error_log(
+				sprintf(
+					'ImageDownloader: Failed to convert %s to PNG: %s',
+					$mime_type,
+					$e->getMessage()
+				)
+			);
+			return null;
+		}
 	}
 }

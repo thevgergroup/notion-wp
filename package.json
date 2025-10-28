@@ -10,11 +10,11 @@
 		"npm": ">=9.0.0"
 	},
 	"scripts": {
-		"build": "esbuild src/sync-dashboard.js --bundle --format=iife --outfile=plugin/assets/build/sync-dashboard.js --minify",
-		"start": "esbuild src/sync-dashboard.js --bundle --format=iife --outfile=plugin/assets/build/sync-dashboard.js --watch",
+		"build": "esbuild src/sync-dashboard.jsx --bundle --format=iife --outfile=plugin/assets/build/sync-dashboard.js --minify --jsx=automatic --jsx-import-source=preact",
+		"start": "esbuild src/sync-dashboard.jsx --bundle --format=iife --outfile=plugin/assets/build/sync-dashboard.js --watch --jsx=automatic --jsx-import-source=preact",
 		"lint": "npm-run-all --parallel lint:*",
-		"lint:js": "eslint 'plugin/**/*.{js,jsx,ts,tsx}' --max-warnings=0",
-		"lint:js:fix": "eslint 'plugin/**/*.{js,jsx,ts,tsx}' --fix",
+		"lint:js": "eslint '{plugin,src}/**/*.{js,jsx,ts,tsx}' --max-warnings=0",
+		"lint:js:fix": "eslint '{plugin,src}/**/*.{js,jsx,ts,tsx}' --fix",
 		"lint:css": "stylelint 'plugin/**/*.{css,scss,sass}'",
 		"lint:css:fix": "stylelint 'plugin/**/*.{css,scss,sass}' --fix",
 		"lint:all": "npm-run-all lint:js lint:css format:check",

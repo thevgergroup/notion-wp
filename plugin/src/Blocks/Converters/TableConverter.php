@@ -54,6 +54,11 @@ class TableConverter implements BlockConverterInterface {
 		// Build table HTML.
 		$table_html = '<figure class="wp-block-table"><table>';
 
+		// Open tbody if table has no header (will be opened after thead if has_header is true).
+		if ( ! $has_header ) {
+			$table_html .= '<tbody>';
+		}
+
 		// Process rows.
 		$first_row = true;
 		foreach ( $children as $row_block ) {
@@ -97,10 +102,8 @@ class TableConverter implements BlockConverterInterface {
 			$first_row = false;
 		}
 
-		// Close tbody if we opened it.
-		if ( $has_header && count( $children ) > 1 ) {
-			$table_html .= '</tbody>';
-		}
+		// Always close tbody (opened either at the start for non-header tables, or after thead for header tables).
+		$table_html .= '</tbody>';
 
 		$table_html .= '</table></figure>';
 
@@ -125,6 +128,9 @@ class TableConverter implements BlockConverterInterface {
 		foreach ( $rich_text as $text_obj ) {
 			$content     = $text_obj['plain_text'] ?? '';
 			$annotations = $text_obj['annotations'] ?? array();
+
+			// Escape content first to prevent XSS.
+			$content = esc_html( $content );
 
 			// Apply formatting.
 			if ( ! empty( $annotations['bold'] ) ) {

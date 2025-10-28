@@ -31,13 +31,15 @@ define( 'NOTION_SYNC_URL', plugin_dir_url( __FILE__ ) );
 define( 'NOTION_SYNC_BASENAME', plugin_basename( __FILE__ ) );
 
 // Load composer autoloader for Action Scheduler and other dependencies.
-if ( file_exists( __DIR__ . '/vendor/autoload.php' ) ) {
-	require_once __DIR__ . '/vendor/autoload.php';
+// Note: vendor directory is inside the plugin directory for Docker mount compatibility.
+if ( file_exists( NOTION_SYNC_PATH . 'vendor/autoload.php' ) ) {
+	require_once NOTION_SYNC_PATH . 'vendor/autoload.php';
 }
 
 // Initialize Action Scheduler (WooCommerce library for background processing).
-if ( file_exists( __DIR__ . '/vendor/woocommerce/action-scheduler/action-scheduler.php' ) ) {
-	require_once __DIR__ . '/vendor/woocommerce/action-scheduler/action-scheduler.php';
+// This must be loaded before WordPress init to ensure proper initialization.
+if ( file_exists( NOTION_SYNC_PATH . 'vendor/woocommerce/action-scheduler/action-scheduler.php' ) ) {
+	require_once NOTION_SYNC_PATH . 'vendor/woocommerce/action-scheduler/action-scheduler.php';
 }
 
 // PSR-4 autoloader.
@@ -82,6 +84,10 @@ function init() {
 	// Register Notion Link Gutenberg block.
 	$notion_link_block = new Blocks\NotionLinkBlock();
 	$notion_link_block->register();
+
+	// Register Notion Image dynamic block (Phase 4).
+	$notion_image_block = new Blocks\NotionImageBlock();
+	$notion_image_block->register();
 
 	// Register Notion Link shortcode for inline links.
 	$notion_link_shortcode = new Blocks\NotionLinkShortcode();
@@ -152,6 +158,11 @@ function init() {
 
 		// Register Page Sync Scheduler hooks.
 		Sync\PageSyncScheduler::register_hooks();
+
+		// Register Image Download Handler (Phase 4).
+		// Downloads images in background and registers in MediaRegistry.
+		// No post content updates needed - dynamic block checks registry at render time.
+		Media\ImageDownloadHandler::register_hooks();
 	}
 
 	// Register WP-CLI commands if WP-CLI is available.
@@ -162,10 +173,82 @@ function init() {
 	// Add filter to prepend icon emoji to post titles.
 	add_filter( 'the_title', __NAMESPACE__ . '\prepend_notion_icon_to_title', 10, 2 );
 
+	// Enqueue frontend CSS for advanced blocks.
+	add_action( 'wp_enqueue_scripts', __NAMESPACE__ . '\enqueue_frontend_assets' );
+
+	// Enqueue block editor assets (JavaScript for block registration).
+	add_action( 'enqueue_block_editor_assets', __NAMESPACE__ . '\enqueue_block_editor_assets' );
+
 	// Plugin loaded hook for extensibility.
 	do_action( 'notion_sync_loaded' );
 }
 add_action( 'init', __NAMESPACE__ . '\init' );
+
+/**
+ * Enqueue frontend CSS for advanced Notion blocks.
+ *
+ * Loads styling for callout and toggle blocks converted from Notion.
+ *
+ * @return void
+ */
+function enqueue_frontend_assets(): void {
+	// Enqueue callout block styles.
+	wp_enqueue_style(
+		'notion-sync-callout-blocks',
+		NOTION_SYNC_URL . 'assets/css/callout-blocks.css',
+		array(),
+		NOTION_SYNC_VERSION,
+		'all'
+	);
+
+	// Enqueue toggle block styles.
+	wp_enqueue_style(
+		'notion-sync-toggle-blocks',
+		NOTION_SYNC_URL . 'assets/css/toggle-blocks.css',
+		array(),
+		NOTION_SYNC_VERSION,
+		'all'
+	);
+}
+
+/**
+ * Enqueue block editor JavaScript assets.
+ *
+ * Loads JavaScript files needed for block registration in the Gutenberg editor.
+ * This includes client-side registration for dynamic blocks that are rendered server-side.
+ *
+ * @return void
+ */
+function enqueue_block_editor_assets(): void {
+	// Get file path for cache busting with filemtime.
+	$script_path = NOTION_SYNC_PATH . 'assets/js/blocks/notion-image-block.js';
+	$script_url  = NOTION_SYNC_URL . 'assets/js/blocks/notion-image-block.js';
+
+	// Only enqueue if file exists.
+	if ( ! file_exists( $script_path ) ) {
+		// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log -- Debug logging for missing assets.
+		error_log( 'Notion Sync: Block editor script not found at ' . $script_path );
+		return;
+	}
+
+	// Enqueue Notion Image block editor script.
+	wp_enqueue_script(
+		'notion-sync-image-block',
+		$script_url,
+		array( 'wp-blocks', 'wp-element', 'wp-block-editor', 'wp-i18n' ),
+		filemtime( $script_path ),
+		false
+	);
+
+	// Set script translations if available.
+	if ( function_exists( 'wp_set_script_translations' ) ) {
+		wp_set_script_translations(
+			'notion-sync-image-block',
+			'notion-sync',
+			NOTION_SYNC_PATH . 'languages'
+		);
+	}
+}
 
 /**
  * Prepend Notion icon emoji to post titles.

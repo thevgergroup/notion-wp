@@ -68,7 +68,10 @@ class QuoteConverter implements BlockConverterInterface {
 			$content     = $text_obj['plain_text'] ?? '';
 			$annotations = $text_obj['annotations'] ?? array();
 
-			// Apply formatting.
+			// Escape content first to prevent XSS.
+			$content = esc_html( $content );
+
+			// Apply formatting after escaping.
 			if ( ! empty( $annotations['bold'] ) ) {
 				$content = '<strong>' . $content . '</strong>';
 			}

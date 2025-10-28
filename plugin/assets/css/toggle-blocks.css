@@ -1,0 +1,105 @@
+/**
+ * Toggle Block Styles
+ *
+ * Styles for Notion toggle blocks converted to WordPress.
+ *
+ * @package NotionSync
+ * @since 1.0.0
+ */
+
+.notion-toggle {
+	margin: 12px 0;
+	border: 1px solid #e0e0e0;
+	border-radius: 3px;
+	background-color: #fafafa;
+}
+
+.notion-toggle summary {
+	padding: 12px 16px;
+	cursor: pointer;
+	font-weight: 500;
+	user-select: none;
+	list-style: none;
+	outline: none;
+}
+
+.notion-toggle summary::-webkit-details-marker {
+	display: none;
+}
+
+.notion-toggle summary::before {
+	content: "▶";
+	display: inline-block;
+	margin-right: 8px;
+	transition: transform 0.2s ease;
+	font-size: 0.75em;
+}
+
+.notion-toggle[open] summary::before {
+	transform: rotate(90deg);
+}
+
+.notion-toggle summary:hover {
+	background-color: #f0f0f0;
+}
+
+.notion-toggle-content {
+	padding: 0 16px 12px 32px;
+}
+
+/* Color variants */
+.notion-toggle-gray {
+	background-color: #f7f6f3;
+	border-color: #d3d1cb;
+}
+
+.notion-toggle-brown {
+	background-color: #f4eeee;
+	border-color: #e0d8d6;
+}
+
+.notion-toggle-orange {
+	background-color: #fbf3db;
+	border-color: #f5e7c3;
+}
+
+.notion-toggle-yellow {
+	background-color: #fef3c7;
+	border-color: #fce588;
+}
+
+.notion-toggle-green {
+	background-color: #edf3ec;
+	border-color: #dae8d7;
+}
+
+.notion-toggle-blue {
+	background-color: #e7f3f8;
+	border-color: #d3e5ed;
+}
+
+.notion-toggle-purple {
+	background-color: #f6f3f9;
+	border-color: #e8e2ef;
+}
+
+.notion-toggle-pink {
+	background-color: #faf1f5;
+	border-color: #f2e2ea;
+}
+
+.notion-toggle-red {
+	background-color: #fdebec;
+	border-color: #f9d6d9;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+	.notion-toggle summary {
+		padding: 10px 12px;
+	}
+
+	.notion-toggle-content {
+		padding: 0 12px 10px 28px;
+	}
+}

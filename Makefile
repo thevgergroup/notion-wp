@@ -259,5 +259,49 @@ status: ## Show environment status and URLs
 .PHONY: info
 info: status ## Show environment information (alias for status)
 
+.PHONY: cron
+cron: ## Run WP-Cron to process Action Scheduler queue
+	@echo "$(CYAN)Processing Action Scheduler queue...$(NC)"
+	@$(WP) cron event run action_scheduler_run_queue
+	@echo "$(GREEN)Queue processed!$(NC)"
+	@echo ""
+	@echo "$(CYAN)To process multiple times:$(NC)"
+	@echo "  for i in {1..10}; do make cron; sleep 1; done"
+	@echo ""
+
+.PHONY: cron-loop
+cron-loop: ## Process Action Scheduler queue 10 times (clears backlog)
+	@echo "$(CYAN)Processing queue 10 times to clear backlog...$(NC)"
+	@for i in 1 2 3 4 5 6 7 8 9 10; do \
+		echo "$(YELLOW)Run $$i/10...$(NC)"; \
+		$(WP) cron event run action_scheduler_run_queue 2>&1 | grep -v "NotionLinkBlock" || true; \
+		sleep 1; \
+	done
+	@echo "$(GREEN)Queue processing complete!$(NC)"
+	@echo ""
+
+.PHONY: cron-status
+cron-status: ## Show Action Scheduler queue status
+	@echo "$(CYAN)Action Scheduler Status$(NC)"
+	@echo "$(YELLOW)=======================$(NC)"
+	@$(WP) db query "SELECT status, COUNT(*) as count FROM wp_actionscheduler_actions GROUP BY status" --skip-column-names | awk '{printf "  %-15s %s\n", $$1":", $$2}'
+	@echo ""
+	@echo "$(CYAN)Recent Actions:$(NC)"
+	@$(WP) db query "SELECT action_id, hook, status, DATE_FORMAT(scheduled_date_gmt, '%Y-%m-%d %H:%i:%s') as scheduled FROM wp_actionscheduler_actions ORDER BY scheduled_date_gmt DESC LIMIT 5"
+	@echo ""
+
+.PHONY: cron-reset
+cron-reset: ## Reset stuck "in-progress" actions (marks as failed for retry)
+	@echo "$(CYAN)Resetting stuck actions...$(NC)"
+	@$(WP) db query "UPDATE wp_actionscheduler_actions SET status='failed' WHERE status='in-progress' AND scheduled_date_gmt < DATE_SUB(NOW(), INTERVAL 10 MINUTE)"
+	@echo "$(GREEN)Stuck actions reset!$(NC)"
+	@echo ""
+	@$(MAKE) cron-status
+
+.PHONY: cron-log
+cron-log: ## View automated cron execution log
+	@echo "$(CYAN)Automated Cron Log (last 50 lines):$(NC)"
+	@docker exec $(COMPOSE_PROJECT_NAME)_wp tail -50 /var/log/wp-cron.log 2>/dev/null || echo "$(YELLOW)No cron log available yet$(NC)"
+
 # Default target
 .DEFAULT_GOAL := help

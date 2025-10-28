@@ -56,13 +56,19 @@ class MediaRegistry {
 		$sql = "CREATE TABLE {$table_name} (
 			id bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT,
 			notion_identifier varchar(255) NOT NULL,
-			attachment_id bigint(20) UNSIGNED NOT NULL,
+			attachment_id bigint(20) UNSIGNED DEFAULT NULL,
 			notion_file_url text,
+			status varchar(20) NOT NULL DEFAULT 'uploaded',
 			registered_at datetime NOT NULL,
+			updated_at datetime DEFAULT NULL,
+			error_count int DEFAULT 0,
+			last_error text,
 			PRIMARY KEY  (id),
 			UNIQUE KEY notion_identifier (notion_identifier),
 			KEY attachment_id (attachment_id),
-			KEY registered_at (registered_at)
+			KEY registered_at (registered_at),
+			KEY updated_at (updated_at),
+			KEY status (status)
 		) {$charset_collate};";
 
 		require_once ABSPATH . 'wp-admin/includes/upgrade.php';
@@ -72,20 +78,22 @@ class MediaRegistry {
 	/**
 	 * Register a Notion media file in the registry.
 	 *
-	 * @param string $notion_identifier Notion block ID or file URL hash.
-	 * @param int    $attachment_id     WordPress attachment ID.
-	 * @param string $notion_file_url   Optional original Notion file URL.
+	 * @param string   $notion_identifier Notion block ID or file URL hash.
+	 * @param int|null $attachment_id     WordPress attachment ID (null for unsupported/external).
+	 * @param string   $notion_file_url   Optional original Notion file URL.
+	 * @param string   $status            Status: 'uploaded', 'unsupported', 'external'.
 	 * @return bool True on success.
 	 */
 	public static function register(
 		string $notion_identifier,
-		int $attachment_id,
-		string $notion_file_url = ''
+		?int $attachment_id = null,
+		string $notion_file_url = '',
+		string $status = 'uploaded'
 	): bool {
 		global $wpdb;
 
-		// Verify attachment exists.
-		if ( ! get_post( $attachment_id ) ) {
+		// Verify attachment exists if attachment_id provided.
+		if ( null !== $attachment_id && ! get_post( $attachment_id ) ) {
 			error_log( "MediaRegistry: Attachment ID {$attachment_id} does not exist" );
 			return false;
 		}
@@ -96,22 +104,27 @@ class MediaRegistry {
 				'notion_identifier' => $notion_identifier,
 				'attachment_id'     => $attachment_id,
 				'notion_file_url'   => $notion_file_url,
+				'status'            => $status,
 				'registered_at'     => current_time( 'mysql' ),
 			],
-			[ '%s', '%d', '%s', '%s' ]
+			[ '%s', '%d', '%s', '%s', '%s' ]
 		);
 
 		if ( false === $result ) {
 			error_log(
 				sprintf(
-					'MediaRegistry: Failed to register %s → %d: %s',
+					'MediaRegistry: Failed to register %s → %s: %s',
 					$notion_identifier,
-					$attachment_id,
+					$attachment_id ? $attachment_id : 'null',
 					$wpdb->last_error
 				)
 			);
 			return false;
 		}
+
+		// Invalidate cache for this identifier.
+		$cache_key = 'media_registry_' . md5( $notion_identifier );
+		wp_cache_delete( $cache_key, 'notion_sync' );
 
 		return true;
 	}
@@ -123,17 +136,33 @@ class MediaRegistry {
 	 * @return int|null Attachment ID or null if not found.
 	 */
 	public static function find( string $notion_identifier ): ?int {
+		// Check object cache first to reduce database queries.
+		$cache_key = 'media_registry_' . md5( $notion_identifier );
+		$cached    = wp_cache_get( $cache_key, 'notion_sync' );
+
+		if ( false !== $cached ) {
+			// Return cached value (could be null, so check for false specifically).
+			return $cached;
+		}
+
 		global $wpdb;
 
+		$table_name = self::get_table_name();
+
+		// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- Table name is safe, comes from get_table_name().
 		$attachment_id = $wpdb->get_var(
 			$wpdb->prepare(
-				'SELECT attachment_id FROM %i WHERE notion_identifier = %s LIMIT 1',
-				self::get_table_name(),
+				"SELECT attachment_id FROM {$table_name} WHERE notion_identifier = %s LIMIT 1",
 				$notion_identifier
 			)
 		);
 
-		return $attachment_id ? (int) $attachment_id : null;
+		$result = $attachment_id ? (int) $attachment_id : null;
+
+		// Cache the result (including null) for 1 hour.
+		wp_cache_set( $cache_key, $result, 'notion_sync', HOUR_IN_SECONDS );
+
+		return $result;
 	}
 
 	/**
@@ -143,7 +172,41 @@ class MediaRegistry {
 	 * @return bool True if exists.
 	 */
 	public static function exists( string $notion_identifier ): bool {
-		return self::find( $notion_identifier ) !== null;
+		global $wpdb;
+
+		$table_name = self::get_table_name();
+
+		// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- Table name is safe, comes from get_table_name().
+		$count = $wpdb->get_var(
+			$wpdb->prepare(
+				"SELECT COUNT(*) FROM {$table_name} WHERE notion_identifier = %s LIMIT 1",
+				$notion_identifier
+			)
+		);
+
+		return (int) $count > 0;
+	}
+
+	/**
+	 * Get status of a Notion identifier.
+	 *
+	 * @param string $notion_identifier Notion block ID or file URL hash.
+	 * @return string|null Status ('uploaded', 'unsupported', 'external') or null if not found.
+	 */
+	public static function get_status( string $notion_identifier ): ?string {
+		global $wpdb;
+
+		$table_name = self::get_table_name();
+
+		// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- Table name is safe, comes from get_table_name().
+		$status = $wpdb->get_var(
+			$wpdb->prepare(
+				"SELECT status FROM {$table_name} WHERE notion_identifier = %s LIMIT 1",
+				$notion_identifier
+			)
+		);
+
+		return $status ? $status : null;
 	}
 
 	/**
@@ -172,10 +235,12 @@ class MediaRegistry {
 	public static function get_notion_url( string $notion_identifier ): ?string {
 		global $wpdb;
 
+		$table_name = self::get_table_name();
+
+		// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- Table name is safe, comes from get_table_name().
 		$notion_url = $wpdb->get_var(
 			$wpdb->prepare(
-				'SELECT notion_file_url FROM %i WHERE notion_identifier = %s LIMIT 1',
-				self::get_table_name(),
+				"SELECT notion_file_url FROM {$table_name} WHERE notion_identifier = %s LIMIT 1",
 				$notion_identifier
 			)
 		);
@@ -188,20 +253,22 @@ class MediaRegistry {
 	 *
 	 * Used when media is replaced in Notion.
 	 *
-	 * @param string $notion_identifier Notion block ID or file URL hash.
-	 * @param int    $attachment_id     New WordPress attachment ID.
-	 * @param string $notion_file_url   New Notion file URL.
+	 * @param string   $notion_identifier Notion block ID or file URL hash.
+	 * @param int|null $attachment_id     New WordPress attachment ID.
+	 * @param string   $notion_file_url   New Notion file URL.
+	 * @param string   $status            Status: 'uploaded', 'unsupported', 'external'.
 	 * @return bool True on success.
 	 */
 	public static function update(
 		string $notion_identifier,
-		int $attachment_id,
-		string $notion_file_url = ''
+		?int $attachment_id = null,
+		string $notion_file_url = '',
+		string $status = 'uploaded'
 	): bool {
 		global $wpdb;
 
-		// Verify attachment exists.
-		if ( ! get_post( $attachment_id ) ) {
+		// Verify attachment exists if provided.
+		if ( null !== $attachment_id && ! get_post( $attachment_id ) ) {
 			error_log( "MediaRegistry: Attachment ID {$attachment_id} does not exist" );
 			return false;
 		}
@@ -211,10 +278,11 @@ class MediaRegistry {
 			[
 				'attachment_id'   => $attachment_id,
 				'notion_file_url' => $notion_file_url,
-				'registered_at'   => current_time( 'mysql' ),
+				'status'          => $status,
+				'updated_at'      => current_time( 'mysql' ),
 			],
 			[ 'notion_identifier' => $notion_identifier ],
-			[ '%d', '%s', '%s' ],
+			[ '%d', '%s', '%s', '%s' ],
 			[ '%s' ]
 		);
 
@@ -228,6 +296,10 @@ class MediaRegistry {
 			);
 			return false;
 		}
+
+		// Invalidate cache for this identifier.
+		$cache_key = 'media_registry_' . md5( $notion_identifier );
+		wp_cache_delete( $cache_key, 'notion_sync' );
 
 		return true;
 	}
@@ -247,6 +319,12 @@ class MediaRegistry {
 			[ '%s' ]
 		);
 
+		if ( false !== $result ) {
+			// Invalidate cache for this identifier.
+			$cache_key = 'media_registry_' . md5( $notion_identifier );
+			wp_cache_delete( $cache_key, 'notion_sync' );
+		}
+
 		return false !== $result;
 	}
 
@@ -259,10 +337,12 @@ class MediaRegistry {
 	public static function find_by_attachment( int $attachment_id ): array {
 		global $wpdb;
 
+		$table_name = self::get_table_name();
+
+		// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- Table name is safe, comes from get_table_name().
 		$results = $wpdb->get_col(
 			$wpdb->prepare(
-				'SELECT notion_identifier FROM %i WHERE attachment_id = %d',
-				self::get_table_name(),
+				"SELECT notion_identifier FROM {$table_name} WHERE attachment_id = %d",
 				$attachment_id
 			)
 		);

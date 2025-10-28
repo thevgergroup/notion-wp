@@ -8,10 +8,10 @@
  * @since 1.0.0
  */
 
-namespace NotionSync\Tests\Unit\Blocks;
+namespace NotionWP\Tests\Unit\Blocks;
 
 use NotionSync\Blocks\BlockConverter;
-use NotionSync\Tests\Unit\BaseTestCase;
+use NotionWP\Tests\Unit\BaseTestCase;
 
 /**
  * Test complete block conversion pipeline

@@ -9,7 +9,12 @@
  */
 
 // Composer autoloader.
-require_once __DIR__ . '/../vendor/autoload.php';
+require_once __DIR__ . '/../plugin/vendor/autoload.php';
+
+// CRITICAL: Do NOT define WordPress functions here!
+// Brain\Monkey MUST be the first to define these functions via Patchwork.
+// If we define them here, Patchwork will throw DefinedTooEarly exceptions.
+// Brain\Monkey will properly mock all WordPress functions when setUp() is called.
 
 // Define simple WP_Error class for testing
 if ( ! class_exists( 'WP_Error' ) ) {

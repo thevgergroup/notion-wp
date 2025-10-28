@@ -21,6 +21,11 @@ import { watchBatchStatus } from './sync-status-poller.js';
 /**
  * Handle individual page sync ("Sync Now" button)
  *
+ * Uses the batch queue system for consistency with bulk sync and to enable:
+ * - Dashboard feedback
+ * - Background image processing
+ * - No timeout issues
+ *
  * @param {HTMLElement} button - The sync button element
  */
 export function handleSyncNow(button) {
@@ -30,9 +35,6 @@ export function handleSyncNow(button) {
 		showAdminNotice('error', 'Page ID is missing. Cannot sync page.');
 		return;
 	}
-
-	// Get row element for status updates.
-	const row = button.closest('tr');
 
 	// Disable button and show loading state.
 	button.disabled = true;
@@ -45,82 +47,171 @@ export function handleSyncNow(button) {
 		updateStatusBadge(statusBadge, { status: 'syncing' });
 	}
 
-	// Make AJAX request.
-	fetch(notionSyncAdmin.ajaxUrl, {
-		method: 'POST',
-		headers: {
-			'Content-Type': 'application/x-www-form-urlencoded',
-		},
-		body: new URLSearchParams({
-			action: 'notion_sync_page',
-			page_id: pageId,
-			nonce: notionSyncAdmin.nonce,
-		}),
-	})
-		.then((response) => response.json())
-		.then((data) => {
-			// Re-enable button.
-			button.disabled = false;
-			button.textContent = originalText;
+	// Create or get dashboard container (insert at top of page, before .wrap).
+	let dashboardContainer = document.getElementById(
+		'single-page-sync-dashboard'
+	);
+	if (!dashboardContainer) {
+		dashboardContainer = document.createElement('div');
+		dashboardContainer.id = 'single-page-sync-dashboard';
 
-			if (data.success) {
-				// Update status badge to synced.
-				if (statusBadge) {
-					updateStatusBadge(statusBadge, { status: 'synced' });
-				}
+		// Insert at the very top of the admin page content.
+		const wrap = document.querySelector('.wrap');
+		if (wrap) {
+			wrap.parentNode.insertBefore(dashboardContainer, wrap);
+		}
+	}
 
-				// Update WordPress post column.
-				updateWpPostColumn(row, data.data.post_id, data.data.edit_url);
+	// Queue single-page batch with Action Scheduler.
+	(async () => {
+		try {
+			const queueBody = new URLSearchParams();
+			queueBody.append('action', 'notion_queue_bulk_sync');
+			queueBody.append('nonce', notionSyncAdmin.nonce);
+			queueBody.append('page_ids[]', pageId);
 
-				// Update last synced column.
-				updateLastSyncedColumn(row, 'Just now');
+			const queueResponse = await fetch(notionSyncAdmin.ajaxUrl, {
+				method: 'POST',
+				headers: {
+					'Content-Type': 'application/x-www-form-urlencoded',
+				},
+				body: queueBody,
+			});
 
-				// Show success notice.
+			const queueData = await queueResponse.json();
+
+			if (!queueData.success) {
 				showAdminNotice(
-					'success',
-					data.data.message || 'Page synced successfully!'
+					'error',
+					queueData.data.message || 'Failed to queue page sync.'
 				);
-
-				// Update row actions to include edit/view links.
-				updateRowActions(
-					button,
-					data.data.edit_url,
-					data.data.view_url
-				);
-			} else {
-				// Update status badge to failed.
+				button.disabled = false;
+				button.textContent = originalText;
 				if (statusBadge) {
 					updateStatusBadge(statusBadge, {
 						status: 'failed',
-						error: data.data.message || 'Sync failed',
+						error: queueData.data.message || 'Failed to queue',
 					});
 				}
-
-				// Show error notice.
-				showAdminNotice(
-					'error',
-					data.data.message ||
-						'Failed to sync page. Please try again.'
-				);
+				return;
 			}
-		})
-		.catch((error) => {
-			// Re-enable button.
+
+			const batchId = queueData.data.batch_id;
+
+			// Start Preact dashboard with single page.
+			if (typeof window.startSyncDashboard === 'function') {
+				// Render dashboard in the dedicated container.
+				const oldContainer = document.getElementById(
+					'notion-sync-dashboard'
+				);
+				if (oldContainer) {
+					oldContainer.remove();
+				}
+
+				const newContainer = document.createElement('div');
+				newContainer.id = 'notion-sync-dashboard';
+				dashboardContainer.appendChild(newContainer);
+
+				window.startSyncDashboard(batchId, 1);
+			}
+
+			// Start watching batch with REST API poller.
+			watchBatchStatus(batchId, {
+				onProgress: (batchData) => {
+					// Preact dashboard auto-updates via polling
+
+					// Update status badge.
+					if (
+						batchData.page_statuses &&
+						batchData.page_statuses[pageId]
+					) {
+						const status = batchData.page_statuses[pageId];
+						let badgeStatus = 'not_synced';
+						if (status === 'completed') {
+							badgeStatus = 'synced';
+						} else if (status === 'failed') {
+							badgeStatus = 'failed';
+						} else if (status === 'processing') {
+							badgeStatus = 'syncing';
+						}
+
+						if (statusBadge) {
+							updateStatusBadge(statusBadge, {
+								status: badgeStatus,
+							});
+						}
+					}
+				},
+				onComplete: (batchData) => {
+					// Re-enable button.
+					button.disabled = false;
+					button.textContent = originalText;
+
+					// Check if sync was successful.
+					const result = batchData.results?.[pageId];
+					if (result && result.success) {
+						// Update row UI.
+						const row = button.closest('tr');
+						if (row) {
+							updateWpPostColumn(
+								row,
+								result.post_id,
+								result.edit_url
+							);
+							updateLastSyncedColumn(row, 'Just now');
+							updateRowActions(
+								button,
+								result.edit_url,
+								result.view_url
+							);
+						}
+
+						showAdminNotice('success', 'Page synced successfully!');
+					} else {
+						showAdminNotice(
+							'error',
+							result?.error ||
+								'Sync completed but page sync failed.'
+						);
+					}
+
+					// Remove dashboard after 5 seconds.
+					setTimeout(() => {
+						if (dashboardContainer) {
+							dashboardContainer.style.opacity = '0';
+							dashboardContainer.style.transition =
+								'opacity 0.5s';
+							setTimeout(() => {
+								dashboardContainer.remove();
+							}, 500);
+						}
+					}, 5000);
+				},
+				onError: (error) => {
+					console.error('Batch status polling error:', error);
+					button.disabled = false;
+					button.textContent = originalText;
+					if (statusBadge) {
+						updateStatusBadge(statusBadge, {
+							status: 'failed',
+							error: 'Polling error',
+						});
+					}
+				},
+			});
+		} catch (error) {
+			console.error('Error queueing page sync:', error);
+			showAdminNotice('error', 'Network error. Please try again.');
 			button.disabled = false;
 			button.textContent = originalText;
-
-			// Update status badge to failed.
 			if (statusBadge) {
 				updateStatusBadge(statusBadge, {
 					status: 'failed',
 					error: 'Network error',
 				});
 			}
-
-			// Show error notice.
-			showAdminNotice('error', 'Network error. Please try again.');
-			console.error('Sync error:', error);
-		});
+		}
+	})();
 }
 
 /**
