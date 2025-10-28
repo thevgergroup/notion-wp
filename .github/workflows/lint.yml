@@ -1,5 +1,6 @@
 name: Code Quality & Linting
 
+# Runs code quality checks: PHP (PHPCS, PHPStan), JS/CSS (ESLint, Stylelint, Prettier)
 on:
     pull_request:
         branches:
