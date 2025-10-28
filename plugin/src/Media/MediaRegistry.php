@@ -122,6 +122,10 @@ class MediaRegistry {
 			return false;
 		}
 
+		// Invalidate cache for this identifier.
+		$cache_key = 'media_registry_' . md5( $notion_identifier );
+		wp_cache_delete( $cache_key, 'notion_sync' );
+
 		return true;
 	}
 
@@ -132,6 +136,15 @@ class MediaRegistry {
 	 * @return int|null Attachment ID or null if not found.
 	 */
 	public static function find( string $notion_identifier ): ?int {
+		// Check object cache first to reduce database queries.
+		$cache_key = 'media_registry_' . md5( $notion_identifier );
+		$cached    = wp_cache_get( $cache_key, 'notion_sync' );
+
+		if ( false !== $cached ) {
+			// Return cached value (could be null, so check for false specifically).
+			return $cached;
+		}
+
 		global $wpdb;
 
 		$table_name = self::get_table_name();
@@ -144,7 +157,12 @@ class MediaRegistry {
 			)
 		);
 
-		return $attachment_id ? (int) $attachment_id : null;
+		$result = $attachment_id ? (int) $attachment_id : null;
+
+		// Cache the result (including null) for 1 hour.
+		wp_cache_set( $cache_key, $result, 'notion_sync', HOUR_IN_SECONDS );
+
+		return $result;
 	}
 
 	/**
@@ -181,28 +199,10 @@ class MediaRegistry {
 		$table_name = self::get_table_name();
 
 		// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- Table name is safe, comes from get_table_name().
-		$query = $wpdb->prepare(
-			"SELECT status FROM {$table_name} WHERE notion_identifier = %s LIMIT 1",
-			$notion_identifier
-		);
-
-		// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log -- Debug logging.
-		error_log(
-			sprintf(
-				'[MediaRegistry] get_status - identifier: %s | query: %s',
-				substr( $notion_identifier, 0, 20 ),
-				$query
-			)
-		);
-
-		$status = $wpdb->get_var( $query );
-
-		// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log -- Debug logging.
-		error_log(
-			sprintf(
-				'[MediaRegistry] get_status result - status: %s | wpdb error: %s',
-				$status ?? 'NULL',
-				$wpdb->last_error ? $wpdb->last_error : 'none'
+		$status = $wpdb->get_var(
+			$wpdb->prepare(
+				"SELECT status FROM {$table_name} WHERE notion_identifier = %s LIMIT 1",
+				$notion_identifier
 			)
 		);
 
@@ -297,6 +297,10 @@ class MediaRegistry {
 			return false;
 		}
 
+		// Invalidate cache for this identifier.
+		$cache_key = 'media_registry_' . md5( $notion_identifier );
+		wp_cache_delete( $cache_key, 'notion_sync' );
+
 		return true;
 	}
 
@@ -314,6 +318,12 @@ class MediaRegistry {
 			[ 'notion_identifier' => $notion_identifier ],
 			[ '%s' ]
 		);
+
+		if ( false !== $result ) {
+			// Invalidate cache for this identifier.
+			$cache_key = 'media_registry_' . md5( $notion_identifier );
+			wp_cache_delete( $cache_key, 'notion_sync' );
+		}
 
 		return false !== $result;
 	}

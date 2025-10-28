@@ -117,9 +117,20 @@ class EmbedConverter implements BlockConverterInterface {
 	 * @return string HTML for generic embed.
 	 */
 	private function convert_generic_embed( string $url ): string {
-		// For unknown providers, just output a link with embed class.
+		// Validate URL scheme to prevent XSS (only allow http/https).
+		$scheme = wp_parse_url( $url, PHP_URL_SCHEME );
+		if ( ! in_array( strtolower( $scheme ), array( 'http', 'https' ), true ) ) {
+			// Return a safe fallback for invalid schemes (javascript:, data:, etc).
+			return sprintf(
+				"<!-- wp:paragraph -->\n<p><em>Invalid embed URL (unsupported scheme)</em></p>\n<!-- /wp:paragraph -->\n\n"
+			);
+		}
+
+		// For unknown providers, output iframe with sandbox for security.
+		// sandbox="allow-scripts allow-same-origin" allows typical embed functionality
+		// while preventing top-level navigation and other dangerous behaviors.
 		return sprintf(
-			"<!-- wp:html -->\n<div class=\"notion-embed\">\n\t<iframe src=\"%s\" width=\"100%%\" height=\"500\" frameborder=\"0\" allowfullscreen></iframe>\n</div>\n<!-- /wp:html -->\n\n",
+			"<!-- wp:html -->\n<div class=\"notion-embed\">\n\t<iframe src=\"%s\" width=\"100%%\" height=\"500\" frameborder=\"0\" allowfullscreen sandbox=\"allow-scripts allow-same-origin allow-presentation\"></iframe>\n</div>\n<!-- /wp:html -->\n\n",
 			esc_url( $url )
 		);
 	}
