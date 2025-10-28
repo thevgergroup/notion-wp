@@ -498,8 +498,8 @@ class TableConverterTest extends BaseConverterTestCase {
 		$result = $this->converter->convert( $notion_block );
 
 		// Should contain all segments with proper formatting
-		$this->assertStringContainsString( 'Normal', $result );
-		$this->assertStringContainsString( '<strong>bold</strong>', $result );
+		$this->assertStringContainsString( 'Normal ', $result );
+		$this->assertStringContainsString( '<strong>bold </strong>', $result );
 		$this->assertStringContainsString( '<em>italic</em>', $result );
 	}
 
