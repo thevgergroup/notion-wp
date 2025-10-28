@@ -5,15 +5,15 @@
  * Provides common WordPress function mocks and Brain\Monkey setup
  * for all block converter tests.
  *
- * @package NotionSync\Tests
+ * @package NotionWP\Tests
  * @since 1.0.0
  */
 
-namespace NotionSync\Tests\Unit\Blocks\Converters;
+namespace NotionWP\Tests\Unit\Blocks\Converters;
 
 use Brain\Monkey;
 use Brain\Monkey\Functions;
-use NotionSync\Tests\Unit\BaseTestCase;
+use NotionWP\Tests\Unit\BaseTestCase;
 
 /**
  * Base test case for block converter tests

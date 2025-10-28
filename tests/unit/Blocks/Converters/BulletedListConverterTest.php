@@ -6,15 +6,14 @@
  * @since 1.0.0
  */
 
-namespace NotionSync\Tests\Unit\Blocks\Converters;
+namespace NotionWP\Tests\Unit\Blocks\Converters;
 
 use NotionSync\Blocks\Converters\BulletedListConverter;
-use PHPUnit\Framework\TestCase;
 
 /**
  * Test BulletedListConverter functionality
  */
-class BulletedListConverterTest extends TestCase {
+class BulletedListConverterTest extends BaseConverterTestCase {
 	/**
 	 * Converter instance
 	 *

@@ -8,15 +8,15 @@
  * @since 1.0.0
  */
 
-namespace NotionSync\Tests\Unit\Blocks;
+namespace NotionWP\Tests\Unit\Blocks;
 
 use NotionSync\Blocks\BlockConverter;
-use PHPUnit\Framework\TestCase;
+use NotionWP\Tests\Unit\BaseTestCase;
 
 /**
  * Test complete block conversion pipeline
  */
-class IntegrationTest extends TestCase {
+class IntegrationTest extends BaseTestCase {
 	/**
 	 * Converter instance
 	 *

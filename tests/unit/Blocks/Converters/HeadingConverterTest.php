@@ -6,15 +6,14 @@
  * @since 1.0.0
  */
 
-namespace NotionSync\Tests\Unit\Blocks\Converters;
+namespace NotionWP\Tests\Unit\Blocks\Converters;
 
 use NotionSync\Blocks\Converters\HeadingConverter;
-use PHPUnit\Framework\TestCase;
 
 /**
  * Test HeadingConverter functionality
  */
-class HeadingConverterTest extends TestCase {
+class HeadingConverterTest extends BaseConverterTestCase {
 	/**
 	 * Converter instance
 	 *

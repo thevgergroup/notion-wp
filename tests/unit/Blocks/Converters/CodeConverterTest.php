@@ -6,7 +6,7 @@
  * @since 1.0.0
  */
 
-namespace NotionSync\Tests\Unit\Blocks\Converters;
+namespace NotionWP\Tests\Unit\Blocks\Converters;
 
 use NotionSync\Blocks\Converters\CodeConverter;
 
@@ -61,7 +61,8 @@ class CodeConverterTest extends BaseConverterTestCase {
 		$result = $this->converter->convert( $notion_block );
 
 		$this->assertStringContainsString( '<!-- wp:code', $result );
-		$this->assertStringContainsString( 'console.log("Hello World");', $result );
+		// HTML entities should be escaped in code blocks
+		$this->assertStringContainsString( 'console.log(&quot;Hello World&quot;);', $result );
 		$this->assertStringContainsString( 'javascript', $result );
 	}
 
@@ -147,7 +148,6 @@ class CodeConverterTest extends BaseConverterTestCase {
 			'c++'             => 'cpp',
 			'c#'              => 'csharp',
 			'typescript'      => 'typescript',
-			'plain text'      => 'plaintext',
 			'html'            => 'markup',
 			'xml'             => 'markup',
 		);
@@ -169,6 +169,24 @@ class CodeConverterTest extends BaseConverterTestCase {
 			$result = $this->converter->convert( $notion_block );
 			$this->assertStringContainsString( $expected_gutenberg_lang, $result, "Failed mapping {$notion_lang} to {$expected_gutenberg_lang}" );
 		}
+
+		// Special case: 'plain text' should NOT include language attribute (defaults to plaintext)
+		$plaintext_block = array(
+			'type' => 'code',
+			'code' => array(
+				'rich_text' => array(
+					array(
+						'plain_text' => 'test code',
+					),
+				),
+				'language'  => 'plain text',
+				'caption'   => array(),
+			),
+		);
+		$result = $this->converter->convert( $plaintext_block );
+		// When language is plaintext, no language attribute is added to the block
+		$this->assertStringContainsString( '<!-- wp:code -->', $result );
+		$this->assertStringNotContainsString( '"language"', $result );
 	}
 
 	/**

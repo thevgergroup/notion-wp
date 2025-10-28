@@ -5,11 +5,11 @@
  * Provides common WordPress function mocks and Brain\Monkey setup
  * for all unit tests in the project.
  *
- * @package NotionSync\Tests
+ * @package NotionWP\Tests
  * @since 1.0.0
  */
 
-namespace NotionSync\Tests\Unit;
+namespace NotionWP\Tests\Unit;
 
 use Brain\Monkey;
 use Brain\Monkey\Functions;

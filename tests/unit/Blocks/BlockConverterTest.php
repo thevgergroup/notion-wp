@@ -6,16 +6,16 @@
  * @since 1.0.0
  */
 
-namespace NotionSync\Tests\Unit\Blocks;
+namespace NotionWP\Tests\Unit\Blocks;
 
 use NotionSync\Blocks\BlockConverter;
 use NotionSync\Blocks\BlockConverterInterface;
-use PHPUnit\Framework\TestCase;
+use NotionWP\Tests\Unit\BaseTestCase;
 
 /**
  * Test BlockConverter registry functionality
  */
-class BlockConverterTest extends TestCase {
+class BlockConverterTest extends BaseTestCase {
 	/**
 	 * Converter instance
 	 *
@@ -37,7 +37,9 @@ class BlockConverterTest extends TestCase {
 	public function test_default_converters_registered(): void {
 		$converters = $this->converter->get_converters();
 
-		$this->assertCount( 4, $converters );
+		// Phase 4 has 18 converters: Paragraph, Heading, BulletedList, NumberedList, Quote, Divider,
+		// Callout, Code, Toggle, Table, Column, Image, File, Embed, ChildPage, ChildDatabase, LinkToPage, Fallback
+		$this->assertCount( 18, $converters );
 		$this->assertContainsOnlyInstancesOf( BlockConverterInterface::class, $converters );
 	}
 
@@ -49,7 +51,8 @@ class BlockConverterTest extends TestCase {
 		$this->converter->register_converter( 'custom', $custom_converter );
 
 		$converters = $this->converter->get_converters();
-		$this->assertCount( 5, $converters );
+		// 18 default converters + 1 custom = 19
+		$this->assertCount( 19, $converters );
 	}
 
 	/**
@@ -125,7 +128,7 @@ class BlockConverterTest extends TestCase {
 		$result = $this->converter->convert_blocks( $blocks );
 
 		// Should contain HTML comment placeholder.
-		$this->assertStringContainsString( '<!-- Unsupported Notion block:', $result );
+		$this->assertStringContainsString( '<!-- Unsupported Notion block type:', $result );
 		$this->assertStringContainsString( 'unsupported_type', $result );
 	}
 
@@ -183,7 +186,7 @@ class BlockConverterTest extends TestCase {
 		$this->assertStringContainsString( 'Valid heading', $result );
 
 		// Should contain placeholder for unsupported.
-		$this->assertStringContainsString( '<!-- Unsupported Notion block:', $result );
+		$this->assertStringContainsString( '<!-- Unsupported Notion block type:', $result );
 		$this->assertStringContainsString( 'unsupported', $result );
 	}
 

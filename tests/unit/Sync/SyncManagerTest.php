@@ -6,12 +6,12 @@
  * @since 1.0.0
  */
 
-namespace NotionSync\Tests\Unit\Sync;
+namespace NotionWP\Tests\Unit\Sync;
 
 use NotionSync\Sync\SyncManager;
 use NotionSync\Sync\ContentFetcher;
 use NotionSync\Blocks\BlockConverter;
-use PHPUnit\Framework\TestCase;
+use NotionWP\Tests\Unit\BaseTestCase;
 use Brain\Monkey;
 use Brain\Monkey\Functions;
 
@@ -21,7 +21,7 @@ use Brain\Monkey\Functions;
  * Tests the core sync orchestration logic including duplicate detection,
  * error handling, and WordPress post creation/updates.
  */
-class SyncManagerTest extends TestCase {
+class SyncManagerTest extends BaseTestCase {
 
 	/**
 	 * Mock content fetcher
@@ -48,8 +48,13 @@ class SyncManagerTest extends TestCase {
 	 * Set up test environment
 	 */
 	protected function setUp(): void {
-		parent::setUp();
-		Monkey\setUp();
+		parent::setUp(); // BaseTestCase handles Brain\Monkey setUp and WordPress mocking
+
+		// Setup wpdb mock (required by LinkRegistry used in SyncManager)
+		$this->setup_wpdb_mock();
+
+		// Override specific WordPress functions for SyncManager tests
+		$this->setup_wordpress_mocks();
 
 		// Create mocks for dependencies.
 		$this->mock_fetcher   = $this->createMock( ContentFetcher::class );
@@ -57,17 +62,6 @@ class SyncManagerTest extends TestCase {
 
 		// Create SyncManager with mocked dependencies.
 		$this->sync_manager = new SyncManager( $this->mock_fetcher, $this->mock_converter );
-
-		// Mock WordPress functions.
-		$this->setup_wordpress_mocks();
-	}
-
-	/**
-	 * Tear down test environment
-	 */
-	protected function tearDown(): void {
-		Monkey\tearDown();
-		parent::tearDown();
 	}
 
 	/**
@@ -135,9 +129,8 @@ class SyncManagerTest extends TestCase {
 			->with( 'Test Page Title' )
 			->andReturn( 'Test Page Title' );
 
-		// Mock current_time for timestamp.
+		// Mock current_time for timestamp (called multiple times during sync).
 		Functions\expect( 'current_time' )
-			->times( 1 )
 			->with( 'mysql' )
 			->andReturn( '2025-10-20 10:00:00' );
 
@@ -146,9 +139,20 @@ class SyncManagerTest extends TestCase {
 			->once()
 			->andReturn( $expected_post_id );
 
-		// Mock update_post_meta calls.
+		// Mock wp_update_post to update post with converted content.
+		Functions\expect( 'wp_update_post' )
+			->once()
+			->andReturn( $expected_post_id );
+
+		// Mock update_post_meta calls (3 for metadata storage, more for icon/cover).
 		Functions\expect( 'update_post_meta' )
-			->times( 3 )
+			->andReturn( true );
+
+		// Mock icon and cover functions.
+		Functions\expect( 'delete_post_meta' )
+			->andReturn( true );
+
+		Functions\expect( 'set_post_thumbnail' )
 			->andReturn( true );
 
 		// Execute sync.
@@ -215,22 +219,26 @@ class SyncManagerTest extends TestCase {
 			->once()
 			->andReturn( $gutenberg_html );
 
-		Functions\expect( 'sanitize_text_field' )
-			->once()
-			->andReturn( 'Updated Title' );
+		// Note: sanitize_text_field is NOT called for existing posts
+		// (only for new post creation)
 
 		Functions\expect( 'current_time' )
-			->once()
 			->andReturn( '2025-10-20 11:00:00' );
 
-		// Mock wp_update_post for existing post.
+		// Mock wp_update_post for existing post (called to update content).
 		Functions\expect( 'wp_update_post' )
 			->once()
 			->andReturn( $existing_post_id );
 
-		// Mock update_post_meta calls.
+		// Mock update_post_meta calls (3 for metadata storage, more for icon/cover).
 		Functions\expect( 'update_post_meta' )
-			->times( 3 )
+			->andReturn( true );
+
+		// Mock icon and cover functions.
+		Functions\expect( 'delete_post_meta' )
+			->andReturn( true );
+
+		Functions\expect( 'set_post_thumbnail' )
 			->andReturn( true );
 
 		// Execute sync.
@@ -341,12 +349,25 @@ class SyncManagerTest extends TestCase {
 			->once()
 			->andReturn( array() );
 
+		// Mock functions needed for post creation.
+		Functions\expect( 'sanitize_text_field' )
+			->andReturn( 'Test Page' );
+
+		Functions\expect( 'current_time' )
+			->andReturn( '2025-10-20 10:00:00' );
+
+		// Mock post creation (happens before conversion in new implementation).
+		Functions\expect( 'wp_insert_post' )
+			->once()
+			->andReturn( 123 );
+
 		// Execute sync.
 		$result = $this->sync_manager->sync_page( $notion_page_id );
 
 		// Assert error result.
+		// Note: post_id will be set because post is created before conversion fails.
 		$this->assertFalse( $result['success'] );
-		$this->assertNull( $result['post_id'] );
+		$this->assertEquals( 123, $result['post_id'] );
 		$this->assertNotNull( $result['error'] );
 		$this->assertStringContainsString( 'Block conversion failed', $result['error'] );
 	}
@@ -455,24 +476,17 @@ class SyncManagerTest extends TestCase {
 			->method( 'fetch_page_blocks' )
 			->willReturn( $notion_blocks );
 
-		$this->mock_converter
-			->method( 'convert_blocks' )
-			->willReturn( $gutenberg_html );
+		// No need to mock converter - it won't be called if wp_insert_post fails
 
 		Functions\expect( 'get_posts' )
 			->once()
 			->andReturn( array() );
-
-		Functions\expect( 'wp_kses_post' )
-			->once()
-			->andReturn( $gutenberg_html );
 
 		Functions\expect( 'sanitize_text_field' )
 			->once()
 			->andReturn( 'Test Page' );
 
 		Functions\expect( 'current_time' )
-			->once()
 			->andReturn( '2025-10-20 10:00:00' );
 
 		// Mock wp_insert_post returning WP_Error.
@@ -526,19 +540,53 @@ class SyncManagerTest extends TestCase {
 	 * Set up WordPress function mocks
 	 *
 	 * Creates default mocks for WordPress functions used by SyncManager.
+	 * Override of BaseTestCase method to provide specific behaviors for SyncManager tests.
+	 *
+	 * Note: We DON'T call parent because its stubs interfere with Functions\expect().
+	 * We only stub functions that won't be mocked with expect() in tests.
 	 */
-	private function setup_wordpress_mocks(): void {
-		// Mock WordPress functions with default behaviors.
-		Functions\when( 'get_option' )->justReturn( 'encrypted_token_value' );
-		Functions\when( 'get_posts' )->justReturn( array() );
-		Functions\when( 'get_post_meta' )->justReturn( '' );
-		Functions\when( 'update_post_meta' )->justReturn( true );
-		Functions\when( 'wp_insert_post' )->justReturn( 1 );
-		Functions\when( 'wp_update_post' )->justReturn( 1 );
-		Functions\when( 'current_time' )->justReturn( '2025-10-20 10:00:00' );
-		Functions\when( 'sanitize_text_field' )->returnArg();
-		Functions\when( 'wp_kses_post' )->returnArg();
-		Functions\when( 'is_wp_error' )->justReturn( false );
-		Functions\when( 'esc_html' )->returnArg();
+	protected function setup_wordpress_mocks(): void {
+		// Stub basic WordPress functions that ALL tests need
+		Functions\stubs(
+			array(
+				'apply_filters'        => function ( $filter_name, $value ) {
+					return $value;
+				},
+				'do_action'            => null,
+				'add_action'           => true,
+				'add_filter'           => true,
+				'esc_html'             => function ( $text ) {
+					return htmlspecialchars( (string) $text, ENT_QUOTES, 'UTF-8' );
+				},
+				'get_option'           => 'encrypted_token_value',
+				'__'                   => function ( $text ) {
+					return $text;
+				},
+				'sanitize_title'       => function ( $text ) {
+					// Basic slug sanitization
+					$text = strtolower( strip_tags( (string) $text ) );
+					$text = preg_replace( '/[^a-z0-9\-]/', '-', $text );
+					$text = preg_replace( '/-+/', '-', $text );
+					return trim( $text, '-' );
+				},
+			)
+		);
+
+		// Provide default implementations for WordPress functions that some tests don't explicitly mock
+		Functions\when( 'wp_json_encode' )->alias( 'json_encode' );
+		Functions\when( 'absint' )->returnArg();  // Returns absolute value of first argument
+
+		// DO NOT stub these - tests will mock them with Functions\expect():
+		// - get_posts
+		// - get_post_meta
+		// - wp_insert_post
+		// - wp_update_post
+		// - wp_kses_post
+		// - sanitize_text_field
+		// - current_time
+		// - is_wp_error
+		// - update_post_meta
+		// - delete_post_meta
+		// - set_post_thumbnail
 	}
 }

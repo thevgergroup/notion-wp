@@ -6,15 +6,14 @@
  * @since 1.0.0
  */
 
-namespace NotionSync\Tests\Unit\Blocks\Converters;
+namespace NotionWP\Tests\Unit\Blocks\Converters;
 
 use NotionSync\Blocks\Converters\NumberedListConverter;
-use PHPUnit\Framework\TestCase;
 
 /**
  * Test NumberedListConverter functionality
  */
-class NumberedListConverterTest extends TestCase {
+class NumberedListConverterTest extends BaseConverterTestCase {
 	/**
 	 * Converter instance
 	 *
