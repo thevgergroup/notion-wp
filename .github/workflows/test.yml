@@ -110,16 +110,20 @@ jobs:
             - name: Extract coverage percentage
               id: coverage
               run: |
-                  # Extract coverage from clover XML: lines="covered" statements="total"
-                  TOTAL=$(grep -oP 'metrics\s+statements="\K[0-9]+' coverage.xml | head -1)
-                  COVERED=$(grep -oP 'metrics\s+coveredstatements="\K[0-9]+' coverage.xml | head -1)
-                  if [ -n "$TOTAL" ] && [ "$TOTAL" -gt 0 ]; then
-                    COVERAGE=$(awk "BEGIN {printf \"%.1f\", ($COVERED/$TOTAL)*100}")
-                  else
-                    COVERAGE="0.0"
-                  fi
+                  # Extract coverage from clover XML using php to parse metrics
+                  COVERAGE=$(php -r '
+                    $xml = simplexml_load_file("coverage.xml");
+                    $metrics = $xml->project->metrics;
+                    $total = (int)$metrics["statements"];
+                    $covered = (int)$metrics["coveredstatements"];
+                    if ($total > 0) {
+                      echo number_format(($covered / $total) * 100, 1);
+                    } else {
+                      echo "0.0";
+                    }
+                  ')
                   echo "percentage=$COVERAGE" >> $GITHUB_OUTPUT
-                  echo "Coverage: $COVERAGE% ($COVERED/$TOTAL statements)"
+                  echo "Coverage: $COVERAGE%"
 
             - name: Create coverage badge
               uses: schneegans/dynamic-badges-action@v1.7.0
