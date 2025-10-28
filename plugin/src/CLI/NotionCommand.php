@@ -329,7 +329,6 @@ class NotionCommand {
 				\WP_CLI::log( "\n=== Image URL ===" );
 				\WP_CLI::log( $block['image']['file']['url'] );
 			}
-
 		} catch ( \Exception $e ) {
 			\WP_CLI::error( 'Failed to fetch block: ' . $e->getMessage() );
 		}

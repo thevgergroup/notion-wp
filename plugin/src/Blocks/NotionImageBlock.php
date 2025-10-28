@@ -53,9 +53,13 @@ class NotionImageBlock {
 	 * @param string $message Debug message to log.
 	 */
 	private static function debug_log( string $message ): void {
-		// Check if debug mode is enabled via constant or option.
-		$debug_enabled = ( defined( 'NOTION_SYNC_DEBUG' ) && NOTION_SYNC_DEBUG ) ||
-						get_option( 'notion_wp_debug', false );
+		// Cache debug mode flag to avoid database hits on every render.
+		static $debug_enabled = null;
+
+		if ( null === $debug_enabled ) {
+			$debug_enabled = ( defined( 'NOTION_SYNC_DEBUG' ) && NOTION_SYNC_DEBUG ) ||
+							get_option( 'notion_wp_debug', false );
+		}
 
 		if ( $debug_enabled ) {
 			// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log -- Debug logging.
@@ -231,7 +235,7 @@ class NotionImageBlock {
 				$notion_url = $this->get_fresh_notion_url( $block_id );
 			} else {
 				// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log -- Debug logging.
-				self::debug_log( '[NotionImageBlock] Rendering WORDPRESS IMAGE for attachment ' . $attachment_id );
+				self::debug_log( '[NotionImageBlock] Rendering WordPress IMAGE for attachment ' . $attachment_id );
 				// Image downloaded and exists - render proper WordPress image block.
 				$html = $this->render_wordpress_image( $attachment_id, $caption, $alt_text );
 				// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log -- Debug logging.
@@ -286,13 +290,24 @@ class NotionImageBlock {
 			$block  = $client->get_block( $block_id );
 
 			if ( isset( $block['type'] ) && 'image' === $block['type'] ) {
+				$url = '';
+
 				// Check for file type (Notion-hosted).
 				if ( isset( $block['image']['file']['url'] ) ) {
-					return $block['image']['file']['url'];
+					$url = $block['image']['file']['url'];
 				}
 				// Check for external type (Unsplash, etc.).
 				if ( isset( $block['image']['external']['url'] ) ) {
-					return $block['image']['external']['url'];
+					$url = $block['image']['external']['url'];
+				}
+
+				// Validate URL before returning.
+				if ( ! empty( $url ) && filter_var( $url, FILTER_VALIDATE_URL ) !== false ) {
+					return $url;
+				}
+
+				if ( ! empty( $url ) ) {
+					self::debug_log( '[NotionImageBlock] Invalid URL returned from Notion API: ' . $url );
 				}
 			}
 		} catch ( \Exception $e ) {

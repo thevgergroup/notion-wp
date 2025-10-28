@@ -125,5 +125,4 @@ class MediaRegistryTest extends BaseTestCase {
 	//
 	// If these features are needed in the future, implement them THEN write tests.
 	// Don't write tests for code that doesn't exist!
-
 }

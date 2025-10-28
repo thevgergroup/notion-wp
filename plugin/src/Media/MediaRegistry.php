@@ -134,10 +134,12 @@ class MediaRegistry {
 	public static function find( string $notion_identifier ): ?int {
 		global $wpdb;
 
+		$table_name = self::get_table_name();
+
+		// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- Table name is safe, comes from get_table_name().
 		$attachment_id = $wpdb->get_var(
 			$wpdb->prepare(
-				'SELECT attachment_id FROM %i WHERE notion_identifier = %s LIMIT 1',
-				self::get_table_name(),
+				"SELECT attachment_id FROM {$table_name} WHERE notion_identifier = %s LIMIT 1",
 				$notion_identifier
 			)
 		);
@@ -154,10 +156,12 @@ class MediaRegistry {
 	public static function exists( string $notion_identifier ): bool {
 		global $wpdb;
 
+		$table_name = self::get_table_name();
+
+		// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- Table name is safe, comes from get_table_name().
 		$count = $wpdb->get_var(
 			$wpdb->prepare(
-				'SELECT COUNT(*) FROM %i WHERE notion_identifier = %s LIMIT 1',
-				self::get_table_name(),
+				"SELECT COUNT(*) FROM {$table_name} WHERE notion_identifier = %s LIMIT 1",
 				$notion_identifier
 			)
 		);
@@ -174,9 +178,11 @@ class MediaRegistry {
 	public static function get_status( string $notion_identifier ): ?string {
 		global $wpdb;
 
+		$table_name = self::get_table_name();
+
+		// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- Table name is safe, comes from get_table_name().
 		$query = $wpdb->prepare(
-			'SELECT status FROM %i WHERE notion_identifier = %s LIMIT 1',
-			self::get_table_name(),
+			"SELECT status FROM {$table_name} WHERE notion_identifier = %s LIMIT 1",
 			$notion_identifier
 		);
 
@@ -229,10 +235,12 @@ class MediaRegistry {
 	public static function get_notion_url( string $notion_identifier ): ?string {
 		global $wpdb;
 
+		$table_name = self::get_table_name();
+
+		// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- Table name is safe, comes from get_table_name().
 		$notion_url = $wpdb->get_var(
 			$wpdb->prepare(
-				'SELECT notion_file_url FROM %i WHERE notion_identifier = %s LIMIT 1',
-				self::get_table_name(),
+				"SELECT notion_file_url FROM {$table_name} WHERE notion_identifier = %s LIMIT 1",
 				$notion_identifier
 			)
 		);
@@ -319,10 +327,12 @@ class MediaRegistry {
 	public static function find_by_attachment( int $attachment_id ): array {
 		global $wpdb;
 
+		$table_name = self::get_table_name();
+
+		// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- Table name is safe, comes from get_table_name().
 		$results = $wpdb->get_col(
 			$wpdb->prepare(
-				'SELECT notion_identifier FROM %i WHERE attachment_id = %d',
-				self::get_table_name(),
+				"SELECT notion_identifier FROM {$table_name} WHERE attachment_id = %d",
 				$attachment_id
 			)
 		);

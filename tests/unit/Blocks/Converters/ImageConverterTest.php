@@ -235,5 +235,4 @@ class ImageConverterTest extends BaseConverterTestCase {
 	public function test_converts_image_from_fixture(): void {
 		$this->markTestSkipped( 'Fixture file not yet created - TODO: create fixtures/notion-responses/blocks-image.json' );
 	}
-
 }

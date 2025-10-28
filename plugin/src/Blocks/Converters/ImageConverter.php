@@ -183,6 +183,9 @@ class ImageConverter implements BlockConverterInterface {
 		// Check if we need to re-upload (image changed in Notion).
 		if ( $attachment_id && MediaRegistry::needs_reupload( $block_id, $notion_url ) ) {
 			error_log( "ImageConverter: Image changed in Notion, queueing re-upload for block {$block_id}" );
+			// Delete old registry entry to prevent race condition where another process
+			// finds the stale attachment before we queue the new download.
+			MediaRegistry::delete( $block_id );
 			$attachment_id = null;
 		}
 

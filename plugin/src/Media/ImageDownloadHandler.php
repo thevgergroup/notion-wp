@@ -64,19 +64,17 @@ class ImageDownloadHandler {
 	 * @param int    $wp_post_id     WordPress post ID (for attachment parent).
 	 * @param string $caption        Image caption.
 	 * @return void
+	 * @throws \InvalidArgumentException If required parameters are missing.
+	 * @throws \Exception If download or upload fails (caught and rethrown for retry).
 	 */
 	public static function process_download( string $block_id, string $notion_url, string $notion_page_id = '', int $wp_post_id = 0, string $caption = '' ): void {
 
-		// Validate required arguments.
-		if ( empty( $block_id ) || empty( $notion_url ) ) {
-			error_log(
-				sprintf(
-					'[ImageDownloadHandler] Invalid arguments: block_id=%s, notion_url=%s',
-					$block_id,
-					$notion_url ? 'provided' : 'missing'
-				)
-			);
-			return;
+		// Validate required arguments - throw exception to trigger Action Scheduler retry.
+		if ( empty( $block_id ) ) {
+			throw new \InvalidArgumentException( 'block_id cannot be empty' );
+		}
+		if ( empty( $notion_url ) ) {
+			throw new \InvalidArgumentException( 'notion_url cannot be empty' );
 		}
 
 		try {
