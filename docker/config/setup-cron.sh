@@ -21,8 +21,18 @@ fi
 if ! command -v wp &> /dev/null; then
     echo "Installing WP-CLI..."
     curl -sS -O https://raw.githubusercontent.com/wp-cli/builds/gh-pages/phar/wp-cli.phar
-    chmod +x wp-cli.phar
-    mv wp-cli.phar /usr/local/bin/wp
+    curl -sS -O https://raw.githubusercontent.com/wp-cli/builds/gh-pages/phar/wp-cli.phar.sha512
+
+    # Verify checksum
+    if sha512sum -c wp-cli.phar.sha512; then
+        echo "✓ WP-CLI checksum verified"
+        chmod +x wp-cli.phar
+        mv wp-cli.phar /usr/local/bin/wp
+        rm wp-cli.phar.sha512
+    else
+        echo "✗ WP-CLI checksum verification failed - aborting"
+        exit 1
+    fi
 fi
 
 # Wait for WordPress to be fully initialized

@@ -42,6 +42,8 @@ class ImageDownloadHandler {
 	public static function register_hooks(): void {
 		if ( function_exists( 'as_schedule_single_action' ) ) {
 			add_action( self::ACTION_HOOK, array( __CLASS__, 'process_download' ), 10, 5 );
+			// Handle final failures after all retries exhausted.
+			add_action( 'action_scheduler_failed_action', array( __CLASS__, 'handle_final_failure' ), 10, 2 );
 		}
 	}
 
@@ -186,5 +188,56 @@ class ImageDownloadHandler {
 	 */
 	public static function is_action_scheduler_available(): bool {
 		return function_exists( 'as_schedule_single_action' );
+	}
+
+	/**
+	 * Handle final failure after all retries exhausted.
+	 *
+	 * Updates MediaRegistry status to 'failed' so images aren't stuck in 'processing' state.
+	 *
+	 * @since 0.4.0
+	 *
+	 * @param int    $action_id The Action Scheduler action ID.
+	 * @param object $action    The Action Scheduler action object.
+	 *
+	 * @return void
+	 */
+	public static function handle_final_failure( int $action_id, $action ): void {
+		// Only handle our image download actions.
+		if ( ! isset( $action ) || self::ACTION_HOOK !== $action->get_hook() ) {
+			return;
+		}
+
+		$args = $action->get_args();
+		if ( empty( $args[0] ) ) {
+			return;
+		}
+
+		$block_id = $args[0];
+
+		error_log(
+			sprintf(
+				'[ImageDownloadHandler] Final failure for block %s after all retries exhausted',
+				substr( $block_id, 0, 8 )
+			)
+		);
+
+		// Update MediaRegistry to mark as failed so it's not stuck in processing state.
+		global $wpdb;
+		$table_name = $wpdb->prefix . 'notion_media_registry';
+
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
+		$wpdb->update(
+			$table_name,
+			array(
+				'status'       => 'failed',
+				'updated_at'   => current_time( 'mysql' ),
+				'error_count'  => 99, // Mark as max retries exhausted.
+				'last_error'   => 'Action Scheduler exhausted all retries',
+			),
+			array( 'notion_identifier' => $block_id ),
+			array( '%s', '%s', '%d', '%s' ),
+			array( '%s' )
+		);
 	}
 }

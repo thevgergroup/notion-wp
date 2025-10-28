@@ -110,7 +110,18 @@ class CalloutConverter implements BlockConverterInterface {
 				);
 			}
 
-			$html .= $content;
+			// Additional XSS protection: sanitize the final content with allowed HTML tags.
+			$allowed_html = array(
+				'strong' => array(),
+				'em'     => array(),
+				'code'   => array(),
+				'u'      => array(),
+				's'      => array(),
+				'a'      => array(
+					'href' => array(),
+				),
+			);
+			$html        .= wp_kses( $content, $allowed_html );
 		}
 
 		return $html;

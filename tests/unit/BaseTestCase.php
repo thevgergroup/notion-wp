@@ -95,6 +95,12 @@ abstract class BaseTestCase extends TestCase {
 					// Strip script tags for security
 					return preg_replace( '/<script\b[^>]*>(.*?)<\/script>/is', '', (string) $data );
 				},
+				'wp_kses'               => function ( $str, $allowed_html ) {
+					// Simple mock that allows specified tags
+					$allowed_tags = array_keys( $allowed_html );
+					$tags_string  = '<' . implode( '><', $allowed_tags ) . '>';
+					return strip_tags( (string) $str, $tags_string );
+				},
 				'sanitize_text_field'   => function ( $str ) {
 					return strip_tags( (string) $str );
 				},
