@@ -176,6 +176,25 @@ abstract class BaseTestCase extends TestCase {
 					}
 					return $defaults;
 				},
+				'wp_parse_url'          => function ( $url, $component = -1 ) {
+					// WordPress wrapper for parse_url with additional validation
+					$parts = parse_url( $url );
+					if ( $component === -1 ) {
+						return $parts;
+					}
+					$part_map = array(
+						PHP_URL_SCHEME   => 'scheme',
+						PHP_URL_HOST     => 'host',
+						PHP_URL_PORT     => 'port',
+						PHP_URL_USER     => 'user',
+						PHP_URL_PASS     => 'pass',
+						PHP_URL_PATH     => 'path',
+						PHP_URL_QUERY    => 'query',
+						PHP_URL_FRAGMENT => 'fragment',
+					);
+					$key      = $part_map[ $component ] ?? null;
+					return $key && isset( $parts[ $key ] ) ? $parts[ $key ] : null;
+				},
 			)
 		);
 	}

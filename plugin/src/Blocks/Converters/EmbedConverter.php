@@ -52,6 +52,11 @@ class EmbedConverter implements BlockConverterInterface {
 			return '';
 		}
 
+		// Handle bookmark and PDF types specially (not oEmbed).
+		if ( in_array( $type, array( 'bookmark', 'pdf' ), true ) ) {
+			return $this->convert_link_preview( $url, $type );
+		}
+
 		// Determine embed provider from URL.
 		$provider = $this->detect_provider( $url );
 
@@ -64,10 +69,6 @@ class EmbedConverter implements BlockConverterInterface {
 			case 'spotify':
 			case 'soundcloud':
 				return $this->convert_oembed( $url, $provider );
-
-			case 'bookmark':
-			case 'pdf':
-				return $this->convert_link_preview( $url, $type );
 
 			default:
 				return $this->convert_generic_embed( $url );
