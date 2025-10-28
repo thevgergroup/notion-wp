@@ -163,11 +163,8 @@ class ImageDownloader {
 		$validate = $options['validate'] ?? true;
 		$force    = $options['force'] ?? false;
 
-		// Validate URL.
-		if ( ! filter_var( $url, FILTER_VALIDATE_URL ) ) {
-			// phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- Internal error message for debugging.
-			throw new \InvalidArgumentException( 'Invalid URL provided: ' . $url );
-		}
+		// Validate URL security (SSRF protection).
+		$this->validate_url_security( $url );
 
 		// Check if URL should be downloaded (unless forced).
 		if ( ! $force && ! $this->should_download( $url ) ) {
@@ -214,6 +211,48 @@ class ImageDownloader {
 			$last_exception
 		);
 		// phpcs:enable WordPress.Security.EscapeOutput.ExceptionNotEscaped
+	}
+
+	/**
+	 * Validate URL for security vulnerabilities (SSRF protection).
+	 *
+	 * Prevents Server-Side Request Forgery attacks by blocking:
+	 * - Internal/private IP ranges
+	 * - Non-HTTP/HTTPS protocols
+	 * - URLs that fail WordPress security validation
+	 *
+	 * @since 0.4.0
+	 *
+	 * @param string $url URL to validate.
+	 * @return void
+	 * @throws \InvalidArgumentException If URL is invalid or potentially dangerous.
+	 */
+	private function validate_url_security( string $url ): void {
+		// 1. Basic format validation.
+		if ( ! filter_var( $url, FILTER_VALIDATE_URL ) ) {
+			// phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- Internal error message for debugging.
+			throw new \InvalidArgumentException( 'Invalid URL format: ' . $url );
+		}
+
+		// 2. Only allow HTTP/HTTPS.
+		$parsed = wp_parse_url( $url );
+		if ( ! isset( $parsed['scheme'] ) || ! in_array( $parsed['scheme'], array( 'http', 'https' ), true ) ) {
+			throw new \InvalidArgumentException( 'Only HTTP/HTTPS protocols allowed' );
+		}
+
+		// 3. Block internal/private IP ranges.
+		if ( isset( $parsed['host'] ) ) {
+			$ip = gethostbyname( $parsed['host'] );
+
+			if ( filter_var( $ip, FILTER_VALIDATE_IP, FILTER_FLAG_NO_PRIV_RANGE | FILTER_FLAG_NO_RES_RANGE ) === false ) {
+				throw new \InvalidArgumentException( 'Access to internal/private IPs not allowed' );
+			}
+		}
+
+		// 4. WordPress validation.
+		if ( ! wp_http_validate_url( $url ) ) {
+			throw new \InvalidArgumentException( 'URL failed WordPress security validation' );
+		}
 	}
 
 	/**

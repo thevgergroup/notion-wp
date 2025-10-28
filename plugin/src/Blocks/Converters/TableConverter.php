@@ -97,8 +97,8 @@ class TableConverter implements BlockConverterInterface {
 			$first_row = false;
 		}
 
-		// Close tbody if we opened it.
-		if ( $has_header && count( $children ) > 1 ) {
+		// Close tbody if we opened it (only opened when has_header is true and there are rows after the header).
+		if ( $has_header ) {
 			$table_html .= '</tbody>';
 		}
 
@@ -125,6 +125,9 @@ class TableConverter implements BlockConverterInterface {
 		foreach ( $rich_text as $text_obj ) {
 			$content     = $text_obj['plain_text'] ?? '';
 			$annotations = $text_obj['annotations'] ?? array();
+
+			// Escape content first to prevent XSS.
+			$content = esc_html( $content );
 
 			// Apply formatting.
 			if ( ! empty( $annotations['bold'] ) ) {

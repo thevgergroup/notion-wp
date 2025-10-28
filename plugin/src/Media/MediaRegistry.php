@@ -60,10 +60,14 @@ class MediaRegistry {
 			notion_file_url text,
 			status varchar(20) NOT NULL DEFAULT 'uploaded',
 			registered_at datetime NOT NULL,
+			updated_at datetime DEFAULT NULL,
+			error_count int DEFAULT 0,
+			last_error text,
 			PRIMARY KEY  (id),
 			UNIQUE KEY notion_identifier (notion_identifier),
 			KEY attachment_id (attachment_id),
 			KEY registered_at (registered_at),
+			KEY updated_at (updated_at),
 			KEY status (status)
 		) {$charset_collate};";
 

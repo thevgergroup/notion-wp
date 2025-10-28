@@ -154,8 +154,8 @@ class NotionImageBlock {
 		if ( empty( $block_id ) ) {
 			// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log -- Debug logging.
 			error_log( '[NotionImageBlock] EARLY RETURN: Empty block_id' );
-			// No block ID - show error for logged-in users.
-			if ( is_user_logged_in() ) {
+			// No block ID - show error for users with proper capabilities only.
+			if ( current_user_can( 'manage_options' ) || current_user_can( 'edit_posts' ) ) {
 				return '<p class="notion-image-error">⚠️ Notion image missing block ID</p>';
 			}
 			return '';
@@ -336,8 +336,8 @@ class NotionImageBlock {
 	private function render_wordpress_image( int $attachment_id, string $caption, string $alt_text ): string {
 		$image_url = wp_get_attachment_url( $attachment_id );
 		if ( ! $image_url ) {
-			// Attachment not found - show error.
-			if ( is_user_logged_in() ) {
+			// Attachment not found - show error for users with proper capabilities only.
+			if ( current_user_can( 'manage_options' ) || current_user_can( 'edit_posts' ) ) {
 				return sprintf(
 					'<p class="notion-image-error">⚠️ Image attachment %d not found</p>',
 					$attachment_id
