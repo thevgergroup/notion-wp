@@ -9,7 +9,7 @@
  */
 
 // Composer autoloader.
-require_once __DIR__ . '/../vendor/autoload.php';
+require_once __DIR__ . '/../plugin/vendor/autoload.php';
 
 // Define simple WP_Error class for testing
 if ( ! class_exists( 'WP_Error' ) ) {
