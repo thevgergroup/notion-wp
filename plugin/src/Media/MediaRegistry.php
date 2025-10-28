@@ -279,7 +279,7 @@ class MediaRegistry {
 				'attachment_id'   => $attachment_id,
 				'notion_file_url' => $notion_file_url,
 				'status'          => $status,
-				'registered_at'   => current_time( 'mysql' ),
+				'updated_at'      => current_time( 'mysql' ),
 			],
 			[ 'notion_identifier' => $notion_identifier ],
 			[ '%d', '%s', '%s', '%s' ],

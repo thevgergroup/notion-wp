@@ -227,6 +227,9 @@ class MediaUploader {
 
 		$alt_text = get_post_meta( $attachment_id, '_wp_attachment_image_alt', true );
 
+		$file_path = get_attached_file( $attachment_id );
+		$file_size = ( $file_path && file_exists( $file_path ) ) ? filesize( $file_path ) : 0;
+
 		return [
 			'id'          => $attachment_id,
 			'url'         => wp_get_attachment_url( $attachment_id ),
@@ -235,7 +238,7 @@ class MediaUploader {
 			'description' => $post->post_content,
 			'alt_text'    => $alt_text ? $alt_text : '',
 			'mime_type'   => $post->post_mime_type,
-			'file_size'   => filesize( get_attached_file( $attachment_id ) ),
+			'file_size'   => $file_size,
 		];
 	}
 
