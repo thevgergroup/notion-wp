@@ -351,6 +351,27 @@ class ImageConverter implements BlockConverterInterface {
 			return;
 		}
 
+		// Prevent race condition: Check if download already queued for this block.
+		// We check only the first arg (block_id) to detect duplicates regardless of other params.
+		if ( function_exists( 'as_has_scheduled_action' ) ) {
+			$pending_actions = as_get_scheduled_actions(
+				[
+					'hook'   => 'notion_sync_download_image',
+					'group'  => 'notion-sync-media',
+					'status' => 'pending',
+				],
+				'ids'
+			);
+
+			foreach ( $pending_actions as $action_id ) {
+				$action = as_get_scheduled_action( $action_id );
+				if ( $action && isset( $action->get_args()[0] ) && $action->get_args()[0] === $block_id ) {
+					error_log( "ImageConverter: Download already queued for block {$block_id}, skipping duplicate" );
+					return;
+				}
+			}
+		}
+
 		// Extract caption for metadata.
 		$caption = $this->extract_caption( $image_data );
 

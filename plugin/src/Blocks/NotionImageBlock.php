@@ -301,8 +301,8 @@ class NotionImageBlock {
 					$url = $block['image']['external']['url'];
 				}
 
-				// Validate URL before returning.
-				if ( ! empty( $url ) && filter_var( $url, FILTER_VALIDATE_URL ) !== false ) {
+				// Validate URL before returning (wp_http_validate_url rejects non-HTTP(S) schemes).
+				if ( ! empty( $url ) && wp_http_validate_url( $url ) !== false ) {
 					return $url;
 				}
 
@@ -382,7 +382,7 @@ class NotionImageBlock {
 			if ( current_user_can( 'manage_options' ) || current_user_can( 'edit_posts' ) ) {
 				return sprintf(
 					'<p class="notion-image-error">⚠️ Image attachment %d not found</p>',
-					$attachment_id
+					(int) $attachment_id
 				);
 			}
 			return '';

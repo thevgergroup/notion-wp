@@ -172,6 +172,22 @@ class ImageDownloadHandler {
 					$e->getMessage()
 				)
 			);
+
+			// Track error in MediaRegistry (but don't mark as 'failed' since Action Scheduler will retry).
+			global $wpdb;
+			$table_name = $wpdb->prefix . 'notion_media_registry';
+
+			// Increment error count and store error message.
+			// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
+			$wpdb->query(
+				$wpdb->prepare(
+					"UPDATE {$table_name} SET error_count = error_count + 1, last_error = %s, updated_at = %s WHERE notion_identifier = %s", // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+					$e->getMessage(),
+					current_time( 'mysql' ),
+					$block_id
+				)
+			);
+
 			// Let Action Scheduler handle retries automatically.
 			throw $e;
 		}
