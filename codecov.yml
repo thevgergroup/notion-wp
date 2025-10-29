@@ -9,10 +9,10 @@ codecov:
 # Fix paths in coverage reports to match git structure
 # GitHub Actions uses /home/runner/work/notion-wp/notion-wp/...
 # Local uses /Users/patrick/Projects/thevgergroup/notion-wp/...
+# After stripping these prefixes, paths will be relative to repo root (e.g., plugin/src/...)
 fixes:
   - "/home/runner/work/notion-wp/notion-wp/::"
   - "/Users/patrick/Projects/thevgergroup/notion-wp/::"
-  - "::plugin/"
 
 coverage:
   precision: 2
