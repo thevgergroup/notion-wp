@@ -71,7 +71,7 @@ jobs:
             - name: Run unit tests with coverage (PHP 8.3 only)
               if: matrix.php == '8.3'
               run: |
-                  php plugin/vendor/bin/phpunit --testsuite=unit --coverage-clover coverage.xml --coverage-text --testdox --colors=always
+                  php -dpcov.enabled=1 -dpcov.directory=. plugin/vendor/bin/phpunit --testsuite=unit --coverage-clover coverage.xml --coverage-text --testdox --colors=always
                   echo "Coverage file generated:"
                   ls -lh coverage.xml
                   echo "Coverage XML preview:"
