@@ -179,6 +179,80 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 				<!-- Navigation Tab Content -->
 
+				<?php
+				// Check if current theme supports menus.
+				$theme_supports_menus = current_theme_supports( 'menus' );
+				$menu_locations       = get_registered_nav_menus();
+				?>
+
+				<?php if ( ! $theme_supports_menus || empty( $menu_locations ) ) : ?>
+					<!-- Theme Menu Support Warning -->
+					<div class="notice notice-warning inline" style="margin-top: 20px;">
+						<h3><?php esc_html_e( 'Theme Does Not Support Navigation Menus', 'notion-wp' ); ?></h3>
+						<p>
+							<?php
+							esc_html_e(
+								'Your current theme does not register any menu locations. While the plugin can still create WordPress menus from your Notion page hierarchy, you will not be able to assign them to your theme without additional configuration.',
+								'notion-wp'
+							);
+							?>
+						</p>
+						<p><strong><?php esc_html_e( 'Options:', 'notion-wp' ); ?></strong></p>
+						<ul style="margin-left: 20px; list-style: disc;">
+							<li>
+								<?php
+								esc_html_e(
+									'Switch to a theme that supports navigation menus (most modern WordPress themes do)',
+									'notion-wp'
+								);
+								?>
+							</li>
+							<li>
+								<?php
+								printf(
+									/* translators: %s: URL to WordPress theme customization docs */
+									wp_kses(
+										__( 'Add menu support to your current theme by following <a href="%s" target="_blank" rel="noopener noreferrer">WordPress theme customization documentation</a>', 'notion-wp' ),
+										array(
+											'a' => array(
+												'href'   => array(),
+												'target' => array(),
+												'rel'    => array(),
+											),
+										)
+									),
+									esc_url( 'https://developer.wordpress.org/themes/functionality/navigation-menus/' )
+								);
+								?>
+							</li>
+							<li>
+								<?php
+								esc_html_e(
+									'Use a plugin like Max Mega Menu or WP Navigation Menu to add menu functionality',
+									'notion-wp'
+								);
+								?>
+							</li>
+							<li>
+								<?php
+								esc_html_e(
+									'Display the menu using a shortcode or widget (if your theme supports widgets)',
+									'notion-wp'
+								);
+								?>
+							</li>
+						</ul>
+						<p>
+							<?php
+							esc_html_e(
+								'You can still sync menus below, and they will be ready to use once you configure menu support in your theme.',
+								'notion-wp'
+							);
+							?>
+						</p>
+					</div>
+				<?php endif; ?>
+
 				<!-- Menu Sync Configuration -->
 				<div class="card" style="margin-top: 20px;">
 					<h2><?php esc_html_e( 'Menu Sync Configuration', 'notion-wp' ); ?></h2>
@@ -246,7 +320,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 										<p class="description">
 											<?php
 											esc_html_e(
-												'The name of the WordPress menu that will be created. You can assign this menu to a theme location in Appearance > Menus.',
+												'The name of the WordPress menu that will be created. After syncing, go to Appearance → Menus to assign this menu to a theme location (such as Primary Menu or Footer Menu).',
 												'notion-wp'
 											);
 											?>

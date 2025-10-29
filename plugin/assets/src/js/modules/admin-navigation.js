@@ -80,23 +80,12 @@ async function handleMenuSync(event) {
  *
  * @param {HTMLElement} container Message container element
  * @param {string}      type      Message type (success, error, warning, info)
- * @param {string}      message   Message text
+ * @param {string}      message   Message text (can contain safe HTML from server)
  */
 function showMessage(container, type, message) {
 	const notice = document.createElement('div');
 	notice.className = `notice notice-${type} inline`;
-	notice.innerHTML = `<p>${escapeHtml(message)}</p>`;
+	// Message comes from wp_send_json_success which is already escaped on the server
+	notice.innerHTML = `<p>${message}</p>`;
 	container.appendChild(notice);
-}
-
-/**
- * Escape HTML to prevent XSS
- *
- * @param {string} text Text to escape
- * @return {string} Escaped text
- */
-function escapeHtml(text) {
-	const div = document.createElement('div');
-	div.textContent = text;
-	return div.innerHTML;
 }
