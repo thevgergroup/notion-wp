@@ -30,9 +30,9 @@
     </testsuites>
 
     <!-- Code Coverage Configuration -->
-    <coverage processUncoveredFiles="false">
+    <coverage>
         <include>
-            <directory suffix=".php">plugin/src</directory>
+            <directory suffix=".php">./plugin/src</directory>
         </include>
         <exclude>
             <!--
