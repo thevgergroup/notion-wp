@@ -601,4 +601,51 @@ class NotionCommand {
 		\WP_CLI::log( '' );
 		\WP_CLI::log( \WP_CLI::colorize( '%G' . str_repeat( '=', 60 ) . '%n' ) );
 	}
+
+	/**
+	 * Debug menu hierarchy and sync status.
+	 *
+	 * Displays detailed diagnostic information about the page hierarchy,
+	 * parent-child relationships, and current menu sync state.
+	 *
+	 * ## OPTIONS
+	 *
+	 * [--verbose]
+	 * : Show detailed information for each page
+	 *
+	 * ## EXAMPLES
+	 *
+	 *     # Basic diagnostics
+	 *     wp notion debug-menu
+	 *
+	 *     # Detailed diagnostics
+	 *     wp notion debug-menu --verbose
+	 *
+	 * @param array $args Positional arguments.
+	 * @param array $assoc_args Associative arguments.
+	 * @when after_wp_load
+	 */
+	public function debug_menu( $args, $assoc_args ) {
+		$verbose = isset( $assoc_args['verbose'] );
+		MenuHandler::debug_menu( $verbose );
+	}
+
+	/**
+	 * Sync navigation menu from Notion hierarchy.
+	 *
+	 * Creates or updates the WordPress navigation menu based on
+	 * the current Notion page hierarchy.
+	 *
+	 * ## EXAMPLES
+	 *
+	 *     # Sync the menu
+	 *     wp notion sync-menu
+	 *
+	 * @param array $args Positional arguments.
+	 * @param array $assoc_args Associative arguments.
+	 * @when after_wp_load
+	 */
+	public function sync_menu( $args, $assoc_args ) {
+		MenuHandler::sync_menu_now();
+	}
 }
