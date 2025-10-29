@@ -6,6 +6,14 @@ codecov:
   notify:
     wait_for_ci: yes
 
+# Fix paths in coverage reports to match git structure
+# GitHub Actions uses /home/runner/work/notion-wp/notion-wp/...
+# Local uses /Users/patrick/Projects/thevgergroup/notion-wp/...
+fixes:
+  - "/home/runner/work/notion-wp/notion-wp/::"
+  - "/Users/patrick/Projects/thevgergroup/notion-wp/::"
+  - "::plugin/"
+
 coverage:
   precision: 2
   round: down
