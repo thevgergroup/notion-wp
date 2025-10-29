@@ -30,6 +30,7 @@ class SettingsPage {
 		add_action( 'admin_post_notion_sync_connect', array( $this, 'handle_connect' ) );
 		add_action( 'admin_post_notion_sync_disconnect', array( $this, 'handle_disconnect' ) );
 		add_action( 'admin_post_notion_sync_flush_rewrites', array( $this, 'handle_flush_rewrites' ) );
+		add_action( 'admin_post_notion_sync_save_navigation_settings', array( $this, 'handle_save_navigation_settings' ) );
 		add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_assets' ) );
 
 		// Register AJAX handlers via dedicated handler classes.
@@ -38,6 +39,10 @@ class SettingsPage {
 
 		$database_ajax_handler = new DatabaseAjaxHandler();
 		$database_ajax_handler->register();
+
+		// Register navigation AJAX handler (Phase 5).
+		$navigation_ajax_handler = new \NotionWP\Admin\NavigationAjaxHandler();
+		$navigation_ajax_handler->register();
 	}
 
 	/**
@@ -382,18 +387,23 @@ class SettingsPage {
 	/**
 	 * Redirect back to settings page with a message.
 	 *
-	 * @param string $type    Message type: 'success' or 'error'.
-	 * @param string $message Message to display.
+	 * @param string      $type    Message type: 'success' or 'error'.
+	 * @param string      $message Message to display.
+	 * @param string|null $tab     Optional tab to redirect to. Defaults to current tab or 'pages'.
 	 * @return void
 	 */
-	private function redirect_with_message( $type, $message ) {
-		$redirect_url = add_query_arg(
-			array(
-				'page'                 => 'notion-sync',
-				'notion_sync_' . $type => rawurlencode( $message ),
-			),
-			admin_url( 'admin.php' )
+	private function redirect_with_message( $type, $message, $tab = null ) {
+		$args = array(
+			'page'                 => 'notion-sync',
+			'notion_sync_' . $type => rawurlencode( $message ),
 		);
+
+		// Add tab parameter if specified.
+		if ( null !== $tab ) {
+			$args['tab'] = $tab;
+		}
+
+		$redirect_url = add_query_arg( $args, admin_url( 'admin.php' ) );
 
 		wp_safe_redirect( $redirect_url );
 		exit;
@@ -477,6 +487,64 @@ class SettingsPage {
 		$this->redirect_with_message(
 			'success',
 			__( 'Rewrite rules have been flushed. /notion/{slug} URLs should now work correctly.', 'notion-wp' )
+		);
+	}
+
+	/**
+	 * Handle navigation settings form submission.
+	 *
+	 * Saves menu sync configuration settings including whether menu sync is enabled
+	 * and the name of the WordPress menu to create.
+	 *
+	 * @since 1.0.0
+	 *
+	 * @return void
+	 */
+	public function handle_save_navigation_settings() {
+		// Check user capabilities.
+		if ( ! current_user_can( 'manage_options' ) ) {
+			wp_die(
+				esc_html__( 'You do not have sufficient permissions to perform this action.', 'notion-wp' ),
+				esc_html__( 'Insufficient Permissions', 'notion-wp' ),
+				array( 'response' => 403 )
+			);
+		}
+
+		// Verify nonce.
+		if ( ! isset( $_POST['notion_sync_navigation_settings_nonce'] ) ||
+			! wp_verify_nonce( sanitize_text_field( wp_unslash( $_POST['notion_sync_navigation_settings_nonce'] ) ), 'notion_sync_navigation_settings' ) ) {
+			wp_die(
+				esc_html__( 'Security check failed. Please try again.', 'notion-wp' ),
+				esc_html__( 'Security Error', 'notion-wp' ),
+				array( 'response' => 403 )
+			);
+		}
+
+		// Get and sanitize settings.
+		$menu_enabled = isset( $_POST['notion_sync_menu_enabled'] ) && '1' === $_POST['notion_sync_menu_enabled'];
+		$menu_name    = isset( $_POST['notion_sync_menu_name'] ) ?
+			sanitize_text_field( wp_unslash( $_POST['notion_sync_menu_name'] ) ) :
+			'Notion Navigation';
+
+		// Validate menu name is not empty.
+		if ( empty( trim( $menu_name ) ) ) {
+			$this->redirect_with_message(
+				'error',
+				__( 'Menu name cannot be empty. Please provide a valid menu name.', 'notion-wp' ),
+				'navigation'
+			);
+			return;
+		}
+
+		// Save settings.
+		update_option( 'notion_sync_menu_enabled', $menu_enabled );
+		update_option( 'notion_sync_menu_name', $menu_name );
+
+		// Redirect with success message.
+		$this->redirect_with_message(
+			'success',
+			__( 'Navigation settings saved successfully.', 'notion-wp' ),
+			'navigation'
 		);
 	}
 }

@@ -21,6 +21,7 @@ import {
 	initCopyButtons,
 } from './modules/admin-ui.js';
 import { initStatusBadgeSystem } from './modules/status-badge.js';
+import { initNavigationSync } from './modules/admin-navigation.js';
 
 /**
  * Initialize all admin functionality when DOM is ready
@@ -34,6 +35,9 @@ function init() {
 
 	// Initialize sync functionality.
 	initSyncFunctionality();
+
+	// Initialize navigation sync functionality (Phase 5).
+	initNavigationSync();
 
 	// Enhance keyboard navigation for accessibility.
 	enhanceKeyboardNavigation();
