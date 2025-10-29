@@ -149,12 +149,24 @@ class HierarchyDetector {
 	 * Get child pages for a given Notion page ID
 	 *
 	 * Queries WordPress for posts that have this page as their parent.
+	 * Searches for both normalized (no dashes) and original (with dashes) formats
+	 * to handle legacy data and API variations.
 	 *
 	 * @param string $page_id Notion page ID.
 	 * @return array<string> Array of child page IDs.
 	 */
 	public function get_child_pages( string $page_id ): array {
 		$normalized_id = str_replace( '-', '', $page_id );
+
+		// Notion IDs can be stored with or without dashes depending on source.
+		// We need to check both formats: normalized (no dashes) and with dashes.
+		$with_dashes = strlen( $page_id ) === 32 ?
+			substr( $page_id, 0, 8 ) . '-' .
+			substr( $page_id, 8, 4 ) . '-' .
+			substr( $page_id, 12, 4 ) . '-' .
+			substr( $page_id, 16, 4 ) . '-' .
+			substr( $page_id, 20 ) :
+			$page_id;
 
 		$children = get_posts(
 			array(
@@ -163,9 +175,15 @@ class HierarchyDetector {
 				'post_status'    => 'any',
 				'fields'         => 'ids',
 				'meta_query'     => array( // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_query
+					'relation' => 'OR',
 					array(
 						'key'     => self::META_PARENT_PAGE_ID,
 						'value'   => $normalized_id,
+						'compare' => '=',
+					),
+					array(
+						'key'     => self::META_PARENT_PAGE_ID,
+						'value'   => $with_dashes,
 						'compare' => '=',
 					),
 				),
