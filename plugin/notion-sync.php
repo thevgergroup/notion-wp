@@ -136,6 +136,14 @@ function init() {
 
 		$admin_notices = new Admin\AdminNotices();
 		$admin_notices->register();
+
+		// Initialize menu meta box (Phase 5) - enhances WordPress native menu editor.
+		$menu_meta_box = new \NotionWP\Admin\MenuMetaBox( $menu_item_meta );
+		$menu_meta_box->register();
+
+		// Initialize navigation AJAX handler (Phase 5).
+		$navigation_ajax = new \NotionWP\Admin\NavigationAjaxHandler();
+		$navigation_ajax->register();
 	}
 
 	// Register REST API endpoints.

@@ -146,6 +146,9 @@ class NavigationAjaxHandler {
 			$menu_items = wp_get_nav_menu_items( $menu_id );
 			$item_count = is_array( $menu_items ) ? count( $menu_items ) : 0;
 
+			// Update last sync time for meta box display.
+			update_option( 'notion_menu_last_sync_time', time() );
+
 			// Build success message with next steps.
 			$menus_url      = admin_url( 'nav-menus.php?action=edit&menu=' . $menu_id );
 			$success_parts  = array();
