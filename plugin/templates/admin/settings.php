@@ -211,7 +211,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 													name="notion_sync_menu_enabled"
 													id="notion_sync_menu_enabled"
 													value="1"
-													<?php checked( get_option( 'notion_sync_menu_enabled', false ) ); ?>
+													<?php checked( get_option( 'notion_sync_menu_enabled', true ) ); ?>
 												>
 												<?php esc_html_e( 'Automatically sync Notion page hierarchy to WordPress menu', 'notion-wp' ); ?>
 											</label>
@@ -278,7 +278,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 						?>
 					</p>
 
-					<?php if ( get_option( 'notion_sync_menu_enabled', false ) ) : ?>
+					<?php if ( get_option( 'notion_sync_menu_enabled', true ) ) : ?>
 						<div id="notion-menu-sync-messages" style="margin-top: 15px;"></div>
 
 						<button

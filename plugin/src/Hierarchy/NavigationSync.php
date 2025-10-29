@@ -57,7 +57,7 @@ class NavigationSync {
 		$this->hierarchy_detector = $hierarchy_detector;
 
 		// Get settings from WordPress options.
-		$this->enabled   = (bool) get_option( 'notion_sync_menu_enabled', false );
+		$this->enabled   = (bool) get_option( 'notion_sync_menu_enabled', true );
 		$this->menu_name = get_option( 'notion_sync_menu_name', 'Notion Navigation' );
 	}
 
