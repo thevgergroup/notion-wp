@@ -69,7 +69,12 @@ jobs:
 
             - name: Generate coverage report (PHP 8.3 only)
               if: matrix.php == '8.3'
-              run: php plugin/vendor/bin/phpunit --testsuite=unit --coverage-clover coverage.xml --coverage-text
+              run: |
+                  php plugin/vendor/bin/phpunit --testsuite=unit --coverage-clover coverage.xml --coverage-text
+                  echo "Coverage file generated:"
+                  ls -lh coverage.xml
+                  echo "Coverage XML preview:"
+                  head -30 coverage.xml
 
             - name: Upload coverage to Codecov
               if: matrix.php == '8.3'
@@ -78,8 +83,11 @@ jobs:
                   files: ./coverage.xml
                   flags: unit
                   name: unit-tests-php-8.3
-                  fail_ci_if_error: false
+                  fail_ci_if_error: true
+                  verbose: true
                   token: ${{ secrets.CODECOV_TOKEN }}
+                  root_dir: ${{ github.workspace }}
+                  working-directory: ${{ github.workspace }}
 
     coverage-report:
         name: Coverage Report & Badges
@@ -110,20 +118,41 @@ jobs:
             - name: Extract coverage percentage
               id: coverage
               run: |
+                  # Debug: Check if coverage.xml exists
+                  if [ ! -f "coverage.xml" ]; then
+                    echo "ERROR: coverage.xml not found!"
+                    ls -la
+                    exit 1
+                  fi
+
+                  # Debug: Show first few lines of coverage.xml
+                  echo "Coverage XML structure:"
+                  head -20 coverage.xml
+
                   # Extract coverage from clover XML using php to parse metrics
                   COVERAGE=$(php -r '
                     $xml = simplexml_load_file("coverage.xml");
+                    if (!$xml) {
+                      echo "0.0";
+                      exit;
+                    }
                     $metrics = $xml->project->metrics;
                     $total = (int)$metrics["statements"];
                     $covered = (int)$metrics["coveredstatements"];
+
+                    // Debug output
+                    error_log("Total statements: " . $total);
+                    error_log("Covered statements: " . $covered);
+
                     if ($total > 0) {
                       echo number_format(($covered / $total) * 100, 1);
                     } else {
                       echo "0.0";
                     }
                   ')
+
+                  echo "Extracted coverage: $COVERAGE%"
                   echo "percentage=$COVERAGE" >> $GITHUB_OUTPUT
-                  echo "Coverage: $COVERAGE%"
 
             - name: Create coverage badge
               uses: schneegans/dynamic-badges-action@v1.7.0
