@@ -65,12 +65,13 @@ jobs:
                   composer dump-autoload --optimize
 
             - name: Run unit tests
+              if: matrix.php != '8.3'
               run: php plugin/vendor/bin/phpunit --testsuite=unit --testdox --colors=always
 
-            - name: Generate coverage report (PHP 8.3 only)
+            - name: Run unit tests with coverage (PHP 8.3 only)
               if: matrix.php == '8.3'
               run: |
-                  php plugin/vendor/bin/phpunit --testsuite=unit --coverage-clover coverage.xml --coverage-text
+                  php plugin/vendor/bin/phpunit --testsuite=unit --coverage-clover coverage.xml --coverage-text --testdox --colors=always
                   echo "Coverage file generated:"
                   ls -lh coverage.xml
                   echo "Coverage XML preview:"
