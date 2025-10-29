@@ -286,7 +286,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 							id="notion-sync-menu-button"
 							class="button button-secondary"
 							style="margin-top: 15px;"
-							data-nonce="<?php echo esc_attr( wp_create_nonce( 'notion_sync_menu' ) ); ?>"
+							data-nonce="<?php echo esc_attr( wp_create_nonce( 'notion_sync_menu_now' ) ); ?>"
 						>
 							<span class="dashicons dashicons-update" style="margin-top: 3px;"></span>
 							<?php esc_html_e( 'Sync Menu Now', 'notion-wp' ); ?>

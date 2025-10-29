@@ -79,6 +79,9 @@ class NavigationAjaxHandler {
 			// Get menu name from settings.
 			$menu_name = get_option( 'notion_sync_menu_name', 'Notion Navigation' );
 
+			// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log -- Debug logging.
+			error_log( '[NavigationAjax] Starting menu sync. Menu name: ' . $menu_name );
+
 			// Initialize dependencies.
 			$hierarchy_detector = new HierarchyDetector();
 			$menu_item_meta     = new MenuItemMeta();
@@ -87,7 +90,12 @@ class NavigationAjaxHandler {
 			// Find all root pages (pages with no parent).
 			$root_pages = $this->find_root_pages();
 
+			// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log -- Debug logging.
+			error_log( '[NavigationAjax] Found ' . count( $root_pages ) . ' root pages: ' . wp_json_encode( $root_pages ) );
+
 			if ( empty( $root_pages ) ) {
+				// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log -- Debug logging.
+				error_log( '[NavigationAjax] No root pages found - returning error' );
 				wp_send_json_error(
 					array(
 						'message' => __(
@@ -133,21 +141,43 @@ class NavigationAjaxHandler {
 			$menu_items = wp_get_nav_menu_items( $menu_id );
 			$item_count = is_array( $menu_items ) ? count( $menu_items ) : 0;
 
+			// Build success message with next steps.
+			$menus_url      = admin_url( 'nav-menus.php?action=edit&menu=' . $menu_id );
+			$success_parts  = array();
+			$success_parts[] = sprintf(
+				/* translators: 1: menu name, 2: number of items */
+				__( 'Menu "%1$s" updated with %2$d items.', 'notion-wp' ),
+				$menu_name,
+				$item_count
+			);
+
+			// Add helpful next steps.
+			$success_parts[] = sprintf(
+				/* translators: %s: URL to menu editor */
+				__( '<a href="%s" target="_blank">View &amp; assign menu</a> in Appearance → Menus.', 'notion-wp' ),
+				esc_url( $menus_url )
+			);
+
+			if ( $item_count > 0 ) {
+				$success_parts[] = __( 'Menu will auto-update as you sync more pages from Notion.', 'notion-wp' );
+			}
+
 			// Send success response.
 			wp_send_json_success(
 				array(
-					'message'    => sprintf(
-						/* translators: 1: menu name, 2: number of items */
-						__( 'Menu "%1$s" updated with %2$d items', 'notion-wp' ),
-						$menu_name,
-						$item_count
-					),
+					'message'    => implode( ' ', $success_parts ),
 					'menu_id'    => $menu_id,
 					'item_count' => $item_count,
+					'menu_url'   => $menus_url,
 				)
 			);
 
 		} catch ( \Exception $e ) {
+			// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log -- Error logging.
+			error_log( '[NavigationAjax] Exception: ' . $e->getMessage() . ' in ' . $e->getFile() . ':' . $e->getLine() );
+			// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log -- Error logging.
+			error_log( '[NavigationAjax] Stack trace: ' . $e->getTraceAsString() );
+
 			wp_send_json_error(
 				array(
 					'message' => sprintf(
