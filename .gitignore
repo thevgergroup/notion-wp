@@ -74,4 +74,4 @@ temp/
 /plugin/vendor
 /composer.phar
 coverage-html/
-coverage.xml
+coverage*.xml
