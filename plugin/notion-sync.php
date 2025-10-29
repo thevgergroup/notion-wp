@@ -42,10 +42,30 @@ if ( file_exists( NOTION_SYNC_PATH . 'vendor/woocommerce/action-scheduler/action
 	require_once NOTION_SYNC_PATH . 'vendor/woocommerce/action-scheduler/action-scheduler.php';
 }
 
-// PSR-4 autoloader.
+// PSR-4 autoloader for NotionSync namespace.
 spl_autoload_register(
 	function ( $class_name ) {
 		$prefix   = 'NotionSync\\';
+		$base_dir = __DIR__ . '/src/';
+
+		$len = strlen( $prefix );
+		if ( strncmp( $prefix, $class_name, $len ) !== 0 ) {
+			return;
+		}
+
+		$relative_class = substr( $class_name, $len );
+		$file           = $base_dir . str_replace( '\\', '/', $relative_class ) . '.php';
+
+		if ( file_exists( $file ) ) {
+			require $file;
+		}
+	}
+);
+
+// PSR-4 autoloader for NotionWP namespace (Phase 5+ features).
+spl_autoload_register(
+	function ( $class_name ) {
+		$prefix   = 'NotionWP\\';
 		$base_dir = __DIR__ . '/src/';
 
 		$len = strlen( $prefix );
@@ -92,6 +112,10 @@ function init() {
 	// Register Notion Link shortcode for inline links.
 	$notion_link_shortcode = new Blocks\NotionLinkShortcode();
 	$notion_link_shortcode->register();
+
+	// Initialize hierarchy detection (Phase 5).
+	$hierarchy_detector = new \NotionWP\Hierarchy\HierarchyDetector();
+	$hierarchy_detector->init();
 
 	// Initialize admin interface.
 	if ( is_admin() ) {

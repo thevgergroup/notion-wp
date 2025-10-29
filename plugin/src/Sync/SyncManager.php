@@ -314,6 +314,21 @@ class SyncManager {
 			PerformanceLogger::stop( 'sync_page_total' );
 			PerformanceLogger::log_summary( "Sync Complete: {$notion_page_id} -> Post {$post_id}" );
 
+			/**
+			 * Fires after a Notion page has been successfully synced to WordPress.
+			 *
+			 * This hook allows extensions to perform additional processing after
+			 * page sync completes, such as hierarchy detection, menu building,
+			 * or custom metadata updates.
+			 *
+			 * @since 0.2.0-dev
+			 *
+			 * @param int    $post_id         WordPress post ID that was synced.
+			 * @param string $notion_page_id  Notion page ID (with dashes).
+			 * @param array  $page_properties Page properties from Notion API including parent info.
+			 */
+			do_action( 'notion_sync_page_synced', $post_id, $notion_page_id, $page_properties );
+
 			// Return success result.
 			return array(
 				'success' => true,
