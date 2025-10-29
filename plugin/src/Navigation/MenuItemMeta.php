@@ -50,7 +50,9 @@ class MenuItemMeta {
 	 * @return void
 	 */
 	public function mark_as_notion_synced( int $item_id, string $notion_page_id ): void {
-		// TODO: Implement Notion sync marking
+		update_post_meta( $item_id, self::META_NOTION_SYNCED, true );
+		update_post_meta( $item_id, self::META_NOTION_PAGE_ID, $notion_page_id );
+		delete_post_meta( $item_id, self::META_MANUAL_ITEM );
 	}
 
 	/**
@@ -60,8 +62,7 @@ class MenuItemMeta {
 	 * @return bool True if synced from Notion, false otherwise.
 	 */
 	public function is_notion_synced( int $item_id ): bool {
-		// TODO: Implement Notion sync check
-		return false;
+		return (bool) get_post_meta( $item_id, self::META_NOTION_SYNCED, true );
 	}
 
 	/**
@@ -74,7 +75,11 @@ class MenuItemMeta {
 	 * @return void
 	 */
 	public function set_override( int $item_id, bool $override ): void {
-		// TODO: Implement override setting
+		if ( $override ) {
+			update_post_meta( $item_id, self::META_NOTION_OVERRIDE, true );
+		} else {
+			delete_post_meta( $item_id, self::META_NOTION_OVERRIDE );
+		}
 	}
 
 	/**
@@ -84,8 +89,7 @@ class MenuItemMeta {
 	 * @return bool True if override is enabled, false otherwise.
 	 */
 	public function has_override( int $item_id ): bool {
-		// TODO: Implement override check
-		return false;
+		return (bool) get_post_meta( $item_id, self::META_NOTION_OVERRIDE, true );
 	}
 
 	/**
@@ -95,8 +99,8 @@ class MenuItemMeta {
 	 * @return string|null Notion page ID, or null if not set.
 	 */
 	public function get_notion_page_id( int $item_id ): ?string {
-		// TODO: Implement Notion page ID retrieval
-		return null;
+		$page_id = get_post_meta( $item_id, self::META_NOTION_PAGE_ID, true );
+		return ! empty( $page_id ) ? $page_id : null;
 	}
 
 	/**
@@ -106,7 +110,9 @@ class MenuItemMeta {
 	 * @return void
 	 */
 	public function mark_as_manual( int $item_id ): void {
-		// TODO: Implement manual item marking
+		update_post_meta( $item_id, self::META_MANUAL_ITEM, true );
+		delete_post_meta( $item_id, self::META_NOTION_SYNCED );
+		delete_post_meta( $item_id, self::META_NOTION_PAGE_ID );
 	}
 
 	/**
@@ -116,7 +122,6 @@ class MenuItemMeta {
 	 * @return bool True if manually added, false otherwise.
 	 */
 	public function is_manual( int $item_id ): bool {
-		// TODO: Implement manual item check
-		return false;
+		return (bool) get_post_meta( $item_id, self::META_MANUAL_ITEM, true );
 	}
 }

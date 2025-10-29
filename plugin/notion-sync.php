@@ -117,6 +117,12 @@ function init() {
 	$hierarchy_detector = new \NotionWP\Hierarchy\HierarchyDetector();
 	$hierarchy_detector->init();
 
+	// Initialize menu building (Phase 5).
+	$menu_item_meta = new \NotionWP\Navigation\MenuItemMeta();
+	$menu_builder   = new \NotionWP\Hierarchy\MenuBuilder( $menu_item_meta, $hierarchy_detector );
+	$navigation_sync = new \NotionWP\Hierarchy\NavigationSync( $menu_builder, $hierarchy_detector );
+	$navigation_sync->init();
+
 	// Initialize admin interface.
 	if ( is_admin() ) {
 		$settings_page = new Admin\SettingsPage();
