@@ -1,8 +1,8 @@
 # Phase 5: Hierarchy & Navigation - Implementation Plan
 
 **Status:** 📋 Ready to Start
-**Estimated Duration:** 3-4 weeks
-**Complexity:** Large (L) - but simplified from original 5-6 week estimate
+**Estimated Duration:** 4-5 weeks
+**Complexity:** Large (L) - streamlined with menu CRUD capabilities
 **Current Coverage:** 23.26%
 **Target Coverage:** 75%+ unit tests
 
@@ -28,9 +28,9 @@ Phase 5 adds hierarchical page sync and navigation menu generation. The original
 
 ## Implementation Phases
 
-### Phase 5.1: Page Hierarchy & Menus (1 week)
+### Phase 5.1: Page Hierarchy & Menus (1.5 weeks)
 
-**Goal:** Sync nested pages and generate navigation menu
+**Goal:** Sync nested pages and generate navigation menu with manual override capabilities
 
 **Tasks:**
 
@@ -44,17 +44,37 @@ Phase 5 adds hierarchical page sync and navigation menu generation. The original
    - Set `menu_order` from Notion ordering
    - Update existing hierarchy on re-sync
 
-3. **Generate Menu**
+3. **Generate Menu with Override System**
    - Use `wp_create_nav_menu()` to create menu
    - Use `wp_update_nav_menu_item()` to add pages
    - Respect hierarchy with `menu_item_parent`
    - Add admin setting for target menu name
+   - **Mark menu items as Notion-synced with meta flag**
+   - **Preserve manually-added items during sync**
+   - **Support override flag to prevent Notion updates**
+
+4. **Admin CRUD Interface**
+   - Menu management UI in WP Admin → Notion Sync → Menus
+   - View all menus synced from Notion
+   - Toggle sync override per menu item
+   - Add/edit/delete custom menu items
+   - Reorder menu items with drag-drop
+   - Assign menus to theme locations
+   - Manual sync trigger button
 
 **Files to Create:**
 ```
 plugin/src/Hierarchy/
-├── HierarchyDetector.php    - Find child pages in Notion
-└── MenuBuilder.php           - WordPress menu generation
+├── HierarchyDetector.php       - Find child pages in Notion
+└── MenuBuilder.php              - WordPress menu generation
+
+plugin/src/Navigation/
+├── MenuManager.php              - Menu CRUD operations
+├── MenuItemMeta.php             - Menu item metadata handling
+└── MenuOverrideHandler.php      - Override system logic
+
+plugin/admin/
+└── pages/menu-manager.php       - Admin UI for menu management
 ```
 
 **Key Methods:**
@@ -67,7 +87,41 @@ class HierarchyDetector {
 class MenuBuilder {
     public function create_or_update_menu( string $menu_name, array $hierarchy_map ): int;
     private function add_page_to_menu( int $menu_id, int $post_id, int $parent_menu_item = 0 ): int;
+    public function preserve_manual_items( int $menu_id ): array;
 }
+
+class MenuManager {
+    public function list_menus(): array;
+    public function get_menu_items( int $menu_id ): array;
+    public function add_manual_item( int $menu_id, array $item_data ): int;
+    public function update_item( int $item_id, array $item_data ): bool;
+    public function delete_item( int $item_id ): bool;
+    public function reorder_items( int $menu_id, array $order ): bool;
+}
+
+class MenuItemMeta {
+    public function mark_as_notion_synced( int $item_id, string $notion_page_id ): void;
+    public function is_notion_synced( int $item_id ): bool;
+    public function set_override( int $item_id, bool $override ): void;
+    public function has_override( int $item_id ): bool;
+    public function get_notion_page_id( int $item_id ): ?string;
+}
+
+class MenuOverrideHandler {
+    public function should_update_item( int $item_id ): bool;
+    public function merge_notion_and_manual_items( array $notion_items, int $menu_id ): array;
+}
+```
+
+**Menu Item Metadata Structure:**
+```php
+// Stored as menu item meta
+[
+    '_notion_synced' => true,              // Is this from Notion?
+    '_notion_page_id' => 'abc123',         // Notion page ID
+    '_notion_override' => false,           // User wants to ignore Notion updates
+    '_manual_item' => false,               // User added this manually
+]
 ```
 
 **Success Criteria:**
@@ -75,11 +129,21 @@ class MenuBuilder {
 - ✅ Menu auto-generated with correct nesting
 - ✅ Re-sync updates menu (adds new, keeps structure)
 - ✅ Works with 3+ levels of nesting
+- ✅ **Manual items preserved during sync**
+- ✅ **Override flag prevents Notion updates**
+- ✅ **Admin UI allows full CRUD operations**
+- ✅ **Compatible with WordPress Navigation block (Gutenberg)**
+- ✅ **Supports multilevel menus (tested to 5 levels)**
+- ✅ **Can add custom links, pages, posts to menu**
 
 **Testing:**
 - Unit tests for hierarchy detection
 - Integration tests with nested pages
 - Menu generation tests
+- Override system tests
+- Manual item preservation tests
+- Admin UI functionality tests
+- Gutenberg Navigation block compatibility tests
 
 ---
 
@@ -217,7 +281,11 @@ Defer complex filters to v1.1+
 plugin/src/
 ├── Hierarchy/
 │   ├── HierarchyDetector.php      - Child page detection
-│   └── MenuBuilder.php             - Menu generation
+│   └── MenuBuilder.php             - Menu generation (preserve manual items)
+├── Navigation/
+│   ├── MenuManager.php             - Menu CRUD operations
+│   ├── MenuItemMeta.php            - Metadata handling
+│   └── MenuOverrideHandler.php     - Override system logic
 ├── Database/
 │   ├── ViewParser.php              - Parse view config
 │   ├── ViewRenderer.php            - Render views as HTML
@@ -225,6 +293,10 @@ plugin/src/
 └── Router/ (enhanced)
     ├── LinkRegistry.php             - Add batch resolution
     └── LinkRewriter.php             - Content rewriting
+
+plugin/admin/
+└── pages/
+    └── menu-manager.php            - Menu management UI (CRUD)
 ```
 
 ### Data Structures
@@ -260,6 +332,57 @@ plugin/src/
 
 ## Admin UI
 
+### Menu Manager (NEW)
+
+**Location:** WP Admin → Notion Sync → Menus
+
+**Features:**
+
+**Menu List View:**
+- Table of all WordPress menus
+- Show sync status (Notion-synced, Manual, Mixed)
+- Last sync timestamp
+- Item count
+- "Manage Items" button per menu
+- "Create New Menu" button
+
+**Menu Items Manager:**
+- Tree view of menu items (drag-drop reordering)
+- Per-item controls:
+  - **Sync Override Toggle** - Ignore Notion updates for this item
+  - **Edit** - Change title, URL, CSS classes
+  - **Delete** - Remove item
+  - **Add Child** - Create nested item
+- "Add Item" button with options:
+  - Notion Page (search/select)
+  - WordPress Page
+  - WordPress Post
+  - Custom Link (URL)
+  - Category
+- Item badges showing:
+  - 🔄 Notion-synced
+  - 🔒 Override enabled
+  - ✏️ Manual item
+- "Sync from Notion Now" button
+- "Save Order" button
+
+**Menu Settings Panel:**
+- Theme location assignment (checkboxes for available locations)
+- Auto-sync on page sync (toggle)
+- Sync strategy:
+  - "Merge" - Keep manual items, update Notion items
+  - "Replace" - Replace all with Notion structure
+  - "Manual Only" - Don't auto-sync, manual trigger only
+
+**Gutenberg Compatibility:**
+- Works with WordPress Navigation block
+- Menus appear in Navigation block menu selector
+- Supports all native Navigation block features:
+  - Multilevel nesting (up to 5 levels)
+  - Custom colors and typography
+  - Mobile menu responsiveness
+  - Overlay and modal styles
+
 ### Settings: Hierarchy Tab
 
 **Location:** WP Admin → Notion Sync → Settings → Hierarchy
@@ -268,7 +391,8 @@ plugin/src/
 - Enable hierarchy sync (toggle)
 - Max depth (1-10, default 5)
 - Auto-generate menu (toggle)
-- Menu name (text input, default "Notion Navigation")
+- Default menu name (text input, default "Notion Navigation")
+- Default sync strategy (Merge/Replace/Manual Only)
 
 ### Settings: Database Views Tab
 
@@ -337,6 +461,21 @@ plugin/src/
 - Create WordPress menu
 - Add nested items
 - Update existing menu
+- Preserve manual items
+
+**MenuManager:**
+- CRUD operations on menu items
+- Reorder items
+- Add custom items
+
+**MenuItemMeta:**
+- Set/get sync flags
+- Override handling
+- Notion page ID tracking
+
+**MenuOverrideHandler:**
+- Merge logic
+- Should update determination
 
 **ViewParser:**
 - Parse filter config
@@ -391,21 +530,25 @@ plugin/src/
 
 ## Realistic Timeline
 
-### Week 1: Hierarchy & Menus
+### Week 1: Hierarchy Detection & Basic Menu
 - **Day 1-2:** HierarchyDetector implementation
-- **Day 3-4:** MenuBuilder implementation
+- **Day 3-4:** MenuBuilder implementation (basic auto-generation)
 - **Day 5:** Integration testing, bug fixes
 
-### Week 2: Link Resolution
+### Week 2: Menu CRUD & Override System
+- **Day 1-2:** MenuManager, MenuItemMeta, MenuOverrideHandler
+- **Day 3-5:** Admin UI for menu management (CRUD interface)
+
+### Week 3: Link Resolution
 - **Day 1-2:** Batch resolution in LinkRegistry
 - **Day 3:** Two-pass sync implementation
 - **Day 4-5:** Admin UI for link status
 
-### Week 3-4: Database Views
-- **Week 3:** ViewParser + basic rendering
-- **Week 4:** Filter support + ChildDatabaseConverter enhancement
+### Week 4-5: Database Views
+- **Week 4:** ViewParser + basic rendering
+- **Week 5:** Filter support + ChildDatabaseConverter enhancement
 
-**Total: 3-4 weeks**
+**Total: 4-5 weeks** (expanded from 3-4 weeks to include menu CRUD UI)
 
 ---
 
