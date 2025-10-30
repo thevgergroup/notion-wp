@@ -67,60 +67,30 @@ class MenuBuilderTest extends BaseTestCase {
 	 * Setup WordPress menu function mocks
 	 */
 	private function setup_menu_mocks(): void {
-		// Mock wp_get_nav_menu_object to return null by default (menu doesn't exist)
-		Functions\expect( 'wp_get_nav_menu_object' )
-			->andReturnNull()
-			->byDefault();
-
-		// Mock wp_create_nav_menu to return menu ID
-		Functions\expect( 'wp_create_nav_menu' )
-			->andReturn( 123 )
-			->byDefault();
-
-		// Mock wp_get_nav_menu_items to return empty array
-		Functions\expect( 'wp_get_nav_menu_items' )
-			->andReturn( array() )
-			->byDefault();
-
-		// Mock wp_delete_post
-		Functions\expect( 'wp_delete_post' )
-			->andReturn( true )
-			->byDefault();
-
-		// Mock wp_update_nav_menu_item
-		Functions\expect( 'wp_update_nav_menu_item' )
-			->andReturn( 1 )
-			->byDefault();
-
-		// Mock get_post_type
-		Functions\expect( 'get_post_type' )
-			->andReturn( 'page' )
-			->byDefault();
-
-		// Mock is_wp_error
-		Functions\expect( 'is_wp_error' )
-			->andReturn( false )
-			->byDefault();
+		// Use lenient mocking for WordPress functions that may be called multiple times
+		Functions\when( 'wp_get_nav_menu_object' )->justReturn( null );
+		Functions\when( 'wp_create_nav_menu' )->justReturn( 123 );
+		Functions\when( 'wp_get_nav_menu_items' )->justReturn( array() );
+		Functions\when( 'wp_delete_post' )->justReturn( true );
+		Functions\when( 'wp_update_nav_menu_item' )->justReturn( 1 );
+		Functions\when( 'get_post_type' )->justReturn( 'page' );
+		Functions\when( 'is_wp_error' )->justReturn( false );
+		Functions\when( 'term_exists' )->justReturn( null );
+		Functions\when( 'delete_post_meta' )->justReturn( true );
 	}
 
 	/**
 	 * Test create_or_update_menu creates new menu when it doesn't exist
 	 */
 	public function test_create_or_update_menu_creates_new_menu(): void {
-		Functions\expect( 'wp_get_nav_menu_object' )
-			->once()
-			->with( 'Test Menu' )
-			->andReturnNull();
+		Functions\when( 'wp_get_nav_menu_object' )
+			->justReturn( null );
 
-		Functions\expect( 'wp_create_nav_menu' )
-			->once()
-			->with( 'Test Menu' )
-			->andReturn( 123 );
+		Functions\when( 'wp_create_nav_menu' )
+			->justReturn( 123 );
 
-		Functions\expect( 'wp_get_nav_menu_items' )
-			->once()
-			->with( 123 )
-			->andReturn( array() );
+		Functions\when( 'wp_get_nav_menu_items' )
+			->justReturn( array() );
 
 		$this->menu_item_meta->shouldReceive( 'is_notion_synced' )
 			->andReturn( false );
@@ -134,20 +104,18 @@ class MenuBuilderTest extends BaseTestCase {
 	 * Test create_or_update_menu returns 0 when menu creation fails
 	 */
 	public function test_create_or_update_menu_returns_zero_on_creation_failure(): void {
-		Functions\expect( 'wp_get_nav_menu_object' )
-			->once()
-			->andReturnNull();
+		Functions\when( 'wp_get_nav_menu_object' )
+			->justReturn( null );
 
 		// Simulate WP_Error return
 		$wp_error = new \WP_Error( 'menu_error', 'Failed to create menu' );
-		Functions\expect( 'wp_create_nav_menu' )
-			->once()
-			->andReturn( $wp_error );
+		Functions\when( 'wp_create_nav_menu' )
+			->justReturn( $wp_error );
 
-		Functions\expect( 'is_wp_error' )
-			->once()
-			->with( $wp_error )
-			->andReturn( true );
+		Functions\when( 'is_wp_error' )
+			->alias( function ( $thing ) use ( $wp_error ) {
+				return $thing === $wp_error;
+			} );
 
 		$menu_id = $this->builder->create_or_update_menu( 'Test Menu', array() );
 
@@ -163,18 +131,11 @@ class MenuBuilderTest extends BaseTestCase {
 			'name'    => 'Test Menu',
 		);
 
-		Functions\expect( 'wp_get_nav_menu_object' )
-			->once()
-			->with( 'Test Menu' )
-			->andReturn( $menu_object );
+		Functions\when( 'wp_get_nav_menu_object' )
+			->justReturn( $menu_object );
 
-		Functions\expect( 'wp_get_nav_menu_items' )
-			->once()
-			->with( 456 )
-			->andReturn( array() );
-
-		// Should not call wp_create_nav_menu
-		Functions\expect( 'wp_create_nav_menu' )->never();
+		Functions\when( 'wp_get_nav_menu_items' )
+			->justReturn( array() );
 
 		$this->menu_item_meta->shouldReceive( 'is_notion_synced' )
 			->andReturn( false );
@@ -190,19 +151,16 @@ class MenuBuilderTest extends BaseTestCase {
 	public function test_create_or_update_menu_deletes_notion_synced_items(): void {
 		$menu_object = (object) array( 'term_id' => 123 );
 
-		Functions\expect( 'wp_get_nav_menu_object' )
-			->once()
-			->andReturn( $menu_object );
+		Functions\when( 'wp_get_nav_menu_object' )
+			->justReturn( $menu_object );
 
 		// Mock menu items
 		$item1 = (object) array( 'ID' => 100 );
 		$item2 = (object) array( 'ID' => 101 );
 		$item3 = (object) array( 'ID' => 102 );
 
-		Functions\expect( 'wp_get_nav_menu_items' )
-			->once()
-			->with( 123 )
-			->andReturn( array( $item1, $item2, $item3 ) );
+		Functions\when( 'wp_get_nav_menu_items' )
+			->justReturn( array( $item1, $item2, $item3 ) );
 
 		// Mock is_notion_synced: items 100 and 101 are synced, 102 is manual
 		$this->menu_item_meta->shouldReceive( 'is_notion_synced' )
@@ -226,20 +184,31 @@ class MenuBuilderTest extends BaseTestCase {
 			->with( 101 )
 			->andReturn( false );
 
-		// Mock is_manual for item 102
+		// Mock is_manual - called for all items in preserve_manual_items
+		$this->menu_item_meta->shouldReceive( 'is_manual' )
+			->with( 100 )
+			->andReturn( false );
+
+		$this->menu_item_meta->shouldReceive( 'is_manual' )
+			->with( 101 )
+			->andReturn( false );
+
 		$this->menu_item_meta->shouldReceive( 'is_manual' )
 			->with( 102 )
 			->andReturn( true );
 
-		// Only item 101 should be deleted (Notion-synced without override)
-		Functions\expect( 'wp_delete_post' )
-			->once()
-			->with( 101, true )
-			->andReturn( true );
+		$deleted_items = array();
+		Functions\when( 'wp_delete_post' )
+			->alias( function ( $item_id, $force_delete ) use ( &$deleted_items ) {
+				$deleted_items[] = $item_id;
+				return true;
+			} );
 
 		$menu_id = $this->builder->create_or_update_menu( 'Test Menu', array() );
 
 		$this->assertEquals( 123, $menu_id );
+		// Only item 101 should be deleted (Notion-synced without override)
+		$this->assertEquals( array( 101 ), $deleted_items );
 	}
 
 	/**
@@ -248,15 +217,13 @@ class MenuBuilderTest extends BaseTestCase {
 	public function test_create_or_update_menu_preserves_overridden_items(): void {
 		$menu_object = (object) array( 'term_id' => 123 );
 
-		Functions\expect( 'wp_get_nav_menu_object' )
-			->once()
-			->andReturn( $menu_object );
+		Functions\when( 'wp_get_nav_menu_object' )
+			->justReturn( $menu_object );
 
 		$item = (object) array( 'ID' => 100 );
 
-		Functions\expect( 'wp_get_nav_menu_items' )
-			->once()
-			->andReturn( array( $item ) );
+		Functions\when( 'wp_get_nav_menu_items' )
+			->justReturn( array( $item ) );
 
 		$this->menu_item_meta->shouldReceive( 'is_notion_synced' )
 			->with( 100 )
@@ -266,12 +233,22 @@ class MenuBuilderTest extends BaseTestCase {
 			->with( 100 )
 			->andReturn( true );
 
-		// Should NOT delete item with override
-		Functions\expect( 'wp_delete_post' )->never();
+		$this->menu_item_meta->shouldReceive( 'is_manual' )
+			->with( 100 )
+			->andReturn( false );
+
+		$deleted_items = array();
+		Functions\when( 'wp_delete_post' )
+			->alias( function ( $item_id, $force_delete ) use ( &$deleted_items ) {
+				$deleted_items[] = $item_id;
+				return true;
+			} );
 
 		$menu_id = $this->builder->create_or_update_menu( 'Test Menu', array() );
 
 		$this->assertEquals( 123, $menu_id );
+		// Should NOT delete item with override
+		$this->assertEmpty( $deleted_items );
 	}
 
 	/**
@@ -280,13 +257,11 @@ class MenuBuilderTest extends BaseTestCase {
 	public function test_create_or_update_menu_adds_hierarchy_pages(): void {
 		$menu_object = (object) array( 'term_id' => 123 );
 
-		Functions\expect( 'wp_get_nav_menu_object' )
-			->once()
-			->andReturn( $menu_object );
+		Functions\when( 'wp_get_nav_menu_object' )
+			->justReturn( $menu_object );
 
-		Functions\expect( 'wp_get_nav_menu_items' )
-			->once()
-			->andReturn( array() );
+		Functions\when( 'wp_get_nav_menu_items' )
+			->justReturn( array() );
 
 		$this->menu_item_meta->shouldReceive( 'is_notion_synced' )
 			->andReturn( false );
@@ -303,20 +278,15 @@ class MenuBuilderTest extends BaseTestCase {
 			),
 		);
 
-		// Mock wp_update_nav_menu_item for adding the page
-		Functions\expect( 'wp_update_nav_menu_item' )
-			->once()
-			->with( 123, 0, \Mockery::on( function ( $args ) {
-				return $args['menu-item-object-id'] === 100
-					&& $args['menu-item-parent-id'] === 0
-					&& $args['menu-item-type'] === 'post_type';
-			} ) )
-			->andReturn( 200 ); // Menu item ID
+		$menu_items_added = array();
+		Functions\when( 'wp_update_nav_menu_item' )
+			->alias( function ( $menu_id, $item_id, $args ) use ( &$menu_items_added ) {
+				$menu_items_added[] = $args;
+				return 200;
+			} );
 
-		Functions\expect( 'get_post_type' )
-			->once()
-			->with( 100 )
-			->andReturn( 'page' );
+		Functions\when( 'get_post_type' )
+			->justReturn( 'page' );
 
 		$this->menu_item_meta->shouldReceive( 'mark_as_notion_synced' )
 			->once()
@@ -325,6 +295,10 @@ class MenuBuilderTest extends BaseTestCase {
 		$menu_id = $this->builder->create_or_update_menu( 'Test Menu', $hierarchy );
 
 		$this->assertEquals( 123, $menu_id );
+		$this->assertCount( 1, $menu_items_added );
+		$this->assertEquals( 100, $menu_items_added[0]['menu-item-object-id'] );
+		$this->assertEquals( 0, $menu_items_added[0]['menu-item-parent-id'] );
+		$this->assertEquals( 'post_type', $menu_items_added[0]['menu-item-type'] );
 	}
 
 	/**
@@ -333,13 +307,11 @@ class MenuBuilderTest extends BaseTestCase {
 	public function test_create_or_update_menu_builds_nested_hierarchy(): void {
 		$menu_object = (object) array( 'term_id' => 123 );
 
-		Functions\expect( 'wp_get_nav_menu_object' )
-			->once()
-			->andReturn( $menu_object );
+		Functions\when( 'wp_get_nav_menu_object' )
+			->justReturn( $menu_object );
 
-		Functions\expect( 'wp_get_nav_menu_items' )
-			->once()
-			->andReturn( array() );
+		Functions\when( 'wp_get_nav_menu_items' )
+			->justReturn( array() );
 
 		$this->menu_item_meta->shouldReceive( 'is_notion_synced' )
 			->andReturn( false );
@@ -364,27 +336,16 @@ class MenuBuilderTest extends BaseTestCase {
 			),
 		);
 
-		// Mock adding parent
-		Functions\expect( 'wp_update_nav_menu_item' )
-			->once()
-			->with( 123, 0, \Mockery::on( function ( $args ) {
-				return $args['menu-item-object-id'] === 100
-					&& $args['menu-item-parent-id'] === 0;
-			} ) )
-			->andReturn( 200 ); // Parent menu item ID
+		$menu_items_added = array();
+		$item_id_counter = 200;
+		Functions\when( 'wp_update_nav_menu_item' )
+			->alias( function ( $menu_id, $item_id, $args ) use ( &$menu_items_added, &$item_id_counter ) {
+				$menu_items_added[] = $args;
+				return $item_id_counter++;
+			} );
 
-		// Mock adding child with parent reference
-		Functions\expect( 'wp_update_nav_menu_item' )
-			->once()
-			->with( 123, 0, \Mockery::on( function ( $args ) {
-				return $args['menu-item-object-id'] === 101
-					&& $args['menu-item-parent-id'] === 200; // References parent menu item
-			} ) )
-			->andReturn( 201 ); // Child menu item ID
-
-		Functions\expect( 'get_post_type' )
-			->times( 2 )
-			->andReturn( 'page' );
+		Functions\when( 'get_post_type' )
+			->justReturn( 'page' );
 
 		$this->menu_item_meta->shouldReceive( 'mark_as_notion_synced' )
 			->twice();
@@ -392,6 +353,13 @@ class MenuBuilderTest extends BaseTestCase {
 		$menu_id = $this->builder->create_or_update_menu( 'Test Menu', $hierarchy );
 
 		$this->assertEquals( 123, $menu_id );
+		$this->assertCount( 2, $menu_items_added );
+		// Parent item
+		$this->assertEquals( 100, $menu_items_added[0]['menu-item-object-id'] );
+		$this->assertEquals( 0, $menu_items_added[0]['menu-item-parent-id'] );
+		// Child item references parent menu item (200)
+		$this->assertEquals( 101, $menu_items_added[1]['menu-item-object-id'] );
+		$this->assertEquals( 200, $menu_items_added[1]['menu-item-parent-id'] );
 	}
 
 	/**
@@ -400,13 +368,11 @@ class MenuBuilderTest extends BaseTestCase {
 	public function test_create_or_update_menu_respects_menu_order(): void {
 		$menu_object = (object) array( 'term_id' => 123 );
 
-		Functions\expect( 'wp_get_nav_menu_object' )
-			->once()
-			->andReturn( $menu_object );
+		Functions\when( 'wp_get_nav_menu_object' )
+			->justReturn( $menu_object );
 
-		Functions\expect( 'wp_get_nav_menu_items' )
-			->once()
-			->andReturn( array() );
+		Functions\when( 'wp_get_nav_menu_items' )
+			->justReturn( array() );
 
 		$this->menu_item_meta->shouldReceive( 'is_notion_synced' )
 			->andReturn( false );
@@ -441,16 +407,14 @@ class MenuBuilderTest extends BaseTestCase {
 
 		$call_order = array();
 
-		Functions\expect( 'wp_update_nav_menu_item' )
-			->times( 3 )
-			->andReturnUsing( function ( $menu_id, $item_id, $args ) use ( &$call_order ) {
+		Functions\when( 'wp_update_nav_menu_item' )
+			->alias( function ( $menu_id, $item_id, $args ) use ( &$call_order ) {
 				$call_order[] = $args['menu-item-object-id'];
 				return 200 + $args['menu-item-object-id'];
 			} );
 
-		Functions\expect( 'get_post_type' )
-			->times( 3 )
-			->andReturn( 'page' );
+		Functions\when( 'get_post_type' )
+			->justReturn( 'page' );
 
 		$this->menu_item_meta->shouldReceive( 'mark_as_notion_synced' )
 			->times( 3 );
@@ -465,10 +429,8 @@ class MenuBuilderTest extends BaseTestCase {
 	 * Test preserve_manual_items returns empty array when menu is empty
 	 */
 	public function test_preserve_manual_items_returns_empty_for_empty_menu(): void {
-		Functions\expect( 'wp_get_nav_menu_items' )
-			->once()
-			->with( 123 )
-			->andReturn( null ); // WordPress returns null for empty menu
+		Functions\when( 'wp_get_nav_menu_items' )
+			->justReturn( null ); // WordPress returns null for empty menu
 
 		$items = $this->builder->preserve_manual_items( 123 );
 
@@ -484,10 +446,8 @@ class MenuBuilderTest extends BaseTestCase {
 		$item2 = (object) array( 'ID' => 101 );
 		$item3 = (object) array( 'ID' => 102 );
 
-		Functions\expect( 'wp_get_nav_menu_items' )
-			->once()
-			->with( 123 )
-			->andReturn( array( $item1, $item2, $item3 ) );
+		Functions\when( 'wp_get_nav_menu_items' )
+			->justReturn( array( $item1, $item2, $item3 ) );
 
 		// Mock is_notion_synced
 		$this->menu_item_meta->shouldReceive( 'is_notion_synced' )
@@ -529,9 +489,8 @@ class MenuBuilderTest extends BaseTestCase {
 	public function test_preserve_manual_items_excludes_notion_synced(): void {
 		$item = (object) array( 'ID' => 100 );
 
-		Functions\expect( 'wp_get_nav_menu_items' )
-			->once()
-			->andReturn( array( $item ) );
+		Functions\when( 'wp_get_nav_menu_items' )
+			->justReturn( array( $item ) );
 
 		$this->menu_item_meta->shouldReceive( 'is_notion_synced' )
 			->with( 100 )

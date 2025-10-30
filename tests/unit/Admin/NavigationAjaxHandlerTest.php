@@ -197,13 +197,28 @@ class NavigationAjaxHandlerTest extends BaseTestCase {
 	public function test_ajax_sync_menu_now_finds_root_pages_correctly(): void {
 		global $wpdb;
 
+		// Reset wpdb mock for this test
+		$wpdb = \Mockery::mock( 'wpdb' );
+		$wpdb->postmeta = 'wp_postmeta';
+		$wpdb->posts = 'wp_posts';
+		$GLOBALS['wpdb'] = $wpdb;
+
+		// Mock prepare method
+		$wpdb->shouldReceive( 'prepare' )
+			->andReturnUsing( function ( $query, ...$args ) {
+				return vsprintf( str_replace( '%s', "'%s'", str_replace( '%d', '%d', $query ) ), $args );
+			} );
+
 		// Mock posts with notion_page_id (first call)
 		// Mock posts with parent (second call) - posts 2 and 3 have parents
 		$wpdb->shouldReceive( 'get_col' )
 			->times( 2 )
-			->andReturn( array( '1', '2', '3', '4' ), array( '2', '3' ) );
+			->andReturn( array( 1, 2, 3, 4 ), array( 2, 3 ) );
 
-		// Mock get_post_meta for root posts (1 and 4)
+		// Setup base mocks first
+		$this->mock_sync_process();
+
+		// Override get_post_meta for root posts (1 and 4) - called after mock_sync_process
 		Functions\when( 'get_post_meta' )
 			->alias( function ( $post_id, $key, $single ) {
 				if ( $key !== 'notion_page_id' ) {
@@ -219,8 +234,30 @@ class NavigationAjaxHandlerTest extends BaseTestCase {
 				return '';
 			} );
 
-		// Mock the rest of the sync process
-		$this->mock_sync_process();
+		// Override get_posts to return root posts
+		Functions\when( 'get_posts' )
+			->alias( function () {
+				return array( 1, 4 );
+			} );
+
+		// Override get_post to return root post objects
+		Functions\when( 'get_post' )
+			->alias( function ( $post_id ) {
+				if ( $post_id === 1 ) {
+					return (object) array(
+						'ID'         => 1,
+						'post_title' => 'Root Page 1',
+						'menu_order' => 0,
+					);
+				} elseif ( $post_id === 4 ) {
+					return (object) array(
+						'ID'         => 4,
+						'post_title' => 'Root Page 2',
+						'menu_order' => 1,
+					);
+				}
+				return null;
+			} );
 
 		$this->handler->ajax_sync_menu_now();
 
@@ -235,12 +272,27 @@ class NavigationAjaxHandlerTest extends BaseTestCase {
 	public function test_ajax_sync_menu_now_handles_mixed_id_formats(): void {
 		global $wpdb;
 
+		// Reset wpdb mock for this test
+		$wpdb = \Mockery::mock( 'wpdb' );
+		$wpdb->postmeta = 'wp_postmeta';
+		$wpdb->posts = 'wp_posts';
+		$GLOBALS['wpdb'] = $wpdb;
+
+		// Mock prepare method
+		$wpdb->shouldReceive( 'prepare' )
+			->andReturnUsing( function ( $query, ...$args ) {
+				return vsprintf( str_replace( '%s', "'%s'", str_replace( '%d', '%d', $query ) ), $args );
+			} );
+
 		// Root pages with mixed ID formats
 		$wpdb->shouldReceive( 'get_col' )
 			->times( 2 )
-			->andReturn( array( '1', '2' ), array() ); // No posts with parents
+			->andReturn( array( 1, 2 ), array() ); // No posts with parents
 
-		// Mock get_post_meta with different ID formats
+		// Setup base mocks first
+		$this->mock_sync_process();
+
+		// Override get_post_meta with different ID formats - called after mock_sync_process
 		Functions\when( 'get_post_meta' )
 			->alias( function ( $post_id, $key, $single ) {
 				if ( $key !== 'notion_page_id' ) {
@@ -256,7 +308,30 @@ class NavigationAjaxHandlerTest extends BaseTestCase {
 				return '';
 			} );
 
-		$this->mock_sync_process();
+		// Override get_posts to return root posts
+		Functions\when( 'get_posts' )
+			->alias( function () {
+				return array( 1, 2 );
+			} );
+
+		// Override get_post to return root post objects
+		Functions\when( 'get_post' )
+			->alias( function ( $post_id ) {
+				if ( $post_id === 1 ) {
+					return (object) array(
+						'ID'         => 1,
+						'post_title' => 'Root Page 1',
+						'menu_order' => 0,
+					);
+				} elseif ( $post_id === 2 ) {
+					return (object) array(
+						'ID'         => 2,
+						'post_title' => 'Root Page 2',
+						'menu_order' => 1,
+					);
+				}
+				return null;
+			} );
 
 		$this->handler->ajax_sync_menu_now();
 
@@ -269,11 +344,26 @@ class NavigationAjaxHandlerTest extends BaseTestCase {
 	public function test_ajax_sync_menu_now_builds_hierarchy_successfully(): void {
 		global $wpdb;
 
-		// Mock finding root page
-		$wpdb->shouldReceive( 'get_col' )
-			->times( 2 )
-			->andReturn( array( '1' ), array() );
+		// Mock finding root page - need to reset mock for this test
+		$wpdb = \Mockery::mock( 'wpdb' );
+		$wpdb->postmeta = 'wp_postmeta';
+		$wpdb->posts = 'wp_posts';
+		$GLOBALS['wpdb'] = $wpdb;
 
+		// Mock prepare method
+		$wpdb->shouldReceive( 'prepare' )
+			->andReturnUsing( function ( $query, ...$args ) {
+				return vsprintf( str_replace( '%s', "'%s'", str_replace( '%d', '%d', $query ) ), $args );
+			} );
+
+		$wpdb->shouldReceive( 'get_col' )
+			->twice()
+			->andReturn( array( 1 ), array() );
+
+		// Setup base mocks first
+		$this->mock_sync_process();
+
+		// Override get_post_meta (called after mock_sync_process to override)
 		Functions\when( 'get_post_meta' )
 			->alias( function ( $post_id, $key, $single ) {
 				if ( $post_id === 1 && $key === 'notion_page_id' ) {
@@ -282,7 +372,24 @@ class NavigationAjaxHandlerTest extends BaseTestCase {
 				return '';
 			} );
 
-		$this->mock_sync_process();
+		// Override get_posts to return root post (for hierarchy building)
+		Functions\when( 'get_posts' )
+			->alias( function () {
+				return array( 1 );
+			} );
+
+		// Override get_post to return root post object
+		Functions\when( 'get_post' )
+			->alias( function ( $post_id ) {
+				if ( $post_id === 1 ) {
+					return (object) array(
+						'ID'         => 1,
+						'post_title' => 'Root Page',
+						'menu_order' => 0,
+					);
+				}
+				return null;
+			} );
 
 		$this->handler->ajax_sync_menu_now();
 
@@ -295,10 +402,33 @@ class NavigationAjaxHandlerTest extends BaseTestCase {
 	public function test_ajax_sync_menu_now_handles_theme_without_menus(): void {
 		global $wpdb;
 
-		$wpdb->shouldReceive( 'get_col' )
-			->times( 2 )
-			->andReturn( array( '1' ), array() );
+		// Reset wpdb mock for this test
+		$wpdb = \Mockery::mock( 'wpdb' );
+		$wpdb->postmeta = 'wp_postmeta';
+		$wpdb->posts = 'wp_posts';
+		$GLOBALS['wpdb'] = $wpdb;
 
+		// Mock prepare method
+		$wpdb->shouldReceive( 'prepare' )
+			->andReturnUsing( function ( $query, ...$args ) {
+				return vsprintf( str_replace( '%s', "'%s'", str_replace( '%d', '%d', $query ) ), $args );
+			} );
+
+		$wpdb->shouldReceive( 'get_col' )
+			->twice()
+			->andReturn( array( 1 ), array() );
+
+		// Theme doesn't support menus - override BEFORE mock_sync_process
+		Functions\when( 'current_theme_supports' )
+			->justReturn( false );
+
+		Functions\when( 'get_registered_nav_menus' )
+			->justReturn( array() );
+
+		// Setup base mocks first
+		$this->mock_sync_process();
+
+		// Override get_post_meta - called after mock_sync_process
 		Functions\when( 'get_post_meta' )
 			->alias( function ( $post_id, $key, $single ) {
 				if ( $post_id === 1 && $key === 'notion_page_id' ) {
@@ -307,14 +437,24 @@ class NavigationAjaxHandlerTest extends BaseTestCase {
 				return '';
 			} );
 
-		// Theme doesn't support menus
-		Functions\when( 'current_theme_supports' )
-			->justReturn( false );
+		// Override get_posts to return root post
+		Functions\when( 'get_posts' )
+			->alias( function () {
+				return array( 1 );
+			} );
 
-		Functions\when( 'get_registered_nav_menus' )
-			->justReturn( array() );
-
-		$this->mock_sync_process();
+		// Override get_post to return root post object
+		Functions\when( 'get_post' )
+			->alias( function ( $post_id ) {
+				if ( $post_id === 1 ) {
+					return (object) array(
+						'ID'         => 1,
+						'post_title' => 'Root Page',
+						'menu_order' => 0,
+					);
+				}
+				return null;
+			} );
 
 		// Should still succeed but show different message
 		$this->handler->ajax_sync_menu_now();
@@ -344,16 +484,51 @@ class NavigationAjaxHandlerTest extends BaseTestCase {
 	public function test_ajax_sync_menu_now_returns_success_data(): void {
 		global $wpdb;
 
-		$wpdb->shouldReceive( 'get_col' )
-			->times( 2 )
-			->andReturn( array( '1' ), array() );
+		// Reset wpdb mock for this test
+		$wpdb = \Mockery::mock( 'wpdb' );
+		$wpdb->postmeta = 'wp_postmeta';
+		$wpdb->posts = 'wp_posts';
+		$GLOBALS['wpdb'] = $wpdb;
 
+		// Mock prepare method
+		$wpdb->shouldReceive( 'prepare' )
+			->andReturnUsing( function ( $query, ...$args ) {
+				return vsprintf( str_replace( '%s', "'%s'", str_replace( '%d', '%d', $query ) ), $args );
+			} );
+
+		$wpdb->shouldReceive( 'get_col' )
+			->twice()
+			->andReturn( array( 1 ), array() );
+
+		// Setup base mocks first
+		$this->mock_sync_process();
+
+		// Override get_post_meta - called after mock_sync_process
 		Functions\when( 'get_post_meta' )
 			->alias( function ( $post_id, $key, $single ) {
 				if ( $key === 'notion_page_id' ) {
 					return 'root-page-id';
 				}
 				return '';
+			} );
+
+		// Override get_posts to return root post
+		Functions\when( 'get_posts' )
+			->alias( function () {
+				return array( 1 );
+			} );
+
+		// Override get_post to return root post object
+		Functions\when( 'get_post' )
+			->alias( function ( $post_id ) {
+				if ( $post_id === 1 ) {
+					return (object) array(
+						'ID'         => 1,
+						'post_title' => 'Root Page',
+						'menu_order' => 0,
+					);
+				}
+				return null;
 			} );
 
 		// Mock menu items for count
@@ -370,8 +545,6 @@ class NavigationAjaxHandlerTest extends BaseTestCase {
 				}
 				return array();
 			} );
-
-		$this->mock_sync_process();
 
 		// Capture the success data
 		$success_data = null;
@@ -399,8 +572,7 @@ class NavigationAjaxHandlerTest extends BaseTestCase {
 		Functions\when( 'get_post' )
 			->justReturn( null );
 
-		Functions\when( 'get_post_meta' )
-			->justReturn( '' );
+		// NOTE: Do NOT override get_post_meta here - tests need to set their own
 
 		// Mock MenuBuilder::create_or_update_menu
 		Functions\when( 'wp_get_nav_menu_object' )
@@ -421,5 +593,9 @@ class NavigationAjaxHandlerTest extends BaseTestCase {
 		// Mock is_wp_error
 		Functions\when( 'is_wp_error' )
 			->justReturn( false );
+
+		// Mock update_option for last sync time
+		Functions\when( 'update_option' )
+			->justReturn( true );
 	}
 }

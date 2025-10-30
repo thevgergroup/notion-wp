@@ -10,15 +10,16 @@ declare(strict_types=1);
 
 namespace NotionWP\Tests\Unit\Navigation;
 
+use Brain\Monkey\Functions;
 use NotionWP\Navigation\MenuItemMeta;
-use PHPUnit\Framework\TestCase;
+use NotionWP\Tests\Unit\BaseTestCase;
 
 /**
  * Class MenuItemMetaTest
  *
  * @covers \NotionWP\Navigation\MenuItemMeta
  */
-class MenuItemMetaTest extends TestCase {
+class MenuItemMetaTest extends BaseTestCase {
 	/**
 	 * MenuItemMeta instance
 	 *
@@ -32,6 +33,19 @@ class MenuItemMetaTest extends TestCase {
 	protected function setUp(): void {
 		parent::setUp();
 		$this->meta = new MenuItemMeta();
+
+		// Set up default WordPress meta function behavior
+		$this->setup_meta_mocks();
+	}
+
+	/**
+	 * Setup WordPress meta function mocks
+	 */
+	private function setup_meta_mocks(): void {
+		// By default, get_post_meta returns empty string (meta doesn't exist)
+		Functions\when( 'get_post_meta' )->justReturn( '' );
+		Functions\when( 'update_post_meta' )->justReturn( true );
+		Functions\when( 'delete_post_meta' )->justReturn( true );
 	}
 
 	/**
