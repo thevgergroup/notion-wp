@@ -181,13 +181,13 @@ class MenuMetaBox {
 	 * Shows Notion sync information for items synced from Notion.
 	 *
 	 * @since 0.2.0-dev
-	 * @param int      $item_id Menu item ID.
-	 * @param \WP_Post $item    Menu item post object.
-	 * @param int      $depth   Menu item depth.
-	 * @param array    $args    Menu item args.
+	 * @param int       $item_id Menu item ID.
+	 * @param \WP_Post  $item    Menu item post object.
+	 * @param int       $depth   Menu item depth.
+	 * @param \stdClass $args    Menu item args (WordPress passes stdClass, not array).
 	 * @return void
 	 */
-	public function add_item_fields( int $item_id, \WP_Post $item, int $depth, array $args ): void {
+	public function add_item_fields( int $item_id, \WP_Post $item, int $depth, \stdClass $args ): void {
 		// Only show for Notion-synced items.
 		if ( ! $this->menu_item_meta->is_notion_synced( $item_id ) ) {
 			return;
