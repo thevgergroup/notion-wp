@@ -117,15 +117,14 @@ class NavigationAjaxHandlerTest extends BaseTestCase {
 			->byDefault();
 
 		// Mock wp_json_encode
-		Functions\expect( 'wp_json_encode' )
-			->andReturnUsing( function ( $data ) {
+		Functions\when( 'wp_json_encode' )
+			->alias( function ( $data ) {
 				return json_encode( $data );
 			} );
 
 		// Mock error_log
-		Functions\expect( 'error_log' )
-			->andReturnNull()
-			->byDefault();
+		Functions\when( 'error_log' )
+			->justReturn();
 
 		// Mock wp_get_nav_menu_items
 		Functions\expect( 'wp_get_nav_menu_items' )

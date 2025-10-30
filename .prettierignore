@@ -28,3 +28,9 @@ docker/
 
 # Markdown files - no value in auto-formatting documentation
 *.md
+
+# Plugin configuration files - WordPress/Composer auto-generated
+plugin/patchwork.json
+plugin/composer.json
+plugin/composer.lock
+package-lock.json
