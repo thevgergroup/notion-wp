@@ -135,6 +135,10 @@ if ( ! defined( 'ABSPATH' ) ) {
 					class="nav-tab <?php echo 'databases' === $current_tab ? 'nav-tab-active' : ''; ?>">
 					<?php esc_html_e( 'Databases', 'notion-wp' ); ?>
 				</a>
+				<a href="<?php echo esc_url( add_query_arg( 'tab', 'navigation', admin_url( 'admin.php?page=notion-sync' ) ) ); ?>"
+					class="nav-tab <?php echo 'navigation' === $current_tab ? 'nav-tab-active' : ''; ?>">
+					<?php esc_html_e( 'Navigation', 'notion-wp' ); ?>
+				</a>
 				<a href="<?php echo esc_url( add_query_arg( 'tab', 'settings', admin_url( 'admin.php?page=notion-sync' ) ) ); ?>"
 					class="nav-tab <?php echo 'settings' === $current_tab ? 'nav-tab-active' : ''; ?>">
 					<?php esc_html_e( 'Settings', 'notion-wp' ); ?>
@@ -170,6 +174,220 @@ if ( ! defined( 'ABSPATH' ) ) {
 						</ol>
 					</div>
 				<?php endif; ?>
+
+			<?php elseif ( 'navigation' === $current_tab ) : ?>
+
+				<!-- Navigation Tab Content -->
+
+				<?php
+				// Check if current theme supports menus.
+				$theme_supports_menus = current_theme_supports( 'menus' );
+				$menu_locations       = get_registered_nav_menus();
+				?>
+
+				<?php if ( ! $theme_supports_menus || empty( $menu_locations ) ) : ?>
+					<!-- Theme Menu Support Warning -->
+					<div class="notice notice-warning inline" style="margin-top: 20px;">
+						<h3><?php esc_html_e( 'Theme Does Not Support Navigation Menus', 'notion-wp' ); ?></h3>
+						<p>
+							<?php
+							esc_html_e(
+								'Your current theme does not register any menu locations. While the plugin can still create WordPress menus from your Notion page hierarchy, you will not be able to assign them to your theme without additional configuration.',
+								'notion-wp'
+							);
+							?>
+						</p>
+						<p><strong><?php esc_html_e( 'Options:', 'notion-wp' ); ?></strong></p>
+						<ul style="margin-left: 20px; list-style: disc;">
+							<li>
+								<?php
+								esc_html_e(
+									'Switch to a theme that supports navigation menus (most modern WordPress themes do)',
+									'notion-wp'
+								);
+								?>
+							</li>
+							<li>
+								<?php
+								printf(
+									/* translators: %s: URL to WordPress theme customization docs */
+									wp_kses(
+										__( 'Add menu support to your current theme by following <a href="%s" target="_blank" rel="noopener noreferrer">WordPress theme customization documentation</a>', 'notion-wp' ),
+										array(
+											'a' => array(
+												'href'   => array(),
+												'target' => array(),
+												'rel'    => array(),
+											),
+										)
+									),
+									esc_url( 'https://developer.wordpress.org/themes/functionality/navigation-menus/' )
+								);
+								?>
+							</li>
+							<li>
+								<?php
+								esc_html_e(
+									'Use a plugin like Max Mega Menu or WP Navigation Menu to add menu functionality',
+									'notion-wp'
+								);
+								?>
+							</li>
+							<li>
+								<?php
+								esc_html_e(
+									'Display the menu using a shortcode or widget (if your theme supports widgets)',
+									'notion-wp'
+								);
+								?>
+							</li>
+						</ul>
+						<p>
+							<?php
+							esc_html_e(
+								'You can still sync menus below, and they will be ready to use once you configure menu support in your theme.',
+								'notion-wp'
+							);
+							?>
+						</p>
+					</div>
+				<?php endif; ?>
+
+				<!-- Menu Sync Configuration -->
+				<div class="card" style="margin-top: 20px;">
+					<h2><?php esc_html_e( 'Menu Sync Configuration', 'notion-wp' ); ?></h2>
+
+					<p>
+						<?php
+						esc_html_e(
+							'Configure how Notion page hierarchies are synchronized to WordPress navigation menus. ' .
+							'When enabled, the plugin will automatically create and maintain a WordPress menu based on your Notion page structure.',
+							'notion-wp'
+						);
+						?>
+					</p>
+
+					<form method="post" action="<?php echo esc_url( admin_url( 'admin-post.php' ) ); ?>" style="margin-top: 20px;">
+						<input type="hidden" name="action" value="notion_sync_save_navigation_settings">
+						<?php wp_nonce_field( 'notion_sync_navigation_settings', 'notion_sync_navigation_settings_nonce' ); ?>
+
+						<table class="form-table" role="presentation">
+							<tbody>
+								<tr>
+									<th scope="row">
+										<?php esc_html_e( 'Enable Menu Sync', 'notion-wp' ); ?>
+									</th>
+									<td>
+										<fieldset>
+											<label for="notion_sync_menu_enabled">
+												<input
+													type="checkbox"
+													name="notion_sync_menu_enabled"
+													id="notion_sync_menu_enabled"
+													value="1"
+													<?php checked( get_option( 'notion_sync_menu_enabled', true ) ); ?>
+												>
+												<?php esc_html_e( 'Automatically sync Notion page hierarchy to WordPress menu', 'notion-wp' ); ?>
+											</label>
+											<p class="description">
+												<?php
+												esc_html_e(
+													'When enabled, the plugin will create and maintain a WordPress navigation menu that mirrors your Notion page structure. ' .
+													'Parent-child relationships in Notion will be preserved as menu items and sub-items.',
+													'notion-wp'
+												);
+												?>
+											</p>
+										</fieldset>
+									</td>
+								</tr>
+
+								<tr>
+									<th scope="row">
+										<label for="notion_sync_menu_name">
+											<?php esc_html_e( 'Menu Name', 'notion-wp' ); ?>
+										</label>
+									</th>
+									<td>
+										<input
+											type="text"
+											name="notion_sync_menu_name"
+											id="notion_sync_menu_name"
+											class="regular-text"
+											value="<?php echo esc_attr( get_option( 'notion_sync_menu_name', 'Notion Navigation' ) ); ?>"
+											placeholder="<?php esc_attr_e( 'Notion Navigation', 'notion-wp' ); ?>"
+										>
+										<p class="description">
+											<?php
+											esc_html_e(
+												'The name of the WordPress menu that will be created. After syncing, go to Appearance → Menus to assign this menu to a theme location (such as Primary Menu or Footer Menu).',
+												'notion-wp'
+											);
+											?>
+										</p>
+									</td>
+								</tr>
+							</tbody>
+						</table>
+
+						<p class="submit">
+							<button type="submit" class="button button-primary">
+								<?php esc_html_e( 'Save Navigation Settings', 'notion-wp' ); ?>
+							</button>
+						</p>
+					</form>
+				</div>
+
+				<!-- Manual Menu Sync -->
+				<div class="card" style="margin-top: 20px;">
+					<h2><?php esc_html_e( 'Manual Menu Sync', 'notion-wp' ); ?></h2>
+
+					<p>
+						<?php
+						esc_html_e(
+							'Trigger a manual sync of your Notion page hierarchy to the WordPress menu. ' .
+							'This will update the menu structure to match your current Notion workspace.',
+							'notion-wp'
+						);
+						?>
+					</p>
+
+					<?php if ( get_option( 'notion_sync_menu_enabled', true ) ) : ?>
+						<div id="notion-menu-sync-messages" style="margin-top: 15px;"></div>
+
+						<button
+							type="button"
+							id="notion-sync-menu-button"
+							class="button button-secondary"
+							style="margin-top: 15px;"
+							data-nonce="<?php echo esc_attr( wp_create_nonce( 'notion_sync_menu_now' ) ); ?>"
+						>
+							<span class="dashicons dashicons-update" style="margin-top: 3px;"></span>
+							<?php esc_html_e( 'Sync Menu Now', 'notion-wp' ); ?>
+						</button>
+
+						<p class="description" style="margin-top: 10px;">
+							<?php
+							esc_html_e(
+								'This will fetch your Notion page hierarchy and update the WordPress menu to match. ' .
+								'Existing menu items will be preserved if they still exist in Notion.',
+								'notion-wp'
+							);
+							?>
+						</p>
+					<?php else : ?>
+						<div class="notice notice-info inline" style="margin: 15px 0;">
+							<p>
+								<?php
+								esc_html_e(
+									'Menu sync is currently disabled. Enable it in the settings above to use manual sync.',
+									'notion-wp'
+								);
+								?>
+							</p>
+						</div>
+					<?php endif; ?>
+				</div>
 
 			<?php elseif ( 'settings' === $current_tab ) : ?>
 

@@ -353,7 +353,7 @@ class ImageConverter implements BlockConverterInterface {
 
 		// Prevent race condition: Check if download already queued for this block.
 		// We check only the first arg (block_id) to detect duplicates regardless of other params.
-		if ( function_exists( 'as_has_scheduled_action' ) ) {
+		if ( function_exists( 'as_get_scheduled_actions' ) && function_exists( 'as_get_scheduled_action' ) ) {
 			$pending_actions = as_get_scheduled_actions(
 				[
 					'hook'   => 'notion_sync_download_image',
@@ -374,6 +374,12 @@ class ImageConverter implements BlockConverterInterface {
 
 		// Extract caption for metadata.
 		$caption = $this->extract_caption( $image_data );
+
+		// Ensure Action Scheduler is available before scheduling.
+		if ( ! function_exists( 'as_schedule_single_action' ) ) {
+			error_log( "ImageConverter: Action Scheduler not available, cannot schedule image download for block {$block_id}" );
+			return;
+		}
 
 		// Schedule background download task.
 		// Pass parameters as separate args (not array) - Action Scheduler unpacks them.
@@ -432,11 +438,10 @@ class ImageConverter implements BlockConverterInterface {
 		$attributes_json = wp_json_encode( $attributes );
 
 		// Return dynamic block that will check MediaRegistry at render time.
-		// NOTE: WordPress dynamic blocks require inner content (even if empty paragraph)
-		// for render_callback to be properly invoked. The inner content is replaced
-		// by the render_callback output on the frontend.
+		// NOTE: Dynamic blocks with render_callback should have empty content.
+		// The render_callback generates all HTML at render time.
 		return sprintf(
-			"<!-- wp:notion-sync/notion-image %s -->\n<p></p>\n<!-- /wp:notion-sync/notion-image -->\n\n",
+			"<!-- wp:notion-sync/notion-image %s /-->\n\n",
 			$attributes_json
 		);
 	}

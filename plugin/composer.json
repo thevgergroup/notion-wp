@@ -7,6 +7,11 @@
 		"php": ">=8.0",
 		"woocommerce/action-scheduler": "^3.9"
 	},
+	"autoload": {
+		"psr-4": {
+			"NotionWP\\": "src/"
+		}
+	},
 	"config": {
 		"optimize-autoloader": true,
 		"sort-packages": true

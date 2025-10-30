@@ -52,6 +52,9 @@ class PageSyncScheduler {
 	public static function register_hooks(): void {
 		if ( function_exists( 'as_schedule_single_action' ) ) {
 			add_action( self::ACTION_HOOK, [ __CLASS__, 'process_page_sync' ], 10, 2 );
+
+			// Register failure handler to track Action Scheduler task failures.
+			add_action( 'action_scheduler_failed_action', [ __CLASS__, 'handle_failed_action' ], 10, 2 );
 		}
 	}
 
@@ -430,5 +433,80 @@ class PageSyncScheduler {
 	 */
 	public static function is_action_scheduler_available(): bool {
 		return function_exists( 'as_schedule_single_action' );
+	}
+
+	/**
+	 * Handle failed Action Scheduler action.
+	 *
+	 * Called when an Action Scheduler task fails with an exception or fatal error.
+	 * Logs the failure and updates batch metadata if applicable.
+	 *
+	 * @param int        $action_id Action ID that failed.
+	 * @param \Exception $exception Exception that caused the failure.
+	 * @return void
+	 */
+	public static function handle_failed_action( int $action_id, \Exception $exception ): void {
+		// Get the action to extract args.
+		if ( ! function_exists( 'as_get_scheduled_action' ) ) {
+			return;
+		}
+
+		$action = as_get_scheduled_action( $action_id );
+		if ( ! $action || $action->get_hook() !== self::ACTION_HOOK ) {
+			return; // Not our action.
+		}
+
+		$args = $action->get_args();
+		if ( empty( $args[0] ) || empty( $args[1] ) ) {
+			return; // Invalid args.
+		}
+
+		list( $batch_id, $page_id ) = $args;
+
+		// Log to SyncLogger for persistent tracking.
+		\NotionSync\Utils\SyncLogger::log(
+			$page_id,
+			\NotionSync\Utils\SyncLogger::SEVERITY_ERROR,
+			\NotionSync\Utils\SyncLogger::CATEGORY_API,
+			sprintf( 'Action Scheduler task failed: %s', $exception->getMessage() ),
+			array(
+				'batch_id'   => $batch_id,
+				'action_id'  => $action_id,
+				'trace'      => $exception->getTraceAsString(),
+			),
+			null
+		);
+
+		// Update batch metadata.
+		$batch = get_option( "notion_sync_page_batch_{$batch_id}", null );
+		if ( $batch ) {
+			++$batch['failed'];
+			$batch['page_statuses'][ $page_id ] = 'failed';
+			$batch['results'][ $page_id ]       = [
+				'success' => false,
+				'error'   => sprintf( 'Action Scheduler task failed: %s', $exception->getMessage() ),
+			];
+
+			// Increment processed counter.
+			++$batch['processed'];
+
+			// Check if batch is complete.
+			if ( $batch['processed'] >= $batch['total'] ) {
+				$batch['status']       = 'completed';
+				$batch['completed_at'] = current_time( 'mysql' );
+			}
+
+			update_option( "notion_sync_page_batch_{$batch_id}", $batch, false );
+		}
+
+		// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log -- Error logging.
+		error_log(
+			sprintf(
+				'[PageSync] ✗ Action Scheduler Failure: batch %s, page %s - %s',
+				$batch_id,
+				substr( $page_id, 0, 8 ),
+				$exception->getMessage()
+			)
+		);
 	}
 }

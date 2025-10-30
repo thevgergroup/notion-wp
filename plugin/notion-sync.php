@@ -42,10 +42,30 @@ if ( file_exists( NOTION_SYNC_PATH . 'vendor/woocommerce/action-scheduler/action
 	require_once NOTION_SYNC_PATH . 'vendor/woocommerce/action-scheduler/action-scheduler.php';
 }
 
-// PSR-4 autoloader.
+// PSR-4 autoloader for NotionSync namespace.
 spl_autoload_register(
 	function ( $class_name ) {
 		$prefix   = 'NotionSync\\';
+		$base_dir = __DIR__ . '/src/';
+
+		$len = strlen( $prefix );
+		if ( strncmp( $prefix, $class_name, $len ) !== 0 ) {
+			return;
+		}
+
+		$relative_class = substr( $class_name, $len );
+		$file           = $base_dir . str_replace( '\\', '/', $relative_class ) . '.php';
+
+		if ( file_exists( $file ) ) {
+			require $file;
+		}
+	}
+);
+
+// PSR-4 autoloader for NotionWP namespace (Phase 5+ features).
+spl_autoload_register(
+	function ( $class_name ) {
+		$prefix   = 'NotionWP\\';
 		$base_dir = __DIR__ . '/src/';
 
 		$len = strlen( $prefix );
@@ -93,6 +113,16 @@ function init() {
 	$notion_link_shortcode = new Blocks\NotionLinkShortcode();
 	$notion_link_shortcode->register();
 
+	// Initialize hierarchy detection (Phase 5).
+	$hierarchy_detector = new \NotionWP\Hierarchy\HierarchyDetector();
+	$hierarchy_detector->init();
+
+	// Initialize menu building (Phase 5).
+	$menu_item_meta = new \NotionWP\Navigation\MenuItemMeta();
+	$menu_builder   = new \NotionWP\Hierarchy\MenuBuilder( $menu_item_meta, $hierarchy_detector );
+	$navigation_sync = new \NotionWP\Hierarchy\NavigationSync( $menu_builder, $hierarchy_detector );
+	$navigation_sync->init();
+
 	// Initialize admin interface.
 	if ( is_admin() ) {
 		$settings_page = new Admin\SettingsPage();
@@ -106,6 +136,14 @@ function init() {
 
 		$admin_notices = new Admin\AdminNotices();
 		$admin_notices->register();
+
+		// Initialize menu meta box (Phase 5) - enhances WordPress native menu editor.
+		$menu_meta_box = new \NotionWP\Admin\MenuMetaBox( $menu_item_meta );
+		$menu_meta_box->register();
+
+		// Initialize navigation AJAX handler (Phase 5).
+		$navigation_ajax = new \NotionWP\Admin\NavigationAjaxHandler();
+		$navigation_ajax->register();
 	}
 
 	// Register REST API endpoints.

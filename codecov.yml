@@ -2,57 +2,57 @@
 # https://docs.codecov.com/docs/codecov-yaml
 
 codecov:
-  require_ci_to_pass: yes
-  notify:
-    wait_for_ci: yes
+    require_ci_to_pass: yes
+    notify:
+        wait_for_ci: yes
 
 # Fix paths in coverage reports to match git structure
 # GitHub Actions uses /home/runner/work/notion-wp/notion-wp/...
 # Local uses /Users/patrick/Projects/thevgergroup/notion-wp/...
 # After stripping these prefixes, paths will be relative to repo root (e.g., plugin/src/...)
 fixes:
-  - "/home/runner/work/notion-wp/notion-wp/::"
-  - "/Users/patrick/Projects/thevgergroup/notion-wp/::"
+    - '/home/runner/work/notion-wp/notion-wp/::'
+    - '/Users/patrick/Projects/thevgergroup/notion-wp/::'
 
 coverage:
-  precision: 2
-  round: down
-  range: "50...90"
+    precision: 2
+    round: down
+    range: '50...90'
 
-  status:
-    project:
-      default:
-        target: auto
-        threshold: 1%
-        base: auto
-        informational: false
-    patch:
-      default:
-        target: auto
-        threshold: 1%
-        base: auto
-        informational: false
+    status:
+        project:
+            default:
+                target: auto
+                threshold: 1%
+                base: auto
+                informational: false
+        patch:
+            default:
+                target: auto
+                threshold: 1%
+                base: auto
+                informational: false
 
 comment:
-  layout: "header, diff, flags, components, footer"
-  behavior: default
-  require_changes: false
-  require_base: false
-  require_head: true
+    layout: 'header, diff, flags, components, footer'
+    behavior: default
+    require_changes: false
+    require_base: false
+    require_head: true
 
 ignore:
-  - "tests/**/*"
-  - "plugin/vendor/**/*"
-  - "plugin/node_modules/**/*"
-  - "plugin/assets/dist/**/*"
-  # Exclude same paths as phpunit.xml (WordPress-dependent code covered by integration tests)
-  - "plugin/src/Admin/**/*"
-  - "plugin/src/API/**/*"
-  - "plugin/src/Database/Schema.php"
-  - "plugin/src/Database/SyncLogSchema.php"
+    - 'tests/**/*'
+    - 'plugin/vendor/**/*'
+    - 'plugin/node_modules/**/*'
+    - 'plugin/assets/dist/**/*'
+    # Exclude same paths as phpunit.xml (WordPress-dependent code covered by integration tests)
+    - 'plugin/src/Admin/**/*'
+    - 'plugin/src/API/**/*'
+    - 'plugin/src/Database/Schema.php'
+    - 'plugin/src/Database/SyncLogSchema.php'
 
 flags:
-  unit:
-    paths:
-      - plugin/src/
-    carryforward: true
+    unit:
+        paths:
+            - plugin/src/
+        carryforward: true

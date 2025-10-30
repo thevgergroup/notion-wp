@@ -31,7 +31,7 @@ function SyncDashboard({ batchId: initialBatchId, totalPages = 0 }) {
 		const poll = async () => {
 			try {
 				const res = await fetch(
-					`${window.notionSyncAdmin.restUrl}&batch_id=${batchId}`,
+					`${window.notionSyncAdmin.restUrl}?batch_id=${batchId}`,
 					{
 						headers: {
 							'X-WP-Nonce': window.notionSyncAdmin.restNonce,

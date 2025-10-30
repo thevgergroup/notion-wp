@@ -1,6 +1,4 @@
 #!/bin/sh
-. "$(dirname "$0")/_/husky.sh"
-
 # Notion-WP Plugin Pre-commit Hook
 # This hook runs linters and formatters before allowing a commit
 # It will auto-fix what it can and block commits on failures

@@ -1,0 +1,82 @@
+<?php
+/**
+ * Tests for MenuItemMeta class
+ *
+ * @package NotionWP
+ * @subpackage Tests\Unit\Navigation
+ */
+
+declare(strict_types=1);
+
+namespace NotionWP\Tests\Unit\Navigation;
+
+use Brain\Monkey\Functions;
+use NotionWP\Navigation\MenuItemMeta;
+use NotionWP\Tests\Unit\BaseTestCase;
+
+/**
+ * Class MenuItemMetaTest
+ *
+ * @covers \NotionWP\Navigation\MenuItemMeta
+ */
+class MenuItemMetaTest extends BaseTestCase {
+	/**
+	 * MenuItemMeta instance
+	 *
+	 * @var MenuItemMeta
+	 */
+	private MenuItemMeta $meta;
+
+	/**
+	 * Set up test fixtures
+	 */
+	protected function setUp(): void {
+		parent::setUp();
+		$this->meta = new MenuItemMeta();
+
+		// Set up default WordPress meta function behavior
+		$this->setup_meta_mocks();
+	}
+
+	/**
+	 * Setup WordPress meta function mocks
+	 */
+	private function setup_meta_mocks(): void {
+		// By default, get_post_meta returns empty string (meta doesn't exist)
+		Functions\when( 'get_post_meta' )->justReturn( '' );
+		Functions\when( 'update_post_meta' )->justReturn( true );
+		Functions\when( 'delete_post_meta' )->justReturn( true );
+	}
+
+	/**
+	 * Test is_notion_synced returns false initially
+	 */
+	public function test_is_notion_synced_returns_false_initially(): void {
+		$result = $this->meta->is_notion_synced( 1 );
+		$this->assertFalse( $result );
+	}
+
+	/**
+	 * Test has_override returns false initially
+	 */
+	public function test_has_override_returns_false_initially(): void {
+		$result = $this->meta->has_override( 1 );
+		$this->assertFalse( $result );
+	}
+
+	/**
+	 * Test get_notion_page_id returns null initially
+	 */
+	public function test_get_notion_page_id_returns_null_initially(): void {
+		$result = $this->meta->get_notion_page_id( 1 );
+		$this->assertNull( $result );
+	}
+
+	/**
+	 * Test is_manual returns false initially
+	 */
+	public function test_is_manual_returns_false_initially(): void {
+		$result = $this->meta->is_manual( 1 );
+		$this->assertFalse( $result );
+	}
+}
