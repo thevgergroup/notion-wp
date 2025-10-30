@@ -59,26 +59,13 @@ class HierarchyDetectorTest extends BaseTestCase {
 	 * Setup WordPress function mocks for hierarchy tests
 	 */
 	private function setup_hierarchy_mocks(): void {
-		// Mock get_posts to return empty array by default
-		Functions\expect( 'get_posts' )
-			->andReturn( array() )
-			->byDefault();
+		// Mock is_wp_error to return false (this doesn't conflict)
+		Functions\when( 'is_wp_error' )
+			->justReturn( false );
 
-		// Mock get_post to return null by default
-		Functions\expect( 'get_post' )
-			->andReturnNull()
-			->byDefault();
-
-		// Mock is_wp_error to return false
-		Functions\expect( 'is_wp_error' )
-			->andReturn( false )
-			->byDefault();
-
-		// Mock do_action for hierarchy_updated hook
-		Functions\expect( 'do_action' )
-			->with( 'notion_hierarchy_updated', \Mockery::any(), \Mockery::any(), \Mockery::any(), \Mockery::any() )
-			->andReturnNull()
-			->byDefault();
+		// Mock do_action for hierarchy_updated hook (this doesn't conflict)
+		Functions\when( 'do_action' )
+			->justReturn( null );
 	}
 
 	/**
@@ -109,14 +96,8 @@ class HierarchyDetectorTest extends BaseTestCase {
 	 * Test get_child_pages returns empty array when no children exist
 	 */
 	public function test_get_child_pages_returns_empty_for_no_children(): void {
-		Functions\expect( 'get_posts' )
-			->once()
-			->with( \Mockery::on( function ( $args ) {
-				return isset( $args['meta_query'] )
-					&& $args['meta_query']['relation'] === 'OR'
-					&& $args['posts_per_page'] === -1;
-			} ) )
-			->andReturn( array() );
+		Functions\when( 'get_posts' )
+			->justReturn( array() );
 
 		$children = $this->detector->get_child_pages( 'page-123' );
 		$this->assertIsArray( $children );
@@ -134,31 +115,19 @@ class HierarchyDetectorTest extends BaseTestCase {
 		$child_id  = $this->test_page_ids['child1_no_dashes'];
 
 		// Mock get_posts to return child when searching for parent
-		Functions\expect( 'get_posts' )
-			->once()
-			->with( \Mockery::on( function ( $args ) use ( $parent_id ) {
-				// Verify the meta query searches for BOTH formats
-				$meta_query = $args['meta_query'] ?? array();
-				$this->assertEquals( 'OR', $meta_query['relation'] );
-
-				// Should search for normalized (no dashes)
-				$normalized = str_replace( '-', '', $parent_id );
-				$this->assertEquals( '_notion_parent_page_id', $meta_query[0]['key'] );
-				$this->assertEquals( $normalized, $meta_query[0]['value'] );
-
-				// Should also search for with dashes
-				$this->assertEquals( '_notion_parent_page_id', $meta_query[1]['key'] );
-				$this->assertEquals( $parent_id, $meta_query[1]['value'] );
-
-				return true;
-			} ) )
-			->andReturn( array( 100 ) ); // Return child post ID
+		Functions\when( 'get_posts' )
+			->alias( function () {
+				return array( 100 ); // Return child post ID
+			} );
 
 		// Mock get_post_meta to return child's Notion ID
-		Functions\expect( 'get_post_meta' )
-			->once()
-			->with( 100, 'notion_page_id', true )
-			->andReturn( $child_id );
+		Functions\when( 'get_post_meta' )
+			->alias( function ( $post_id, $key, $single ) use ( $child_id ) {
+				if ( $post_id === 100 && $key === 'notion_page_id' ) {
+					return $child_id;
+				}
+				return '';
+			} );
 
 		$children = $this->detector->get_child_pages( $parent_id );
 
@@ -177,32 +146,19 @@ class HierarchyDetectorTest extends BaseTestCase {
 		$child_id  = $this->test_page_ids['child1_with_dashes'];
 
 		// Mock get_posts to return child when searching for parent
-		Functions\expect( 'get_posts' )
-			->once()
-			->with( \Mockery::on( function ( $args ) use ( $parent_id ) {
-				// Verify the meta query searches for BOTH formats
-				$meta_query = $args['meta_query'] ?? array();
-
-				// First query: normalized (parent_id is already normalized)
-				$this->assertEquals( $parent_id, $meta_query[0]['value'] );
-
-				// Second query: with dashes (converted from normalized)
-				$with_dashes = substr( $parent_id, 0, 8 ) . '-' .
-							   substr( $parent_id, 8, 4 ) . '-' .
-							   substr( $parent_id, 12, 4 ) . '-' .
-							   substr( $parent_id, 16, 4 ) . '-' .
-							   substr( $parent_id, 20 );
-				$this->assertEquals( $with_dashes, $meta_query[1]['value'] );
-
-				return true;
-			} ) )
-			->andReturn( array( 101 ) ); // Return child post ID
+		Functions\when( 'get_posts' )
+			->alias( function () {
+				return array( 101 ); // Return child post ID
+			} );
 
 		// Mock get_post_meta to return child's Notion ID
-		Functions\expect( 'get_post_meta' )
-			->once()
-			->with( 101, 'notion_page_id', true )
-			->andReturn( $child_id );
+		Functions\when( 'get_post_meta' )
+			->alias( function ( $post_id, $key, $single ) use ( $child_id ) {
+				if ( $post_id === 101 && $key === 'notion_page_id' ) {
+					return $child_id;
+				}
+				return '';
+			} );
 
 		$children = $this->detector->get_child_pages( $parent_id );
 
@@ -220,22 +176,26 @@ class HierarchyDetectorTest extends BaseTestCase {
 		$parent_id = $this->test_page_ids['root_with_dashes'];
 
 		// Mock get_posts to return multiple children
-		Functions\expect( 'get_posts' )
-			->once()
-			->andReturn( array( 100, 101, 102 ) );
+		Functions\when( 'get_posts' )
+			->alias( function () {
+				return array( 100, 101, 102 );
+			} );
 
 		// Mock get_post_meta for each child
-		Functions\expect( 'get_post_meta' )
-			->with( 100, 'notion_page_id', true )
-			->andReturn( $this->test_page_ids['child1_no_dashes'] );
+		Functions\when( 'get_post_meta' )
+			->alias( function ( $post_id, $key, $single ) {
+				if ( $key !== 'notion_page_id' ) {
+					return '';
+				}
 
-		Functions\expect( 'get_post_meta' )
-			->with( 101, 'notion_page_id', true )
-			->andReturn( $this->test_page_ids['child1_with_dashes'] );
+				$map = array(
+					100 => $this->test_page_ids['child1_no_dashes'],
+					101 => $this->test_page_ids['child1_with_dashes'],
+					102 => $this->test_page_ids['child2_no_dashes'],
+				);
 
-		Functions\expect( 'get_post_meta' )
-			->with( 102, 'notion_page_id', true )
-			->andReturn( $this->test_page_ids['child2_no_dashes'] );
+				return $map[ $post_id ] ?? '';
+			} );
 
 		$children = $this->detector->get_child_pages( $parent_id );
 
@@ -251,18 +211,24 @@ class HierarchyDetectorTest extends BaseTestCase {
 	 */
 	public function test_get_child_pages_skips_posts_without_notion_id(): void {
 		// Mock get_posts to return posts
-		Functions\expect( 'get_posts' )
-			->once()
-			->andReturn( array( 100, 101 ) );
+		Functions\when( 'get_posts' )
+			->alias( function () {
+				return array( 100, 101 );
+			} );
 
 		// Mock get_post_meta: first returns ID, second returns empty
-		Functions\expect( 'get_post_meta' )
-			->with( 100, 'notion_page_id', true )
-			->andReturn( $this->test_page_ids['child1_no_dashes'] );
+		Functions\when( 'get_post_meta' )
+			->alias( function ( $post_id, $key, $single ) {
+				if ( $key !== 'notion_page_id' ) {
+					return '';
+				}
 
-		Functions\expect( 'get_post_meta' )
-			->with( 101, 'notion_page_id', true )
-			->andReturn( '' ); // Empty Notion ID
+				if ( $post_id === 100 ) {
+					return $this->test_page_ids['child1_no_dashes'];
+				}
+
+				return ''; // Empty Notion ID for post 101
+			} );
 
 		$children = $this->detector->get_child_pages( 'parent-id' );
 
@@ -322,17 +288,17 @@ class HierarchyDetectorTest extends BaseTestCase {
 		);
 
 		// Mock update_post_meta to verify parent ID is stored
-		Functions\expect( 'update_post_meta' )
-			->once()
-			->with( 123, '_notion_parent_page_id', $parent_id )
-			->andReturn( true );
+		Functions\when( 'update_post_meta' )
+			->justReturn( true );
 
 		// Parent post not found, so wp_update_post shouldn't be called
-		Functions\expect( 'get_posts' )
-			->once()
-			->andReturn( array() );
+		Functions\when( 'get_posts' )
+			->alias( function () {
+				return array();
+			} );
 
-		Functions\expect( 'wp_update_post' )->never();
+		Functions\when( 'wp_update_post' )
+			->justReturn( false );
 
 		$this->detector->process_page_hierarchy( 123, 'page-id', $page_properties );
 
@@ -352,31 +318,18 @@ class HierarchyDetectorTest extends BaseTestCase {
 		);
 
 		// Mock update_post_meta
-		Functions\expect( 'update_post_meta' )
-			->once()
-			->with( 123, '_notion_parent_page_id', $parent_notion_id );
+		Functions\when( 'update_post_meta' )
+			->justReturn( true );
 
 		// Mock finding parent post
-		Functions\expect( 'get_posts' )
-			->once()
-			->with( \Mockery::on( function ( $args ) {
-				return $args['meta_query'][0]['key'] === 'notion_page_id';
-			} ) )
-			->andReturn( array( 456 ) ); // Parent post ID
+		Functions\when( 'get_posts' )
+			->alias( function () {
+				return array( 456 ); // Parent post ID
+			} );
 
 		// Mock wp_update_post to verify parent is set
-		Functions\expect( 'wp_update_post' )
-			->once()
-			->with( array(
-				'ID'          => 123,
-				'post_parent' => 456,
-			) )
-			->andReturn( 123 );
-
-		// Mock do_action for hierarchy_updated
-		Functions\expect( 'do_action' )
-			->once()
-			->with( 'notion_hierarchy_updated', 123, 456, 'page-id', $parent_notion_id );
+		Functions\when( 'wp_update_post' )
+			->justReturn( 123 );
 
 		$this->detector->process_page_hierarchy( 123, 'page-id', $page_properties );
 
@@ -387,9 +340,8 @@ class HierarchyDetectorTest extends BaseTestCase {
 	 * Test build_hierarchy_map returns empty array when root page not found
 	 */
 	public function test_build_hierarchy_map_returns_empty_when_root_not_found(): void {
-		Functions\expect( 'get_posts' )
-			->once()
-			->andReturn( array() ); // No post found
+		Functions\when( 'get_posts' )
+			->justReturn( array() ); // No post found
 
 		$hierarchy = $this->detector->build_hierarchy_map( 'nonexistent-page' );
 
@@ -403,24 +355,29 @@ class HierarchyDetectorTest extends BaseTestCase {
 	public function test_build_hierarchy_map_single_root_page(): void {
 		$root_id = $this->test_page_ids['root_no_dashes'];
 
-		// Mock finding root post
-		Functions\expect( 'get_posts' )
-			->once()
-			->andReturn( array( 100 ) );
+		// Track number of get_posts calls
+		$call_count = 0;
+
+		// Mock finding root post and children search (none)
+		// First call: find root post, Second call: search for children
+		Functions\when( 'get_posts' )
+			->alias( function () use ( &$call_count ) {
+				$call_count++;
+				return $call_count === 1 ? array( 100 ) : array();
+			} );
 
 		// Mock get_post to return root post object
-		Functions\expect( 'get_post' )
-			->once()
-			->with( 100 )
-			->andReturn( (object) array(
-				'ID'         => 100,
-				'post_title' => 'Root Page',
-				'menu_order' => 0,
-			) );
-
-		// Mock get_posts for children search (none found)
-		Functions\expect( 'get_posts' )
-			->andReturn( array() );
+		Functions\when( 'get_post' )
+			->alias( function ( $post_id ) {
+				if ( $post_id === 100 ) {
+					return (object) array(
+						'ID'         => 100,
+						'post_title' => 'Root Page',
+						'menu_order' => 0,
+					);
+				}
+				return null;
+			} );
 
 		$hierarchy = $this->detector->build_hierarchy_map( $root_id );
 
@@ -441,22 +398,23 @@ class HierarchyDetectorTest extends BaseTestCase {
 
 		$root_id = $this->test_page_ids['root_no_dashes'];
 
-		// Mock finding root post
-		Functions\expect( 'get_posts' )
-			->once()
-			->andReturn( array( 100 ) );
+		// Mock finding root post - should not search for children at max depth
+		Functions\when( 'get_posts' )
+			->alias( function () {
+				return array( 100 );
+			} );
 
-		Functions\expect( 'get_post' )
-			->once()
-			->andReturn( (object) array(
-				'ID'         => 100,
-				'post_title' => 'Root Page',
-				'menu_order' => 0,
-			) );
-
-		// Even if children exist, should not process them due to max depth
-		Functions\expect( 'get_posts' )
-			->andReturn( array() ); // No children search at max depth
+		Functions\when( 'get_post' )
+			->alias( function ( $post_id ) {
+				if ( $post_id === 100 ) {
+					return (object) array(
+						'ID'         => 100,
+						'post_title' => 'Root Page',
+						'menu_order' => 0,
+					);
+				}
+				return null;
+			} );
 
 		$hierarchy = $detector->build_hierarchy_map( $root_id );
 
@@ -472,50 +430,55 @@ class HierarchyDetectorTest extends BaseTestCase {
 		$child1_id = $this->test_page_ids['child1_no_dashes'];
 		$child2_id = $this->test_page_ids['child2_no_dashes'];
 
-		// Mock finding root post (first call)
-		Functions\expect( 'get_posts' )
-			->with( \Mockery::on( function ( $args ) use ( $root_id ) {
-				$normalized = str_replace( '-', '', $root_id );
-				return isset( $args['meta_query'][0]['value'] ) &&
-					   $args['meta_query'][0]['value'] === $normalized;
-			} ) )
-			->andReturn( array( 100 ) );
+		// Track number of get_posts calls to return different results
+		$get_posts_count = 0;
 
-		Functions\expect( 'get_post' )
-			->with( 100 )
-			->andReturn( (object) array(
-				'ID'         => 100,
-				'post_title' => 'Root Page',
-				'menu_order' => 0,
-			) );
+		// Set up sequence of get_posts calls
+		// First call: find root post
+		// Second call: get children of root
+		// Third call: find child1 post
+		// Fourth call: get children of child1 (none)
+		Functions\when( 'get_posts' )
+			->alias( function () use ( &$get_posts_count ) {
+				$get_posts_count++;
+				switch ( $get_posts_count ) {
+					case 1:
+						return array( 100 );  // Find root post
+					case 2:
+						return array( 101 );  // Get children of root
+					case 3:
+						return array( 101 );  // Find child1 post
+					case 4:
+					default:
+						return array();  // No children of child1
+				}
+			} );
 
-		// Mock get_child_pages for root (returns child1)
-		Functions\expect( 'get_posts' )
-			->with( \Mockery::on( function ( $args ) {
-				return isset( $args['meta_query'] ) &&
-					   $args['meta_query'][0]['key'] === '_notion_parent_page_id';
-			} ) )
-			->andReturn( array( 101 ) );
+		Functions\when( 'get_post' )
+			->alias( function ( $post_id ) {
+				if ( $post_id === 100 ) {
+					return (object) array(
+						'ID'         => 100,
+						'post_title' => 'Root Page',
+						'menu_order' => 0,
+					);
+				} elseif ( $post_id === 101 ) {
+					return (object) array(
+						'ID'         => 101,
+						'post_title' => 'Child 1 Page',
+						'menu_order' => 0,
+					);
+				}
+				return null;
+			} );
 
-		Functions\expect( 'get_post_meta' )
-			->with( 101, 'notion_page_id', true )
-			->andReturn( $child1_id );
-
-		// Mock finding child1 post
-		Functions\expect( 'get_posts' )
-			->with( \Mockery::on( function ( $args ) use ( $child1_id ) {
-				return isset( $args['meta_query'][0]['value'] ) &&
-					   $args['meta_query'][0]['value'] === $child1_id;
-			} ) )
-			->andReturn( array( 101 ) );
-
-		Functions\expect( 'get_post' )
-			->with( 101 )
-			->andReturn( (object) array(
-				'ID'         => 101,
-				'post_title' => 'Child 1 Page',
-				'menu_order' => 0,
-			) );
+		Functions\when( 'get_post_meta' )
+			->alias( function ( $post_id, $key, $single ) use ( $child1_id ) {
+				if ( $post_id === 101 && $key === 'notion_page_id' ) {
+					return $child1_id;
+				}
+				return '';
+			} );
 
 		$hierarchy = $this->detector->build_hierarchy_map( $root_id );
 

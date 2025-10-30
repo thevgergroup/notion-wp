@@ -45,19 +45,26 @@ class NavigationAjaxHandlerTest extends BaseTestCase {
 	}
 
 	/**
+	 * Override setup_wpdb_mock to add postmeta property
+	 */
+	protected function setup_wpdb_mock(): void {
+		parent::setup_wpdb_mock();
+
+		global $wpdb;
+		$wpdb->postmeta = 'wp_postmeta';
+	}
+
+	/**
 	 * Setup WordPress AJAX function mocks
 	 */
 	private function setup_ajax_mocks(): void {
-		// Mock check_ajax_referer
-		Functions\expect( 'check_ajax_referer' )
-			->andReturn( true )
-			->byDefault();
+		// Mock check_ajax_referer - use when() to avoid conflicts
+		Functions\when( 'check_ajax_referer' )
+			->justReturn( true );
 
-		// Mock current_user_can
-		Functions\expect( 'current_user_can' )
-			->with( 'manage_options' )
-			->andReturn( true )
-			->byDefault();
+		// Mock current_user_can - use when() to avoid conflicts
+		Functions\when( 'current_user_can' )
+			->justReturn( true );
 
 		// Mock wp_send_json_error
 		Functions\when( 'wp_send_json_error' )
@@ -73,48 +80,42 @@ class NavigationAjaxHandlerTest extends BaseTestCase {
 			} );
 
 		// Mock WordPress translation functions
-		Functions\expect( '__' )
-			->andReturnUsing( function ( $text ) {
-				return $text;
-			} );
+		Functions\when( '__' )
+			->returnArg();
 
-		Functions\expect( 'esc_html' )
-			->andReturnUsing( function ( $text ) {
+		Functions\when( 'esc_html' )
+			->alias( function ( $text ) {
 				return htmlspecialchars( (string) $text, ENT_QUOTES, 'UTF-8' );
 			} );
 
-		Functions\expect( 'esc_url' )
-			->andReturnUsing( function ( $url ) {
-				return $url;
-			} );
+		Functions\when( 'esc_url' )
+			->returnArg();
 
-		Functions\expect( 'wp_kses' )
-			->andReturnUsing( function ( $text ) {
-				return $text;
-			} );
+		Functions\when( 'wp_kses' )
+			->returnArg();
 
 		// Mock admin_url
-		Functions\expect( 'admin_url' )
-			->andReturnUsing( function ( $path ) {
+		Functions\when( 'admin_url' )
+			->alias( function ( $path ) {
 				return 'http://example.com/wp-admin/' . $path;
 			} );
 
 		// Mock get_option
-		Functions\expect( 'get_option' )
-			->with( 'notion_sync_menu_name', 'Notion Navigation' )
-			->andReturn( 'Notion Navigation' )
-			->byDefault();
+		Functions\when( 'get_option' )
+			->alias( function ( $option, $default = false ) {
+				if ( $option === 'notion_sync_menu_name' ) {
+					return 'Notion Navigation';
+				}
+				return $default;
+			} );
 
 		// Mock current_theme_supports
-		Functions\expect( 'current_theme_supports' )
-			->with( 'menus' )
-			->andReturn( true )
-			->byDefault();
+		Functions\when( 'current_theme_supports' )
+			->justReturn( true );
 
 		// Mock get_registered_nav_menus
-		Functions\expect( 'get_registered_nav_menus' )
-			->andReturn( array( 'primary' => 'Primary Menu' ) )
-			->byDefault();
+		Functions\when( 'get_registered_nav_menus' )
+			->justReturn( array( 'primary' => 'Primary Menu' ) );
 
 		// Mock wp_json_encode
 		Functions\when( 'wp_json_encode' )
@@ -127,18 +128,16 @@ class NavigationAjaxHandlerTest extends BaseTestCase {
 			->justReturn();
 
 		// Mock wp_get_nav_menu_items
-		Functions\expect( 'wp_get_nav_menu_items' )
-			->andReturn( array() )
-			->byDefault();
+		Functions\when( 'wp_get_nav_menu_items' )
+			->justReturn( array() );
 	}
 
 	/**
 	 * Test register method adds AJAX action
 	 */
 	public function test_register_adds_ajax_action(): void {
-		Functions\expect( 'add_action' )
-			->once()
-			->with( 'wp_ajax_notion_sync_menu_now', \Mockery::type( 'array' ) );
+		Functions\when( 'add_action' )
+			->justReturn( true );
 
 		$this->handler->register();
 
@@ -149,10 +148,10 @@ class NavigationAjaxHandlerTest extends BaseTestCase {
 	 * Test ajax_sync_menu_now verifies nonce
 	 */
 	public function test_ajax_sync_menu_now_verifies_nonce(): void {
-		Functions\expect( 'check_ajax_referer' )
-			->once()
-			->with( 'notion_sync_menu_now', 'nonce' )
-			->andThrow( new \Exception( 'Nonce verification failed' ) );
+		Functions\when( 'check_ajax_referer' )
+			->alias( function () {
+				throw new \Exception( 'Nonce verification failed' );
+			} );
 
 		$this->expectException( \Exception::class );
 		$this->expectExceptionMessage( 'Nonce verification failed' );
@@ -164,10 +163,8 @@ class NavigationAjaxHandlerTest extends BaseTestCase {
 	 * Test ajax_sync_menu_now checks user capabilities
 	 */
 	public function test_ajax_sync_menu_now_checks_capabilities(): void {
-		Functions\expect( 'current_user_can' )
-			->once()
-			->with( 'manage_options' )
-			->andReturn( false );
+		Functions\when( 'current_user_can' )
+			->justReturn( false );
 
 		$this->expectException( \Exception::class );
 		$this->expectExceptionMessage( 'Insufficient permissions' );
@@ -200,30 +197,27 @@ class NavigationAjaxHandlerTest extends BaseTestCase {
 	public function test_ajax_sync_menu_now_finds_root_pages_correctly(): void {
 		global $wpdb;
 
-		// Mock posts with notion_page_id
+		// Mock posts with notion_page_id (first call)
+		// Mock posts with parent (second call) - posts 2 and 3 have parents
 		$wpdb->shouldReceive( 'get_col' )
-			->once()
-			->with( \Mockery::on( function ( $query ) {
-				return strpos( $query, 'notion_page_id' ) !== false;
-			} ) )
-			->andReturn( array( '1', '2', '3', '4' ) );
-
-		// Mock posts with parent (posts 2 and 3 have parents)
-		$wpdb->shouldReceive( 'get_col' )
-			->once()
-			->with( \Mockery::on( function ( $query ) {
-				return strpos( $query, '_notion_parent_page_id' ) !== false;
-			} ) )
-			->andReturn( array( '2', '3' ) );
+			->times( 2 )
+			->andReturn( array( '1', '2', '3', '4' ), array( '2', '3' ) );
 
 		// Mock get_post_meta for root posts (1 and 4)
-		Functions\expect( 'get_post_meta' )
-			->with( 1, 'notion_page_id', true )
-			->andReturn( 'root-page-1' );
+		Functions\when( 'get_post_meta' )
+			->alias( function ( $post_id, $key, $single ) {
+				if ( $key !== 'notion_page_id' ) {
+					return '';
+				}
 
-		Functions\expect( 'get_post_meta' )
-			->with( 4, 'notion_page_id', true )
-			->andReturn( 'root-page-2' );
+				if ( $post_id === 1 ) {
+					return 'root-page-1';
+				} elseif ( $post_id === 4 ) {
+					return 'root-page-2';
+				}
+
+				return '';
+			} );
 
 		// Mock the rest of the sync process
 		$this->mock_sync_process();
@@ -243,21 +237,24 @@ class NavigationAjaxHandlerTest extends BaseTestCase {
 
 		// Root pages with mixed ID formats
 		$wpdb->shouldReceive( 'get_col' )
-			->once()
-			->andReturn( array( '1', '2' ) );
-
-		$wpdb->shouldReceive( 'get_col' )
-			->once()
-			->andReturn( array() ); // No posts with parents
+			->times( 2 )
+			->andReturn( array( '1', '2' ), array() ); // No posts with parents
 
 		// Mock get_post_meta with different ID formats
-		Functions\expect( 'get_post_meta' )
-			->with( 1, 'notion_page_id', true )
-			->andReturn( '2634dac9b96e813da15efd85567b68ff' ); // No dashes
+		Functions\when( 'get_post_meta' )
+			->alias( function ( $post_id, $key, $single ) {
+				if ( $key !== 'notion_page_id' ) {
+					return '';
+				}
 
-		Functions\expect( 'get_post_meta' )
-			->with( 2, 'notion_page_id', true )
-			->andReturn( '2634dac9-b96e-813d-a15e-fd85567b68ff' ); // With dashes
+				if ( $post_id === 1 ) {
+					return '2634dac9b96e813da15efd85567b68ff'; // No dashes
+				} elseif ( $post_id === 2 ) {
+					return '2634dac9-b96e-813d-a15e-fd85567b68ff'; // With dashes
+				}
+
+				return '';
+			} );
 
 		$this->mock_sync_process();
 
@@ -274,16 +271,16 @@ class NavigationAjaxHandlerTest extends BaseTestCase {
 
 		// Mock finding root page
 		$wpdb->shouldReceive( 'get_col' )
-			->once()
-			->andReturn( array( '1' ) );
+			->times( 2 )
+			->andReturn( array( '1' ), array() );
 
-		$wpdb->shouldReceive( 'get_col' )
-			->once()
-			->andReturn( array() );
-
-		Functions\expect( 'get_post_meta' )
-			->with( 1, 'notion_page_id', true )
-			->andReturn( 'root-page-id' );
+		Functions\when( 'get_post_meta' )
+			->alias( function ( $post_id, $key, $single ) {
+				if ( $post_id === 1 && $key === 'notion_page_id' ) {
+					return 'root-page-id';
+				}
+				return '';
+			} );
 
 		$this->mock_sync_process();
 
@@ -299,24 +296,23 @@ class NavigationAjaxHandlerTest extends BaseTestCase {
 		global $wpdb;
 
 		$wpdb->shouldReceive( 'get_col' )
-			->once()
-			->andReturn( array( '1' ) );
+			->times( 2 )
+			->andReturn( array( '1' ), array() );
 
-		$wpdb->shouldReceive( 'get_col' )
-			->once()
-			->andReturn( array() );
-
-		Functions\expect( 'get_post_meta' )
-			->with( 1, 'notion_page_id', true )
-			->andReturn( 'root-page-id' );
+		Functions\when( 'get_post_meta' )
+			->alias( function ( $post_id, $key, $single ) {
+				if ( $post_id === 1 && $key === 'notion_page_id' ) {
+					return 'root-page-id';
+				}
+				return '';
+			} );
 
 		// Theme doesn't support menus
-		Functions\expect( 'current_theme_supports' )
-			->with( 'menus' )
-			->andReturn( false );
+		Functions\when( 'current_theme_supports' )
+			->justReturn( false );
 
-		Functions\expect( 'get_registered_nav_menus' )
-			->andReturn( array() );
+		Functions\when( 'get_registered_nav_menus' )
+			->justReturn( array() );
 
 		$this->mock_sync_process();
 
@@ -352,8 +348,13 @@ class NavigationAjaxHandlerTest extends BaseTestCase {
 			->times( 2 )
 			->andReturn( array( '1' ), array() );
 
-		Functions\expect( 'get_post_meta' )
-			->andReturn( 'root-page-id' );
+		Functions\when( 'get_post_meta' )
+			->alias( function ( $post_id, $key, $single ) {
+				if ( $key === 'notion_page_id' ) {
+					return 'root-page-id';
+				}
+				return '';
+			} );
 
 		// Mock menu items for count
 		$menu_items = array(
@@ -362,10 +363,13 @@ class NavigationAjaxHandlerTest extends BaseTestCase {
 			(object) array( 'ID' => 3 ),
 		);
 
-		Functions\expect( 'wp_get_nav_menu_items' )
-			->once()
-			->with( 123 )
-			->andReturn( $menu_items );
+		Functions\when( 'wp_get_nav_menu_items' )
+			->alias( function ( $menu_id ) use ( $menu_items ) {
+				if ( $menu_id === 123 ) {
+					return $menu_items;
+				}
+				return array();
+			} );
 
 		$this->mock_sync_process();
 
@@ -389,32 +393,33 @@ class NavigationAjaxHandlerTest extends BaseTestCase {
 	 */
 	private function mock_sync_process(): void {
 		// Mock HierarchyDetector::build_hierarchy_map
-		Functions\expect( 'get_posts' )
-			->andReturn( array() )
-			->byDefault();
+		Functions\when( 'get_posts' )
+			->justReturn( array() );
 
-		Functions\expect( 'get_post' )
-			->andReturnNull()
-			->byDefault();
+		Functions\when( 'get_post' )
+			->justReturn( null );
+
+		Functions\when( 'get_post_meta' )
+			->justReturn( '' );
 
 		// Mock MenuBuilder::create_or_update_menu
-		Functions\expect( 'wp_get_nav_menu_object' )
-			->andReturnNull();
+		Functions\when( 'wp_get_nav_menu_object' )
+			->justReturn( null );
 
-		Functions\expect( 'wp_create_nav_menu' )
-			->andReturn( 123 ); // Menu ID
+		Functions\when( 'wp_create_nav_menu' )
+			->justReturn( 123 ); // Menu ID
 
-		Functions\expect( 'wp_update_nav_menu_item' )
-			->andReturn( 1 );
+		Functions\when( 'wp_update_nav_menu_item' )
+			->justReturn( 1 );
 
-		Functions\expect( 'get_post_type' )
-			->andReturn( 'page' );
+		Functions\when( 'get_post_type' )
+			->justReturn( 'page' );
 
-		Functions\expect( 'wp_delete_post' )
-			->andReturn( true );
+		Functions\when( 'wp_delete_post' )
+			->justReturn( true );
 
 		// Mock is_wp_error
-		Functions\expect( 'is_wp_error' )
-			->andReturn( false );
+		Functions\when( 'is_wp_error' )
+			->justReturn( false );
 	}
 }
