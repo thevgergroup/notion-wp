@@ -112,7 +112,7 @@ class HierarchyDetector {
 			 * @param string $notion_page_id  Child Notion page ID.
 			 * @param string $parent_notion_id Parent Notion page ID.
 			 */
-			do_action( 'notion_hierarchy_updated', $post_id, $parent_post_id, $notion_page_id, $parent_notion_id );
+			do_action( 'notion_wp_hierarchy_updated', $post_id, $parent_post_id, $notion_page_id, $parent_notion_id );
 		}
 	}
 

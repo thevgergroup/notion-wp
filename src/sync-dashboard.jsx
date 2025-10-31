@@ -12,7 +12,9 @@
 /**
  * External dependencies
  */
+// eslint-disable-next-line import/no-unresolved
 import { render } from 'preact';
+// eslint-disable-next-line import/no-unresolved
 import { useState, useEffect } from 'preact/hooks';
 
 function SyncDashboard({ batchId: initialBatchId, totalPages = 0 }) {

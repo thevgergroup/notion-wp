@@ -260,7 +260,7 @@ class MenuBuilder {
 		$manual_items = array();
 		foreach ( $menu_items as $item ) {
 			if ( $this->menu_item_meta->is_manual( $item->ID ) ||
-				 ( ! $this->menu_item_meta->is_notion_synced( $item->ID ) && ! $this->menu_item_meta->is_manual( $item->ID ) ) ) {
+				( ! $this->menu_item_meta->is_notion_synced( $item->ID ) && ! $this->menu_item_meta->is_manual( $item->ID ) ) ) {
 				// Item is either explicitly marked as manual, or it's neither Notion-synced nor manual (legacy item).
 				$manual_items[] = $item->ID;
 			}

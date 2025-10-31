@@ -149,9 +149,9 @@ class MediaRegistry {
 
 		$table_name = self::get_table_name();
 
-		// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- Table name is safe, comes from get_table_name().
 		$attachment_id = $wpdb->get_var(
 			$wpdb->prepare(
+				// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- Table name is safe.
 				"SELECT attachment_id FROM {$table_name} WHERE notion_identifier = %s LIMIT 1",
 				$notion_identifier
 			)
@@ -176,9 +176,9 @@ class MediaRegistry {
 
 		$table_name = self::get_table_name();
 
-		// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- Table name is safe, comes from get_table_name().
 		$count = $wpdb->get_var(
 			$wpdb->prepare(
+				// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- Table name is safe.
 				"SELECT COUNT(*) FROM {$table_name} WHERE notion_identifier = %s LIMIT 1",
 				$notion_identifier
 			)
@@ -198,9 +198,9 @@ class MediaRegistry {
 
 		$table_name = self::get_table_name();
 
-		// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- Table name is safe, comes from get_table_name().
 		$status = $wpdb->get_var(
 			$wpdb->prepare(
+				// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- Table name is safe.
 				"SELECT status FROM {$table_name} WHERE notion_identifier = %s LIMIT 1",
 				$notion_identifier
 			)
@@ -237,9 +237,9 @@ class MediaRegistry {
 
 		$table_name = self::get_table_name();
 
-		// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- Table name is safe, comes from get_table_name().
 		$notion_url = $wpdb->get_var(
 			$wpdb->prepare(
+				// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- Table name is safe.
 				"SELECT notion_file_url FROM {$table_name} WHERE notion_identifier = %s LIMIT 1",
 				$notion_identifier
 			)
@@ -339,9 +339,9 @@ class MediaRegistry {
 
 		$table_name = self::get_table_name();
 
-		// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- Table name is safe, comes from get_table_name().
 		$results = $wpdb->get_col(
 			$wpdb->prepare(
+				// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- Table name is safe.
 				"SELECT notion_identifier FROM {$table_name} WHERE attachment_id = %d",
 				$attachment_id
 			)

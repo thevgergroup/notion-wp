@@ -36,10 +36,10 @@ class HierarchyTestFixtures {
 			'root_2_with_dashes'  => 'abc123de-f456-7890-1234-5678901234ab',
 
 			// Child pages
-			'child_1_normalized'  => '11112222333344445555666677778888',
-			'child_1_with_dashes' => '11112222-3333-4444-5555-666677778888',
-			'child_2_normalized'  => '99998888777766665555444433332222',
-			'child_2_with_dashes' => '99998888-7777-6666-5555-444433332222',
+			'child_1_normalized'  => '1111a222b333c444d555e666f777g888',
+			'child_1_with_dashes' => '1111a222-b333-c444-d555-e666f777g888',
+			'child_2_normalized'  => '9999h888i777j666k555l444m333n222',
+			'child_2_with_dashes' => '9999h888-i777-j666-k555-l444m333n222',
 
 			// Grandchild pages
 			'grandchild_1_normalized'  => 'aaaabbbbccccddddeeeeffffgggghhh',
@@ -99,11 +99,11 @@ class HierarchyTestFixtures {
 				'title'           => 'Root Page',
 				'order'           => 0,
 				'children'        => array(
-					'11112222333344445555666677778888',
-					'99998888777766665555444433332222',
+					'1111a222b333c444d555e666f777g888',
+					'9999h888i777j666k555l444m333n222',
 				),
 			),
-			'11112222333344445555666677778888' => array(
+			'1111a222b333c444d555e666f777g888' => array(
 				'post_id'         => 101,
 				'parent_page_id'  => '2634dac9b96e813da15efd85567b68ff',
 				'parent_post_id'  => 100,
@@ -111,7 +111,7 @@ class HierarchyTestFixtures {
 				'order'           => 0,
 				'children'        => array(),
 			),
-			'99998888777766665555444433332222' => array(
+			'9999h888i777j666k555l444m333n222' => array(
 				'post_id'         => 102,
 				'parent_page_id'  => '2634dac9b96e813da15efd85567b68ff',
 				'parent_post_id'  => 100,
@@ -135,9 +135,9 @@ class HierarchyTestFixtures {
 				'parent_post_id'  => null,
 				'title'           => 'Root Page',
 				'order'           => 0,
-				'children'        => array( '11112222333344445555666677778888' ),
+				'children'        => array( '1111p222q333r444s555t666u777v888' ),
 			),
-			'11112222333344445555666677778888' => array(
+			'1111p222q333r444s555t666u777v888' => array(
 				'post_id'         => 101,
 				'parent_page_id'  => '2634dac9b96e813da15efd85567b68ff',
 				'parent_post_id'  => 100,
@@ -147,7 +147,7 @@ class HierarchyTestFixtures {
 			),
 			'aaaabbbbccccddddeeeeffffgggghhh' => array(
 				'post_id'         => 102,
-				'parent_page_id'  => '11112222333344445555666677778888',
+				'parent_page_id'  => '1111p222q333r444s555t666u777v888',
 				'parent_post_id'  => 101,
 				'title'           => 'Grandchild Page',
 				'order'           => 0,
@@ -172,9 +172,9 @@ class HierarchyTestFixtures {
 				'parent_post_id'  => null,
 				'title'           => 'Documentation',
 				'order'           => 0,
-				'children'        => array( '11112222333344445555666677778888' ),
+				'children'        => array( 'aaaa1111bbbb2222cccc3333dddd4444' ),
 			),
-			'11112222333344445555666677778888' => array(
+			'aaaa1111bbbb2222cccc3333dddd4444' => array(
 				'post_id'         => 101,
 				'parent_page_id'  => '2634dac9b96e813da15efd85567b68ff',
 				'parent_post_id'  => 100,
@@ -190,9 +190,9 @@ class HierarchyTestFixtures {
 				'parent_post_id'  => null,
 				'title'           => 'API Reference',
 				'order'           => 1,
-				'children'        => array( '99998888777766665555444433332222' ),
+				'children'        => array( 'eeee5555ffff6666gggg7777hhhh8888' ),
 			),
-			'99998888777766665555444433332222' => array(
+			'eeee5555ffff6666gggg7777hhhh8888' => array(
 				'post_id'         => 201,
 				'parent_page_id'  => 'abc123def456789012345678901234ab',
 				'parent_post_id'  => 200,
@@ -317,9 +317,9 @@ class HierarchyTestFixtures {
 		}
 
 		return substr( $normalized, 0, 8 ) . '-' .
-			   substr( $normalized, 8, 4 ) . '-' .
-			   substr( $normalized, 12, 4 ) . '-' .
-			   substr( $normalized, 16, 4 ) . '-' .
-			   substr( $normalized, 20 );
+				substr( $normalized, 8, 4 ) . '-' .
+				substr( $normalized, 12, 4 ) . '-' .
+				substr( $normalized, 16, 4 ) . '-' .
+				substr( $normalized, 20 );
 	}
 }

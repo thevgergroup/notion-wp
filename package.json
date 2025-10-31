@@ -10,8 +10,12 @@
 		"npm": ">=9.0.0"
 	},
 	"scripts": {
-		"build": "esbuild src/sync-dashboard.jsx --bundle --format=iife --outfile=plugin/assets/build/sync-dashboard.js --minify --jsx=automatic --jsx-import-source=preact",
-		"start": "esbuild src/sync-dashboard.jsx --bundle --format=iife --outfile=plugin/assets/build/sync-dashboard.js --watch --jsx=automatic --jsx-import-source=preact",
+		"build": "npm-run-all build:*",
+		"build:dashboard": "esbuild src/sync-dashboard.jsx --bundle --format=iife --outfile=plugin/assets/build/sync-dashboard.js --minify --jsx=automatic --jsx-import-source=preact",
+		"build:blocks": "wp-scripts build plugin/blocks/database-view/src/index.js --output-path=plugin/blocks/database-view/build",
+		"start": "npm-run-all --parallel start:*",
+		"start:dashboard": "esbuild src/sync-dashboard.jsx --bundle --format=iife --outfile=plugin/assets/build/sync-dashboard.js --watch --jsx=automatic --jsx-import-source=preact",
+		"start:blocks": "wp-scripts start plugin/blocks/database-view/src/index.js --output-path=plugin/blocks/database-view/build",
 		"lint": "npm-run-all --parallel lint:*",
 		"lint:js": "eslint '{plugin,src}/**/*.{js,jsx,ts,tsx}' --max-warnings=0",
 		"lint:js:fix": "eslint '{plugin,src}/**/*.{js,jsx,ts,tsx}' --fix",
@@ -26,8 +30,16 @@
 		"postinstall": "echo '\n✓ npm dependencies installed successfully\n' && echo 'Run npm run lint to check code quality\n'"
 	},
 	"devDependencies": {
+		"@wordpress/block-editor": "^15.8.0",
+		"@wordpress/blocks": "^14.8.0",
+		"@wordpress/components": "^29.8.0",
+		"@wordpress/data": "^10.8.0",
 		"@wordpress/eslint-plugin": "^17.7.0",
+		"@wordpress/i18n": "^5.8.0",
+		"@wordpress/icons": "^10.8.0",
 		"@wordpress/prettier-config": "^3.7.0",
+		"@wordpress/scripts": "^31.8.0",
+		"@wordpress/server-side-render": "^5.8.0",
 		"esbuild": "^0.25.11",
 		"eslint": "^8.56.0",
 		"eslint-config-prettier": "^9.1.0",

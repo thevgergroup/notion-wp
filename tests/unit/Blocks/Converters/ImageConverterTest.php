@@ -160,7 +160,9 @@ class ImageConverterTest extends BaseConverterTestCase {
 	 * This test verifies the download is triggered.
 	 */
 	public function test_downloads_notion_hosted_image(): void {
-		$this->markTestSkipped( 'ImageConverter download logic requires ImageDownloader and MediaUploader mocks - TODO: implement in integration test' );
+		$skip_reason = 'ImageConverter download logic requires ImageDownloader and MediaUploader mocks'
+			. ' - TODO: implement in integration test';
+		$this->markTestSkipped( $skip_reason );
 	}
 
 	/**

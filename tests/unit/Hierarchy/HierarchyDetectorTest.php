@@ -116,18 +116,22 @@ class HierarchyDetectorTest extends BaseTestCase {
 
 		// Mock get_posts to return child when searching for parent
 		Functions\when( 'get_posts' )
-			->alias( function () {
-				return array( 100 ); // Return child post ID
-			} );
+			->alias(
+				function () {
+					return array( 100 ); // Return child post ID
+				}
+			);
 
 		// Mock get_post_meta to return child's Notion ID
 		Functions\when( 'get_post_meta' )
-			->alias( function ( $post_id, $key, $single ) use ( $child_id ) {
-				if ( $post_id === 100 && $key === 'notion_page_id' ) {
-					return $child_id;
+			->alias(
+				function ( $post_id, $key, $single ) use ( $child_id ) {
+					if ( $post_id === 100 && $key === 'notion_page_id' ) {
+							return $child_id;
+					}
+					return '';
 				}
-				return '';
-			} );
+			);
 
 		$children = $this->detector->get_child_pages( $parent_id );
 
@@ -147,18 +151,22 @@ class HierarchyDetectorTest extends BaseTestCase {
 
 		// Mock get_posts to return child when searching for parent
 		Functions\when( 'get_posts' )
-			->alias( function () {
-				return array( 101 ); // Return child post ID
-			} );
+			->alias(
+				function () {
+					return array( 101 ); // Return child post ID
+				}
+			);
 
 		// Mock get_post_meta to return child's Notion ID
 		Functions\when( 'get_post_meta' )
-			->alias( function ( $post_id, $key, $single ) use ( $child_id ) {
-				if ( $post_id === 101 && $key === 'notion_page_id' ) {
-					return $child_id;
+			->alias(
+				function ( $post_id, $key, $single ) use ( $child_id ) {
+					if ( $post_id === 101 && $key === 'notion_page_id' ) {
+							return $child_id;
+					}
+					return '';
 				}
-				return '';
-			} );
+			);
 
 		$children = $this->detector->get_child_pages( $parent_id );
 
@@ -177,25 +185,29 @@ class HierarchyDetectorTest extends BaseTestCase {
 
 		// Mock get_posts to return multiple children
 		Functions\when( 'get_posts' )
-			->alias( function () {
-				return array( 100, 101, 102 );
-			} );
+			->alias(
+				function () {
+					return array( 100, 101, 102 );
+				}
+			);
 
 		// Mock get_post_meta for each child
 		Functions\when( 'get_post_meta' )
-			->alias( function ( $post_id, $key, $single ) {
-				if ( $key !== 'notion_page_id' ) {
-					return '';
+			->alias(
+				function ( $post_id, $key, $single ) {
+					if ( $key !== 'notion_page_id' ) {
+							return '';
+					}
+
+					$map = array(
+						100 => $this->test_page_ids['child1_no_dashes'],
+						101 => $this->test_page_ids['child1_with_dashes'],
+						102 => $this->test_page_ids['child2_no_dashes'],
+					);
+
+					return $map[ $post_id ] ?? '';
 				}
-
-				$map = array(
-					100 => $this->test_page_ids['child1_no_dashes'],
-					101 => $this->test_page_ids['child1_with_dashes'],
-					102 => $this->test_page_ids['child2_no_dashes'],
-				);
-
-				return $map[ $post_id ] ?? '';
-			} );
+			);
 
 		$children = $this->detector->get_child_pages( $parent_id );
 
@@ -212,23 +224,27 @@ class HierarchyDetectorTest extends BaseTestCase {
 	public function test_get_child_pages_skips_posts_without_notion_id(): void {
 		// Mock get_posts to return posts
 		Functions\when( 'get_posts' )
-			->alias( function () {
-				return array( 100, 101 );
-			} );
+			->alias(
+				function () {
+					return array( 100, 101 );
+				}
+			);
 
 		// Mock get_post_meta: first returns ID, second returns empty
 		Functions\when( 'get_post_meta' )
-			->alias( function ( $post_id, $key, $single ) {
-				if ( $key !== 'notion_page_id' ) {
-					return '';
-				}
+			->alias(
+				function ( $post_id, $key, $single ) {
+					if ( $key !== 'notion_page_id' ) {
+							return '';
+					}
 
-				if ( $post_id === 100 ) {
-					return $this->test_page_ids['child1_no_dashes'];
-				}
+					if ( $post_id === 100 ) {
+						return $this->test_page_ids['child1_no_dashes'];
+					}
 
-				return ''; // Empty Notion ID for post 101
-			} );
+					return ''; // Empty Notion ID for post 101
+				}
+			);
 
 		$children = $this->detector->get_child_pages( 'parent-id' );
 
@@ -293,9 +309,11 @@ class HierarchyDetectorTest extends BaseTestCase {
 
 		// Parent post not found, so wp_update_post shouldn't be called
 		Functions\when( 'get_posts' )
-			->alias( function () {
-				return array();
-			} );
+			->alias(
+				function () {
+					return array();
+				}
+			);
 
 		Functions\when( 'wp_update_post' )
 			->justReturn( false );
@@ -323,9 +341,11 @@ class HierarchyDetectorTest extends BaseTestCase {
 
 		// Mock finding parent post
 		Functions\when( 'get_posts' )
-			->alias( function () {
-				return array( 456 ); // Parent post ID
-			} );
+			->alias(
+				function () {
+					return array( 456 ); // Parent post ID
+				}
+			);
 
 		// Mock wp_update_post to verify parent is set
 		Functions\when( 'wp_update_post' )
@@ -361,23 +381,27 @@ class HierarchyDetectorTest extends BaseTestCase {
 		// Mock finding root post and children search (none)
 		// First call: find root post, Second call: search for children
 		Functions\when( 'get_posts' )
-			->alias( function () use ( &$call_count ) {
-				$call_count++;
-				return $call_count === 1 ? array( 100 ) : array();
-			} );
+			->alias(
+				function () use ( &$call_count ) {
+					$call_count++;
+					return $call_count === 1 ? array( 100 ) : array();
+				}
+			);
 
 		// Mock get_post to return root post object
 		Functions\when( 'get_post' )
-			->alias( function ( $post_id ) {
-				if ( $post_id === 100 ) {
-					return (object) array(
-						'ID'         => 100,
-						'post_title' => 'Root Page',
-						'menu_order' => 0,
-					);
+			->alias(
+				function ( $post_id ) {
+					if ( $post_id === 100 ) {
+							return (object) array(
+								'ID'         => 100,
+								'post_title' => 'Root Page',
+								'menu_order' => 0,
+							);
+					}
+					return null;
 				}
-				return null;
-			} );
+			);
 
 		$hierarchy = $this->detector->build_hierarchy_map( $root_id );
 
@@ -400,21 +424,25 @@ class HierarchyDetectorTest extends BaseTestCase {
 
 		// Mock finding root post - should not search for children at max depth
 		Functions\when( 'get_posts' )
-			->alias( function () {
-				return array( 100 );
-			} );
+			->alias(
+				function () {
+					return array( 100 );
+				}
+			);
 
 		Functions\when( 'get_post' )
-			->alias( function ( $post_id ) {
-				if ( $post_id === 100 ) {
-					return (object) array(
-						'ID'         => 100,
-						'post_title' => 'Root Page',
-						'menu_order' => 0,
-					);
+			->alias(
+				function ( $post_id ) {
+					if ( $post_id === 100 ) {
+							return (object) array(
+								'ID'         => 100,
+								'post_title' => 'Root Page',
+								'menu_order' => 0,
+							);
+					}
+					return null;
 				}
-				return null;
-			} );
+			);
 
 		$hierarchy = $detector->build_hierarchy_map( $root_id );
 
@@ -439,46 +467,52 @@ class HierarchyDetectorTest extends BaseTestCase {
 		// Third call: find child1 post
 		// Fourth call: get children of child1 (none)
 		Functions\when( 'get_posts' )
-			->alias( function () use ( &$get_posts_count ) {
-				$get_posts_count++;
-				switch ( $get_posts_count ) {
-					case 1:
-						return array( 100 );  // Find root post
-					case 2:
-						return array( 101 );  // Get children of root
-					case 3:
-						return array( 101 );  // Find child1 post
-					case 4:
-					default:
-						return array();  // No children of child1
+			->alias(
+				function () use ( &$get_posts_count ) {
+					$get_posts_count++;
+					switch ( $get_posts_count ) {
+						case 1:
+							return array( 100 );  // Find root post
+						case 2:
+							return array( 101 );  // Get children of root
+						case 3:
+							return array( 101 );  // Find child1 post
+						case 4:
+						default:
+							return array();  // No children of child1
+					}
 				}
-			} );
+			);
 
 		Functions\when( 'get_post' )
-			->alias( function ( $post_id ) {
-				if ( $post_id === 100 ) {
-					return (object) array(
-						'ID'         => 100,
-						'post_title' => 'Root Page',
-						'menu_order' => 0,
-					);
-				} elseif ( $post_id === 101 ) {
-					return (object) array(
-						'ID'         => 101,
-						'post_title' => 'Child 1 Page',
-						'menu_order' => 0,
-					);
+			->alias(
+				function ( $post_id ) {
+					if ( $post_id === 100 ) {
+							return (object) array(
+								'ID'         => 100,
+								'post_title' => 'Root Page',
+								'menu_order' => 0,
+							);
+					} elseif ( $post_id === 101 ) {
+						return (object) array(
+							'ID'         => 101,
+							'post_title' => 'Child 1 Page',
+							'menu_order' => 0,
+						);
+					}
+					return null;
 				}
-				return null;
-			} );
+			);
 
 		Functions\when( 'get_post_meta' )
-			->alias( function ( $post_id, $key, $single ) use ( $child1_id ) {
-				if ( $post_id === 101 && $key === 'notion_page_id' ) {
-					return $child1_id;
+			->alias(
+				function ( $post_id, $key, $single ) use ( $child1_id ) {
+					if ( $post_id === 101 && $key === 'notion_page_id' ) {
+							return $child1_id;
+					}
+					return '';
 				}
-				return '';
-			} );
+			);
 
 		$hierarchy = $this->detector->build_hierarchy_map( $root_id );
 

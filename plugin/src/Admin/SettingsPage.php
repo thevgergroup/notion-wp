@@ -511,8 +511,15 @@ class SettingsPage {
 		}
 
 		// Verify nonce.
-		if ( ! isset( $_POST['notion_sync_navigation_settings_nonce'] ) ||
-			! wp_verify_nonce( sanitize_text_field( wp_unslash( $_POST['notion_sync_navigation_settings_nonce'] ) ), 'notion_sync_navigation_settings' ) ) {
+		$nonce_field = 'notion_sync_navigation_settings_nonce';
+		$nonce_action = 'notion_sync_navigation_settings';
+
+		if ( ! isset( $_POST[ $nonce_field ] ) ||
+			! wp_verify_nonce(
+				sanitize_text_field( wp_unslash( $_POST[ $nonce_field ] ) ),
+				$nonce_action
+			)
+		) {
 			wp_die(
 				esc_html__( 'Security check failed. Please try again.', 'notion-wp' ),
 				esc_html__( 'Security Error', 'notion-wp' ),

@@ -1,0 +1,120 @@
+/**
+ * Frontend and editor styles for the notion-wp/database-view block.
+ *
+ * These styles are loaded both in the editor and on the frontend.
+ */
+
+.notion-wp-database-view {
+	margin: 2rem 0;
+	padding: 1.5rem;
+	background: #fff;
+	border: 1px solid #e0e0e0;
+	border-radius: 8px;
+}
+
+.notion-wp-database-view__header {
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	margin-bottom: 1.5rem;
+	padding-bottom: 1rem;
+	border-bottom: 2px solid #e0e0e0;
+}
+
+.notion-wp-database-view__title {
+	margin: 0;
+	font-size: 1.5rem;
+	font-weight: 600;
+	color: #1a1a1a;
+}
+
+.notion-wp-database-view__export-btn {
+	padding: 0.5rem 1rem;
+	background: #2271b1;
+	color: #fff;
+	border: none;
+	border-radius: 4px;
+	cursor: pointer;
+	font-size: 0.875rem;
+	font-weight: 500;
+	transition: background 0.2s ease;
+}
+
+.notion-wp-database-view__export-btn:hover {
+	background: #135e96;
+}
+
+.notion-wp-database-view__filters {
+	margin-bottom: 1.5rem;
+	padding: 1rem;
+	background: #f9f9f9;
+	border-radius: 4px;
+}
+
+.notion-wp-database-view__content {
+	position: relative;
+	min-height: 300px;
+}
+
+.notion-wp-database-view__table {
+	/* Tabulator will add its own styles */
+}
+
+.notion-wp-database-view__placeholder {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	min-height: 300px;
+	background: #f9f9f9;
+	border: 2px dashed #e0e0e0;
+	border-radius: 4px;
+}
+
+.notion-wp-database-view__placeholder p {
+	margin: 0;
+	color: #757575;
+	font-size: 1rem;
+}
+
+.notion-wp-database-view__loading {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	gap: 0.5rem;
+	min-height: 300px;
+}
+
+.notion-wp-database-view__error {
+	padding: 1rem;
+	background: #fef0f0;
+	border: 1px solid #dc3232;
+	border-radius: 4px;
+	color: #dc3232;
+}
+
+.notion-wp-database-view__error p {
+	margin: 0;
+}
+
+/* Alignment support */
+.notion-wp-database-view.alignwide {
+	max-width: var(--wp--style--global--wide-size, 1280px);
+}
+
+.notion-wp-database-view.alignfull {
+	max-width: none;
+}
+
+/* Error message for invalid database */
+.notion-wp-database-view-error {
+	padding: 1rem;
+	background: #fef0f0;
+	border: 1px solid #dc3232;
+	border-radius: 4px;
+	color: #dc3232;
+	margin: 1rem 0;
+}
+
+.notion-wp-database-view-error p {
+	margin: 0;
+}

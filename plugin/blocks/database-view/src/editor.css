@@ -1,0 +1,17 @@
+/**
+ * Editor-specific styles for the notion-wp/database-view block.
+ *
+ * These styles are only loaded in the block editor.
+ */
+
+.notion-wp-database-view-editor {
+	min-height: 200px;
+}
+
+.notion-wp-database-view-editor .components-placeholder {
+	min-height: 200px;
+}
+
+.notion-wp-database-view-editor .components-placeholder__fieldset {
+	max-width: 400px;
+}

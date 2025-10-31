@@ -9,6 +9,7 @@
 	},
 	"autoload": {
 		"psr-4": {
+			"NotionSync\\": "src/",
 			"NotionWP\\": "src/"
 		}
 	},

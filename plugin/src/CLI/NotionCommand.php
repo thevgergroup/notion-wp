@@ -335,6 +335,161 @@ class NotionCommand {
 	}
 
 	/**
+	 * Get parent database information for a child database block.
+	 *
+	 * Queries the Notion loadCachedPageChunkV2 API to retrieve collection metadata
+	 * for a child database block, then looks up the corresponding WordPress database post.
+	 *
+	 * ## OPTIONS
+	 *
+	 * <child-database-id>
+	 * : Notion child database block ID (with or without dashes)
+	 *
+	 * [--raw]
+	 * : Output raw API response JSON
+	 *
+	 * ## EXAMPLES
+	 *
+	 *     # Get parent database info
+	 *     wp notion get-parent-db 2654dac9b96e808ab3b7ffb185d4fd92
+	 *
+	 *     # Get raw API response
+	 *     wp notion get-parent-db 2654dac9b96e808ab3b7ffb185d4fd92 --raw
+	 *
+	 * @param array $args Positional arguments.
+	 * @param array $assoc_args Associative arguments.
+	 * @when after_wp_load
+	 */
+	public function get_parent_db( $args, $assoc_args ) {
+		$child_db_id = str_replace( '-', '', $args[0] );
+		$show_raw    = isset( $assoc_args['raw'] );
+
+		try {
+			\WP_CLI::log( "Querying Notion page chunk API for child database: {$child_db_id}" );
+
+			// Format ID with dashes for API call.
+			$formatted_id = substr( $child_db_id, 0, 8 ) . '-' .
+				substr( $child_db_id, 8, 4 ) . '-' .
+				substr( $child_db_id, 12, 4 ) . '-' .
+				substr( $child_db_id, 16, 4 ) . '-' .
+				substr( $child_db_id, 20 );
+
+			// Query the loadCachedPageChunkV2 API via NotionClient.
+			list( $client, $error ) = CommandHelpers::get_notion_client();
+			if ( $error ) {
+				\WP_CLI::error( $error );
+			}
+
+			$response = $client->load_page_chunk( $formatted_id );
+
+			if ( $show_raw ) {
+				\WP_CLI::log( "\n=== Raw API Response ===" );
+				\WP_CLI::log( json_encode( $response, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES ) );
+				return;
+			}
+
+			// Extract collection data.
+			if ( ! isset( $response['recordMap'] ) ) {
+				\WP_CLI::error( 'Invalid API response: missing recordMap' );
+			}
+
+			$record_map = $response['recordMap'];
+
+			// Get the block data.
+			if ( ! isset( $record_map['block'][ $formatted_id ] ) ) {
+				\WP_CLI::error( "Block {$formatted_id} not found in response" );
+			}
+
+			$block_data = $record_map['block'][ $formatted_id ]['value'];
+			$block_type = $block_data['type'] ?? 'unknown';
+
+			\WP_CLI::log( "\n=== Child Database Block ===" );
+			\WP_CLI::log( "Block ID:   {$formatted_id}" );
+			\WP_CLI::log( "Block Type: {$block_type}" );
+
+			// Get view IDs.
+			if ( ! isset( $block_data['view_ids'] ) || empty( $block_data['view_ids'] ) ) {
+				\WP_CLI::error( 'No view_ids found in block data' );
+			}
+
+			$view_id = $block_data['view_ids'][0];
+			\WP_CLI::log( "View ID:    {$view_id}" );
+
+			// Get collection view data.
+			if ( ! isset( $record_map['collection_view'][ $view_id ] ) ) {
+				\WP_CLI::error( "Collection view {$view_id} not found in response" );
+			}
+
+			$collection_view = $record_map['collection_view'][ $view_id ]['value'];
+			$view_type       = $collection_view['type'] ?? 'unknown';
+
+			// Get collection pointer.
+			if ( ! isset( $collection_view['format']['collection_pointer']['id'] ) ) {
+				\WP_CLI::error( 'No collection_pointer found in view data' );
+			}
+
+			$collection_id = $collection_view['format']['collection_pointer']['id'];
+
+			\WP_CLI::log( "\n=== Collection View ===" );
+			\WP_CLI::log( "View Type:      {$view_type}" );
+			\WP_CLI::log( "Collection ID:  {$collection_id}" );
+
+			// Get collection metadata.
+			if ( isset( $record_map['collection'][ $collection_id ] ) ) {
+				$collection      = $record_map['collection'][ $collection_id ]['value'];
+				$collection_name = $collection['name'][0][0] ?? 'Unknown';
+
+				\WP_CLI::log( "\n=== Parent Database ===" );
+				\WP_CLI::log( "Name: {$collection_name}" );
+
+				// Count properties.
+				$property_count = isset( $collection['schema'] ) ? count( $collection['schema'] ) : 0;
+				\WP_CLI::log( "Properties: {$property_count}" );
+			}
+
+			// Look up WordPress database post by collection_id.
+			\WP_CLI::log( "\n=== WordPress Database Lookup ===" );
+
+			global $wpdb;
+			// Normalize collection_id (remove dashes) for lookup.
+			$normalized_collection_id = str_replace( '-', '', $collection_id );
+
+			$wp_post_id = $wpdb->get_var(
+				$wpdb->prepare(
+					"SELECT post_id FROM {$wpdb->postmeta}
+					WHERE meta_key = 'notion_collection_id'
+					AND meta_value = %s
+					LIMIT 1",
+					$normalized_collection_id
+				)
+			);
+
+			if ( $wp_post_id ) {
+				$post = get_post( $wp_post_id );
+				\WP_CLI::success( "Found synced database: Post ID {$wp_post_id} - {$post->post_title}" );
+
+				// Get notion_database_id for reference.
+				$db_id = get_post_meta( $wp_post_id, 'notion_database_id', true );
+				if ( $db_id ) {
+					\WP_CLI::log( "Database ID: {$db_id}" );
+				}
+			} else {
+				\WP_CLI::warning( 'No WordPress database found with this collection_id' );
+				\WP_CLI::log( 'The parent database may not be synced yet, or it was synced before collection_id tracking was implemented.' );
+			}
+
+			// Show filters if present.
+			if ( isset( $collection_view['format']['property_filters'] ) ) {
+				$filters = $collection_view['format']['property_filters'];
+				\WP_CLI::log( "\n=== View Filters ===" );
+				\WP_CLI::log( json_encode( $filters, JSON_PRETTY_PRINT ) );
+			}
+		} catch ( \Exception $e ) {
+			\WP_CLI::error( 'Failed to get parent database: ' . $e->getMessage() );
+		}
+	}
+
+	/**
 	 * Show Notion links found in a WordPress post.
 	 *
 	 * ## OPTIONS

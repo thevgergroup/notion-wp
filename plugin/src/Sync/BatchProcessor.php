@@ -92,8 +92,42 @@ class BatchProcessor {
 		// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log -- Debug logging.
 		error_log( 'BatchProcessor: Starting queue_database_sync for database: ' . $database_id );
 
+		// Fetch database schema first to validate the ID and get metadata.
+		// This will throw an exception if the database_id is invalid (e.g., a block ID).
+		try {
+			$database_info = $this->fetcher->get_database_schema( $database_id );
+		} catch ( \Exception $e ) {
+			// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log -- Debug logging.
+			error_log( 'BatchProcessor: Failed to fetch database schema: ' . $e->getMessage() );
+			throw new \RuntimeException(
+				sprintf(
+					'Failed to fetch database schema for ID %s. ' .
+					'If this is a child_database block, use the collection_id field, ' .
+					'not the block id. Error: %s',
+					// phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- Exception message, not browser output.
+					$database_id,
+					// phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- Exception message, not browser output.
+					$e->getMessage()
+				)
+			);
+		}
+
 		// Fetch all entries from database.
-		$entries = $this->fetcher->query_database( $database_id );
+		try {
+			$entries = $this->fetcher->query_database( $database_id );
+		} catch ( \Exception $e ) {
+			// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log -- Debug logging.
+			error_log( 'BatchProcessor: Failed to query database: ' . $e->getMessage() );
+			throw new \RuntimeException(
+				sprintf(
+					'Failed to query database %s. Error: %s',
+					// phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- Exception message, not browser output.
+					$database_id,
+					// phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- Exception message, not browser output.
+					$e->getMessage()
+				)
+			);
+		}
 
 		if ( empty( $entries ) ) {
 			throw new \RuntimeException( 'No entries found in database' );
@@ -103,7 +137,6 @@ class BatchProcessor {
 		error_log( 'BatchProcessor: Fetched ' . count( $entries ) . ' entries from database' );
 
 		// Find or create database post.
-		$database_info = $this->fetcher->get_database_schema( $database_id );
 		$database_cpt  = new DatabasePostType();
 		$post_id       = $database_cpt->find_or_create( $database_id, $database_info );
 
@@ -112,9 +145,11 @@ class BatchProcessor {
 
 		// Register/update database link in registry.
 		// This enables /notion/{slug} URLs to redirect to the database viewer.
+		// Use the ID from the API response to ensure we're using the correct database ID.
+		$normalized_db_id = str_replace( '-', '', $database_info['id'] ?? $database_id );
 		$this->link_registry->register(
 			array(
-				'notion_id'    => str_replace( '-', '', $database_id ),
+				'notion_id'    => $normalized_db_id,
 				'notion_title' => $database_info['title'] ?? 'Untitled Database',
 				'notion_type'  => 'database',
 				'wp_post_id'   => $post_id,

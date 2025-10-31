@@ -67,7 +67,13 @@ class ImageDownloadHandler {
 	 * @throws \InvalidArgumentException If required parameters are missing.
 	 * @throws \Exception If download or upload fails (caught and rethrown for retry).
 	 */
-	public static function process_download( string $block_id, string $notion_url, string $notion_page_id = '', int $wp_post_id = 0, string $caption = '' ): void {
+	public static function process_download(
+		string $block_id,
+		string $notion_url,
+		string $notion_page_id = '',
+		int $wp_post_id = 0,
+		string $caption = ''
+	): void {
 
 		// Validate required arguments - throw exception to trigger Action Scheduler retry.
 		if ( empty( $block_id ) ) {
@@ -179,9 +185,11 @@ class ImageDownloadHandler {
 
 			// Increment error count and store error message.
 			// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
+			$sql = "UPDATE {$table_name} SET error_count = error_count + 1, last_error = %s,"
+				. ' updated_at = %s WHERE notion_identifier = %s';
 			$wpdb->query(
 				$wpdb->prepare(
-					"UPDATE {$table_name} SET error_count = error_count + 1, last_error = %s, updated_at = %s WHERE notion_identifier = %s", // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+					$sql, // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
 					$e->getMessage(),
 					current_time( 'mysql' ),
 					$block_id

@@ -145,6 +145,7 @@ abstract class BaseTestCase extends TestCase {
 					return $text;
 				},
 				'_e'                    => function ( $text ) {
+					// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Test mock function.
 					echo $text;
 				},
 				'_x'                    => function ( $text ) {
@@ -154,6 +155,7 @@ abstract class BaseTestCase extends TestCase {
 					return htmlspecialchars( (string) $text, ENT_QUOTES, 'UTF-8' );
 				},
 				'esc_html_e'            => function ( $text ) {
+					// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Test mock, already escaped.
 					echo htmlspecialchars( (string) $text, ENT_QUOTES, 'UTF-8' );
 				},
 

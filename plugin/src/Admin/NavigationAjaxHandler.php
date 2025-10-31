@@ -119,7 +119,13 @@ class NavigationAjaxHandler {
 			}
 
 			// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log -- Debug logging.
-			error_log( '[NavigationAjax] Combined hierarchy map (' . count( $combined_hierarchy_map ) . ' items): ' . wp_json_encode( array_keys( $combined_hierarchy_map ) ) );
+			error_log(
+				sprintf(
+					'[NavigationAjax] Combined hierarchy map (%d items): %s',
+					count( $combined_hierarchy_map ),
+					wp_json_encode( array_keys( $combined_hierarchy_map ) )
+				)
+			);
 
 			if ( empty( $combined_hierarchy_map ) ) {
 				wp_send_json_error(
@@ -180,12 +186,18 @@ class NavigationAjaxHandler {
 				);
 			} else {
 				// Theme doesn't support menus - show alternative guidance.
-				$success_parts[] = wp_kses(
-					sprintf(
-						/* translators: %s: URL to menu editor */
-						__( '<a href="%s" target="_blank">View menu</a>. Note: Your theme does not support menu locations, so you cannot assign this menu without additional theme configuration.', 'notion-wp' ),
-						esc_url( $menus_url )
+				$message = sprintf(
+					/* translators: %s: URL to menu editor */
+					__(
+						// phpcs:ignore Generic.Files.LineLength.MaxExceeded
+						'<a href="%s" target="_blank">View menu</a>. Note: Your theme does not support menu locations, so you cannot assign this menu without additional theme configuration.',
+						'notion-wp'
 					),
+					esc_url( $menus_url )
+				);
+
+				$success_parts[] = wp_kses(
+					$message,
 					array(
 						'a' => array(
 							'href'   => array(),

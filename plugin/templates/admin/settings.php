@@ -79,9 +79,15 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 						?>
 					</li>
-					<li><?php esc_html_e( 'Copy the "Internal Integration Token" (starts with "secret_").', 'notion-wp' ); ?></li>
-					<li><?php esc_html_e( 'Paste the token below and click "Connect to Notion".', 'notion-wp' ); ?></li>
-					<li><?php esc_html_e( 'Share your Notion pages with the integration to grant access.', 'notion-wp' ); ?></li>
+					<li>
+						<?php esc_html_e( 'Copy the "Internal Integration Token" (starts with "secret_").', 'notion-wp' ); ?>
+					</li>
+					<li>
+						<?php esc_html_e( 'Paste the token below and click "Connect to Notion".', 'notion-wp' ); ?>
+					</li>
+					<li>
+						<?php esc_html_e( 'Share your Notion pages with the integration to grant access.', 'notion-wp' ); ?>
+					</li>
 				</ol>
 
 				<form method="post" action="<?php echo esc_url( admin_url( 'admin-post.php' ) ); ?>" style="margin-top: 20px;">
@@ -108,7 +114,12 @@ if ( ! defined( 'ABSPATH' ) ) {
 										autocomplete="off"
 									>
 									<p class="description">
-										<?php esc_html_e( 'Your Notion Internal Integration Token. Starts with "secret_".', 'notion-wp' ); ?>
+										<?php
+										esc_html_e(
+											'Your Notion Internal Integration Token. Starts with "secret_".',
+											'notion-wp'
+										);
+										?>
 									</p>
 								</td>
 							</tr>
@@ -126,20 +137,26 @@ if ( ! defined( 'ABSPATH' ) ) {
 		<?php else : ?>
 
 			<!-- Tab Navigation -->
+			<?php
+			$pages_url      = add_query_arg( 'tab', 'pages', admin_url( 'admin.php?page=notion-sync' ) );
+			$databases_url  = add_query_arg( 'tab', 'databases', admin_url( 'admin.php?page=notion-sync' ) );
+			$navigation_url = add_query_arg( 'tab', 'navigation', admin_url( 'admin.php?page=notion-sync' ) );
+			$settings_url   = add_query_arg( 'tab', 'settings', admin_url( 'admin.php?page=notion-sync' ) );
+			?>
 			<h2 class="nav-tab-wrapper">
-				<a href="<?php echo esc_url( add_query_arg( 'tab', 'pages', admin_url( 'admin.php?page=notion-sync' ) ) ); ?>"
+				<a href="<?php echo esc_url( $pages_url ); ?>"
 					class="nav-tab <?php echo 'pages' === $current_tab ? 'nav-tab-active' : ''; ?>">
 					<?php esc_html_e( 'Pages', 'notion-wp' ); ?>
 				</a>
-				<a href="<?php echo esc_url( add_query_arg( 'tab', 'databases', admin_url( 'admin.php?page=notion-sync' ) ) ); ?>"
+				<a href="<?php echo esc_url( $databases_url ); ?>"
 					class="nav-tab <?php echo 'databases' === $current_tab ? 'nav-tab-active' : ''; ?>">
 					<?php esc_html_e( 'Databases', 'notion-wp' ); ?>
 				</a>
-				<a href="<?php echo esc_url( add_query_arg( 'tab', 'navigation', admin_url( 'admin.php?page=notion-sync' ) ) ); ?>"
+				<a href="<?php echo esc_url( $navigation_url ); ?>"
 					class="nav-tab <?php echo 'navigation' === $current_tab ? 'nav-tab-active' : ''; ?>">
 					<?php esc_html_e( 'Navigation', 'notion-wp' ); ?>
 				</a>
-				<a href="<?php echo esc_url( add_query_arg( 'tab', 'settings', admin_url( 'admin.php?page=notion-sync' ) ) ); ?>"
+				<a href="<?php echo esc_url( $settings_url ); ?>"
 					class="nav-tab <?php echo 'settings' === $current_tab ? 'nav-tab-active' : ''; ?>">
 					<?php esc_html_e( 'Settings', 'notion-wp' ); ?>
 				</a>
@@ -161,7 +178,12 @@ if ( ! defined( 'ABSPATH' ) ) {
 					<div class="card" style="margin-top: 20px;">
 						<h2><?php esc_html_e( 'No Databases Found', 'notion-wp' ); ?></h2>
 						<p>
-							<?php esc_html_e( 'No databases are currently accessible by this integration.', 'notion-wp' ); ?>
+							<?php
+							esc_html_e(
+								'No databases are currently accessible by this integration.',
+								'notion-wp'
+							);
+							?>
 						</p>
 						<p>
 							<?php esc_html_e( 'To grant access to your Notion databases:', 'notion-wp' ); ?>
@@ -192,6 +214,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 						<p>
 							<?php
 							esc_html_e(
+								// phpcs:ignore Generic.Files.LineLength.MaxExceeded
 								'Your current theme does not register any menu locations. While the plugin can still create WordPress menus from your Notion page hierarchy, you will not be able to assign them to your theme without additional configuration.',
 								'notion-wp'
 							);
@@ -202,6 +225,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 							<li>
 								<?php
 								esc_html_e(
+									// phpcs:ignore Generic.Files.LineLength.MaxExceeded
 									'Switch to a theme that supports navigation menus (most modern WordPress themes do)',
 									'notion-wp'
 								);
@@ -209,10 +233,15 @@ if ( ! defined( 'ABSPATH' ) ) {
 							</li>
 							<li>
 								<?php
+								/* translators: %s: URL to WordPress theme customization docs */
+								$menu_docs_message = __(
+									// phpcs:ignore Generic.Files.LineLength.MaxExceeded
+									'Add menu support to your current theme by following <a href="%s" target="_blank" rel="noopener noreferrer">WordPress theme customization documentation</a>',
+									'notion-wp'
+								);
 								printf(
-									/* translators: %s: URL to WordPress theme customization docs */
 									wp_kses(
-										__( 'Add menu support to your current theme by following <a href="%s" target="_blank" rel="noopener noreferrer">WordPress theme customization documentation</a>', 'notion-wp' ),
+										$menu_docs_message,
 										array(
 											'a' => array(
 												'href'   => array(),
@@ -260,8 +289,8 @@ if ( ! defined( 'ABSPATH' ) ) {
 					<p>
 						<?php
 						esc_html_e(
-							'Configure how Notion page hierarchies are synchronized to WordPress navigation menus. ' .
-							'When enabled, the plugin will automatically create and maintain a WordPress menu based on your Notion page structure.',
+							// phpcs:ignore Generic.Files.LineLength.MaxExceeded
+							'Configure how Notion page hierarchies are synchronized to WordPress navigation menus. When enabled, the plugin will automatically create and maintain a WordPress menu based on your Notion page structure.',
 							'notion-wp'
 						);
 						?>
@@ -287,13 +316,18 @@ if ( ! defined( 'ABSPATH' ) ) {
 													value="1"
 													<?php checked( get_option( 'notion_sync_menu_enabled', true ) ); ?>
 												>
-												<?php esc_html_e( 'Automatically sync Notion page hierarchy to WordPress menu', 'notion-wp' ); ?>
+												<?php
+												esc_html_e(
+													'Automatically sync Notion page hierarchy to WordPress menu',
+													'notion-wp'
+												);
+												?>
 											</label>
 											<p class="description">
 												<?php
 												esc_html_e(
-													'When enabled, the plugin will create and maintain a WordPress navigation menu that mirrors your Notion page structure. ' .
-													'Parent-child relationships in Notion will be preserved as menu items and sub-items.',
+													// phpcs:ignore Generic.Files.LineLength.MaxExceeded
+													'When enabled, the plugin will create and maintain a WordPress navigation menu that mirrors your Notion page structure. Parent-child relationships in Notion will be preserved as menu items and sub-items.',
 													'notion-wp'
 												);
 												?>
@@ -320,6 +354,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 										<p class="description">
 											<?php
 											esc_html_e(
+												// phpcs:ignore Generic.Files.LineLength.MaxExceeded
 												'The name of the WordPress menu that will be created. After syncing, go to Appearance → Menus to assign this menu to a theme location (such as Primary Menu or Footer Menu).',
 												'notion-wp'
 											);
@@ -380,6 +415,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 							<p>
 								<?php
 								esc_html_e(
+									// phpcs:ignore Generic.Files.LineLength.MaxExceeded
 									'Menu sync is currently disabled. Enable it in the settings above to use manual sync.',
 									'notion-wp'
 								);
@@ -408,8 +444,14 @@ if ( ! defined( 'ABSPATH' ) ) {
 						<tbody>
 							<?php if ( ! empty( $workspace_info['workspace_name'] ) ) : ?>
 								<tr>
-									<th scope="row"><?php esc_html_e( 'Workspace', 'notion-wp' ); ?></th>
-									<td><strong><?php echo esc_html( $workspace_info['workspace_name'] ); ?></strong></td>
+									<th scope="row">
+										<?php esc_html_e( 'Workspace', 'notion-wp' ); ?>
+									</th>
+									<td>
+										<strong>
+											<?php echo esc_html( $workspace_info['workspace_name'] ); ?>
+										</strong>
+									</td>
 								</tr>
 							<?php endif; ?>
 
@@ -433,16 +475,16 @@ if ( ! defined( 'ABSPATH' ) ) {
 						<input type="hidden" name="action" value="notion_sync_disconnect">
 						<?php wp_nonce_field( 'notion_sync_disconnect', 'notion_sync_disconnect_nonce' ); ?>
 
+						<?php
+						$disconnect_message = __(
+							'Are you sure you want to disconnect from Notion? This will remove your API token.',
+							'notion-wp'
+						);
+						?>
 						<button
 							type="submit"
 							class="button button-secondary"
-						onclick="return confirm(
-							<?php
-							echo esc_js(
-								__( 'Are you sure you want to disconnect from Notion? This will remove your API token.', 'notion-wp' )
-							);
-							?>
-						);"
+							onclick="return confirm(<?php echo esc_js( $disconnect_message ); ?>);"
 						>
 							<?php esc_html_e( 'Disconnect', 'notion-wp' ); ?>
 						</button>
@@ -461,14 +503,18 @@ if ( ! defined( 'ABSPATH' ) ) {
 					<p class="description">
 						<?php
 						esc_html_e(
-							'If /notion/{slug} URLs are not working correctly, ' .
-							'click this button to flush and regenerate WordPress rewrite rules.',
+							// phpcs:ignore Generic.Files.LineLength.MaxExceeded
+							'If /notion/{slug} URLs are not working correctly, click this button to flush and regenerate WordPress rewrite rules.',
 							'notion-wp'
 						);
 						?>
 					</p>
 
-					<form method="post" action="<?php echo esc_url( admin_url( 'admin-post.php' ) ); ?>" style="margin-top: 10px;">
+					<form
+						method="post"
+						action="<?php echo esc_url( admin_url( 'admin-post.php' ) ); ?>"
+						style="margin-top: 10px;"
+					>
 						<input type="hidden" name="action" value="notion_sync_flush_rewrites">
 						<?php wp_nonce_field( 'notion_sync_flush_rewrites', 'notion_sync_flush_rewrites_nonce' ); ?>
 
@@ -488,7 +534,12 @@ if ( ! defined( 'ABSPATH' ) ) {
 					<h2><?php esc_html_e( 'Notion Pages', 'notion-wp' ); ?></h2>
 
 					<p>
-						<?php esc_html_e( 'Select pages to sync to WordPress. Pages will be created as draft posts.', 'notion-wp' ); ?>
+						<?php
+						esc_html_e(
+							'Select pages to sync to WordPress. Pages will be created as draft posts.',
+							'notion-wp'
+						);
+						?>
 					</p>
 
 					<!-- Admin notice container for AJAX messages -->

@@ -69,15 +69,48 @@ class DatabasePostType {
 	 *
 	 * Searches for existing post by Notion database ID. If not found, creates new post.
 	 *
+	 * IMPORTANT: For Notion databases, the database ID and collection ID are the same.
+	 * When syncing:
+	 * - Pass the database ID (from URL or API) as $notion_database_id
+	 * - The $database_info['id'] from get_database_schema() will match this ID
+	 * - Both notion_database_id and notion_collection_id will store the same value
+	 *
+	 * For child_database blocks:
+	 * - The block has an 'id' (block ID) and 'collection_id' (database ID)
+	 * - You must pass the collection_id to sync, not the block id
+	 * - ChildDatabaseConverter handles this extraction automatically
+	 *
 	 * @since 1.0.0
 	 *
-	 * @param string $notion_database_id Notion database ID.
-	 * @param array  $database_info      Database metadata from Notion API.
+	 * @param string $notion_database_id Notion database ID (normalized, no dashes).
+	 * @param array  $database_info      Database metadata from Notion API (from get_database_schema()).
 	 * @return int WordPress post ID.
-	 * @throws \RuntimeException If post creation fails.
+	 * @throws \RuntimeException If post creation fails or ID mismatch detected.
 	 */
 	public function find_or_create( string $notion_database_id, array $database_info ): int {
-		// Search for existing post.
+		// Validate that the database_info contains the expected ID.
+		// The 'id' field from get_database_schema() should match the database_id parameter.
+		if ( isset( $database_info['id'] ) ) {
+			$api_id         = str_replace( '-', '', $database_info['id'] );
+			$normalized_id  = str_replace( '-', '', $notion_database_id );
+
+			if ( $api_id !== $normalized_id ) {
+				// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log -- Debug logging.
+				error_log(
+					sprintf(
+						'[DatabasePostType] ID mismatch detected! Param: %s, API response: %s. ' .
+						'This may indicate you are trying to sync a child_database block ID ' .
+						'instead of the collection_id.',
+						$notion_database_id,
+						$database_info['id']
+					)
+				);
+				// Use the API-returned ID as the source of truth.
+				$notion_database_id = $api_id;
+			}
+		}
+
+		// Search for existing post by database ID.
 		$posts = get_posts(
 			array(
 				'post_type'      => self::POST_TYPE,
@@ -94,10 +127,32 @@ class DatabasePostType {
 			)
 		);
 
-		// Return existing post if found.
+		// If existing post found, update its metadata and return.
 		if ( ! empty( $posts ) ) {
-			return $posts[0];
+			$post_id = $posts[0];
+
+			// Update collection_id if provided in database_info.
+			if ( isset( $database_info['collection_id'] ) ) {
+				$collection_id = str_replace( '-', '', $database_info['collection_id'] );
+				update_post_meta( $post_id, 'notion_collection_id', $collection_id );
+			}
+
+			return $post_id;
 		}
+
+		// Prepare meta_input for new post.
+		// Use collection_id from database_info if available, otherwise fall back to database_id.
+		$collection_id = isset( $database_info['collection_id'] )
+			? str_replace( '-', '', $database_info['collection_id'] )
+			: $notion_database_id;
+
+		$meta_input = array(
+			'notion_database_id'   => $notion_database_id,
+			'notion_collection_id' => $collection_id,
+			'notion_last_edited'   => $database_info['last_edited_time'] ?? '',
+			'row_count'            => 0,
+			'last_synced'          => current_time( 'mysql' ),
+		);
 
 		// Create new post.
 		$post_id = wp_insert_post(
@@ -105,12 +160,7 @@ class DatabasePostType {
 				'post_type'   => self::POST_TYPE,
 				'post_title'  => $database_info['title'] ?? 'Untitled Database',
 				'post_status' => 'publish',
-				'meta_input'  => array(
-					'notion_database_id' => $notion_database_id,
-					'notion_last_edited' => $database_info['last_edited_time'] ?? '',
-					'row_count'          => 0,
-					'last_synced'        => current_time( 'mysql' ),
-				),
+				'meta_input'  => $meta_input,
 			)
 		);
 
@@ -124,6 +174,15 @@ class DatabasePostType {
 				)
 			);
 		}
+
+		// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log -- Debug logging.
+		error_log(
+			sprintf(
+				'[DatabasePostType] Created database post %d for Notion database %s',
+				$post_id,
+				$notion_database_id
+			)
+		);
 
 		return $post_id;
 	}
@@ -146,6 +205,37 @@ class DatabasePostType {
 					array(
 						'key'     => 'notion_database_id',
 						'value'   => $notion_database_id,
+						'compare' => '=',
+					),
+				),
+				'fields'         => 'ids',
+			)
+		);
+
+		return ! empty( $posts ) ? $posts[0] : null;
+	}
+
+	/**
+	 * Find database post by Notion collection ID.
+	 *
+	 * This is useful for looking up databases when processing child_database blocks,
+	 * which reference the parent database via collection_id.
+	 *
+	 * @since 1.0.0
+	 *
+	 * @param string $notion_collection_id Notion collection ID (database ID from the API).
+	 * @return int|null WordPress post ID if found, null otherwise.
+	 */
+	public function find_by_collection_id( string $notion_collection_id ): ?int {
+		$posts = get_posts(
+			array(
+				'post_type'      => self::POST_TYPE,
+				'posts_per_page' => 1,
+				'post_status'    => 'any',
+				'meta_query'     => array(
+					array(
+						'key'     => 'notion_collection_id',
+						'value'   => $notion_collection_id,
 						'compare' => '=',
 					),
 				),

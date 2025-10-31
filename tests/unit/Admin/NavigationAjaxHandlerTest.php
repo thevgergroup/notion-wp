@@ -68,25 +68,31 @@ class NavigationAjaxHandlerTest extends BaseTestCase {
 
 		// Mock wp_send_json_error
 		Functions\when( 'wp_send_json_error' )
-			->alias( function ( $data, $status_code = null ) {
-				throw new \Exception( 'AJAX Error: ' . ( $data['message'] ?? 'Unknown error' ) );
-			} );
+			->alias(
+				function ( $data, $status_code = null ) {
+					throw new \Exception( 'AJAX Error: ' . ( $data['message'] ?? 'Unknown error' ) );
+				}
+			);
 
 		// Mock wp_send_json_success
 		Functions\when( 'wp_send_json_success' )
-			->alias( function ( $data ) {
-				// Return the data for testing
-				return $data;
-			} );
+			->alias(
+				function ( $data ) {
+					// Return the data for testing
+					return $data;
+				}
+			);
 
 		// Mock WordPress translation functions
 		Functions\when( '__' )
 			->returnArg();
 
 		Functions\when( 'esc_html' )
-			->alias( function ( $text ) {
-				return htmlspecialchars( (string) $text, ENT_QUOTES, 'UTF-8' );
-			} );
+			->alias(
+				function ( $text ) {
+					return htmlspecialchars( (string) $text, ENT_QUOTES, 'UTF-8' );
+				}
+			);
 
 		Functions\when( 'esc_url' )
 			->returnArg();
@@ -96,18 +102,22 @@ class NavigationAjaxHandlerTest extends BaseTestCase {
 
 		// Mock admin_url
 		Functions\when( 'admin_url' )
-			->alias( function ( $path ) {
-				return 'http://example.com/wp-admin/' . $path;
-			} );
+			->alias(
+				function ( $path ) {
+					return 'http://example.com/wp-admin/' . $path;
+				}
+			);
 
 		// Mock get_option
 		Functions\when( 'get_option' )
-			->alias( function ( $option, $default = false ) {
-				if ( $option === 'notion_sync_menu_name' ) {
-					return 'Notion Navigation';
+			->alias(
+				function ( $option, $default = false ) {
+					if ( $option === 'notion_sync_menu_name' ) {
+							return 'Notion Navigation';
+					}
+					return $default;
 				}
-				return $default;
-			} );
+			);
 
 		// Mock current_theme_supports
 		Functions\when( 'current_theme_supports' )
@@ -119,9 +129,11 @@ class NavigationAjaxHandlerTest extends BaseTestCase {
 
 		// Mock wp_json_encode
 		Functions\when( 'wp_json_encode' )
-			->alias( function ( $data ) {
-				return json_encode( $data );
-			} );
+			->alias(
+				function ( $data ) {
+					return json_encode( $data );
+				}
+			);
 
 		// Mock error_log
 		Functions\when( 'error_log' )
@@ -149,9 +161,11 @@ class NavigationAjaxHandlerTest extends BaseTestCase {
 	 */
 	public function test_ajax_sync_menu_now_verifies_nonce(): void {
 		Functions\when( 'check_ajax_referer' )
-			->alias( function () {
-				throw new \Exception( 'Nonce verification failed' );
-			} );
+			->alias(
+				function () {
+					throw new \Exception( 'Nonce verification failed' );
+				}
+			);
 
 		$this->expectException( \Exception::class );
 		$this->expectExceptionMessage( 'Nonce verification failed' );
@@ -205,9 +219,11 @@ class NavigationAjaxHandlerTest extends BaseTestCase {
 
 		// Mock prepare method
 		$wpdb->shouldReceive( 'prepare' )
-			->andReturnUsing( function ( $query, ...$args ) {
-				return vsprintf( str_replace( '%s', "'%s'", str_replace( '%d', '%d', $query ) ), $args );
-			} );
+			->andReturnUsing(
+				function ( $query, ...$args ) {
+					return vsprintf( str_replace( '%s', "'%s'", str_replace( '%d', '%d', $query ) ), $args );
+				}
+			);
 
 		// Mock posts with notion_page_id (first call)
 		// Mock posts with parent (second call) - posts 2 and 3 have parents
@@ -220,44 +236,50 @@ class NavigationAjaxHandlerTest extends BaseTestCase {
 
 		// Override get_post_meta for root posts (1 and 4) - called after mock_sync_process
 		Functions\when( 'get_post_meta' )
-			->alias( function ( $post_id, $key, $single ) {
-				if ( $key !== 'notion_page_id' ) {
+			->alias(
+				function ( $post_id, $key, $single ) {
+					if ( $key !== 'notion_page_id' ) {
+							return '';
+					}
+
+					if ( $post_id === 1 ) {
+						return 'root-page-1';
+					} elseif ( $post_id === 4 ) {
+						return 'root-page-2';
+					}
+
 					return '';
 				}
-
-				if ( $post_id === 1 ) {
-					return 'root-page-1';
-				} elseif ( $post_id === 4 ) {
-					return 'root-page-2';
-				}
-
-				return '';
-			} );
+			);
 
 		// Override get_posts to return root posts
 		Functions\when( 'get_posts' )
-			->alias( function () {
-				return array( 1, 4 );
-			} );
+			->alias(
+				function () {
+					return array( 1, 4 );
+				}
+			);
 
 		// Override get_post to return root post objects
 		Functions\when( 'get_post' )
-			->alias( function ( $post_id ) {
-				if ( $post_id === 1 ) {
-					return (object) array(
-						'ID'         => 1,
-						'post_title' => 'Root Page 1',
-						'menu_order' => 0,
-					);
-				} elseif ( $post_id === 4 ) {
-					return (object) array(
-						'ID'         => 4,
-						'post_title' => 'Root Page 2',
-						'menu_order' => 1,
-					);
+			->alias(
+				function ( $post_id ) {
+					if ( $post_id === 1 ) {
+							return (object) array(
+								'ID'         => 1,
+								'post_title' => 'Root Page 1',
+								'menu_order' => 0,
+							);
+					} elseif ( $post_id === 4 ) {
+						return (object) array(
+							'ID'         => 4,
+							'post_title' => 'Root Page 2',
+							'menu_order' => 1,
+						);
+					}
+					return null;
 				}
-				return null;
-			} );
+			);
 
 		$this->handler->ajax_sync_menu_now();
 
@@ -280,9 +302,11 @@ class NavigationAjaxHandlerTest extends BaseTestCase {
 
 		// Mock prepare method
 		$wpdb->shouldReceive( 'prepare' )
-			->andReturnUsing( function ( $query, ...$args ) {
-				return vsprintf( str_replace( '%s', "'%s'", str_replace( '%d', '%d', $query ) ), $args );
-			} );
+			->andReturnUsing(
+				function ( $query, ...$args ) {
+					return vsprintf( str_replace( '%s', "'%s'", str_replace( '%d', '%d', $query ) ), $args );
+				}
+			);
 
 		// Root pages with mixed ID formats
 		$wpdb->shouldReceive( 'get_col' )
@@ -294,44 +318,50 @@ class NavigationAjaxHandlerTest extends BaseTestCase {
 
 		// Override get_post_meta with different ID formats - called after mock_sync_process
 		Functions\when( 'get_post_meta' )
-			->alias( function ( $post_id, $key, $single ) {
-				if ( $key !== 'notion_page_id' ) {
+			->alias(
+				function ( $post_id, $key, $single ) {
+					if ( $key !== 'notion_page_id' ) {
+							return '';
+					}
+
+					if ( $post_id === 1 ) {
+						return '2634dac9b96e813da15efd85567b68ff'; // No dashes
+					} elseif ( $post_id === 2 ) {
+						return '2634dac9-b96e-813d-a15e-fd85567b68ff'; // With dashes
+					}
+
 					return '';
 				}
-
-				if ( $post_id === 1 ) {
-					return '2634dac9b96e813da15efd85567b68ff'; // No dashes
-				} elseif ( $post_id === 2 ) {
-					return '2634dac9-b96e-813d-a15e-fd85567b68ff'; // With dashes
-				}
-
-				return '';
-			} );
+			);
 
 		// Override get_posts to return root posts
 		Functions\when( 'get_posts' )
-			->alias( function () {
-				return array( 1, 2 );
-			} );
+			->alias(
+				function () {
+					return array( 1, 2 );
+				}
+			);
 
 		// Override get_post to return root post objects
 		Functions\when( 'get_post' )
-			->alias( function ( $post_id ) {
-				if ( $post_id === 1 ) {
-					return (object) array(
-						'ID'         => 1,
-						'post_title' => 'Root Page 1',
-						'menu_order' => 0,
-					);
-				} elseif ( $post_id === 2 ) {
-					return (object) array(
-						'ID'         => 2,
-						'post_title' => 'Root Page 2',
-						'menu_order' => 1,
-					);
+			->alias(
+				function ( $post_id ) {
+					if ( $post_id === 1 ) {
+							return (object) array(
+								'ID'         => 1,
+								'post_title' => 'Root Page 1',
+								'menu_order' => 0,
+							);
+					} elseif ( $post_id === 2 ) {
+						return (object) array(
+							'ID'         => 2,
+							'post_title' => 'Root Page 2',
+							'menu_order' => 1,
+						);
+					}
+					return null;
 				}
-				return null;
-			} );
+			);
 
 		$this->handler->ajax_sync_menu_now();
 
@@ -352,9 +382,11 @@ class NavigationAjaxHandlerTest extends BaseTestCase {
 
 		// Mock prepare method
 		$wpdb->shouldReceive( 'prepare' )
-			->andReturnUsing( function ( $query, ...$args ) {
-				return vsprintf( str_replace( '%s', "'%s'", str_replace( '%d', '%d', $query ) ), $args );
-			} );
+			->andReturnUsing(
+				function ( $query, ...$args ) {
+					return vsprintf( str_replace( '%s', "'%s'", str_replace( '%d', '%d', $query ) ), $args );
+				}
+			);
 
 		$wpdb->shouldReceive( 'get_col' )
 			->twice()
@@ -365,31 +397,37 @@ class NavigationAjaxHandlerTest extends BaseTestCase {
 
 		// Override get_post_meta (called after mock_sync_process to override)
 		Functions\when( 'get_post_meta' )
-			->alias( function ( $post_id, $key, $single ) {
-				if ( $post_id === 1 && $key === 'notion_page_id' ) {
-					return 'root-page-id';
+			->alias(
+				function ( $post_id, $key, $single ) {
+					if ( $post_id === 1 && $key === 'notion_page_id' ) {
+							return 'root-page-id';
+					}
+					return '';
 				}
-				return '';
-			} );
+			);
 
 		// Override get_posts to return root post (for hierarchy building)
 		Functions\when( 'get_posts' )
-			->alias( function () {
-				return array( 1 );
-			} );
+			->alias(
+				function () {
+					return array( 1 );
+				}
+			);
 
 		// Override get_post to return root post object
 		Functions\when( 'get_post' )
-			->alias( function ( $post_id ) {
-				if ( $post_id === 1 ) {
-					return (object) array(
-						'ID'         => 1,
-						'post_title' => 'Root Page',
-						'menu_order' => 0,
-					);
+			->alias(
+				function ( $post_id ) {
+					if ( $post_id === 1 ) {
+							return (object) array(
+								'ID'         => 1,
+								'post_title' => 'Root Page',
+								'menu_order' => 0,
+							);
+					}
+					return null;
 				}
-				return null;
-			} );
+			);
 
 		$this->handler->ajax_sync_menu_now();
 
@@ -410,9 +448,11 @@ class NavigationAjaxHandlerTest extends BaseTestCase {
 
 		// Mock prepare method
 		$wpdb->shouldReceive( 'prepare' )
-			->andReturnUsing( function ( $query, ...$args ) {
-				return vsprintf( str_replace( '%s', "'%s'", str_replace( '%d', '%d', $query ) ), $args );
-			} );
+			->andReturnUsing(
+				function ( $query, ...$args ) {
+					return vsprintf( str_replace( '%s', "'%s'", str_replace( '%d', '%d', $query ) ), $args );
+				}
+			);
 
 		$wpdb->shouldReceive( 'get_col' )
 			->twice()
@@ -430,31 +470,37 @@ class NavigationAjaxHandlerTest extends BaseTestCase {
 
 		// Override get_post_meta - called after mock_sync_process
 		Functions\when( 'get_post_meta' )
-			->alias( function ( $post_id, $key, $single ) {
-				if ( $post_id === 1 && $key === 'notion_page_id' ) {
-					return 'root-page-id';
+			->alias(
+				function ( $post_id, $key, $single ) {
+					if ( $post_id === 1 && $key === 'notion_page_id' ) {
+							return 'root-page-id';
+					}
+					return '';
 				}
-				return '';
-			} );
+			);
 
 		// Override get_posts to return root post
 		Functions\when( 'get_posts' )
-			->alias( function () {
-				return array( 1 );
-			} );
+			->alias(
+				function () {
+					return array( 1 );
+				}
+			);
 
 		// Override get_post to return root post object
 		Functions\when( 'get_post' )
-			->alias( function ( $post_id ) {
-				if ( $post_id === 1 ) {
-					return (object) array(
-						'ID'         => 1,
-						'post_title' => 'Root Page',
-						'menu_order' => 0,
-					);
+			->alias(
+				function ( $post_id ) {
+					if ( $post_id === 1 ) {
+							return (object) array(
+								'ID'         => 1,
+								'post_title' => 'Root Page',
+								'menu_order' => 0,
+							);
+					}
+					return null;
 				}
-				return null;
-			} );
+			);
 
 		// Should still succeed but show different message
 		$this->handler->ajax_sync_menu_now();
@@ -492,9 +538,11 @@ class NavigationAjaxHandlerTest extends BaseTestCase {
 
 		// Mock prepare method
 		$wpdb->shouldReceive( 'prepare' )
-			->andReturnUsing( function ( $query, ...$args ) {
-				return vsprintf( str_replace( '%s', "'%s'", str_replace( '%d', '%d', $query ) ), $args );
-			} );
+			->andReturnUsing(
+				function ( $query, ...$args ) {
+					return vsprintf( str_replace( '%s', "'%s'", str_replace( '%d', '%d', $query ) ), $args );
+				}
+			);
 
 		$wpdb->shouldReceive( 'get_col' )
 			->twice()
@@ -505,31 +553,37 @@ class NavigationAjaxHandlerTest extends BaseTestCase {
 
 		// Override get_post_meta - called after mock_sync_process
 		Functions\when( 'get_post_meta' )
-			->alias( function ( $post_id, $key, $single ) {
-				if ( $key === 'notion_page_id' ) {
-					return 'root-page-id';
+			->alias(
+				function ( $post_id, $key, $single ) {
+					if ( $key === 'notion_page_id' ) {
+							return 'root-page-id';
+					}
+					return '';
 				}
-				return '';
-			} );
+			);
 
 		// Override get_posts to return root post
 		Functions\when( 'get_posts' )
-			->alias( function () {
-				return array( 1 );
-			} );
+			->alias(
+				function () {
+					return array( 1 );
+				}
+			);
 
 		// Override get_post to return root post object
 		Functions\when( 'get_post' )
-			->alias( function ( $post_id ) {
-				if ( $post_id === 1 ) {
-					return (object) array(
-						'ID'         => 1,
-						'post_title' => 'Root Page',
-						'menu_order' => 0,
-					);
+			->alias(
+				function ( $post_id ) {
+					if ( $post_id === 1 ) {
+							return (object) array(
+								'ID'         => 1,
+								'post_title' => 'Root Page',
+								'menu_order' => 0,
+							);
+					}
+					return null;
 				}
-				return null;
-			} );
+			);
 
 		// Mock menu items for count
 		$menu_items = array(
@@ -539,19 +593,23 @@ class NavigationAjaxHandlerTest extends BaseTestCase {
 		);
 
 		Functions\when( 'wp_get_nav_menu_items' )
-			->alias( function ( $menu_id ) use ( $menu_items ) {
-				if ( $menu_id === 123 ) {
-					return $menu_items;
+			->alias(
+				function ( $menu_id ) use ( $menu_items ) {
+					if ( $menu_id === 123 ) {
+							return $menu_items;
+					}
+					return array();
 				}
-				return array();
-			} );
+			);
 
 		// Capture the success data
 		$success_data = null;
 		Functions\when( 'wp_send_json_success' )
-			->alias( function ( $data ) use ( &$success_data ) {
-				$success_data = $data;
-			} );
+			->alias(
+				function ( $data ) use ( &$success_data ) {
+					$success_data = $data;
+				}
+			);
 
 		$this->handler->ajax_sync_menu_now();
 
