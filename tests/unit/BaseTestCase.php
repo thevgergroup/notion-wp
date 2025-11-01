@@ -115,6 +115,9 @@ abstract class BaseTestCase extends TestCase {
 				'sanitize_key'          => function ( $str ) {
 					return strtolower( preg_replace( '/[^a-z0-9_\-]/', '', (string) $str ) );
 				},
+				'is_email'              => function ( $email ) {
+					return filter_var( $email, FILTER_VALIDATE_EMAIL ) !== false;
+				},
 
 				// WordPress option functions
 				'get_option'            => array(),

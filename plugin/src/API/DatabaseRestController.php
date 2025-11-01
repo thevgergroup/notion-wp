@@ -401,7 +401,7 @@ class DatabaseRestController {
 			}
 
 			// Check for email.
-			if ( is_email( $value ) ) {
+			if ( \is_email( $value ) ) {
 				return 'email';
 			}
 
