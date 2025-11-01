@@ -29,15 +29,35 @@ Write and organize your content in Notion, then publish it to your WordPress sit
 
 ## 📸 Screenshots
 
-> **Note:** Screenshots to be added in docs/images/
+### Settings - Connection
+Configure your Notion integration token to connect WordPress with Notion.
 
-1. **Settings - Connection** - Connect your Notion account
-2. **Settings - Page Selection** - Choose which pages to sync
-3. **Sync Dashboard** - Monitor sync status and history
-4. **Database Table View** - Interactive database tables on your site
-5. **Block Editor** - Embed database views in posts
-6. **Published Hierarchy** - Nested pages in WordPress
-7. **Auto-Generated Menu** - Navigation menus from Notion structure
+![Settings Connection](docs/images/settings-connection.png)
+
+### Page Selection
+Choose which Notion pages to sync to your WordPress site.
+
+![Page Selection](docs/images/settings-page-selection.png)
+
+### Sync Dashboard
+Monitor sync status and manage your synced content.
+
+![Sync Dashboard](docs/images/sync-dashboard.png)
+
+### Database Table View
+Interactive Notion databases displayed as filterable, sortable tables.
+
+![Database Table View](docs/images/database-table-view.png)
+
+### Published Hierarchy
+Nested Notion pages maintain their parent-child relationships in WordPress.
+
+![Published Hierarchy](docs/images/published-hierarchy.png)
+
+### Auto-Generated Navigation
+WordPress navigation menus automatically generated from Notion page structure.
+
+![Menu Generation](docs/images/menu-generation.png)
 
 ---
 
@@ -336,10 +356,10 @@ If still broken:
 
 ## 📖 Documentation
 
-- [Installation Guide](docs/) - Detailed setup instructions
-- [Usage Guide](docs/) - Complete feature documentation
-- [Troubleshooting](docs/) - Common issues and solutions
-- [Developer Docs](DEVELOPMENT.md) - For contributors and developers
+- [Getting Started Guide](docs/getting-started.md) - Detailed setup and usage instructions
+- [Development Guide](DEVELOPMENT.md) - For contributors and developers
+- [Architecture Documentation](docs/architecture/) - Technical architecture details
+- [Testing Documentation](docs/testing/) - Testing strategies and examples
 
 ---
 
