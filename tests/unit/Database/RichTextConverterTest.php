@@ -8,14 +8,14 @@
 namespace NotionSync\Tests\Unit\Database;
 
 use NotionSync\Database\RichTextConverter;
-use WP_Mock\Tools\TestCase;
+use NotionWP\Tests\Unit\BaseTestCase;
 
 /**
  * Class RichTextConverterTest
  *
  * @covers \NotionSync\Database\RichTextConverter
  */
-class RichTextConverterTest extends TestCase {
+class RichTextConverterTest extends BaseTestCase {
 
 	/**
 	 * Converter instance.
@@ -29,16 +29,16 @@ class RichTextConverterTest extends TestCase {
 	 */
 	public function setUp(): void {
 		parent::setUp();
-		\WP_Mock::setUp();
 		$this->converter = new RichTextConverter();
-	}
 
-	/**
-	 * Tear down test environment.
-	 */
-	public function tearDown(): void {
-		\WP_Mock::tearDown();
-		parent::tearDown();
+		// Add stub for sanitize_html_class used in color formatting
+		\Brain\Monkey\Functions\stubs(
+			array(
+				'sanitize_html_class' => function ( $class ) {
+					return preg_replace( '/[^a-z0-9_\-]/', '', strtolower( $class ) );
+				},
+			)
+		);
 	}
 
 	/**
@@ -67,10 +67,6 @@ class RichTextConverterTest extends TestCase {
 			),
 		);
 
-		\WP_Mock::userFunction( 'esc_html' )
-			->once()
-			->with( 'Hello World' )
-			->andReturn( 'Hello World' );
 
 		$result = $this->converter->to_html( $rich_text );
 		$this->assertSame( 'Hello World', $result );
@@ -94,10 +90,6 @@ class RichTextConverterTest extends TestCase {
 			),
 		);
 
-		\WP_Mock::userFunction( 'esc_html' )
-			->once()
-			->with( 'Bold Text' )
-			->andReturn( 'Bold Text' );
 
 		$result = $this->converter->to_html( $rich_text );
 		$this->assertSame( '<strong>Bold Text</strong>', $result );
@@ -121,10 +113,6 @@ class RichTextConverterTest extends TestCase {
 			),
 		);
 
-		\WP_Mock::userFunction( 'esc_html' )
-			->once()
-			->with( 'Italic Text' )
-			->andReturn( 'Italic Text' );
 
 		$result = $this->converter->to_html( $rich_text );
 		$this->assertSame( '<em>Italic Text</em>', $result );
@@ -148,10 +136,6 @@ class RichTextConverterTest extends TestCase {
 			),
 		);
 
-		\WP_Mock::userFunction( 'esc_html' )
-			->once()
-			->with( 'Strikethrough Text' )
-			->andReturn( 'Strikethrough Text' );
 
 		$result = $this->converter->to_html( $rich_text );
 		$this->assertSame( '<s>Strikethrough Text</s>', $result );
@@ -175,10 +159,6 @@ class RichTextConverterTest extends TestCase {
 			),
 		);
 
-		\WP_Mock::userFunction( 'esc_html' )
-			->once()
-			->with( 'Underline Text' )
-			->andReturn( 'Underline Text' );
 
 		$result = $this->converter->to_html( $rich_text );
 		$this->assertSame( '<u>Underline Text</u>', $result );
@@ -202,10 +182,6 @@ class RichTextConverterTest extends TestCase {
 			),
 		);
 
-		\WP_Mock::userFunction( 'esc_html' )
-			->once()
-			->with( 'Code Text' )
-			->andReturn( 'Code Text' );
 
 		$result = $this->converter->to_html( $rich_text );
 		$this->assertSame( '<code>Code Text</code>', $result );
@@ -229,20 +205,8 @@ class RichTextConverterTest extends TestCase {
 			),
 		);
 
-		\WP_Mock::userFunction( 'esc_html' )
-			->once()
-			->with( 'Red Text' )
-			->andReturn( 'Red Text' );
 
-		\WP_Mock::userFunction( 'sanitize_html_class' )
-			->once()
-			->with( 'red' )
-			->andReturn( 'red' );
 
-		\WP_Mock::userFunction( 'esc_attr' )
-			->once()
-			->with( 'notion-color-red' )
-			->andReturn( 'notion-color-red' );
 
 		$result = $this->converter->to_html( $rich_text );
 		$this->assertSame( '<span class="notion-color-red">Red Text</span>', $result );
@@ -266,10 +230,6 @@ class RichTextConverterTest extends TestCase {
 			),
 		);
 
-		\WP_Mock::userFunction( 'esc_html' )
-			->once()
-			->with( 'Bold and Italic' )
-			->andReturn( 'Bold and Italic' );
 
 		$result = $this->converter->to_html( $rich_text );
 		$this->assertSame( '<em><strong>Bold and Italic</strong></em>', $result );
@@ -294,15 +254,7 @@ class RichTextConverterTest extends TestCase {
 			),
 		);
 
-		\WP_Mock::userFunction( 'esc_html' )
-			->once()
-			->with( 'Click here' )
-			->andReturn( 'Click here' );
 
-		\WP_Mock::userFunction( 'esc_url' )
-			->once()
-			->with( 'https://example.com' )
-			->andReturn( 'https://example.com' );
 
 		$result = $this->converter->to_html( $rich_text );
 		$expected = '<a href="https://example.com" target="_blank" rel="noopener noreferrer">Click here</a>';
@@ -348,14 +300,6 @@ class RichTextConverterTest extends TestCase {
 				),
 			),
 		);
-
-		\WP_Mock::userFunction( 'esc_html' )
-			->times( 3 )
-			->andReturnUsing(
-				function ( $text ) {
-					return $text;
-				}
-			);
 
 		$result = $this->converter->to_html( $rich_text );
 		$this->assertSame( 'Normal <strong>bold</strong> text', $result );
@@ -414,10 +358,6 @@ class RichTextConverterTest extends TestCase {
 			),
 		);
 
-		\WP_Mock::userFunction( 'esc_html' )
-			->once()
-			->with( '<script>alert("XSS")</script>' )
-			->andReturn( '&lt;script&gt;alert(&quot;XSS&quot;)&lt;/script&gt;' );
 
 		$result = $this->converter->to_html( $rich_text );
 		$this->assertStringNotContainsString( '<script>', $result );
@@ -444,10 +384,6 @@ class RichTextConverterTest extends TestCase {
 			),
 		);
 
-		\WP_Mock::userFunction( 'esc_html' )
-			->once()
-			->with( 'Alternative structure' )
-			->andReturn( 'Alternative structure' );
 
 		$result = $this->converter->to_html( $rich_text );
 		$this->assertSame( 'Alternative structure', $result );
@@ -477,15 +413,7 @@ class RichTextConverterTest extends TestCase {
 			),
 		);
 
-		\WP_Mock::userFunction( 'esc_html' )
-			->once()
-			->with( 'Link text' )
-			->andReturn( 'Link text' );
 
-		\WP_Mock::userFunction( 'esc_url' )
-			->once()
-			->with( 'https://example.com' )
-			->andReturn( 'https://example.com' );
 
 		$result = $this->converter->to_html( $rich_text );
 		$expected = '<a href="https://example.com" target="_blank" rel="noopener noreferrer">Link text</a>';
