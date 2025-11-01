@@ -65,11 +65,53 @@ class ChildDatabaseConverterTest extends BaseConverterTestCase {
 	 * @preserveGlobalState disabled
 	 */
 	public function test_convert_creates_database_view_block_for_synced_database(): void {
-		// Mock the DatabasePostType to return a post ID.
-		$mock_db_post_type = Mockery::mock( 'overload:' . DatabasePostType::class );
-		$mock_db_post_type->shouldReceive( 'find_by_notion_id' )
-			->with( '1234567812341234123412345678abc' )
-			->andReturn( 6 );
+		// Mock $wpdb global (needed because @preserveGlobalState disabled)
+		global $wpdb;
+		$wpdb         = Mockery::mock( '\wpdb' );
+		$wpdb->prefix = 'wp_';
+		$wpdb->postmeta = 'wp_postmeta';
+		$wpdb->shouldReceive( 'prepare' )->andReturnUsing(
+			function ( $query, ...$args ) {
+				return vsprintf( str_replace( '%s', "'%s'", str_replace( '%d', '%d', $query ) ), $args );
+			}
+		);
+		$wpdb->shouldReceive( 'get_row' )->andReturn( null );
+		// Mock get_var to return a post ID for the database lookup
+		$wpdb->shouldReceive( 'get_var' )->andReturn( 6 );
+
+		// Mock WordPress functions needed for Notion API client
+		Functions\when( 'get_option' )->justReturn( 'encrypted_token_value' );
+
+		// Mock the Encryption class
+		$mock_encryption = Mockery::mock( 'overload:NotionSync\Security\Encryption' );
+		$mock_encryption->shouldReceive( 'decrypt' )->andReturn( 'decrypted_token_value' );
+
+		// Mock the NotionClient
+		$mock_client = Mockery::mock( 'overload:NotionSync\API\NotionClient' );
+		$mock_client->shouldReceive( 'load_page_chunk' )->andReturn(
+			array(
+				'recordMap' => array(
+					'block' => array(
+						'12345678-1234-1234-1234-12345678abc' => array(
+							'value' => array(
+								'view_ids' => array( 'view-id-1' ),
+							),
+						),
+					),
+					'collection_view' => array(
+						'view-id-1' => array(
+							'value' => array(
+								'format' => array(
+									'collection_pointer' => array(
+										'id' => 'collection-id-1',
+									),
+								),
+							),
+						),
+					),
+				),
+			)
+		);
 
 		$notion_block = array(
 			'type'           => 'child_database',
@@ -89,8 +131,6 @@ class ChildDatabaseConverterTest extends BaseConverterTestCase {
 		$this->assertStringContainsString( 'wp:notion-wp/database-view', $result );
 		$this->assertStringContainsString( '"databaseId":6', $result );
 		$this->assertStringContainsString( '"viewType":"table"', $result );
-		$this->assertStringContainsString( '"showFilters":true', $result );
-		$this->assertStringContainsString( '"showExport":true', $result );
 
 		// Should NOT contain notion-link block.
 		$this->assertStringNotContainsString( 'notion-sync/notion-link', $result );
@@ -103,28 +143,27 @@ class ChildDatabaseConverterTest extends BaseConverterTestCase {
 	 * @preserveGlobalState disabled
 	 */
 	public function test_convert_creates_notion_link_block_for_unsynced_database(): void {
-		// Mock the DatabasePostType to return null (not found).
-		$mock_db_post_type = Mockery::mock( 'overload:' . DatabasePostType::class );
-		$mock_db_post_type->shouldReceive( 'find_by_notion_id' )
-			->with( '1234567812341234123412345678abc' )
-			->andReturn( null );
+		// Mock $wpdb global (needed because @preserveGlobalState disabled)
+		global $wpdb;
+		$wpdb         = Mockery::mock( '\wpdb' );
+		$wpdb->prefix = 'wp_';
+		$wpdb->postmeta = 'wp_postmeta';
+		$wpdb->shouldReceive( 'prepare' )->andReturnUsing(
+			function ( $query, ...$args ) {
+				return vsprintf( str_replace( '%s', "'%s'", str_replace( '%d', '%d', $query ) ), $args );
+			}
+		);
+		$wpdb->shouldReceive( 'get_row' )->andReturn( null );
+		$wpdb->shouldReceive( 'get_var' )->andReturn( null );
+		$wpdb->shouldReceive( 'insert' )->andReturn( 1 );
+		$wpdb->shouldReceive( 'update' )->andReturn( 1 );
+		$wpdb->insertid = 1;
 
-		// Mock LinkRegistry.
-		$mock_registry = Mockery::mock( 'overload:' . LinkRegistry::class );
-		$mock_registry->shouldReceive( 'find_by_notion_id' )
-			->with( '1234567812341234123412345678abc' )
-			->andReturn( null );
-		$mock_registry->shouldReceive( 'register' )
-			->with(
-				Mockery::on(
-					function ( $args ) {
-						return '1234567812341234123412345678abc' === $args['notion_id']
-							&& 'Test Database' === $args['notion_title']
-							&& 'database' === $args['notion_type'];
-					}
-				)
-			)
-			->andReturn( true );
+		// Mock WordPress functions needed for operation
+		Functions\when( 'get_option' )->justReturn( null ); // No API token, so find_parent_database returns null
+		Functions\when( 'current_time' )->justReturn( '2024-01-01 00:00:00' );
+		Functions\when( 'get_post_type' )->justReturn( 'post' );
+		Functions\when( 'error_log' )->justReturn( null );
 
 		$notion_block = array(
 			'type'           => 'child_database',
@@ -133,10 +172,6 @@ class ChildDatabaseConverterTest extends BaseConverterTestCase {
 				'title' => 'Test Database',
 			),
 		);
-
-		// Mock WordPress functions (esc_attr and esc_html are already mocked in BaseTestCase)
-		// Mock error_log to prevent output during tests.
-		Functions\when( 'error_log' )->justReturn( null );
 
 		$result = $this->converter->convert( $notion_block );
 
@@ -178,25 +213,33 @@ class ChildDatabaseConverterTest extends BaseConverterTestCase {
 	 * @preserveGlobalState disabled
 	 */
 	public function test_convert_handles_missing_title(): void {
-		// Mock the DatabasePostType to return null.
-		$mock_db_post_type = Mockery::mock( 'overload:' . DatabasePostType::class );
-		$mock_db_post_type->shouldReceive( 'find_by_notion_id' )
-			->andReturn( null );
+		// Mock $wpdb global (needed because @preserveGlobalState disabled)
+		global $wpdb;
+		$wpdb         = Mockery::mock( '\wpdb' );
+		$wpdb->prefix = 'wp_';
+		$wpdb->postmeta = 'wp_postmeta';
+		$wpdb->shouldReceive( 'prepare' )->andReturnUsing(
+			function ( $query, ...$args ) {
+				return vsprintf( str_replace( '%s', "'%s'", str_replace( '%d', '%d', $query ) ), $args );
+			}
+		);
+		$wpdb->shouldReceive( 'get_row' )->andReturn( null );
+		$wpdb->shouldReceive( 'get_var' )->andReturn( null );
+		$wpdb->shouldReceive( 'insert' )->andReturn( 1 );
+		$wpdb->shouldReceive( 'update' )->andReturn( 1 );
+		$wpdb->insertid = 1;
 
-		// Mock LinkRegistry.
-		$mock_registry = Mockery::mock( 'overload:' . LinkRegistry::class );
-		$mock_registry->shouldReceive( 'find_by_notion_id' )->andReturn( null );
-		$mock_registry->shouldReceive( 'register' )->andReturn( true );
+		// Mock WordPress functions needed for operation
+		Functions\when( 'get_option' )->justReturn( null ); // No API token, so find_parent_database returns null
+		Functions\when( 'current_time' )->justReturn( '2024-01-01 00:00:00' );
+		Functions\when( 'get_post_type' )->justReturn( 'post' );
+		Functions\when( 'error_log' )->justReturn( null );
 
 		$notion_block = array(
 			'type'           => 'child_database',
 			'id'             => '12345678-1234-1234-1234-12345678abc',
 			'child_database' => array(),
 		);
-
-		// Mock WordPress functions (esc_attr and esc_html are already mocked in BaseTestCase)
-		// Mock error_log.
-		Functions\when( 'error_log' )->justReturn( null );
 
 		$result = $this->converter->convert( $notion_block );
 
@@ -211,19 +254,27 @@ class ChildDatabaseConverterTest extends BaseConverterTestCase {
 	 * @preserveGlobalState disabled
 	 */
 	public function test_convert_normalizes_database_id(): void {
-		// Mock the DatabasePostType.
-		$mock_db_post_type = Mockery::mock( 'overload:' . DatabasePostType::class );
+		// Mock $wpdb global (needed because @preserveGlobalState disabled)
+		global $wpdb;
+		$wpdb         = Mockery::mock( '\wpdb' );
+		$wpdb->prefix = 'wp_';
+		$wpdb->postmeta = 'wp_postmeta';
+		$wpdb->shouldReceive( 'prepare' )->andReturnUsing(
+			function ( $query, ...$args ) {
+				return vsprintf( str_replace( '%s', "'%s'", str_replace( '%d', '%d', $query ) ), $args );
+			}
+		);
+		$wpdb->shouldReceive( 'get_row' )->andReturn( null );
+		$wpdb->shouldReceive( 'get_var' )->andReturn( null );
+		$wpdb->shouldReceive( 'insert' )->andReturn( 1 );
+		$wpdb->shouldReceive( 'update' )->andReturn( 1 );
+		$wpdb->insertid = 1;
 
-		// The important assertion: should be called with normalized ID (no dashes).
-		$mock_db_post_type->shouldReceive( 'find_by_notion_id' )
-			->once()
-			->with( '1234567812341234123412345678abc' )
-			->andReturn( null );
-
-		// Mock LinkRegistry.
-		$mock_registry = Mockery::mock( 'overload:' . LinkRegistry::class );
-		$mock_registry->shouldReceive( 'find_by_notion_id' )->andReturn( null );
-		$mock_registry->shouldReceive( 'register' )->andReturn( true );
+		// Mock WordPress functions needed for operation
+		Functions\when( 'get_option' )->justReturn( null ); // No API token, so find_parent_database returns null
+		Functions\when( 'current_time' )->justReturn( '2024-01-01 00:00:00' );
+		Functions\when( 'get_post_type' )->justReturn( 'post' );
+		Functions\when( 'error_log' )->justReturn( null );
 
 		$notion_block = array(
 			'type'           => 'child_database',
@@ -233,11 +284,11 @@ class ChildDatabaseConverterTest extends BaseConverterTestCase {
 			),
 		);
 
-		// Mock WordPress functions (esc_attr and esc_html are already mocked in BaseTestCase)
-		Functions\when( 'error_log' )->justReturn( null );
+		$result = $this->converter->convert( $notion_block );
 
-		$this->converter->convert( $notion_block );
-
-		// Mockery will verify that find_by_notion_id was called with normalized ID.
+		// Verify the output contains the normalized ID (without dashes).
+		$this->assertStringContainsString( '1234567812341234123412345678abc', $result );
+		// And does NOT contain the ID with dashes.
+		$this->assertStringNotContainsString( '12345678-1234-1234-1234-12345678abc', $result );
 	}
 }

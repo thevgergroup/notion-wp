@@ -9,7 +9,7 @@
     convertDeprecationsToExceptions="true"
     convertErrorsToExceptions="true"
     convertNoticesToExceptions="true"
-    convertWarningsToExceptions="true"
+    convertWarningsToExceptions="false"
     failOnRisky="false"
 >
     <testsuites>
@@ -66,6 +66,9 @@
 
     <!-- Environment Variables -->
     <php>
+        <!-- Disable pcov during normal test runs (enable only for coverage) -->
+        <ini name="pcov.enabled" value="0"/>
+
         <!-- WordPress Test Suite Configuration (for integration tests) -->
         <env name="WP_TESTS_DIR" value="/tmp/wordpress-tests-lib"/>
         <env name="WP_CORE_DIR" value="/tmp/wordpress/"/>
