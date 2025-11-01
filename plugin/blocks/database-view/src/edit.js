@@ -16,7 +16,7 @@ import {
 	ToolbarButton,
 } from '@wordpress/components';
 import ServerSideRender from '@wordpress/server-side-render';
-import { database as databaseIcon } from '@wordpress/icons';
+import { table as databaseIcon } from '@wordpress/icons';
 
 /**
  * Edit component for the database-view block.
