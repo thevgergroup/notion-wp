@@ -21,7 +21,7 @@ flowchart TD
     style P2 fill:#46b450
     style P3 fill:#46b450
     style P4 fill:#46b450
-    style P5 fill:#95e1d3
+    style P5 fill:#f0ad4e
     style P6 fill:#95e1d3
 ```
 
@@ -32,7 +32,7 @@ flowchart TD
 | Phase 2 | Sync Notion databases to WordPress posts | M          | 1-2 weeks | ✅ Complete       |
 | Phase 3 | Download and manage images               | M          | 1 week    | ✅ Complete       |
 | Phase 4 | Support advanced block types             | L          | 2 weeks   | ✅ Complete       |
-| Phase 5 | Hierarchy, menus, database views         | L          | 5-6 weeks | 📋 Ready to Start |
+| Phase 5 | Hierarchy, menus, database views         | L          | 5-6 weeks | 🚧 In Progress    |
 | Phase 6 | WordPress.org submission prep            | M          | 1 week    | Not Started       |
 
 ---
@@ -526,29 +526,51 @@ Many block types with varying complexity.
 
 ## Phase 5: Hierarchy & Navigation
 
+**Status:** 🚧 In Progress - Core infrastructure complete, additional view types pending
+
 **Goal:** Sync page hierarchies, render embedded database views, and automatically generate WordPress navigation menus.
 
 **Detailed Plan:** See [Phase 5 Detailed Plan](./phase-5-hierarchy-navigation.md) for comprehensive breakdown.
 
+### Implementation Status
+
+**✅ Completed Sub-Phases:**
+- **Phase 5.1:** Page Hierarchy - HierarchyDetector with full tree building, depth limits, parent-child tracking
+- **Phase 5.2:** Menu Generation - MenuBuilder with recursive menu creation, manual item preservation
+- **Phase 5.3:** Link Resolution - LinkRegistry with comprehensive status tracking, batch resolution, analytics
+- **Phase 5.4:** Database View Infrastructure - DatabaseRestController, RowRepository, PropertyFormatter, caching
+- **Phase 5.5:** Table View Display - Gutenberg block with Tabulator integration, filters, export
+- **Phase 5.6:** Enhanced ChildDatabaseConverter - Notion API integration, collection_id lookup, fallback handling
+
+**⚠️ Remaining Work:**
+- **User Documentation** (HIGH PRIORITY - Release Blocker)
+  - README rework for WordPress users (installation, usage, configuration)
+  - Development documentation separation (DEVELOPMENT.md)
+  - Screenshots with Playwright (moved to docs/images/)
+  - Document what's available vs. coming soon
+- Additional database view types (board, gallery, timeline, calendar) - UI marked "Coming Soon"
+- MenuManager CRUD operations (file exists but methods are TODO stubs)
+- Admin UI enhancements (hierarchy settings panel, database view settings, link resolution tools)
+
 ### Success Criteria
 
 #### Core Hierarchy & Navigation
-- [ ] Child pages in Notion sync as child pages in WordPress
-- [ ] Parent-child relationships preserved
-- [ ] WordPress menu auto-generated from structure
-- [ ] Internal Notion links convert to WordPress permalinks
-- [ ] Menu updates on re-sync (adds new, removes deleted)
-- [ ] User can choose which menu to update
-- [ ] Works with 3+ levels of nesting
+- [x] Child pages in Notion sync as child pages in WordPress
+- [x] Parent-child relationships preserved
+- [x] WordPress menu auto-generated from structure
+- [x] Internal Notion links convert to WordPress permalinks
+- [x] Menu updates on re-sync (adds new, removes deleted)
+- [ ] User can choose which menu to update (UI needed)
+- [x] Works with 3+ levels of nesting
 
 #### Embedded Database Views
-- [ ] Inline database views render with filtered/sorted entries
-- [ ] Linked database views apply view-specific filters
-- [ ] Database view display modes (table, list, gallery, board)
-- [ ] View pagination and limits respected
-- [ ] Filter configurations applied correctly
-- [ ] Sort configurations applied correctly
-- [ ] Embedded entries link to synced WordPress posts when available
+- [x] Inline database views render with filtered/sorted entries (table view)
+- [x] Linked database views apply view-specific filters
+- [ ] Database view display modes (table ✅, list ⚠️, gallery ⚠️, board ⚠️, timeline ⚠️, calendar ⚠️)
+- [x] View pagination and limits respected
+- [x] Filter configurations applied correctly
+- [x] Sort configurations applied correctly
+- [x] Embedded entries link to synced WordPress posts when available
 
 ### Dependencies
 
@@ -591,18 +613,24 @@ Many block types with varying complexity.
 - Navigation menu automatically created
 - Menu reflects Notion hierarchy
 - Internal links work between pages
+- **User-focused README with screenshots**
+- **Installation and configuration guide**
+- **Feature documentation with visual examples**
 
 **Technical:**
 
-- `src/Hierarchy/HierarchyManager.php` - Page tree handling
-- `src/Navigation/MenuGenerator.php` - Menu creation
-- `src/Router/LinkRegistry.php` (enhanced) - Link resolution
-- `src/Database/DatabaseViewRenderer.php` - Database view rendering
-- `src/Database/DatabaseViewParser.php` - View configuration parsing
-- Custom Gutenberg blocks (database-table, database-list, database-gallery, database-board)
-- Enhanced `ChildDatabaseConverter` with inline rendering
-- Menu assignment interface in admin
-- Recursive sync support
+- `src/Hierarchy/HierarchyManager.php` - Page tree handling ✅
+- `src/Navigation/MenuGenerator.php` - Menu creation ✅
+- `src/Router/LinkRegistry.php` (enhanced) - Link resolution ✅
+- `src/Database/DatabaseViewRenderer.php` - Database view rendering ✅
+- `src/Database/DatabaseViewParser.php` - View configuration parsing ✅
+- Custom Gutenberg blocks (database-table ✅, database-list ⚠️, database-gallery ⚠️, database-board ⚠️)
+- Enhanced `ChildDatabaseConverter` with inline rendering ✅
+- Menu assignment interface in admin ⚠️
+- Recursive sync support ✅
+- **README.md - User-focused installation/usage guide** ⚠️
+- **docs/development/DEVELOPMENT.md - Developer documentation** ⚠️
+- **docs/images/ - Professional screenshots** ⚠️
 
 ### Estimated Complexity: L (Large)
 
