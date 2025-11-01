@@ -101,10 +101,19 @@ class DatabaseFetcher {
 	/**
 	 * Get database schema (properties/columns).
 	 *
+	 * Fetches database metadata including properties/columns configuration.
+	 * Also retrieves the collection_id from the page chunk data, which is distinct
+	 * from the database block ID.
+	 *
 	 * @since 1.0.0
 	 *
-	 * @param string $database_id Notion database ID.
-	 * @return array Database properties configuration.
+	 * @param string $database_id Notion database block ID.
+	 * @return array Database properties configuration with keys:
+	 *               - id: The database block ID (normalized)
+	 *               - collection_id: The collection ID (normalized, may be null)
+	 *               - title: Database title
+	 *               - last_edited_time: ISO 8601 timestamp
+	 *               - properties: Array of property definitions
 	 * @throws \RuntimeException If API request fails.
 	 */
 	public function get_database_schema( string $database_id ): array {
@@ -119,8 +128,16 @@ class DatabaseFetcher {
 			);
 		}
 
+		// The 'id' field from the Notion database API response is the database block ID.
+		$database_id_from_api = $response['id'] ?? '';
+
+		// Retrieve collection_id from page chunk data.
+		// This is distinct from the database block ID and is used for certain operations.
+		$collection_id = $this->extract_collection_id( $database_id );
+
 		return array(
-			'id'               => $response['id'] ?? '',
+			'id'               => $database_id_from_api,
+			'collection_id'    => $collection_id,
 			'title'            => $this->extract_title_from_database( $response ),
 			'last_edited_time' => $response['last_edited_time'] ?? '',
 			'properties'       => $response['properties'],
@@ -367,5 +384,111 @@ class DatabaseFetcher {
 		}
 
 		return 'Untitled Database';
+	}
+
+	/**
+	 * Extract collection_id from page chunk data.
+	 *
+	 * The collection_id is distinct from the database block ID and is required
+	 * for certain Notion API operations. This method queries the page chunk data
+	 * to retrieve it.
+	 *
+	 * @since 1.0.0
+	 *
+	 * @param string $database_id Database block ID (with or without dashes).
+	 * @return string|null Collection ID (normalized without dashes), or null if not found.
+	 */
+	private function extract_collection_id( string $database_id ): ?string {
+		try {
+			// Load page chunk data from Notion's internal API.
+			$chunk_data = $this->client->load_page_chunk( $database_id );
+
+			// Check for errors in the response.
+			if ( isset( $chunk_data['error'] ) ) {
+				// Log the error but don't fail the entire operation.
+				// Collection ID is optional for some operations.
+				if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
+					// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log -- Debug logging is intentional.
+					error_log(
+						sprintf(
+							'NotionSync: Failed to retrieve collection_id for database %s: %s',
+							$database_id,
+							$chunk_data['error']
+						)
+					);
+				}
+				return null;
+			}
+
+			// Normalize database ID to match the format in recordMap.
+			// The chunk API uses UUIDs with dashes.
+			$formatted_id = $this->normalize_id_with_dashes( $database_id );
+
+			// Extract collection_id from the block data.
+			if (
+				isset( $chunk_data['recordMap']['block'][ $formatted_id ]['value']['collection_id'] )
+			) {
+				$collection_id = $chunk_data['recordMap']['block'][ $formatted_id ]['value']['collection_id'];
+				// Normalize to remove dashes for consistency.
+				return str_replace( '-', '', $collection_id );
+			}
+
+			// Collection ID not found in expected location.
+			if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
+				// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log -- Debug logging is intentional.
+				error_log(
+					sprintf(
+						'NotionSync: Collection ID not found in page chunk data for database %s',
+						$database_id
+					)
+				);
+			}
+			return null;
+
+		} catch ( \Exception $e ) {
+			// Log exception but don't fail the entire operation.
+			if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
+				// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log -- Debug logging is intentional.
+				error_log(
+					sprintf(
+						'NotionSync: Exception while extracting collection_id for database %s: %s',
+						$database_id,
+						$e->getMessage()
+					)
+				);
+			}
+			return null;
+		}
+	}
+
+	/**
+	 * Normalize UUID to include dashes.
+	 *
+	 * Converts a UUID from either format (with or without dashes) to the standard
+	 * format with dashes: xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx
+	 *
+	 * @since 1.0.0
+	 *
+	 * @param string $id UUID with or without dashes.
+	 * @return string UUID with dashes in standard format.
+	 */
+	private function normalize_id_with_dashes( string $id ): string {
+		// Remove any existing dashes.
+		$normalized = str_replace( '-', '', $id );
+
+		// Validate length (should be 32 hex characters).
+		if ( 32 !== strlen( $normalized ) ) {
+			return $id; // Return original if invalid.
+		}
+
+		// Add dashes in UUID format: 8-4-4-4-12.
+		return sprintf(
+			'%s-%s-%s-%s-%s',
+			substr( $normalized, 0, 8 ),
+			substr( $normalized, 8, 4 ),
+			substr( $normalized, 12, 4 ),
+			substr( $normalized, 16, 4 ),
+			substr( $normalized, 20 )
+		);
 	}
 }

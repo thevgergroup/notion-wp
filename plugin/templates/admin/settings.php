@@ -181,17 +181,18 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 				<?php
 				// Check if current theme supports menus.
-				$theme_supports_menus = current_theme_supports( 'menus' );
-				$menu_locations       = get_registered_nav_menus();
+				$notionwp_theme_supports_menus = current_theme_supports( 'menus' );
+				$notionwp_menu_locations       = get_registered_nav_menus();
 				?>
 
-				<?php if ( ! $theme_supports_menus || empty( $menu_locations ) ) : ?>
+				<?php if ( ! $notionwp_theme_supports_menus || empty( $notionwp_menu_locations ) ) : ?>
 					<!-- Theme Menu Support Warning -->
 					<div class="notice notice-warning inline" style="margin-top: 20px;">
 						<h3><?php esc_html_e( 'Theme Does Not Support Navigation Menus', 'notion-wp' ); ?></h3>
 						<p>
 							<?php
 							esc_html_e(
+								// phpcs:ignore Generic.Files.LineLength.MaxExceeded
 								'Your current theme does not register any menu locations. While the plugin can still create WordPress menus from your Notion page hierarchy, you will not be able to assign them to your theme without additional configuration.',
 								'notion-wp'
 							);
@@ -210,9 +211,9 @@ if ( ! defined( 'ABSPATH' ) ) {
 							<li>
 								<?php
 								printf(
-									/* translators: %s: URL to WordPress theme customization docs */
 									wp_kses(
-										__( 'Add menu support to your current theme by following <a href="%s" target="_blank" rel="noopener noreferrer">WordPress theme customization documentation</a>', 'notion-wp' ),
+										/* translators: %s: URL to WordPress theme customization docs */
+										__( 'Add menu support to your current theme by following <a href="%s" target="_blank" rel="noopener noreferrer">WordPress theme customization documentation</a>', 'notion-wp' ), // phpcs:ignore Generic.Files.LineLength.MaxExceeded
 										array(
 											'a' => array(
 												'href'   => array(),
@@ -292,6 +293,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 											<p class="description">
 												<?php
 												esc_html_e(
+													// phpcs:ignore Generic.Files.LineLength.MaxExceeded
 													'When enabled, the plugin will create and maintain a WordPress navigation menu that mirrors your Notion page structure. ' .
 													'Parent-child relationships in Notion will be preserved as menu items and sub-items.',
 													'notion-wp'
@@ -320,6 +322,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 										<p class="description">
 											<?php
 											esc_html_e(
+												// phpcs:ignore Generic.Files.LineLength.MaxExceeded
 												'The name of the WordPress menu that will be created. After syncing, go to Appearance → Menus to assign this menu to a theme location (such as Primary Menu or Footer Menu).',
 												'notion-wp'
 											);

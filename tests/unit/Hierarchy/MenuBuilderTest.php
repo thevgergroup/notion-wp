@@ -113,9 +113,11 @@ class MenuBuilderTest extends BaseTestCase {
 			->justReturn( $wp_error );
 
 		Functions\when( 'is_wp_error' )
-			->alias( function ( $thing ) use ( $wp_error ) {
-				return $thing === $wp_error;
-			} );
+			->alias(
+				function ( $thing ) use ( $wp_error ) {
+					return $thing === $wp_error;
+				}
+			);
 
 		$menu_id = $this->builder->create_or_update_menu( 'Test Menu', array() );
 
@@ -199,10 +201,12 @@ class MenuBuilderTest extends BaseTestCase {
 
 		$deleted_items = array();
 		Functions\when( 'wp_delete_post' )
-			->alias( function ( $item_id, $force_delete ) use ( &$deleted_items ) {
-				$deleted_items[] = $item_id;
-				return true;
-			} );
+			->alias(
+				function ( $item_id, $force_delete ) use ( &$deleted_items ) {
+					$deleted_items[] = $item_id;
+					return true;
+				}
+			);
 
 		$menu_id = $this->builder->create_or_update_menu( 'Test Menu', array() );
 
@@ -239,10 +243,12 @@ class MenuBuilderTest extends BaseTestCase {
 
 		$deleted_items = array();
 		Functions\when( 'wp_delete_post' )
-			->alias( function ( $item_id, $force_delete ) use ( &$deleted_items ) {
-				$deleted_items[] = $item_id;
-				return true;
-			} );
+			->alias(
+				function ( $item_id, $force_delete ) use ( &$deleted_items ) {
+					$deleted_items[] = $item_id;
+					return true;
+				}
+			);
 
 		$menu_id = $this->builder->create_or_update_menu( 'Test Menu', array() );
 
@@ -280,10 +286,12 @@ class MenuBuilderTest extends BaseTestCase {
 
 		$menu_items_added = array();
 		Functions\when( 'wp_update_nav_menu_item' )
-			->alias( function ( $menu_id, $item_id, $args ) use ( &$menu_items_added ) {
-				$menu_items_added[] = $args;
-				return 200;
-			} );
+			->alias(
+				function ( $menu_id, $item_id, $args ) use ( &$menu_items_added ) {
+					$menu_items_added[] = $args;
+					return 200;
+				}
+			);
 
 		Functions\when( 'get_post_type' )
 			->justReturn( 'page' );
@@ -339,10 +347,12 @@ class MenuBuilderTest extends BaseTestCase {
 		$menu_items_added = array();
 		$item_id_counter = 200;
 		Functions\when( 'wp_update_nav_menu_item' )
-			->alias( function ( $menu_id, $item_id, $args ) use ( &$menu_items_added, &$item_id_counter ) {
-				$menu_items_added[] = $args;
-				return $item_id_counter++;
-			} );
+			->alias(
+				function ( $menu_id, $item_id, $args ) use ( &$menu_items_added, &$item_id_counter ) {
+					$menu_items_added[] = $args;
+					return $item_id_counter++;
+				}
+			);
 
 		Functions\when( 'get_post_type' )
 			->justReturn( 'page' );
@@ -408,10 +418,12 @@ class MenuBuilderTest extends BaseTestCase {
 		$call_order = array();
 
 		Functions\when( 'wp_update_nav_menu_item' )
-			->alias( function ( $menu_id, $item_id, $args ) use ( &$call_order ) {
-				$call_order[] = $args['menu-item-object-id'];
-				return 200 + $args['menu-item-object-id'];
-			} );
+			->alias(
+				function ( $menu_id, $item_id, $args ) use ( &$call_order ) {
+					$call_order[] = $args['menu-item-object-id'];
+					return 200 + $args['menu-item-object-id'];
+				}
+			);
 
 		Functions\when( 'get_post_type' )
 			->justReturn( 'page' );

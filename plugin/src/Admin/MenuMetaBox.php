@@ -91,7 +91,8 @@ class MenuMetaBox {
 	 */
 	public function render_meta_box( $object ): void {
 		// Get current menu ID.
-		$nav_menu_selected_id = isset( $_REQUEST['menu'] ) ? (int) $_REQUEST['menu'] : 0; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+		// phpcs:ignore Generic.Files.LineLength.MaxExceeded,WordPress.Security.NonceVerification.Recommended
+		$nav_menu_selected_id = isset( $_REQUEST['menu'] ) ? (int) $_REQUEST['menu'] : 0;
 
 		if ( ! $nav_menu_selected_id ) {
 			echo '<p>' . esc_html__( 'Select or create a menu to view sync status.', 'notion-wp' ) . '</p>';
@@ -107,7 +108,7 @@ class MenuMetaBox {
 		if ( $menu_items ) {
 			foreach ( $menu_items as $item ) {
 				if ( $this->menu_item_meta->is_notion_synced( $item->ID ) ) {
-					$synced_count++;
+					++$synced_count;
 				}
 			}
 		}
@@ -144,8 +145,12 @@ class MenuMetaBox {
 					<strong><?php esc_html_e( 'Synced Items:', 'notion-wp' ); ?></strong>
 					<br>
 					<?php
-					// translators: 1: number of synced items, 2: total number of items.
-					printf( esc_html__( '%1$d of %2$d', 'notion-wp' ), $synced_count, $total_items );
+					printf(
+						/* translators: 1: number of synced items, 2: total number of items */
+						esc_html__( '%1$d of %2$d', 'notion-wp' ),
+						absint( $synced_count ),
+						absint( $total_items )
+					);
 					?>
 				</p>
 			</div>
@@ -168,7 +173,10 @@ class MenuMetaBox {
 			<div class="notion-sync-help">
 				<p class="description">
 					<span class="dashicons dashicons-info" aria-hidden="true"></span>
-					<?php esc_html_e( 'Notion-synced items show a sync icon (🔄). Toggle "Prevent Notion Updates" to preserve manual changes.', 'notion-wp' ); ?>
+					<?php
+					// phpcs:ignore Generic.Files.LineLength.MaxExceeded
+					esc_html_e( 'Notion-synced items show a sync icon (🔄). Toggle "Prevent Notion Updates" to preserve manual changes.', 'notion-wp' );
+					?>
 				</p>
 			</div>
 		</div>

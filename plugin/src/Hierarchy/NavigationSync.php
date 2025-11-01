@@ -111,7 +111,7 @@ class NavigationSync {
 			 * @param string $menu_name      Menu name.
 			 * @param array  $hierarchy_map  Hierarchy map used for sync.
 			 */
-			do_action( 'notion_menu_synced', $menu_id, $this->menu_name, $hierarchy_map );
+			do_action( 'notion_wp_menu_synced', $menu_id, $this->menu_name, $hierarchy_map );
 		}
 	}
 

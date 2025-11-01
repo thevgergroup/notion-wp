@@ -10,7 +10,12 @@
 		"npm": ">=9.0.0"
 	},
 	"scripts": {
-		"build": "esbuild src/sync-dashboard.jsx --bundle --format=iife --outfile=plugin/assets/build/sync-dashboard.js --minify --jsx=automatic --jsx-import-source=preact",
+		"build": "npm run build:dashboard && npm run build:blocks",
+		"build:dashboard": "esbuild src/sync-dashboard.jsx --bundle --format=iife --outfile=plugin/assets/build/sync-dashboard.js --minify --jsx=automatic --jsx-import-source=preact",
+		"build:blocks": "npm run build:blocks:editor && npm run build:blocks:frontend && npm run build:blocks:style",
+		"build:blocks:editor": "esbuild plugin/blocks/database-view/src/index.js --bundle --format=iife --outfile=plugin/blocks/database-view/build/index.js --minify --jsx=automatic --jsx-import-source=react --loader:.js=jsx --external:@wordpress/* --external:react --external:react-dom",
+		"build:blocks:frontend": "esbuild plugin/blocks/database-view/src/frontend.js --bundle --format=iife --outfile=plugin/blocks/database-view/build/frontend.js --minify",
+		"build:blocks:style": "sass plugin/blocks/database-view/src/style.scss plugin/blocks/database-view/build/style-index.css --style=compressed && sass plugin/blocks/database-view/src/editor.scss plugin/blocks/database-view/build/index.css --style=compressed",
 		"start": "esbuild src/sync-dashboard.jsx --bundle --format=iife --outfile=plugin/assets/build/sync-dashboard.js --watch --jsx=automatic --jsx-import-source=preact",
 		"lint": "npm-run-all --parallel lint:*",
 		"lint:js": "eslint '{plugin,src}/**/*.{js,jsx,ts,tsx}' --max-warnings=0",
@@ -42,6 +47,7 @@
 		"npm-run-all": "^4.1.5",
 		"preact": "^10.27.2",
 		"prettier": "^3.2.4",
+		"sass": "^1.93.2",
 		"stylelint": "^16.2.0",
 		"stylelint-config-standard": "^36.0.0",
 		"stylelint-config-wordpress": "^17.0.0",

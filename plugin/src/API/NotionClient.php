@@ -341,6 +341,74 @@ class NotionClient {
 	}
 
 	/**
+	 * Load page chunk data from Notion's internal API.
+	 *
+	 * This queries Notion's loadCachedPageChunkV2 endpoint which provides
+	 * collection metadata including collection_id, view configuration,
+	 * filters, and sorts for child database blocks.
+	 *
+	 * @param string $page_id The page or block ID to load chunk data for.
+	 * @return array The page chunk response data.
+	 */
+	public function load_page_chunk( string $page_id ): array {
+		// Ensure ID has dashes for the API call.
+		if ( 32 === strlen( str_replace( '-', '', $page_id ) ) ) {
+			// Add dashes if not present.
+			$normalized = str_replace( '-', '', $page_id );
+			$page_id    = substr( $normalized, 0, 8 ) . '-' .
+				substr( $normalized, 8, 4 ) . '-' .
+				substr( $normalized, 12, 4 ) . '-' .
+				substr( $normalized, 16, 4 ) . '-' .
+				substr( $normalized, 20 );
+		}
+
+		// Build request payload.
+		$payload = array(
+			'page'            => array( 'id' => $page_id ),
+			'limit'           => 50,
+			'cursor'          => array( 'stack' => array() ),
+			'chunkNumber'     => 0,
+			'verticalColumns' => false,
+		);
+
+		// Use Notion's public site API (doesn't require authentication for public pages).
+		// However, for integration access, we may need to use authenticated endpoint.
+		$url = 'https://www.notion.so/api/v3/loadCachedPageChunkV2';
+
+		$response = wp_remote_post(
+			$url,
+			array(
+				'headers' => array(
+					'Content-Type' => 'application/json',
+				),
+				'body'    => wp_json_encode( $payload ),
+				'timeout' => $this->timeout,
+			)
+		);
+
+		if ( is_wp_error( $response ) ) {
+			return array(
+				'error' => $response->get_error_message(),
+			);
+		}
+
+		$body        = wp_remote_retrieve_body( $response );
+		$status_code = wp_remote_retrieve_response_code( $response );
+
+		$data = json_decode( $body, true );
+
+		if ( 200 !== $status_code ) {
+			return array(
+				'error'       => 'API request failed',
+				'status_code' => $status_code,
+				'response'    => $data,
+			);
+		}
+
+		return $data ?? array();
+	}
+
+	/**
 	 * Format API error message for user display.
 	 *
 	 * @param int   $status_code HTTP status code.

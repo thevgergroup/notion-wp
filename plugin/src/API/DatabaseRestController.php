@@ -100,8 +100,18 @@ class DatabaseRestController {
 	/**
 	 * Check read permission.
 	 *
-	 * Allow public access to published databases.
-	 * This enables the frontend database viewer to work for all visitors.
+	 * Implements WordPress-standard post visibility levels:
+	 * - Published posts: Public access (but check password protection)
+	 * - Password-protected: Require valid password
+	 * - Private posts: Require read_private_posts capability
+	 * - Draft/Pending/Future: Require edit_posts capability
+	 * - Other statuses: Require manage_options capability (admin override)
+	 *
+	 * Security considerations:
+	 * - Validates post type to prevent unauthorized access to other post types
+	 * - Respects WordPress core post visibility semantics
+	 * - Uses appropriate capabilities for each visibility level
+	 * - Handles password-protected posts using WordPress core functions
 	 *
 	 * @since 1.0.0
 	 *
@@ -117,12 +127,31 @@ class DatabaseRestController {
 			return false;
 		}
 
-		// Allow access if post is published (public).
-		if ( 'publish' === $post->post_status ) {
+		$status = $post->post_status;
+
+		// Published posts: Allow public access BUT check for password protection.
+		if ( 'publish' === $status ) {
+			// If post has a password, verify it's not currently required.
+			// post_password_required() returns true if password is set but not validated.
+			if ( ! empty( $post->post_password ) ) {
+				return ! post_password_required( $post );
+			}
 			return true;
 		}
 
-		// For non-published posts, require admin permission.
+		// Private posts: Require read_private_posts capability.
+		// This allows editors and admins to view private databases.
+		if ( 'private' === $status ) {
+			return current_user_can( 'read_private_posts' );
+		}
+
+		// Draft, Pending, Future: Require edit_posts capability.
+		// This allows contributors and above to view unpublished content.
+		if ( in_array( $status, array( 'draft', 'pending', 'future' ), true ) ) {
+			return current_user_can( 'edit_posts' );
+		}
+
+		// Default: Admin override for any other post status (trash, inherit, etc.).
 		return current_user_can( 'manage_options' );
 	}
 

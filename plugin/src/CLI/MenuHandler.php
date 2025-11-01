@@ -179,14 +179,16 @@ class MenuHandler {
 			return;
 		}
 
-		\WP_CLI::log( sprintf(
-			'%s%s%s (WP ID: %d, Order: %d)',
-			$indent,
-			$prefix,
-			$post->post_title,
-			$page_data['post_id'],
-			$page_data['order']
-		) );
+		\WP_CLI::log(
+			sprintf(
+				'%s%s%s (WP ID: %d, Order: %d)',
+				$indent,
+				$prefix,
+				$post->post_title,
+				$page_data['post_id'],
+				$page_data['order']
+			)
+		);
 
 		if ( $verbose ) {
 			\WP_CLI::log( sprintf( '%s   Notion ID: %s', $indent, $page_id ) );

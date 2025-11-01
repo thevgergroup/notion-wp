@@ -84,12 +84,21 @@ class EmbedConverter implements BlockConverterInterface {
 	 */
 	private function convert_oembed( string $url, string $provider ): string {
 		// Use WordPress core embed block for oEmbed providers.
-		return sprintf(
-			"<!-- wp:embed {\"url\":\"%s\",\"type\":\"video\",\"providerNameSlug\":\"%s\",\"responsive\":true,\"className\":\"wp-embed-aspect-16-9 wp-has-aspect-ratio\"} -->\n<figure class=\"wp-block-embed is-type-video is-provider-%s wp-block-embed-%s wp-embed-aspect-16-9 wp-has-aspect-ratio\"><div class=\"wp-block-embed__wrapper\">\n%s\n</div></figure>\n<!-- /wp:embed -->\n\n",
+		$block_attrs = sprintf(
+			'{"url":"%s","type":"video","providerNameSlug":"%s","responsive":true,' .
+			'"className":"wp-embed-aspect-16-9 wp-has-aspect-ratio"}',
 			esc_url( $url ),
+			esc_attr( $provider )
+		);
+		$figure_class = sprintf(
+			'wp-block-embed is-type-video is-provider-%s wp-block-embed-%s wp-embed-aspect-16-9 wp-has-aspect-ratio',
 			esc_attr( $provider ),
-			esc_attr( $provider ),
-			esc_attr( $provider ),
+			esc_attr( $provider )
+		);
+		return sprintf(
+			"<!-- wp:embed %s -->\n<figure class=\"%s\"><div class=\"wp-block-embed__wrapper\">\n%s\n</div></figure>\n<!-- /wp:embed -->\n\n",
+			$block_attrs,
+			$figure_class,
 			esc_url( $url )
 		);
 	}
@@ -102,11 +111,20 @@ class EmbedConverter implements BlockConverterInterface {
 	 * @return string HTML for link preview.
 	 */
 	private function convert_link_preview( string $url, string $type ): string {
-		return sprintf(
-			"<!-- wp:html -->\n<div class=\"notion-bookmark\">\n\t<a href=\"%s\" target=\"_blank\" rel=\"noopener noreferrer\" class=\"notion-bookmark-link\">\n\t\t<div class=\"notion-bookmark-title\">%s</div>\n\t\t<div class=\"notion-bookmark-url\">%s</div>\n\t</a>\n</div>\n<!-- /wp:html -->\n\n",
-			esc_url( $url ),
+		$link_html = sprintf(
+			'<a href="%s" target="_blank" rel="noopener noreferrer" class="notion-bookmark-link">',
+			esc_url( $url )
+		);
+		$bookmark_html = sprintf(
+			'<div class="notion-bookmark">%s<div class="notion-bookmark-title">%s</div>' .
+			'<div class="notion-bookmark-url">%s</div></a></div>',
+			$link_html,
 			esc_html( $this->get_url_title( $url ) ),
 			esc_html( $url )
+		);
+		return sprintf(
+			"<!-- wp:html -->\n%s\n<!-- /wp:html -->\n\n",
+			$bookmark_html
 		);
 	}
 
@@ -129,9 +147,14 @@ class EmbedConverter implements BlockConverterInterface {
 		// For unknown providers, output iframe with sandbox for security.
 		// sandbox="allow-scripts allow-same-origin" allows typical embed functionality
 		// while preventing top-level navigation and other dangerous behaviors.
-		return sprintf(
-			"<!-- wp:html -->\n<div class=\"notion-embed\">\n\t<iframe src=\"%s\" width=\"100%%\" height=\"500\" frameborder=\"0\" allowfullscreen sandbox=\"allow-scripts allow-same-origin allow-presentation\"></iframe>\n</div>\n<!-- /wp:html -->\n\n",
+		$iframe = sprintf(
+			'<iframe src="%s" width="100%%" height="500" frameborder="0" ' .
+			'allowfullscreen sandbox="allow-scripts allow-same-origin allow-presentation"></iframe>',
 			esc_url( $url )
+		);
+		return sprintf(
+			"<!-- wp:html -->\n<div class=\"notion-embed\">\n\t%s\n</div>\n<!-- /wp:html -->\n\n",
+			$iframe
 		);
 	}
 

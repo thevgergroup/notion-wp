@@ -156,8 +156,7 @@ class ImageDownloader {
 	 *     @type bool        $unsupported   True if file type is unsupported.
 	 *     @type string|null $linked_url    URL to use for linking (for unsupported types).
 	 * }
-	 * @throws \InvalidArgumentException If invalid URL provided.
-	 * @throws \Exception If download fails after all retries.
+	 * @throws \Exception If download fails after all retries or invalid URL provided.
 	 */
 	public function download( string $url, array $options = array() ): array {
 		$validate = $options['validate'] ?? true;

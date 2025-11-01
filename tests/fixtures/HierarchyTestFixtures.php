@@ -111,6 +111,7 @@ class HierarchyTestFixtures {
 				'order'           => 0,
 				'children'        => array(),
 			),
+			// phpcs:ignore Universal.Arrays.DuplicateArrayKey.Found -- False positive: these are distinct string keys
 			'99998888777766665555444433332222' => array(
 				'post_id'         => 102,
 				'parent_page_id'  => '2634dac9b96e813da15efd85567b68ff',
@@ -192,6 +193,7 @@ class HierarchyTestFixtures {
 				'order'           => 1,
 				'children'        => array( '99998888777766665555444433332222' ),
 			),
+			// phpcs:ignore Universal.Arrays.DuplicateArrayKey.Found -- False positive: these are distinct string keys
 			'99998888777766665555444433332222' => array(
 				'post_id'         => 201,
 				'parent_page_id'  => 'abc123def456789012345678901234ab',
@@ -317,9 +319,9 @@ class HierarchyTestFixtures {
 		}
 
 		return substr( $normalized, 0, 8 ) . '-' .
-			   substr( $normalized, 8, 4 ) . '-' .
-			   substr( $normalized, 12, 4 ) . '-' .
-			   substr( $normalized, 16, 4 ) . '-' .
-			   substr( $normalized, 20 );
+				substr( $normalized, 8, 4 ) . '-' .
+				substr( $normalized, 12, 4 ) . '-' .
+				substr( $normalized, 16, 4 ) . '-' .
+				substr( $normalized, 20 );
 	}
 }
