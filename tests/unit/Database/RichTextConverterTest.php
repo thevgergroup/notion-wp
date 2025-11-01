@@ -67,7 +67,6 @@ class RichTextConverterTest extends BaseTestCase {
 			),
 		);
 
-
 		$result = $this->converter->to_html( $rich_text );
 		$this->assertSame( 'Hello World', $result );
 	}
@@ -89,7 +88,6 @@ class RichTextConverterTest extends BaseTestCase {
 				),
 			),
 		);
-
 
 		$result = $this->converter->to_html( $rich_text );
 		$this->assertSame( '<strong>Bold Text</strong>', $result );
@@ -113,7 +111,6 @@ class RichTextConverterTest extends BaseTestCase {
 			),
 		);
 
-
 		$result = $this->converter->to_html( $rich_text );
 		$this->assertSame( '<em>Italic Text</em>', $result );
 	}
@@ -135,7 +132,6 @@ class RichTextConverterTest extends BaseTestCase {
 				),
 			),
 		);
-
 
 		$result = $this->converter->to_html( $rich_text );
 		$this->assertSame( '<s>Strikethrough Text</s>', $result );
@@ -159,7 +155,6 @@ class RichTextConverterTest extends BaseTestCase {
 			),
 		);
 
-
 		$result = $this->converter->to_html( $rich_text );
 		$this->assertSame( '<u>Underline Text</u>', $result );
 	}
@@ -181,7 +176,6 @@ class RichTextConverterTest extends BaseTestCase {
 				),
 			),
 		);
-
 
 		$result = $this->converter->to_html( $rich_text );
 		$this->assertSame( '<code>Code Text</code>', $result );
@@ -205,9 +199,6 @@ class RichTextConverterTest extends BaseTestCase {
 			),
 		);
 
-
-
-
 		$result = $this->converter->to_html( $rich_text );
 		$this->assertSame( '<span class="notion-color-red">Red Text</span>', $result );
 	}
@@ -229,7 +220,6 @@ class RichTextConverterTest extends BaseTestCase {
 				),
 			),
 		);
-
 
 		$result = $this->converter->to_html( $rich_text );
 		$this->assertSame( '<em><strong>Bold and Italic</strong></em>', $result );
@@ -253,8 +243,6 @@ class RichTextConverterTest extends BaseTestCase {
 				),
 			),
 		);
-
-
 
 		$result = $this->converter->to_html( $rich_text );
 		$expected = '<a href="https://example.com" target="_blank" rel="noopener noreferrer">Click here</a>';
@@ -358,7 +346,6 @@ class RichTextConverterTest extends BaseTestCase {
 			),
 		);
 
-
 		$result = $this->converter->to_html( $rich_text );
 		$this->assertStringNotContainsString( '<script>', $result );
 		$this->assertStringContainsString( '&lt;script&gt;', $result );
@@ -383,7 +370,6 @@ class RichTextConverterTest extends BaseTestCase {
 				),
 			),
 		);
-
 
 		$result = $this->converter->to_html( $rich_text );
 		$this->assertSame( 'Alternative structure', $result );
@@ -412,8 +398,6 @@ class RichTextConverterTest extends BaseTestCase {
 				),
 			),
 		);
-
-
 
 		$result = $this->converter->to_html( $rich_text );
 		$expected = '<a href="https://example.com" target="_blank" rel="noopener noreferrer">Link text</a>';
