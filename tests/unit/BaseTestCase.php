@@ -115,9 +115,6 @@ abstract class BaseTestCase extends TestCase {
 				'sanitize_key'          => function ( $str ) {
 					return strtolower( preg_replace( '/[^a-z0-9_\-]/', '', (string) $str ) );
 				},
-				'is_email'              => function ( $email ) {
-					return filter_var( $email, FILTER_VALIDATE_EMAIL ) !== false;
-				},
 
 				// WordPress option functions
 				'get_option'            => array(),
@@ -148,7 +145,7 @@ abstract class BaseTestCase extends TestCase {
 					return $text;
 				},
 				'_e'                    => function ( $text ) {
-					// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Test mock function.
+					// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Test mock
 					echo $text;
 				},
 				'_x'                    => function ( $text ) {
@@ -158,7 +155,7 @@ abstract class BaseTestCase extends TestCase {
 					return htmlspecialchars( (string) $text, ENT_QUOTES, 'UTF-8' );
 				},
 				'esc_html_e'            => function ( $text ) {
-					// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Test mock, already escaped.
+					// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Test mock using htmlspecialchars
 					echo htmlspecialchars( (string) $text, ENT_QUOTES, 'UTF-8' );
 				},
 
@@ -184,7 +181,7 @@ abstract class BaseTestCase extends TestCase {
 				'wp_parse_url'          => function ( $url, $component = -1 ) {
 					// WordPress wrapper for parse_url with additional validation
 					$parts = parse_url( $url );
-					if ( $component === -1 ) {
+					if ( -1 === $component ) {
 						return $parts;
 					}
 					$part_map = array(
@@ -210,10 +207,12 @@ abstract class BaseTestCase extends TestCase {
 	 * Creates a mock wpdb object and sets it as the global $wpdb.
 	 */
 	protected function setup_wpdb_mock(): void {
+		// phpcs:disable WordPress.WP.GlobalVariablesOverride.Prohibited -- Test setup requires mock
 		global $wpdb;
 
 		$wpdb         = Mockery::mock( 'wpdb' );
 		$wpdb->prefix = 'wp_';
+		// phpcs:enable WordPress.WP.GlobalVariablesOverride.Prohibited
 
 		// Mock get_var to return null by default (not found)
 		$wpdb->shouldReceive( 'get_var' )

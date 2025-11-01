@@ -89,9 +89,9 @@ class MenuMetaBox {
 	 * @param mixed $object Not used for nav-menus screen.
 	 * @return void
 	 */
-	public function render_meta_box( $object ): void { // phpcs:ignore Generic.CodeAnalysis.UnusedFunctionParameter
+	public function render_meta_box( $object ): void {
 		// Get current menu ID.
-		// phpcs:ignore WordPress.Security.NonceVerification.Recommended
+		// phpcs:ignore Generic.Files.LineLength.MaxExceeded,WordPress.Security.NonceVerification.Recommended
 		$nav_menu_selected_id = isset( $_REQUEST['menu'] ) ? (int) $_REQUEST['menu'] : 0;
 
 		if ( ! $nav_menu_selected_id ) {
@@ -128,11 +128,8 @@ class MenuMetaBox {
 						<br>
 						<time datetime="<?php echo esc_attr( gmdate( 'c', $last_sync_time ) ); ?>">
 							<?php
-							printf(
-								/* translators: %s: human-readable time difference */
-								esc_html__( '%s ago', 'notion-wp' ),
-								esc_html( human_time_diff( $last_sync_time ) )
-							);
+							// translators: %s: human-readable time difference.
+							printf( esc_html__( '%s ago', 'notion-wp' ), esc_html( human_time_diff( $last_sync_time ) ) );
 							?>
 						</time>
 					</p>
@@ -151,8 +148,8 @@ class MenuMetaBox {
 					printf(
 						/* translators: 1: number of synced items, 2: total number of items */
 						esc_html__( '%1$d of %2$d', 'notion-wp' ),
-						(int) $synced_count,
-						(int) $total_items
+						absint( $synced_count ),
+						absint( $total_items )
 					);
 					?>
 				</p>
@@ -177,11 +174,8 @@ class MenuMetaBox {
 				<p class="description">
 					<span class="dashicons dashicons-info" aria-hidden="true"></span>
 					<?php
-					esc_html_e(
-						// phpcs:ignore Generic.Files.LineLength.MaxExceeded
-						'Notion-synced items show a sync icon (🔄). Toggle "Prevent Notion Updates" to preserve manual changes.',
-						'notion-wp'
-					);
+					// phpcs:ignore Generic.Files.LineLength.MaxExceeded
+					esc_html_e( 'Notion-synced items show a sync icon (🔄). Toggle "Prevent Notion Updates" to preserve manual changes.', 'notion-wp' );
 					?>
 				</p>
 			</div>
@@ -197,12 +191,11 @@ class MenuMetaBox {
 	 * @since 0.2.0-dev
 	 * @param int       $item_id Menu item ID.
 	 * @param \WP_Post  $item    Menu item post object.
-	 * @param int       $depth   Menu item depth (unused but required by WordPress hook).
-	 * @param \stdClass $args    Menu item args (unused but required by WordPress hook).
+	 * @param int       $depth   Menu item depth.
+	 * @param \stdClass $args    Menu item args (WordPress passes stdClass, not array).
 	 * @return void
 	 */
 	public function add_item_fields( int $item_id, \WP_Post $item, int $depth, \stdClass $args ): void {
-		// phpcs:ignore Generic.CodeAnalysis.UnusedFunctionParameter.FoundAfterLastUsed
 		// Only show for Notion-synced items.
 		if ( ! $this->menu_item_meta->is_notion_synced( $item_id ) ) {
 			return;
@@ -283,12 +276,11 @@ class MenuMetaBox {
 	 * @since 0.2.0-dev
 	 * @param string   $title   Menu item title.
 	 * @param \WP_Post $item    Menu item post object.
-	 * @param array    $args    Menu item args (unused but required by WordPress hook).
-	 * @param int      $depth   Menu item depth (unused but required by WordPress hook).
+	 * @param array    $args    Menu item args.
+	 * @param int      $depth   Menu item depth.
 	 * @return string Modified title with sync indicator.
 	 */
 	public function add_sync_indicator( string $title, \WP_Post $item, array $args, int $depth ): string {
-		// phpcs:ignore Generic.CodeAnalysis.UnusedFunctionParameter.FoundAfterLastUsed
 		// Only add indicator in admin menu editor.
 		if ( ! is_admin() ) {
 			return $title;
@@ -306,8 +298,7 @@ class MenuMetaBox {
 		}
 
 		// Add sync emoji indicator.
-		$label = esc_attr__( 'Synced from Notion', 'notion-wp' );
-		return '<span class="notion-sync-icon" aria-label="' . $label . '">🔄</span> ' . $title;
+		return '<span class="notion-sync-icon" aria-label="' . esc_attr__( 'Synced from Notion', 'notion-wp' ) . '">🔄</span> ' . $title;
 	}
 
 	/**

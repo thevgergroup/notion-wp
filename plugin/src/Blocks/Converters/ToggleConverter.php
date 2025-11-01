@@ -60,18 +60,17 @@ class ToggleConverter implements BlockConverterInterface {
 		// The BlockConverter will add nested children content,
 		// and we'll close the details element after children.
 		// For now, we create a self-contained toggle.
-		$details = sprintf(
-			'<details class="notion-toggle %s">' . "\n" .
-			"\t" . '<summary>%s</summary>' . "\n" .
-			"\t" . '<div class="notion-toggle-content">' . "\n" .
-			"\t\t" . '<!-- Children will be inserted here by BlockConverter -->' . "\n" .
-			"\t" . '</div>' . "\n" .
+		$details_html = sprintf(
+			'<details class="notion-toggle %s"><summary>%s</summary>' .
+			'<div class="notion-toggle-content"><!-- Children will be inserted here by BlockConverter --></div>' .
 			'</details>',
 			esc_attr( $color_class ),
 			wp_kses_post( $title )
 		);
-
-		return sprintf( "<!-- wp:html -->\n%s\n<!-- /wp:html -->\n\n", $details );
+		return sprintf(
+			"<!-- wp:html -->\n%s\n<!-- /wp:html -->\n\n",
+			$details_html
+		);
 	}
 
 	/**

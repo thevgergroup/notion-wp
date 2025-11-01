@@ -90,19 +90,15 @@ class EmbedConverter implements BlockConverterInterface {
 			esc_url( $url ),
 			esc_attr( $provider )
 		);
-
-		$figure_classes = sprintf(
-			'wp-block-embed is-type-video is-provider-%s wp-block-embed-%s ' .
-			'wp-embed-aspect-16-9 wp-has-aspect-ratio',
+		$figure_class = sprintf(
+			'wp-block-embed is-type-video is-provider-%s wp-block-embed-%s wp-embed-aspect-16-9 wp-has-aspect-ratio',
 			esc_attr( $provider ),
 			esc_attr( $provider )
 		);
-
 		return sprintf(
-			"<!-- wp:embed %s -->\n<figure class=\"%s\"><div class=\"wp-block-embed__wrapper\">\n%s\n" .
-			"</div></figure>\n<!-- /wp:embed -->\n\n",
+			"<!-- wp:embed %s -->\n<figure class=\"%s\"><div class=\"wp-block-embed__wrapper\">\n%s\n</div></figure>\n<!-- /wp:embed -->\n\n",
 			$block_attrs,
-			$figure_classes,
+			$figure_class,
 			esc_url( $url )
 		);
 	}
@@ -115,20 +111,21 @@ class EmbedConverter implements BlockConverterInterface {
 	 * @return string HTML for link preview.
 	 */
 	private function convert_link_preview( string $url, string $type ): string {
-		$title = esc_html( $this->get_url_title( $url ) );
-		$html  = sprintf(
-			'<div class="notion-bookmark">' . "\n" .
-			"\t" . '<a href="%s" target="_blank" rel="noopener noreferrer" class="notion-bookmark-link">' . "\n" .
-			"\t\t" . '<div class="notion-bookmark-title">%s</div>' . "\n" .
-			"\t\t" . '<div class="notion-bookmark-url">%s</div>' . "\n" .
-			"\t" . '</a>' . "\n" .
-			'</div>',
-			esc_url( $url ),
-			$title,
+		$link_html = sprintf(
+			'<a href="%s" target="_blank" rel="noopener noreferrer" class="notion-bookmark-link">',
+			esc_url( $url )
+		);
+		$bookmark_html = sprintf(
+			'<div class="notion-bookmark">%s<div class="notion-bookmark-title">%s</div>' .
+			'<div class="notion-bookmark-url">%s</div></a></div>',
+			$link_html,
+			esc_html( $this->get_url_title( $url ) ),
 			esc_html( $url )
 		);
-
-		return sprintf( "<!-- wp:html -->\n%s\n<!-- /wp:html -->\n\n", $html );
+		return sprintf(
+			"<!-- wp:html -->\n%s\n<!-- /wp:html -->\n\n",
+			$bookmark_html
+		);
 	}
 
 	/**
@@ -155,7 +152,6 @@ class EmbedConverter implements BlockConverterInterface {
 			'allowfullscreen sandbox="allow-scripts allow-same-origin allow-presentation"></iframe>',
 			esc_url( $url )
 		);
-
 		return sprintf(
 			"<!-- wp:html -->\n<div class=\"notion-embed\">\n\t%s\n</div>\n<!-- /wp:html -->\n\n",
 			$iframe

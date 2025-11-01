@@ -13,6 +13,7 @@ namespace NotionSync\Blocks\Converters;
 use NotionSync\Blocks\BlockConverterInterface;
 use NotionSync\Blocks\LinkRewriter;
 use NotionSync\Router\LinkRegistry;
+use NotionSync\Database\DatabasePostType;
 
 /**
  * Converts Notion link_to_page blocks to linked references
@@ -69,6 +70,39 @@ class LinkToPageConverter implements BlockConverterInterface {
 
 		// Normalize page ID (remove dashes).
 		$normalized_id = str_replace( '-', '', $page_id );
+
+		// Special handling for database links - check if synced and create database-view block.
+		if ( 'database' === $link_type ) {
+			$database_post_type = new DatabasePostType();
+			$db_post_id         = $database_post_type->find_by_notion_id( $normalized_id );
+
+			if ( $db_post_id ) {
+				// Database is synced - create interactive database-view block.
+				// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log -- Debug logging.
+				error_log(
+					sprintf(
+						'[LinkToPageConverter] Database link found and synced, creating database-view block (Notion ID: %s, WP Post ID: %d)',
+						$normalized_id,
+						$db_post_id
+					)
+				);
+
+				return sprintf(
+					'<!-- wp:notion-wp/database-view ' .
+					'{"databaseId":%d,"viewType":"table","showFilters":true,"showExport":true} /-->' . "\n\n",
+					$db_post_id
+				);
+			}
+
+			// Database not synced - continue with link fallback below.
+			// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log -- Debug logging.
+			error_log(
+				sprintf(
+					'[LinkToPageConverter] Database link not synced, creating text link (Notion ID: %s)',
+					$normalized_id
+				)
+			);
+		}
 
 		// Register link in registry (creates entry if doesn't exist).
 		// Title will be updated when the target page is synced.

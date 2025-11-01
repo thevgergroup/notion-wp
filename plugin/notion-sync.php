@@ -114,8 +114,8 @@ function init() {
 	$notion_link_shortcode->register();
 
 	// Register Database View Gutenberg block (Phase 5.3).
-	$database_view_block = new \NotionWP\Blocks\DatabaseViewBlock();
-	$database_view_block->register();
+	$database_view_block = new \NotionWP\Blocks\DatabaseViewBlock( __FILE__ );
+	$database_view_block->init();
 
 	// Initialize hierarchy detection (Phase 5).
 	$hierarchy_detector = new \NotionWP\Hierarchy\HierarchyDetector();

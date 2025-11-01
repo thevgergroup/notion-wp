@@ -2,8 +2,8 @@
 /**
  * Database View Gutenberg Block
  *
- * Registers and renders the notion-wp/database-view block for embedding
- * interactive Notion database views in WordPress posts and pages.
+ * Dynamic block for rendering interactive Notion database views.
+ * Stores database ID and display options, fetches data at render time.
  *
  * @package NotionWP\Blocks
  * @since 0.3.0
@@ -11,118 +11,131 @@
 
 namespace NotionWP\Blocks;
 
-use WP_Block;
-
 /**
- * Database View Block Class
+ * Class DatabaseViewBlock
  *
- * Handles registration and server-side rendering of the database-view block.
+ * Registers and renders the notion-wp/database-view Gutenberg block.
  */
 class DatabaseViewBlock {
+
 	/**
-	 * Block name (without namespace).
+	 * Block name (without namespace)
 	 *
 	 * @var string
 	 */
 	private const BLOCK_NAME = 'database-view';
 
 	/**
-	 * Block namespace.
+	 * Full block name with namespace
 	 *
 	 * @var string
 	 */
-	private const BLOCK_NAMESPACE = 'notion-wp';
+	private const FULL_BLOCK_NAME = 'notion-wp/database-view';
 
 	/**
-	 * Full block name including namespace.
+	 * Plugin file path
 	 *
 	 * @var string
 	 */
-	private const FULL_BLOCK_NAME = self::BLOCK_NAMESPACE . '/' . self::BLOCK_NAME;
-
-	/**
-	 * Path to block directory.
-	 *
-	 * @var string
-	 */
-	private string $block_path;
+	private string $plugin_file;
 
 	/**
 	 * Constructor.
+	 *
+	 * @param string $plugin_file Main plugin file path.
 	 */
-	public function __construct() {
-		$this->block_path = NOTION_SYNC_PATH . 'blocks/' . self::BLOCK_NAME;
+	public function __construct( string $plugin_file ) {
+		$this->plugin_file = $plugin_file;
 	}
 
 	/**
-	 * Register the block.
+	 * Initialize the block.
 	 *
-	 * @return void
+	 * Register WordPress hooks and register the block.
+	 *
+	 * @since 0.3.0
 	 */
-	public function register(): void {
-		// Register block type.
-		add_action( 'init', array( $this, 'register_block_type' ) );
+	public function init(): void {
+		// Register block immediately (we're already in the init hook).
+		$this->register_block();
 
-		// Enqueue editor assets.
+		// Hook for editor assets.
 		add_action( 'enqueue_block_editor_assets', array( $this, 'enqueue_editor_assets' ) );
 	}
 
 	/**
-	 * Register the block type with WordPress.
+	 * Enqueue block editor assets.
 	 *
-	 * @return void
-	 */
-	public function register_block_type(): void {
-		// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log -- Debug logging.
-		error_log( '[DatabaseViewBlock] Attempting to register block at path: ' . $this->block_path );
-
-		// Only register if block.json exists.
-		if ( ! file_exists( $this->block_path . '/block.json' ) ) {
-			// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log -- Debug logging.
-			error_log( '[DatabaseViewBlock] ERROR: block.json not found at: ' . $this->block_path );
-			return;
-		}
-
-		// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log -- Debug logging.
-		error_log( '[DatabaseViewBlock] block.json found, proceeding with registration' );
-
-		$result = register_block_type(
-			$this->block_path,
-			array(
-				'render_callback' => array( $this, 'render_callback' ),
-			)
-		);
-
-		if ( $result instanceof \WP_Block_Type ) {
-			// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log -- Debug logging.
-			error_log( '[DatabaseViewBlock] SUCCESS: Block registered as ' . self::FULL_BLOCK_NAME );
-		} else {
-			// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log -- Debug logging.
-			error_log( '[DatabaseViewBlock] ERROR: Block registration failed' );
-		}
-	}
-
-	/**
-	 * Enqueue editor-specific assets and localize data.
-	 *
-	 * @return void
+	 * @since 0.3.0
 	 */
 	public function enqueue_editor_assets(): void {
-		// Localize script with database posts data.
+		wp_enqueue_script(
+			'notion-wp-database-view-editor',
+			NOTION_SYNC_URL . 'assets/src/js/blocks/database-view.js',
+			array( 'wp-blocks', 'wp-element', 'wp-editor', 'wp-components', 'wp-i18n', 'wp-data', 'wp-core-data' ),
+			NOTION_SYNC_VERSION,
+			true
+		);
+
+		// Localize script with available databases.
 		wp_localize_script(
-			'notion-wp-database-view-editor-script',
+			'notion-wp-database-view-editor',
 			'notionWpDatabaseView',
 			array(
 				'databases' => $this->get_database_posts(),
-				'restUrl'   => rest_url(),
-				'nonce'     => wp_create_nonce( 'wp_rest' ),
 			)
+		);
+
+		// Add inline CSS for better editor preview.
+		wp_add_inline_style(
+			'wp-edit-blocks',
+			'
+			.notion-wp-database-view-editor {
+				padding: 20px;
+				border: 2px solid #ddd;
+				border-radius: 8px;
+				background: #f9f9f9;
+			}
+			.notion-wp-database-view-header {
+				display: flex;
+				align-items: center;
+				gap: 15px;
+				margin-bottom: 15px;
+				padding-bottom: 15px;
+				border-bottom: 2px solid #ddd;
+			}
+			.notion-wp-database-icon {
+				font-size: 32px;
+			}
+			.notion-wp-database-info h3 {
+				margin: 0 0 5px 0;
+				font-size: 18px;
+			}
+			.notion-wp-database-info p {
+				margin: 0;
+				color: #666;
+			}
+			.notion-wp-database-view-settings {
+				background: white;
+				padding: 15px;
+				border-radius: 4px;
+			}
+			.notion-wp-database-view-settings ul {
+				margin: 0;
+				padding: 0;
+				list-style: none;
+			}
+			.notion-wp-database-view-settings li {
+				padding: 5px 0;
+			}
+			'
 		);
 	}
 
 	/**
 	 * Get all notion_database posts for the editor.
 	 *
+	 * @since 0.3.0
 	 * @return array Array of database posts with ID, title, and row count.
 	 */
 	private function get_database_posts(): array {
@@ -151,24 +164,81 @@ class DatabaseViewBlock {
 	}
 
 	/**
-	 * Server-side render callback for the block.
+	 * Register the Gutenberg block.
 	 *
-	 * @param array    $attributes Block attributes from the editor.
-	 * @param string   $content    Block inner content (not used for this block).
-	 * @param WP_Block $block      Block instance.
-	 *
-	 * @return string Rendered HTML output.
+	 * @since 0.3.0
 	 */
-	public function render_callback( array $attributes, string $content, WP_Block $block ): string {
+	public function register_block(): void {
+		// Register as a dynamic block with server-side rendering.
+		register_block_type(
+			self::FULL_BLOCK_NAME,
+			array(
+				'api_version'     => 2,
+				'attributes'      => array(
+					'databaseId'  => array(
+						'type'    => 'number',
+						'default' => 0,
+					),
+					'viewType'    => array(
+						'type'    => 'string',
+						'default' => 'table',
+					),
+					'showFilters' => array(
+						'type'    => 'boolean',
+						'default' => true,
+					),
+					'showExport'  => array(
+						'type'    => 'boolean',
+						'default' => true,
+					),
+					'pageSize'    => array(
+						'type'    => 'number',
+						'default' => 50,
+					),
+				),
+				'render_callback' => array( $this, 'render_block' ),
+				'supports'        => array(
+					'html'   => false,
+					'align'  => array( 'wide', 'full' ),
+					'anchor' => true,
+				),
+			)
+		);
+
+		// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log -- Debug logging.
+		error_log( '[DatabaseViewBlock] Block registered: ' . self::FULL_BLOCK_NAME );
+	}
+
+	/**
+	 * Render the block on the frontend.
+	 *
+	 * @since 0.3.0
+	 *
+	 * @param array  $attributes Block attributes.
+	 * @param string $content    Block content (not used for dynamic blocks).
+	 * @return string Rendered HTML.
+	 *
+	 * @phpcs:ignore Generic.CodeAnalysis.UnusedFunctionParameter.FoundAfterLastUsed -- $content required by block API.
+	 */
+	public function render_block( array $attributes, string $content = '' ): string {
+
 		// Extract attributes with defaults.
-		$database_id  = isset( $attributes['databaseId'] ) ? intval( $attributes['databaseId'] ) : 0;
-		$view_type    = isset( $attributes['viewType'] ) ? sanitize_key( $attributes['viewType'] ) : 'table';
-		$show_filters = isset( $attributes['showFilters'] ) ? (bool) $attributes['showFilters'] : true;
-		$show_export  = isset( $attributes['showExport'] ) ? (bool) $attributes['showExport'] : true;
+		$database_id  = $attributes['databaseId'] ?? 0;
+		$view_type    = $attributes['viewType'] ?? 'table';
+		$show_filters = $attributes['showFilters'] ?? true;
+		$show_export  = $attributes['showExport'] ?? true;
+		$page_size    = $attributes['pageSize'] ?? 50;
+
+		// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log -- Debug logging.
+		error_log( sprintf( '[DatabaseViewBlock] Rendering block for database ID: %d', $database_id ) );
 
 		// Validate database ID.
 		if ( 0 === $database_id || 'notion_database' !== get_post_type( $database_id ) ) {
-			return $this->render_error( __( 'Please select a valid Notion database.', 'notion-wp' ) );
+			// Show placeholder for logged-in users.
+			if ( is_user_logged_in() ) {
+				return '<div class="notion-wp-database-view-error"><p>⚠️ Please select a valid Notion database.</p></div>';
+			}
+			return '';
 		}
 
 		// Validate view type.
@@ -180,7 +250,10 @@ class DatabaseViewBlock {
 		// Get database post.
 		$database_post = get_post( $database_id );
 		if ( ! $database_post ) {
-			return $this->render_error( __( 'Database not found.', 'notion-wp' ) );
+			if ( is_user_logged_in() ) {
+				return '<div class="notion-wp-database-view-error"><p>⚠️ Database not found.</p></div>';
+			}
+			return '';
 		}
 
 		// Enqueue frontend assets.
@@ -189,52 +262,32 @@ class DatabaseViewBlock {
 		// Build wrapper classes.
 		$wrapper_classes = array(
 			'notion-wp-database-view',
-			'notion-wp-database-view--' . $view_type,
+			'notion-wp-database-view--' . esc_attr( $view_type ),
 		);
 
-		// Add alignment class if set.
-		if ( ! empty( $block->context['align'] ) ) {
-			$wrapper_classes[] = 'align' . $block->context['align'];
-		}
+		// Prepare template variables.
+		$database_title    = esc_html( $database_post->post_title );
+		$wrapper_class     = implode( ' ', $wrapper_classes );
+		$data_database_id  = esc_attr( $database_id );
+		$data_view_type    = esc_attr( $view_type );
+		$data_show_filters = esc_attr( $show_filters ? '1' : '0' );
+		$data_show_export  = esc_attr( $show_export ? '1' : '0' );
+		$data_page_size    = esc_attr( $page_size );
 
-		// Prepare data attributes for JavaScript.
-		$data_attributes = array(
-			'data-database-id'   => esc_attr( $database_id ),
-			'data-view-type'     => esc_attr( $view_type ),
-			'data-show-filters'  => esc_attr( $show_filters ? '1' : '0' ),
-			'data-show-export'   => esc_attr( $show_export ? '1' : '0' ),
-		);
-
-		// Start output buffering.
+		// Render the block HTML.
 		ob_start();
-
-		// Load the render template.
-		include $this->block_path . '/render.php';
-
+		include NOTION_SYNC_PATH . 'templates/blocks/database-view.php';
 		return ob_get_clean();
-	}
-
-	/**
-	 * Render an error message.
-	 *
-	 * @param string $message Error message to display.
-	 *
-	 * @return string Rendered error HTML.
-	 */
-	private function render_error( string $message ): string {
-		return sprintf(
-			'<div class="notion-wp-database-view-error"><p>%s</p></div>',
-			esc_html( $message )
-		);
 	}
 
 	/**
 	 * Enqueue frontend assets (CSS and JS).
 	 *
+	 * @since 0.3.0
 	 * @return void
 	 */
 	private function enqueue_frontend_assets(): void {
-		// Enqueue Tabulator CSS (from CDN for now).
+		// Enqueue Tabulator CSS (from CDN).
 		wp_enqueue_style(
 			'tabulator',
 			'https://unpkg.com/tabulator-tables@6.3.0/dist/css/tabulator.min.css',
@@ -242,7 +295,7 @@ class DatabaseViewBlock {
 			'6.3.0'
 		);
 
-		// Enqueue Tabulator JS (from CDN for now).
+		// Enqueue Tabulator JS (from CDN).
 		wp_enqueue_script(
 			'tabulator',
 			'https://unpkg.com/tabulator-tables@6.3.0/dist/js/tabulator.min.js',
@@ -251,10 +304,10 @@ class DatabaseViewBlock {
 			true
 		);
 
-		// Enqueue our block frontend script (will be created later).
+		// Enqueue our block frontend script.
 		wp_enqueue_script(
-			'notion-wp-database-view',
-			NOTION_SYNC_URL . 'blocks/database-view/build/frontend.js',
+			'notion-wp-database-view-frontend',
+			NOTION_SYNC_URL . 'assets/src/js/frontend/database-view.js',
 			array( 'tabulator' ),
 			NOTION_SYNC_VERSION,
 			true
@@ -262,15 +315,15 @@ class DatabaseViewBlock {
 
 		// Enqueue block frontend styles.
 		wp_enqueue_style(
-			'notion-wp-database-view',
-			NOTION_SYNC_URL . 'blocks/database-view/build/style.css',
+			'notion-wp-database-view-frontend',
+			NOTION_SYNC_URL . 'assets/src/css/blocks/database-view.css',
 			array( 'tabulator' ),
 			NOTION_SYNC_VERSION
 		);
 
 		// Localize script with REST API data.
 		wp_localize_script(
-			'notion-wp-database-view',
+			'notion-wp-database-view-frontend',
 			'notionWpDatabaseViewFrontend',
 			array(
 				'restUrl' => rest_url(),

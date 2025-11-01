@@ -149,13 +149,14 @@ class MediaRegistry {
 
 		$table_name = self::get_table_name();
 
+		// phpcs:disable WordPress.DB.PreparedSQL.InterpolatedNotPrepared
 		$attachment_id = $wpdb->get_var(
 			$wpdb->prepare(
-				// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- Table name is safe.
 				"SELECT attachment_id FROM {$table_name} WHERE notion_identifier = %s LIMIT 1",
 				$notion_identifier
 			)
 		);
+		// phpcs:enable WordPress.DB.PreparedSQL.InterpolatedNotPrepared
 
 		$result = $attachment_id ? (int) $attachment_id : null;
 
@@ -176,13 +177,14 @@ class MediaRegistry {
 
 		$table_name = self::get_table_name();
 
+		// phpcs:disable WordPress.DB.PreparedSQL.InterpolatedNotPrepared
 		$count = $wpdb->get_var(
 			$wpdb->prepare(
-				// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- Table name is safe.
 				"SELECT COUNT(*) FROM {$table_name} WHERE notion_identifier = %s LIMIT 1",
 				$notion_identifier
 			)
 		);
+		// phpcs:enable WordPress.DB.PreparedSQL.InterpolatedNotPrepared
 
 		return (int) $count > 0;
 	}
@@ -198,13 +200,14 @@ class MediaRegistry {
 
 		$table_name = self::get_table_name();
 
+		// phpcs:disable WordPress.DB.PreparedSQL.InterpolatedNotPrepared
 		$status = $wpdb->get_var(
 			$wpdb->prepare(
-				// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- Table name is safe.
 				"SELECT status FROM {$table_name} WHERE notion_identifier = %s LIMIT 1",
 				$notion_identifier
 			)
 		);
+		// phpcs:enable WordPress.DB.PreparedSQL.InterpolatedNotPrepared
 
 		return $status ? $status : null;
 	}
@@ -237,13 +240,14 @@ class MediaRegistry {
 
 		$table_name = self::get_table_name();
 
+		// phpcs:disable WordPress.DB.PreparedSQL.InterpolatedNotPrepared
 		$notion_url = $wpdb->get_var(
 			$wpdb->prepare(
-				// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- Table name is safe.
 				"SELECT notion_file_url FROM {$table_name} WHERE notion_identifier = %s LIMIT 1",
 				$notion_identifier
 			)
 		);
+		// phpcs:enable WordPress.DB.PreparedSQL.InterpolatedNotPrepared
 
 		return $notion_url ? $notion_url : null;
 	}
@@ -339,13 +343,14 @@ class MediaRegistry {
 
 		$table_name = self::get_table_name();
 
+		// phpcs:disable WordPress.DB.PreparedSQL.InterpolatedNotPrepared
 		$results = $wpdb->get_col(
 			$wpdb->prepare(
-				// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- Table name is safe.
 				"SELECT notion_identifier FROM {$table_name} WHERE attachment_id = %d",
 				$attachment_id
 			)
 		);
+		// phpcs:enable WordPress.DB.PreparedSQL.InterpolatedNotPrepared
 
 		return $results ? $results : [];
 	}

@@ -184,17 +184,21 @@ class ImageDownloadHandler {
 			$table_name = $wpdb->prefix . 'notion_media_registry';
 
 			// Increment error count and store error message.
-			// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
-			$sql = "UPDATE {$table_name} SET error_count = error_count + 1, last_error = %s,"
-				. ' updated_at = %s WHERE notion_identifier = %s';
+			// phpcs:disable WordPress.DB.DirectDatabaseQuery.DirectQuery
+			// phpcs:disable WordPress.DB.DirectDatabaseQuery.NoCaching
+			// phpcs:disable WordPress.DB.PreparedSQL.InterpolatedNotPrepared
 			$wpdb->query(
 				$wpdb->prepare(
-					$sql, // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
+					"UPDATE {$table_name} SET error_count = error_count + 1, last_error = %s, " .
+					'updated_at = %s WHERE notion_identifier = %s',
 					$e->getMessage(),
 					current_time( 'mysql' ),
 					$block_id
 				)
 			);
+			// phpcs:enable WordPress.DB.DirectDatabaseQuery.DirectQuery
+			// phpcs:enable WordPress.DB.DirectDatabaseQuery.NoCaching
+			// phpcs:enable WordPress.DB.PreparedSQL.InterpolatedNotPrepared
 
 			// Let Action Scheduler handle retries automatically.
 			throw $e;

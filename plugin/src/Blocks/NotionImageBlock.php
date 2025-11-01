@@ -472,17 +472,13 @@ class NotionImageBlock {
 			? sprintf( '%s <em>(loading...)</em>', wp_kses_post( $caption ) )
 			: '<em>Loading image...</em>';
 
-		$spinner_styles = 'min-height: 200px; display: flex; align-items: center; justify-content: center;'
-			. ' background: #f0f0f1; border: 1px solid #ddd; border-radius: 4px;';
-
+		$spinner_style = 'min-height: 200px; display: flex; align-items: center; justify-content: center; ' .
+			'background: #f0f0f1; border: 1px solid #ddd; border-radius: 4px;';
 		return sprintf(
-			'<figure class="wp-block-image notion-image-pending" data-notion-status="downloading">
-				<div class="notion-image-spinner" style="%s">
-					<span style="font-size: 48px;">⏳</span>
-				</div>
-				<figcaption class="wp-element-caption">%s</figcaption>
-			</figure>',
-			esc_attr( $spinner_styles ),
+			'<figure class="wp-block-image notion-image-pending" data-notion-status="downloading">' .
+			'<div class="notion-image-spinner" style="%s"><span style="font-size: 48px;">⏳</span></div>' .
+			'<figcaption class="wp-element-caption">%s</figcaption></figure>',
+			$spinner_style,
 			$spinner_caption
 		);
 	}
@@ -529,17 +525,13 @@ class NotionImageBlock {
 			? sprintf( '%s <em>(image URL unavailable)</em>', wp_kses_post( $caption ) )
 			: '<em>Image URL unavailable</em>';
 
-		$error_styles = 'min-height: 200px; display: flex; align-items: center; justify-content: center;'
-			. ' background: #fff3cd; border: 1px solid #ffc107; border-radius: 4px;';
-
+		$error_style = 'min-height: 200px; display: flex; align-items: center; justify-content: center; ' .
+			'background: #fff3cd; border: 1px solid #ffc107; border-radius: 4px;';
 		return sprintf(
-			'<figure class="wp-block-image notion-image-error" data-notion-status="error">
-				<div class="notion-image-error" style="%s">
-					<span style="font-size: 48px;">⚠️</span>
-				</div>
-				<figcaption class="wp-element-caption">%s</figcaption>
-			</figure>',
-			esc_attr( $error_styles ),
+			'<figure class="wp-block-image notion-image-error" data-notion-status="error">' .
+			'<div class="notion-image-error" style="%s"><span style="font-size: 48px;">⚠️</span></div>' .
+			'<figcaption class="wp-element-caption">%s</figcaption></figure>',
+			$error_style,
 			$error_caption
 		);
 	}

@@ -69,8 +69,9 @@ class NavigationAjaxHandlerTest extends BaseTestCase {
 		// Mock wp_send_json_error
 		Functions\when( 'wp_send_json_error' )
 			->alias(
-				function ( $data, $status_code = null ) {
-					throw new \Exception( 'AJAX Error: ' . ( $data['message'] ?? 'Unknown error' ) );
+				function ( $data ) {
+					$message = isset( $data['message'] ) ? $data['message'] : 'Unknown error';
+					throw new \Exception( 'AJAX Error: ' . esc_html( $message ) );
 				}
 			);
 
@@ -112,7 +113,7 @@ class NavigationAjaxHandlerTest extends BaseTestCase {
 		Functions\when( 'get_option' )
 			->alias(
 				function ( $option, $default = false ) {
-					if ( $option === 'notion_sync_menu_name' ) {
+					if ( 'notion_sync_menu_name' === $option ) {
 							return 'Notion Navigation';
 					}
 					return $default;
@@ -209,13 +210,14 @@ class NavigationAjaxHandlerTest extends BaseTestCase {
 	 * Tests the private method indirectly through ajax_sync_menu_now.
 	 */
 	public function test_ajax_sync_menu_now_finds_root_pages_correctly(): void {
-		global $wpdb;
-
 		// Reset wpdb mock for this test
+		// phpcs:disable WordPress.WP.GlobalVariablesOverride.Prohibited
+		global $wpdb;
 		$wpdb = \Mockery::mock( 'wpdb' );
 		$wpdb->postmeta = 'wp_postmeta';
 		$wpdb->posts = 'wp_posts';
 		$GLOBALS['wpdb'] = $wpdb;
+		// phpcs:enable WordPress.WP.GlobalVariablesOverride.Prohibited
 
 		// Mock prepare method
 		$wpdb->shouldReceive( 'prepare' )
@@ -237,14 +239,14 @@ class NavigationAjaxHandlerTest extends BaseTestCase {
 		// Override get_post_meta for root posts (1 and 4) - called after mock_sync_process
 		Functions\when( 'get_post_meta' )
 			->alias(
-				function ( $post_id, $key, $single ) {
-					if ( $key !== 'notion_page_id' ) {
+				function ( $post_id, $key ) {
+					if ( 'notion_page_id' !== $key ) {
 							return '';
 					}
 
-					if ( $post_id === 1 ) {
+					if ( 1 === $post_id ) {
 						return 'root-page-1';
-					} elseif ( $post_id === 4 ) {
+					} elseif ( 4 === $post_id ) {
 						return 'root-page-2';
 					}
 
@@ -264,13 +266,13 @@ class NavigationAjaxHandlerTest extends BaseTestCase {
 		Functions\when( 'get_post' )
 			->alias(
 				function ( $post_id ) {
-					if ( $post_id === 1 ) {
+					if ( 1 === $post_id ) {
 							return (object) array(
 								'ID'         => 1,
 								'post_title' => 'Root Page 1',
 								'menu_order' => 0,
 							);
-					} elseif ( $post_id === 4 ) {
+					} elseif ( 4 === $post_id ) {
 						return (object) array(
 							'ID'         => 4,
 							'post_title' => 'Root Page 2',
@@ -292,13 +294,14 @@ class NavigationAjaxHandlerTest extends BaseTestCase {
 	 * Ensures root page detection works with both dashed and non-dashed IDs.
 	 */
 	public function test_ajax_sync_menu_now_handles_mixed_id_formats(): void {
-		global $wpdb;
-
 		// Reset wpdb mock for this test
+		// phpcs:disable WordPress.WP.GlobalVariablesOverride.Prohibited
+		global $wpdb;
 		$wpdb = \Mockery::mock( 'wpdb' );
 		$wpdb->postmeta = 'wp_postmeta';
 		$wpdb->posts = 'wp_posts';
 		$GLOBALS['wpdb'] = $wpdb;
+		// phpcs:enable WordPress.WP.GlobalVariablesOverride.Prohibited
 
 		// Mock prepare method
 		$wpdb->shouldReceive( 'prepare' )
@@ -319,14 +322,14 @@ class NavigationAjaxHandlerTest extends BaseTestCase {
 		// Override get_post_meta with different ID formats - called after mock_sync_process
 		Functions\when( 'get_post_meta' )
 			->alias(
-				function ( $post_id, $key, $single ) {
-					if ( $key !== 'notion_page_id' ) {
+				function ( $post_id, $key ) {
+					if ( 'notion_page_id' !== $key ) {
 							return '';
 					}
 
-					if ( $post_id === 1 ) {
+					if ( 1 === $post_id ) {
 						return '2634dac9b96e813da15efd85567b68ff'; // No dashes
-					} elseif ( $post_id === 2 ) {
+					} elseif ( 2 === $post_id ) {
 						return '2634dac9-b96e-813d-a15e-fd85567b68ff'; // With dashes
 					}
 
@@ -346,13 +349,13 @@ class NavigationAjaxHandlerTest extends BaseTestCase {
 		Functions\when( 'get_post' )
 			->alias(
 				function ( $post_id ) {
-					if ( $post_id === 1 ) {
+					if ( 1 === $post_id ) {
 							return (object) array(
 								'ID'         => 1,
 								'post_title' => 'Root Page 1',
 								'menu_order' => 0,
 							);
-					} elseif ( $post_id === 2 ) {
+					} elseif ( 2 === $post_id ) {
 						return (object) array(
 							'ID'         => 2,
 							'post_title' => 'Root Page 2',
@@ -372,13 +375,14 @@ class NavigationAjaxHandlerTest extends BaseTestCase {
 	 * Test ajax_sync_menu_now builds hierarchy successfully
 	 */
 	public function test_ajax_sync_menu_now_builds_hierarchy_successfully(): void {
-		global $wpdb;
-
 		// Mock finding root page - need to reset mock for this test
+		// phpcs:disable WordPress.WP.GlobalVariablesOverride.Prohibited
+		global $wpdb;
 		$wpdb = \Mockery::mock( 'wpdb' );
 		$wpdb->postmeta = 'wp_postmeta';
 		$wpdb->posts = 'wp_posts';
 		$GLOBALS['wpdb'] = $wpdb;
+		// phpcs:enable WordPress.WP.GlobalVariablesOverride.Prohibited
 
 		// Mock prepare method
 		$wpdb->shouldReceive( 'prepare' )
@@ -398,8 +402,8 @@ class NavigationAjaxHandlerTest extends BaseTestCase {
 		// Override get_post_meta (called after mock_sync_process to override)
 		Functions\when( 'get_post_meta' )
 			->alias(
-				function ( $post_id, $key, $single ) {
-					if ( $post_id === 1 && $key === 'notion_page_id' ) {
+				function ( $post_id, $key ) {
+					if ( 1 === $post_id && 'notion_page_id' === $key ) {
 							return 'root-page-id';
 					}
 					return '';
@@ -418,7 +422,7 @@ class NavigationAjaxHandlerTest extends BaseTestCase {
 		Functions\when( 'get_post' )
 			->alias(
 				function ( $post_id ) {
-					if ( $post_id === 1 ) {
+					if ( 1 === $post_id ) {
 							return (object) array(
 								'ID'         => 1,
 								'post_title' => 'Root Page',
@@ -438,13 +442,14 @@ class NavigationAjaxHandlerTest extends BaseTestCase {
 	 * Test ajax_sync_menu_now handles theme without menu support
 	 */
 	public function test_ajax_sync_menu_now_handles_theme_without_menus(): void {
-		global $wpdb;
-
 		// Reset wpdb mock for this test
+		// phpcs:disable WordPress.WP.GlobalVariablesOverride.Prohibited
+		global $wpdb;
 		$wpdb = \Mockery::mock( 'wpdb' );
 		$wpdb->postmeta = 'wp_postmeta';
 		$wpdb->posts = 'wp_posts';
 		$GLOBALS['wpdb'] = $wpdb;
+		// phpcs:enable WordPress.WP.GlobalVariablesOverride.Prohibited
 
 		// Mock prepare method
 		$wpdb->shouldReceive( 'prepare' )
@@ -471,8 +476,8 @@ class NavigationAjaxHandlerTest extends BaseTestCase {
 		// Override get_post_meta - called after mock_sync_process
 		Functions\when( 'get_post_meta' )
 			->alias(
-				function ( $post_id, $key, $single ) {
-					if ( $post_id === 1 && $key === 'notion_page_id' ) {
+				function ( $post_id, $key ) {
+					if ( 1 === $post_id && 'notion_page_id' === $key ) {
 							return 'root-page-id';
 					}
 					return '';
@@ -491,7 +496,7 @@ class NavigationAjaxHandlerTest extends BaseTestCase {
 		Functions\when( 'get_post' )
 			->alias(
 				function ( $post_id ) {
-					if ( $post_id === 1 ) {
+					if ( 1 === $post_id ) {
 							return (object) array(
 								'ID'         => 1,
 								'post_title' => 'Root Page',
@@ -528,13 +533,14 @@ class NavigationAjaxHandlerTest extends BaseTestCase {
 	 * Test ajax_sync_menu_now returns success with menu details
 	 */
 	public function test_ajax_sync_menu_now_returns_success_data(): void {
-		global $wpdb;
-
 		// Reset wpdb mock for this test
+		// phpcs:disable WordPress.WP.GlobalVariablesOverride.Prohibited
+		global $wpdb;
 		$wpdb = \Mockery::mock( 'wpdb' );
 		$wpdb->postmeta = 'wp_postmeta';
 		$wpdb->posts = 'wp_posts';
 		$GLOBALS['wpdb'] = $wpdb;
+		// phpcs:enable WordPress.WP.GlobalVariablesOverride.Prohibited
 
 		// Mock prepare method
 		$wpdb->shouldReceive( 'prepare' )
@@ -554,8 +560,8 @@ class NavigationAjaxHandlerTest extends BaseTestCase {
 		// Override get_post_meta - called after mock_sync_process
 		Functions\when( 'get_post_meta' )
 			->alias(
-				function ( $post_id, $key, $single ) {
-					if ( $key === 'notion_page_id' ) {
+				function ( $post_id, $key ) {
+					if ( 'notion_page_id' === $key ) {
 							return 'root-page-id';
 					}
 					return '';
@@ -574,7 +580,7 @@ class NavigationAjaxHandlerTest extends BaseTestCase {
 		Functions\when( 'get_post' )
 			->alias(
 				function ( $post_id ) {
-					if ( $post_id === 1 ) {
+					if ( 1 === $post_id ) {
 							return (object) array(
 								'ID'         => 1,
 								'post_title' => 'Root Page',
@@ -595,7 +601,7 @@ class NavigationAjaxHandlerTest extends BaseTestCase {
 		Functions\when( 'wp_get_nav_menu_items' )
 			->alias(
 				function ( $menu_id ) use ( $menu_items ) {
-					if ( $menu_id === 123 ) {
+					if ( 123 === $menu_id ) {
 							return $menu_items;
 					}
 					return array();

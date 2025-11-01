@@ -63,14 +63,16 @@ class FallbackConverter implements BlockConverterInterface {
 
 		// If we found text content, output it as a paragraph with a warning comment.
 		if ( ! empty( $text_content ) ) {
-			$comment_start = sprintf( '<!-- Unsupported Notion block type: %s -->', esc_html( $type ) );
-			$comment_end   = sprintf( '<!-- End unsupported block: %s -->', esc_html( $type ) );
-			$paragraph     = sprintf(
-				"<!-- wp:paragraph -->\n<p class=\"notion-unsupported-block\">%s</p>\n<!-- /wp:paragraph -->",
+			$paragraph_html = sprintf(
+				'<!-- wp:paragraph --><p class="notion-unsupported-block">%s</p><!-- /wp:paragraph -->',
 				wp_kses_post( $text_content )
 			);
-
-			return sprintf( "%s\n%s\n%s\n\n", $comment_start, $paragraph, $comment_end );
+			return sprintf(
+				"<!-- Unsupported Notion block type: %s -->\n%s\n<!-- End unsupported block: %s -->\n\n",
+				esc_html( $type ),
+				$paragraph_html,
+				esc_html( $type )
+			);
 		}
 
 		// If no text content, just output a warning comment.
