@@ -7,7 +7,7 @@ Thank you for your interest in contributing to Notion Sync! This guide will help
 1. [Code of Conduct](#code-of-conduct)
 2. [Getting Started](#getting-started)
 3. [Development Environment Setup](#development-environment-setup)
-4. [Git Worktree Workflow](#git-worktree-workflow)
+4. [Branching Workflow](#branching-workflow)
 5. [Coding Standards](#coding-standards)
 6. [Running Linters](#running-linters)
 7. [Testing](#testing)
@@ -30,9 +30,9 @@ We are committed to providing a welcoming and inclusive environment for all cont
 
 Before contributing, ensure you have:
 
-- **Git 2.5+** (for worktree support)
+- **Git 2.0+**
 - **Docker and Docker Compose** (for local WordPress environment)
-- **Node.js 18+** (for asset building)
+- **Node.js 20+** (for asset building)
 - **PHP 8.0+** (composer.phar will be downloaded during setup)
 - **Basic understanding of**:
     - WordPress plugin development
@@ -55,141 +55,129 @@ Before contributing, ensure you have:
 
 ## Development Environment Setup
 
-This project uses **git worktrees** with isolated Docker environments for parallel development. Each worktree has its own WordPress installation and database.
+This project uses a **simple branch-based workflow** with Docker for the local WordPress environment.
 
 ### Quick Setup
 
-1. **Create your first worktree**:
+1. **Start Docker environment**:
 
     ```bash
-    ./scripts/setup-worktree.sh main 8080 3306
+    make up
     ```
 
-    This creates a worktree named `main` with:
-    - HTTP port: 8080
-    - Database port: 3306
-    - URL: http://main.localtest.me
-
-2. **Access WordPress**:
-    - Admin: http://main.localtest.me/wp-admin
+    This starts WordPress on:
+    - URL: http://localhost:8080
+    - Admin: http://localhost:8080/wp-admin
     - Username: `admin`
     - Password: `admin`
 
-3. **Install Composer** (if not already installed):
-
+2. **Install dependencies**:
     ```bash
-    # Download composer.phar to project root
-    cd ../main
-    curl -sS https://getcomposer.org/installer | php
-
-    # Verify installation
-    php composer.phar --version
-    ```
-
-4. **Install dependencies**:
-    ```bash
-    # Install PHP dependencies (from project root)
-    php composer.phar install
+    # Install Composer dependencies
+    cd plugin
+    composer install
 
     # Install Node dependencies and build assets
-    cd plugin
     npm install
     npm run build
     ```
 
-### Creating Feature Worktrees
+3. **Verify setup**:
+    ```bash
+    # Run tests
+    composer test
 
-For each feature or fix, create a dedicated worktree:
+    # Run linters
+    composer lint
+    ```
 
-```bash
-# Create worktree for your feature
-./scripts/setup-worktree.sh feature-my-feature 8081 3307
-
-# Navigate to it
-cd ../feature-my-feature
-
-# Start coding!
-```
-
-Each worktree is completely isolated:
-
-- Separate WordPress installation
-- Separate database
-- Unique Docker containers
-- Independent .env file
-
-### Common Commands
-
-From any worktree directory:
+### Docker Commands
 
 ```bash
-make help              # Show all available commands
-make up                # Start containers
-make down              # Stop containers
-make logs              # View logs
-make shell             # Access WordPress container
-make wp ARGS="..."     # Run WP-CLI commands
-make test              # Run tests (when available)
+make up      # Start WordPress + Database
+make down    # Stop containers
+make clean   # Stop and remove all containers + volumes
+make shell   # Open shell in WordPress container
+make logs    # View container logs
 ```
 
-## Git Worktree Workflow
+## Branching Workflow
+
+We use a simple feature branch workflow. See [Branching Strategy](docs/development/BRANCHING-STRATEGY.md) for full details.
 
 ### Creating a Feature Branch
 
 1. **Sync with upstream**:
 
     ```bash
-    git fetch upstream
     git checkout main
-    git merge upstream/main
+    git pull upstream main
     ```
 
-2. **Create feature worktree**:
+2. **Create feature branch**:
 
     ```bash
-    ./scripts/setup-worktree.sh feature-block-converter 8082 3308
-    cd ../feature-block-converter
+    git checkout -b feature/my-feature
     ```
 
 3. **Make changes**:
 
     ```bash
     # Edit files
-    vim plugin/src/Converters/MyConverter.php
+    vim plugin/src/MyFile.php
 
-    # Check linting (from project root)
-    php composer.phar lint
-
-    # Check JavaScript/CSS linting (from plugin directory)
+    # Run tests
     cd plugin
-    npm run lint
+    composer test
 
-    # Test changes in browser
-    # Visit http://feature-block-converter.localtest.me
+    # Run linters
+    composer lint
+
+    # Test in browser at http://localhost:8080
     ```
 
 4. **Commit changes**:
 
     ```bash
-    git add plugin/src/Converters/MyConverter.php
-    git commit -m "Add custom block converter for callouts"
+    git add plugin/src/MyFile.php
+    git commit -m "feat: add my feature"
     ```
 
 5. **Push to your fork**:
 
     ```bash
-    git push origin feature-block-converter
+    git push -u origin feature/my-feature
     ```
 
 6. **Create pull request** on GitHub
 
-### Cleaning Up Worktrees
+### Switching Between Branches
 
-After your PR is merged:
+When switching branches, restart Docker to keep environment in sync:
 
 ```bash
-# Teardown worktree and delete branch
-./scripts/teardown-worktree.sh feature-block-converter --delete-branch
+# Stop Docker
+make down
+
+# Switch branch
+git checkout feature/other-feature
+
+# Start Docker (rebuilds if needed)
+make up
+```
+
+### After PR is Merged
+
+```bash
+# Switch back to main
+git checkout main
+git pull upstream main
+
+# Delete local branch
+git branch -d feature/my-feature
+
+# Delete remote branch
+git push origin --delete feature/my-feature
 ```
 
 ## Coding Standards
