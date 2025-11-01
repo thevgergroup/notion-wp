@@ -542,12 +542,16 @@ Many block types with varying complexity.
 - **Phase 5.5:** Table View Display - Gutenberg block with Tabulator integration, filters, export
 - **Phase 5.6:** Enhanced ChildDatabaseConverter - Notion API integration, collection_id lookup, fallback handling
 
-**⚠️ Remaining Work:**
-- **User Documentation** (HIGH PRIORITY - Release Blocker)
+**📋 Ready to Start:**
+- **Phase 5.7:** User Documentation & Release Preparation (HIGH PRIORITY - Release Blocker)
   - README rework for WordPress users (installation, usage, configuration)
   - Development documentation separation (DEVELOPMENT.md)
-  - Screenshots with Playwright (moved to docs/images/)
+  - Screenshots with Playwright automation (7 images to docs/images/)
   - Document what's available vs. coming soon
+  - **Detailed Plan:** See [Phase 5.7 Detailed Plan](./phase-5.7-user-documentation.md)
+  - **Estimated Effort:** 1-2 weeks
+
+**⏳ Future Work (Post-Release):**
 - Additional database view types (board, gallery, timeline, calendar) - UI marked "Coming Soon"
 - MenuManager CRUD operations (file exists but methods are TODO stubs)
 - Admin UI enhancements (hierarchy settings panel, database view settings, link resolution tools)
@@ -571,6 +575,16 @@ Many block types with varying complexity.
 - [x] Filter configurations applied correctly
 - [x] Sort configurations applied correctly
 - [x] Embedded entries link to synced WordPress posts when available
+
+#### User Documentation (Phase 5.7 - Release Blocker)
+- [ ] README.md is WordPress user-focused (not developer-focused)
+- [ ] README.md includes installation instructions
+- [ ] README.md includes usage guide (connect, sync, configure)
+- [ ] README.md includes theme integration instructions
+- [ ] 7 screenshots captured and saved to docs/images/
+- [ ] DEVELOPMENT.md contains all technical/contributor content
+- [ ] Feature status clearly documented (available vs. coming soon)
+- [ ] All internal documentation links work correctly
 
 ### Dependencies
 
@@ -628,9 +642,12 @@ Many block types with varying complexity.
 - Enhanced `ChildDatabaseConverter` with inline rendering ✅
 - Menu assignment interface in admin ⚠️
 - Recursive sync support ✅
-- **README.md - User-focused installation/usage guide** ⚠️
-- **docs/development/DEVELOPMENT.md - Developer documentation** ⚠️
-- **docs/images/ - Professional screenshots** ⚠️
+
+**Phase 5.7 Deliverables (Release Blockers):**
+- **README.md** - User-focused installation/usage guide 📋
+- **docs/development/DEVELOPMENT.md** - Developer documentation 📋
+- **docs/images/** - 7 professional screenshots (Playwright automation) 📋
+- **Feature status documentation** - Available vs. coming soon 📋
 
 ### Estimated Complexity: L (Large)
 
