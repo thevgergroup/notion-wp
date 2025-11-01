@@ -16,5 +16,20 @@
 	"config": {
 		"optimize-autoloader": true,
 		"sort-packages": true
+	},
+	"scripts": {
+		"test": [
+			"@test:unit"
+		],
+		"test:unit": "phpunit --configuration ../phpunit.xml",
+		"lint": [
+			"@lint:phpcs",
+			"@lint:phpstan"
+		],
+		"lint:phpcs": "phpcs --report=summary",
+		"lint:phpcs:full": "phpcs",
+		"lint:phpstan": "phpstan analyse --memory-limit=1G --no-progress --error-format=table",
+		"lint:fix": "phpcbf",
+		"lint:fix:quiet": "phpcbf --quiet"
 	}
 }
