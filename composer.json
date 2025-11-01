@@ -77,7 +77,10 @@
 			"@lint",
 			"@analyze"
 		],
-		"test": "echo 'Tests not yet configured'",
+		"test": [
+			"@test:unit"
+		],
+		"test:unit": "phpunit --configuration phpunit.xml",
 		"post-install-cmd": [
 			"@php -r \"echo '\\n\\033[32m✓ Composer dependencies installed successfully\\033[0m\\n';\"",
 			"@php -r \"echo '\\033[33mRun \\033[1mcomposer lint\\033[0m\\033[33m to check code quality\\033[0m\\n\\n';\""
