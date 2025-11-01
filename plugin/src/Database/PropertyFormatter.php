@@ -554,7 +554,7 @@ class PropertyFormatter {
 	 * @return string HTML mailto link.
 	 */
 	private function format_email( string $value ): string {
-		if ( empty( $value ) || ! is_email( $value ) ) {
+		if ( empty( $value ) || ! filter_var( $value, FILTER_VALIDATE_EMAIL ) ) {
 			return esc_html( $value );
 		}
 

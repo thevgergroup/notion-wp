@@ -430,7 +430,7 @@ class DatabaseRestController {
 			}
 
 			// Check for email.
-			if ( \is_email( $value ) ) {
+			if ( filter_var( $value, FILTER_VALIDATE_EMAIL ) ) {
 				return 'email';
 			}
 
