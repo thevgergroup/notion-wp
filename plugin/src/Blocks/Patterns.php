@@ -23,12 +23,15 @@ class Patterns {
 	/**
 	 * Register WordPress hooks.
 	 *
+	 * Called from the main plugin init hook, so we register immediately
+	 * instead of deferring to another init action.
+	 *
 	 * @since 1.0.0
 	 * @return void
 	 */
 	public function register(): void {
-		add_action( 'init', array( $this, 'register_pattern_category' ) );
-		add_action( 'init', array( $this, 'register_patterns' ) );
+		$this->register_pattern_category();
+		$this->register_patterns();
 	}
 
 	/**
