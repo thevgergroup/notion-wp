@@ -40,6 +40,7 @@ composer.lock
 
 # Build artifacts
 build/
+!plugin/assets/build/
 dist/
 *.zip
 

@@ -1,0 +1,1415 @@
+# Copyright (C) 2025 The Verger Group
+# This file is distributed under the GPL-3.0+.
+msgid ""
+msgstr ""
+"Project-Id-Version: Notion Sync 1.0.0\n"
+"Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/notion-sync\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"POT-Creation-Date: 2025-11-02T19:24:31+00:00\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"X-Generator: WP-CLI 2.12.0\n"
+"X-Domain: notion-wp\n"
+
+#. Plugin Name of the plugin
+#: notion-sync.php
+#: assets/ENQUEUE-SNIPPET.php:37
+#: assets/ENQUEUE-SNIPPET.php:38
+#: src/Admin/MenuMetaBox.php:211
+#: src/Admin/SettingsPage.php:55
+#: src/Admin/SettingsPage.php:56
+msgid "Notion Sync"
+msgstr ""
+
+#. Plugin URI of the plugin
+#: notion-sync.php
+msgid "https://github.com/thevgergroup/notion-wp"
+msgstr ""
+
+#. Description of the plugin
+#: notion-sync.php
+msgid "Bi-directional synchronization between Notion and WordPress"
+msgstr ""
+
+#. Author of the plugin
+#: notion-sync.php
+msgid "The Verger Group"
+msgstr ""
+
+#. Author URI of the plugin
+#: notion-sync.php
+msgid "https://thevgergroup.com"
+msgstr ""
+
+#: assets/ENQUEUE-SNIPPET.php:89
+#: src/Admin/SettingsPage.php:127
+msgid "Connecting..."
+msgstr ""
+
+#: assets/ENQUEUE-SNIPPET.php:90
+#: src/Admin/SettingsPage.php:128
+msgid "Connected!"
+msgstr ""
+
+#: assets/ENQUEUE-SNIPPET.php:91
+#: src/Admin/SettingsPage.php:129
+msgid "Disconnecting..."
+msgstr ""
+
+#: assets/ENQUEUE-SNIPPET.php:92
+#: src/Admin/SettingsPage.php:130
+msgid "An error occurred. Please try again."
+msgstr ""
+
+#: blocks/database-view/render.php:49
+#: src/Admin/DatabaseViewPage.php:126
+#: src/Database/DatabaseTemplateLoader.php:122
+#: templates/admin/database-view.php:56
+#: templates/single-notion_database.php:125
+msgid "Export CSV"
+msgstr ""
+
+#. translators: %s: view type name
+#: blocks/database-view/render.php:72
+#, php-format
+msgid "%s view coming soon!"
+msgstr ""
+
+#: blocks/database-view/render.php:83
+#: src/Admin/DatabaseViewPage.php:123
+#: src/Database/DatabaseTemplateLoader.php:119
+#: templates/admin/database-view.php:68
+#: templates/single-notion_database.php:137
+msgid "Loading database..."
+msgstr ""
+
+#: blocks/database-view/render.php:87
+msgid "Error loading database. Please try again."
+msgstr ""
+
+#: src/Admin/AdminNotices.php:66
+msgid "Success:"
+msgstr ""
+
+#: src/Admin/AdminNotices.php:84
+#: templates/admin/database-view.php:73
+#: templates/single-notion_database.php:141
+msgid "Error:"
+msgstr ""
+
+#: src/Admin/BulkSyncProcessor.php:61
+msgid "No pages selected. Please select pages to sync."
+msgstr ""
+
+#: src/Admin/BulkSyncProcessor.php:104
+#: blocks/database-view/src/edit.js:192
+msgid "Unknown error"
+msgstr ""
+
+#. translators: %d: number of pages synced
+#. translators: %d: number of successfully synced pages
+#: src/Admin/BulkSyncProcessor.php:137
+#: src/Admin/SyncAjaxHandler.php:181
+#, php-format
+msgid "Successfully synced %d page."
+msgid_plural "Successfully synced %d pages."
+msgstr[0] ""
+msgstr[1] ""
+
+#. translators: 1: number of successful syncs, 2: number of errors, 3: error details
+#: src/Admin/BulkSyncProcessor.php:155
+#, php-format
+msgid "Synced %1$d pages. Failed to sync %2$d pages.%3$s"
+msgstr ""
+
+#. translators: 1: number of errors, 2: error details
+#: src/Admin/BulkSyncProcessor.php:170
+#, php-format
+msgid "Failed to sync %1$d pages.%2$s"
+msgstr ""
+
+#: src/Admin/DatabaseAjaxHandler.php:49
+#: src/Admin/DatabaseAjaxHandler.php:97
+#: src/Admin/DatabaseAjaxHandler.php:140
+#: src/Admin/DatabaseAjaxHandler.php:187
+msgid "Unauthorized"
+msgstr ""
+
+#: src/Admin/DatabaseAjaxHandler.php:56
+msgid "Database ID is required"
+msgstr ""
+
+#: src/Admin/DatabaseAjaxHandler.php:64
+#: src/Admin/DatabaseAjaxHandler.php:112
+#: src/Admin/DatabaseAjaxHandler.php:155
+msgid "Not connected to Notion"
+msgstr ""
+
+#: src/Admin/DatabaseAjaxHandler.php:77
+msgid "Database sync started"
+msgstr ""
+
+#: src/Admin/DatabaseAjaxHandler.php:104
+#: src/Admin/DatabaseAjaxHandler.php:147
+msgid "Batch ID is required"
+msgstr ""
+
+#: src/Admin/DatabaseAjaxHandler.php:166
+msgid "Batch cancelled"
+msgstr ""
+
+#: src/Admin/DatabaseAjaxHandler.php:168
+msgid "Failed to cancel batch"
+msgstr ""
+
+#. translators: 1: posts checked, 2: posts updated, 3: links rewritten
+#: src/Admin/DatabaseAjaxHandler.php:197
+#, php-format
+msgid "Link update complete. Checked %1$d posts, updated %2$d posts, rewrote %3$d links."
+msgstr ""
+
+#: src/Admin/DatabasesListTable.php:56
+msgid "Database Title"
+msgstr ""
+
+#: src/Admin/DatabasesListTable.php:57
+#: src/Admin/PagesListTable.php:86
+#: assets/src/js/blocks/notion-link.js:66
+msgid "Notion ID"
+msgstr ""
+
+#: src/Admin/DatabasesListTable.php:58
+#: src/Admin/PagesListTable.php:87
+msgid "Status"
+msgstr ""
+
+#: src/Admin/DatabasesListTable.php:59
+msgid "Entries"
+msgstr ""
+
+#: src/Admin/DatabasesListTable.php:60
+#: src/Admin/PagesListTable.php:89
+msgid "Last Synced"
+msgstr ""
+
+#: src/Admin/DatabasesListTable.php:61
+#: src/Admin/PagesListTable.php:88
+msgid "WordPress Post"
+msgstr ""
+
+#: src/Admin/DatabasesListTable.php:62
+msgid "Actions"
+msgstr ""
+
+#: src/Admin/DatabasesListTable.php:98
+#: src/Admin/PagesListTable.php:451
+msgid "Filter by status"
+msgstr ""
+
+#: src/Admin/DatabasesListTable.php:101
+#: src/Admin/PagesListTable.php:454
+msgid "All Statuses"
+msgstr ""
+
+#: src/Admin/DatabasesListTable.php:103
+#: src/Admin/PagesListTable.php:456
+#: src/Admin/SettingsPage.php:132
+msgid "Synced"
+msgstr ""
+
+#: src/Admin/DatabasesListTable.php:106
+#: src/Admin/PagesListTable.php:459
+msgid "Not Synced"
+msgstr ""
+
+#: src/Admin/DatabasesListTable.php:109
+#: src/Admin/PagesListTable.php:462
+msgid "Filter"
+msgstr ""
+
+#: src/Admin/DatabasesListTable.php:226
+#: src/Admin/PagesListTable.php:152
+#: src/API/NotionClient.php:162
+#: src/API/NotionClient.php:177
+msgid "Untitled"
+msgstr ""
+
+#: src/Admin/DatabasesListTable.php:245
+msgid "View"
+msgstr ""
+
+#: src/Admin/DatabasesListTable.php:254
+msgid "Open in Notion"
+msgstr ""
+
+#: src/Admin/DatabasesListTable.php:283
+#: src/Admin/PagesListTable.php:297
+msgid "Synced - WordPress post is up-to-date"
+msgstr ""
+
+#: src/Admin/DatabasesListTable.php:294
+msgid "Not Synced - This database has not been synced yet"
+msgstr ""
+
+#: src/Admin/DatabasesListTable.php:326
+msgid "Unknown"
+msgstr ""
+
+#: src/Admin/DatabasesListTable.php:344
+#: src/Admin/MenuMetaBox.php:140
+#: src/Admin/PagesListTable.php:376
+#: templates/admin/database-view.php:45
+#: templates/single-notion_database.php:109
+msgid "Never"
+msgstr ""
+
+#: src/Admin/DatabasesListTable.php:373
+msgid "Not synced yet"
+msgstr ""
+
+#: src/Admin/DatabasesListTable.php:386
+msgid "Re-sync"
+msgstr ""
+
+#: src/Admin/DatabasesListTable.php:387
+#: src/Admin/PagesListTable.php:165
+msgid "Sync Now"
+msgstr ""
+
+#: src/Admin/DatabasesListTable.php:479
+msgid "No databases found. Make sure you have shared databases with your Notion integration."
+msgstr ""
+
+#: src/Admin/DatabaseViewPage.php:44
+#: src/Admin/DatabaseViewPage.php:45
+#: src/Admin/DatabaseViewPage.php:202
+#: src/Database/DatabasePostType.php:46
+msgid "View Database"
+msgstr ""
+
+#: src/Admin/DatabaseViewPage.php:124
+#: src/Database/DatabaseTemplateLoader.php:120
+msgid "Error loading database"
+msgstr ""
+
+#: src/Admin/DatabaseViewPage.php:125
+#: src/Database/DatabaseTemplateLoader.php:121
+msgid "No rows found"
+msgstr ""
+
+#: src/Admin/DatabaseViewPage.php:127
+#: src/Database/DatabaseTemplateLoader.php:123
+#: templates/admin/database-view.php:59
+#: templates/single-notion_database.php:128
+msgid "Export JSON"
+msgstr ""
+
+#: src/Admin/DatabaseViewPage.php:128
+#: src/Database/DatabaseTemplateLoader.php:124
+#: templates/admin/database-view.php:53
+#: templates/single-notion_database.php:122
+msgid "Reset Filters"
+msgstr ""
+
+#: src/Admin/DatabaseViewPage.php:215
+msgid "Invalid database ID"
+msgstr ""
+
+#: src/Admin/DatabaseViewPage.php:221
+msgid "Database not found"
+msgstr ""
+
+#: src/Admin/MenuMetaBox.php:77
+msgid "Notion Menu Sync"
+msgstr ""
+
+#: src/Admin/MenuMetaBox.php:98
+msgid "Select or create a menu to view sync status."
+msgstr ""
+
+#: src/Admin/MenuMetaBox.php:127
+#: src/Admin/MenuMetaBox.php:138
+msgid "Last Synced:"
+msgstr ""
+
+#. translators: %s: human-readable time difference.
+#. translators: %s: human-readable time difference
+#: src/Admin/MenuMetaBox.php:132
+#: src/Admin/PagesListTable.php:366
+#, php-format
+msgid "%s ago"
+msgstr ""
+
+#: src/Admin/MenuMetaBox.php:145
+msgid "Synced Items:"
+msgstr ""
+
+#. translators: 1: number of synced items, 2: total number of items
+#: src/Admin/MenuMetaBox.php:150
+#, php-format
+msgid "%1$d of %2$d"
+msgstr ""
+
+#: src/Admin/MenuMetaBox.php:164
+msgid "Sync menu from Notion now"
+msgstr ""
+
+#: src/Admin/MenuMetaBox.php:167
+msgid "Sync from Notion Now"
+msgstr ""
+
+#: src/Admin/MenuMetaBox.php:178
+msgid "Notion-synced items show a sync icon (🔄). Toggle \"Prevent Notion Updates\" to preserve manual changes."
+msgstr ""
+
+#: src/Admin/MenuMetaBox.php:214
+msgid "This item is synced from Notion"
+msgstr ""
+
+#: src/Admin/MenuMetaBox.php:221
+msgid "Notion Page ID:"
+msgstr ""
+
+#: src/Admin/MenuMetaBox.php:239
+msgid "Prevent Notion Updates"
+msgstr ""
+
+#: src/Admin/MenuMetaBox.php:242
+msgid "When checked, this item will not be updated during Notion sync."
+msgstr ""
+
+#: src/Admin/MenuMetaBox.php:301
+msgid "Synced from Notion"
+msgstr ""
+
+#: src/Admin/NavigationAjaxHandler.php:72
+msgid "Insufficient permissions to sync menu."
+msgstr ""
+
+#: src/Admin/NavigationAjaxHandler.php:101
+msgid "No root pages found. Please sync some pages from Notion first."
+msgstr ""
+
+#: src/Admin/NavigationAjaxHandler.php:133
+msgid "Failed to build hierarchy map. No pages found."
+msgstr ""
+
+#: src/Admin/NavigationAjaxHandler.php:145
+msgid "Failed to create or update menu."
+msgstr ""
+
+#. translators: 1: menu name, 2: number of items
+#: src/Admin/NavigationAjaxHandler.php:163
+#, php-format
+msgid "Menu \"%1$s\" updated with %2$d items."
+msgstr ""
+
+#. translators: %s: URL to menu editor
+#: src/Admin/NavigationAjaxHandler.php:177
+#, php-format
+msgid "<a href=\"%s\" target=\"_blank\">View &amp; assign menu</a> in Appearance &rarr; Menus."
+msgstr ""
+
+#. translators: %s: URL to menu editor
+#: src/Admin/NavigationAjaxHandler.php:191
+#, php-format
+msgid "<a href=\"%s\" target=\"_blank\">View menu</a>. Note: Your theme does not support menu locations, so you cannot assign this menu without additional theme configuration."
+msgstr ""
+
+#: src/Admin/NavigationAjaxHandler.php:210
+msgid "Menu will auto-update as you sync more pages from Notion."
+msgstr ""
+
+#. translators: %s: error message
+#: src/Admin/NavigationAjaxHandler.php:233
+#, php-format
+msgid "Menu sync failed: %s"
+msgstr ""
+
+#: src/Admin/PagesListTable.php:84
+msgid "Page Title"
+msgstr ""
+
+#: src/Admin/PagesListTable.php:85
+msgid "Type"
+msgstr ""
+
+#: src/Admin/PagesListTable.php:122
+msgid "Sync Selected"
+msgstr ""
+
+#: src/Admin/PagesListTable.php:175
+msgid "Edit Post"
+msgstr ""
+
+#: src/Admin/PagesListTable.php:185
+msgid "View Post"
+msgstr ""
+
+#: src/Admin/PagesListTable.php:195
+msgid "View in Notion"
+msgstr ""
+
+#: src/Admin/PagesListTable.php:222
+#: assets/src/js/blocks/database-view.js:59
+#: blocks/database-view/src/edit.js:90
+#: blocks/database-view/src/edit.js:120
+msgid "Database"
+msgstr ""
+
+#: src/Admin/PagesListTable.php:226
+msgid "DB Entry"
+msgstr ""
+
+#: src/Admin/PagesListTable.php:230
+msgid "Child Page"
+msgstr ""
+
+#: src/Admin/PagesListTable.php:234
+msgid "Page"
+msgstr ""
+
+#: src/Admin/PagesListTable.php:270
+#: src/Admin/PagesListTable.php:271
+msgid "Copy full Notion ID"
+msgstr ""
+
+#: src/Admin/PagesListTable.php:308
+msgid "Not Synced - This page has not been synced yet"
+msgstr ""
+
+#: src/Admin/PagesListTable.php:428
+msgid "Bulk sync requires JavaScript to be enabled. Please enable JavaScript and try again."
+msgstr ""
+
+#: src/Admin/PagesListTable.php:614
+msgid "No Notion pages found. Please share pages with your integration in Notion."
+msgstr ""
+
+#: src/Admin/SettingsPage.php:131
+msgid "Syncing..."
+msgstr ""
+
+#: src/Admin/SettingsPage.php:133
+msgid "Sync failed"
+msgstr ""
+
+#: src/Admin/SettingsPage.php:134
+msgid "Are you sure you want to sync the selected pages?"
+msgstr ""
+
+#: src/Admin/SettingsPage.php:135
+msgid "Please select at least one page to sync."
+msgstr ""
+
+#: src/Admin/SettingsPage.php:136
+msgid "Copied!"
+msgstr ""
+
+#: src/Admin/SettingsPage.php:137
+msgid "Are you sure you want to sync this database? This will import all entries."
+msgstr ""
+
+#: src/Admin/SettingsPage.php:138
+msgid "Database sync started. Please wait..."
+msgstr ""
+
+#: src/Admin/SettingsPage.php:139
+msgid "Database sync complete!"
+msgstr ""
+
+#: src/Admin/SettingsPage.php:140
+msgid "Are you sure you want to cancel this sync?"
+msgstr ""
+
+#: src/Admin/SettingsPage.php:155
+msgid "You do not have sufficient permissions to access this page."
+msgstr ""
+
+#: src/Admin/SettingsPage.php:156
+#: src/Admin/SettingsPage.php:255
+#: src/Admin/SettingsPage.php:346
+#: src/Admin/SettingsPage.php:463
+#: src/Admin/SettingsPage.php:508
+msgid "Insufficient Permissions"
+msgstr ""
+
+#. translators: SSL/TLS configuration message
+#: src/Admin/SettingsPage.php:170
+#, php-format
+msgid "HTTPS is required to configure Notion Sync. Please enable SSL/TLS or add %s to wp-config.php."
+msgstr ""
+
+#: src/Admin/SettingsPage.php:173
+msgid "HTTPS Required"
+msgstr ""
+
+#: src/Admin/SettingsPage.php:207
+msgid "Unable to fetch workspace information."
+msgstr ""
+
+#: src/Admin/SettingsPage.php:254
+#: src/Admin/SettingsPage.php:345
+#: src/Admin/SettingsPage.php:462
+#: src/Admin/SettingsPage.php:507
+msgid "You do not have sufficient permissions to perform this action."
+msgstr ""
+
+#: src/Admin/SettingsPage.php:264
+#: src/Admin/SettingsPage.php:355
+#: src/Admin/SettingsPage.php:472
+#: src/Admin/SettingsPage.php:519
+msgid "Security check failed. Please try again."
+msgstr ""
+
+#: src/Admin/SettingsPage.php:265
+#: src/Admin/SettingsPage.php:356
+#: src/Admin/SettingsPage.php:473
+#: src/Admin/SettingsPage.php:520
+msgid "Security Error"
+msgstr ""
+
+#: src/Admin/SettingsPage.php:275
+msgid "Please enter a Notion API token."
+msgstr ""
+
+#: src/Admin/SettingsPage.php:283
+msgid "Invalid token format. Notion API tokens should start with \"secret_\" or \"ntn_\"."
+msgstr ""
+
+#: src/Admin/SettingsPage.php:290
+msgid "Too many connection attempts. Please wait 5 minutes and try again."
+msgstr ""
+
+#: src/Admin/SettingsPage.php:299
+msgid "Connection failed. Please check your token and try again."
+msgstr ""
+
+#: src/Admin/SettingsPage.php:322
+msgid "Unknown Workspace"
+msgstr ""
+
+#. translators: %s: workspace name
+#: src/Admin/SettingsPage.php:327
+#, php-format
+msgid "Successfully connected to Notion workspace: %s"
+msgstr ""
+
+#: src/Admin/SettingsPage.php:367
+msgid "Successfully disconnected from Notion."
+msgstr ""
+
+#: src/Admin/SettingsPage.php:489
+msgid "Rewrite rules have been flushed. /notion/{slug} URLs should now work correctly."
+msgstr ""
+
+#: src/Admin/SettingsPage.php:535
+msgid "Menu name cannot be empty. Please provide a valid menu name."
+msgstr ""
+
+#: src/Admin/SettingsPage.php:548
+msgid "Navigation settings saved successfully."
+msgstr ""
+
+#: src/Admin/SyncAjaxHandler.php:51
+#: src/Admin/SyncAjaxHandler.php:127
+#: src/Admin/SyncAjaxHandler.php:238
+msgid "Insufficient permissions to sync pages."
+msgstr ""
+
+#: src/Admin/SyncAjaxHandler.php:63
+msgid "Page ID is required."
+msgstr ""
+
+#: src/Admin/SyncAjaxHandler.php:80
+msgid "Page synced successfully!"
+msgstr ""
+
+#: src/Admin/SyncAjaxHandler.php:90
+msgid "An unknown error occurred while syncing."
+msgstr ""
+
+#. translators: %s: error message
+#: src/Admin/SyncAjaxHandler.php:100
+#, php-format
+msgid "Sync failed: %s"
+msgstr ""
+
+#: src/Admin/SyncAjaxHandler.php:139
+#: src/Admin/SyncAjaxHandler.php:250
+msgid "No pages selected for sync."
+msgstr ""
+
+#. translators: 1: number of successful syncs, 2: number of failed syncs
+#: src/Admin/SyncAjaxHandler.php:192
+#, php-format
+msgid "Synced %1$d pages successfully. %2$d failed."
+msgstr ""
+
+#. translators: %d: number of failed pages
+#: src/Admin/SyncAjaxHandler.php:199
+#, php-format
+msgid "Failed to sync %d page."
+msgid_plural "Failed to sync %d pages."
+msgstr[0] ""
+msgstr[1] ""
+
+#. translators: %d: number of pages queued
+#: src/Admin/SyncAjaxHandler.php:266
+#, php-format
+msgid "Queued %d page for sync."
+msgid_plural "Queued %d pages for sync."
+msgstr[0] ""
+msgstr[1] ""
+
+#: src/Admin/SyncAjaxHandler.php:281
+msgid "Failed to queue bulk sync."
+msgstr ""
+
+#. translators: %s: error message
+#: src/Admin/SyncAjaxHandler.php:291
+#, php-format
+msgid "Failed to queue bulk sync: %s"
+msgstr ""
+
+#: src/Admin/SyncAjaxHandler.php:317
+#: src/API/DatabaseRestController.php:555
+msgid "Insufficient permissions."
+msgstr ""
+
+#: src/Admin/SyncAjaxHandler.php:329
+msgid "Batch ID is required."
+msgstr ""
+
+#: src/Admin/SyncAjaxHandler.php:343
+msgid "Batch not found."
+msgstr ""
+
+#. translators: %s: error message
+#: src/Admin/SyncAjaxHandler.php:355
+#, php-format
+msgid "Failed to get batch status: %s"
+msgstr ""
+
+#: src/API/DatabaseRestController.php:565
+msgid "Invalid post ID."
+msgstr ""
+
+#: src/API/DatabaseRestController.php:574
+msgid "Cache cleared successfully."
+msgstr ""
+
+#: src/API/NotionClient.php:85
+msgid "Unknown User"
+msgstr ""
+
+#: src/API/NotionClient.php:92
+#: templates/admin/settings.php:414
+msgid "Workspace"
+msgstr ""
+
+#. translators: %s: error message
+#: src/API/NotionClient.php:320
+#, php-format
+msgid "HTTP request failed: %s"
+msgstr ""
+
+#. translators: %s: API error message
+#: src/API/NotionClient.php:432
+#, php-format
+msgid "Bad request: %s"
+msgstr ""
+
+#: src/API/NotionClient.php:433
+msgid "The request was invalid."
+msgstr ""
+
+#. translators: %s: API error message
+#: src/API/NotionClient.php:449
+#, php-format
+msgid "Resource not found: %s"
+msgstr ""
+
+#: src/API/NotionClient.php:450
+msgid "The requested resource does not exist."
+msgstr ""
+
+#. translators: %s: API error message
+#: src/API/NotionClient.php:464
+#, php-format
+msgid "Notion server error: %s. Please try again later."
+msgstr ""
+
+#: src/API/NotionClient.php:465
+msgid "The Notion API is experiencing issues."
+msgstr ""
+
+#. translators: 1: HTTP status code, 2: API error message
+#: src/API/NotionClient.php:471
+#, php-format
+msgid "API error (Code %1$d): %2$s"
+msgstr ""
+
+#: src/API/NotionClient.php:473
+msgid "An unknown error occurred."
+msgstr ""
+
+#: src/Database/DatabasePostType.php:41
+msgid "Notion Databases"
+msgstr ""
+
+#: src/Database/DatabasePostType.php:42
+msgid "Notion Database"
+msgstr ""
+
+#: src/Database/DatabasePostType.php:43
+msgid "Add New"
+msgstr ""
+
+#: src/Database/DatabasePostType.php:44
+msgid "Add New Database"
+msgstr ""
+
+#: src/Database/DatabasePostType.php:45
+msgid "Edit Database"
+msgstr ""
+
+#: src/Database/DatabasePostType.php:47
+msgid "All Databases"
+msgstr ""
+
+#: src/Database/DatabasePostType.php:48
+msgid "Search Databases"
+msgstr ""
+
+#: src/Database/PropertyFormatter.php:612
+msgid "relation"
+msgid_plural "relations"
+msgstr[0] ""
+msgstr[1] ""
+
+#: templates/admin/database-view.php:29
+msgid "← Back to Databases"
+msgstr ""
+
+#. translators: 1: row count, 2: last sync time
+#: templates/admin/database-view.php:42
+#: templates/single-notion_database.php:112
+#, php-format
+msgid "%1$d rows • Last synced: %2$s"
+msgstr ""
+
+#: templates/admin/settings-sample.php:26
+msgid "Notion Sync Settings"
+msgstr ""
+
+#: templates/admin/settings-sample.php:28
+msgid "Connect your WordPress site to Notion for seamless content synchronization."
+msgstr ""
+
+#: templates/admin/settings-sample.php:35
+msgid "Connected successfully!"
+msgstr ""
+
+#: templates/admin/settings-sample.php:36
+msgid "Your Notion workspace is now connected."
+msgstr ""
+
+#: templates/admin/settings-sample.php:39
+msgid "Dismiss this notice"
+msgstr ""
+
+#: templates/admin/settings-sample.php:46
+msgid "Connection failed"
+msgstr ""
+
+#: templates/admin/settings-sample.php:47
+msgid "Invalid token. Please check your Notion integration token and try again."
+msgstr ""
+
+#. translators: %s: URL to Notion integrations page
+#: templates/admin/settings-sample.php:53
+#, php-format
+msgid "Get your token from %s"
+msgstr ""
+
+#: templates/admin/settings-sample.php:70
+msgid "Connecting to Notion..."
+msgstr ""
+
+#: templates/admin/settings-sample.php:78
+#: templates/admin/settings-sample.php:130
+#: templates/admin/settings.php:46
+#: templates/admin/settings.php:120
+msgid "Connect to Notion"
+msgstr ""
+
+#: templates/admin/settings-sample.php:80
+msgid "To connect your Notion workspace, you'll need an Internal Integration Token."
+msgstr ""
+
+#: templates/admin/settings-sample.php:83
+msgid "How to get your token:"
+msgstr ""
+
+#. translators: %s: URL to Notion integrations page
+#: templates/admin/settings-sample.php:90
+#, php-format
+msgid "Go to %s"
+msgstr ""
+
+#: templates/admin/settings-sample.php:95
+msgid "Click \"New integration\""
+msgstr ""
+
+#: templates/admin/settings-sample.php:96
+msgid "Give it a name (e.g., \"WordPress Sync\")"
+msgstr ""
+
+#: templates/admin/settings-sample.php:97
+msgid "Copy the \"Internal Integration Token\""
+msgstr ""
+
+#: templates/admin/settings-sample.php:98
+msgid "Share your Notion pages with the integration"
+msgstr ""
+
+#: templates/admin/settings-sample.php:108
+msgid "Notion Integration Token"
+msgstr ""
+
+#: templates/admin/settings-sample.php:124
+msgid "Your token starts with \"secret_\" and should be kept confidential."
+msgstr ""
+
+#: templates/admin/settings-sample.php:133
+msgid "This will verify your token and establish the connection."
+msgstr ""
+
+#: templates/admin/settings-sample.php:143
+msgid "Connected"
+msgstr ""
+
+#: templates/admin/settings-sample.php:153
+msgid "User:"
+msgstr ""
+
+#: templates/admin/settings-sample.php:157
+msgid "Last connected:"
+msgstr ""
+
+#: templates/admin/settings-sample.php:169
+msgid "Disconnect from Notion"
+msgstr ""
+
+#: templates/admin/settings-sample.php:171
+#: templates/admin/settings.php:450
+msgid "Disconnect"
+msgstr ""
+
+#: templates/admin/settings-sample.php:178
+msgid "Available Pages"
+msgstr ""
+
+#: templates/admin/settings.php:34
+msgid "Warning:"
+msgstr ""
+
+#: templates/admin/settings.php:51
+msgid "To get started, you need to create a Notion integration and obtain an API token."
+msgstr ""
+
+#. translators: %s: URL to Notion integrations page
+#: templates/admin/settings.php:64
+#, php-format
+msgid "Visit <a href=\"%s\" target=\"_blank\" rel=\"noopener noreferrer\">Notion Integrations</a> and create a new integration."
+msgstr ""
+
+#: templates/admin/settings.php:82
+msgid "Copy the \"Internal Integration Token\" (starts with \"secret_\")."
+msgstr ""
+
+#: templates/admin/settings.php:83
+msgid "Paste the token below and click \"Connect to Notion\"."
+msgstr ""
+
+#: templates/admin/settings.php:84
+msgid "Share your Notion pages with the integration to grant access."
+msgstr ""
+
+#: templates/admin/settings.php:96
+msgid "Notion API Token"
+msgstr ""
+
+#: templates/admin/settings.php:111
+msgid "Your Notion Internal Integration Token. Starts with \"secret_\"."
+msgstr ""
+
+#: templates/admin/settings.php:132
+msgid "Pages"
+msgstr ""
+
+#: templates/admin/settings.php:136
+msgid "Databases"
+msgstr ""
+
+#: templates/admin/settings.php:140
+msgid "Navigation"
+msgstr ""
+
+#: templates/admin/settings.php:144
+msgid "Settings"
+msgstr ""
+
+#: templates/admin/settings.php:162
+msgid "No Databases Found"
+msgstr ""
+
+#: templates/admin/settings.php:164
+msgid "No databases are currently accessible by this integration."
+msgstr ""
+
+#: templates/admin/settings.php:167
+msgid "To grant access to your Notion databases:"
+msgstr ""
+
+#: templates/admin/settings.php:170
+msgid "Open a database in Notion"
+msgstr ""
+
+#: templates/admin/settings.php:171
+#: templates/admin/settings.php:537
+msgid "Click the \"...\" menu in the top right"
+msgstr ""
+
+#: templates/admin/settings.php:172
+#: templates/admin/settings.php:538
+msgid "Select \"Add connections\""
+msgstr ""
+
+#: templates/admin/settings.php:173
+#: templates/admin/settings.php:539
+msgid "Choose your integration from the list"
+msgstr ""
+
+#: templates/admin/settings.php:191
+msgid "Theme Does Not Support Navigation Menus"
+msgstr ""
+
+#: templates/admin/settings.php:194
+msgid "Your current theme does not register any menu locations. While the plugin can still create WordPress menus from your Notion page hierarchy, you will not be able to assign them to your theme without additional configuration."
+msgstr ""
+
+#: templates/admin/settings.php:201
+msgid "Options:"
+msgstr ""
+
+#: templates/admin/settings.php:205
+msgid "Switch to a theme that supports navigation menus (most modern WordPress themes do)"
+msgstr ""
+
+#. translators: %s: URL to WordPress theme customization docs
+#: templates/admin/settings.php:216
+#, php-format
+msgid "Add menu support to your current theme by following <a href=\"%s\" target=\"_blank\" rel=\"noopener noreferrer\">WordPress theme customization documentation</a>"
+msgstr ""
+
+#: templates/admin/settings.php:231
+msgid "Use a plugin like Max Mega Menu or WP Navigation Menu to add menu functionality"
+msgstr ""
+
+#: templates/admin/settings.php:239
+msgid "Display the menu using a shortcode or widget (if your theme supports widgets)"
+msgstr ""
+
+#: templates/admin/settings.php:248
+msgid "You can still sync menus below, and they will be ready to use once you configure menu support in your theme."
+msgstr ""
+
+#: templates/admin/settings.php:259
+msgid "Menu Sync Configuration"
+msgstr ""
+
+#: templates/admin/settings.php:263
+msgid "Configure how Notion page hierarchies are synchronized to WordPress navigation menus. When enabled, the plugin will automatically create and maintain a WordPress menu based on your Notion page structure."
+msgstr ""
+
+#: templates/admin/settings.php:279
+msgid "Enable Menu Sync"
+msgstr ""
+
+#: templates/admin/settings.php:291
+msgid "Automatically sync Notion page hierarchy to WordPress menu"
+msgstr ""
+
+#: templates/admin/settings.php:295
+msgid "When enabled, the plugin will create and maintain a WordPress navigation menu that mirrors your Notion page structure. Parent-child relationships in Notion will be preserved as menu items and sub-items."
+msgstr ""
+
+#: templates/admin/settings.php:310
+msgid "Menu Name"
+msgstr ""
+
+#: templates/admin/settings.php:320
+msgid "Notion Navigation"
+msgstr ""
+
+#: templates/admin/settings.php:324
+msgid "The name of the WordPress menu that will be created. After syncing, go to Appearance → Menus to assign this menu to a theme location (such as Primary Menu or Footer Menu)."
+msgstr ""
+
+#: templates/admin/settings.php:338
+msgid "Save Navigation Settings"
+msgstr ""
+
+#: templates/admin/settings.php:346
+msgid "Manual Menu Sync"
+msgstr ""
+
+#: templates/admin/settings.php:350
+msgid "Trigger a manual sync of your Notion page hierarchy to the WordPress menu. This will update the menu structure to match your current Notion workspace."
+msgstr ""
+
+#: templates/admin/settings.php:369
+msgid "Sync Menu Now"
+msgstr ""
+
+#: templates/admin/settings.php:374
+msgid "This will fetch your Notion page hierarchy and update the WordPress menu to match. Existing menu items will be preserved if they still exist in Notion."
+msgstr ""
+
+#: templates/admin/settings.php:385
+msgid "Menu sync is currently disabled. Enable it in the settings above to use manual sync."
+msgstr ""
+
+#: templates/admin/settings.php:401
+msgid "Connection Status"
+msgstr ""
+
+#: templates/admin/settings.php:406
+msgid "Connected to Notion"
+msgstr ""
+
+#: templates/admin/settings.php:421
+msgid "Integration Name"
+msgstr ""
+
+#: templates/admin/settings.php:428
+msgid "Integration ID"
+msgstr ""
+
+#: templates/admin/settings.php:445
+msgid "Are you sure you want to disconnect from Notion? This will remove your API token."
+msgstr ""
+
+#: templates/admin/settings.php:457
+msgid "Maintenance Tools"
+msgstr ""
+
+#: templates/admin/settings.php:460
+msgid "Use these tools to troubleshoot issues with the plugin."
+msgstr ""
+
+#: templates/admin/settings.php:463
+#: templates/admin/settings.php:479
+msgid "Flush Rewrite Rules"
+msgstr ""
+
+#: templates/admin/settings.php:466
+msgid "If /notion/{slug} URLs are not working correctly, click this button to flush and regenerate WordPress rewrite rules."
+msgstr ""
+
+#: templates/admin/settings.php:491
+msgid "Notion Pages"
+msgstr ""
+
+#: templates/admin/settings.php:494
+msgid "Select pages to sync to WordPress. Pages will be created as draft posts."
+msgstr ""
+
+#. translators: %d: number of pages accessible to integration
+#: templates/admin/settings.php:511
+#, php-format
+msgid "Showing %d page. To access more pages, share them with your integration in Notion."
+msgid_plural "Showing %d pages. To access more pages, share them with your integration in Notion."
+msgstr[0] ""
+msgstr[1] ""
+
+#: templates/admin/settings.php:525
+msgid "No Pages Found"
+msgstr ""
+
+#: templates/admin/settings.php:528
+msgid "No pages are currently accessible by this integration."
+msgstr ""
+
+#: templates/admin/settings.php:532
+msgid "To grant access to your Notion pages:"
+msgstr ""
+
+#: templates/admin/settings.php:536
+msgid "Open a page in Notion"
+msgstr ""
+
+#: assets/js/blocks/notion-image-block.js:28
+#: assets/js/blocks/notion-image-block.js:134
+msgid "Notion Image"
+msgstr ""
+
+#: assets/js/blocks/notion-image-block.js:29
+msgid "Display an image from Notion with automatic media library management"
+msgstr ""
+
+#: assets/js/blocks/notion-image-block.js:36
+msgid "notion"
+msgstr ""
+
+#: assets/js/blocks/notion-image-block.js:37
+msgid "image"
+msgstr ""
+
+#: assets/js/blocks/notion-image-block.js:38
+msgid "picture"
+msgstr ""
+
+#: assets/js/blocks/notion-image-block.js:147
+msgid "Rendered server-side with automatic media sync"
+msgstr ""
+
+#: assets/js/blocks/notion-image-block.js:169
+msgid "Caption:"
+msgstr ""
+
+#: assets/src/js/blocks/database-view.js:35
+#: blocks/database-view/src/edit.js:45
+msgid "Select a database…"
+msgstr ""
+
+#: assets/src/js/blocks/database-view.js:37
+msgid "(no title)"
+msgstr ""
+
+#: assets/src/js/blocks/database-view.js:53
+#: blocks/database-view/src/edit.js:116
+msgid "Database Settings"
+msgstr ""
+
+#: assets/src/js/blocks/database-view.js:66
+msgid "Select the Notion database to display."
+msgstr ""
+
+#: assets/src/js/blocks/database-view.js:73
+#: blocks/database-view/src/edit.js:134
+msgid "View Type"
+msgstr ""
+
+#: assets/src/js/blocks/database-view.js:77
+#: blocks/database-view/src/edit.js:54
+msgid "Table"
+msgstr ""
+
+#: assets/src/js/blocks/database-view.js:81
+#: blocks/database-view/src/edit.js:57
+msgid "Board (Coming Soon)"
+msgstr ""
+
+#: assets/src/js/blocks/database-view.js:89
+#: blocks/database-view/src/edit.js:62
+msgid "Gallery (Coming Soon)"
+msgstr ""
+
+#: assets/src/js/blocks/database-view.js:97
+#: blocks/database-view/src/edit.js:67
+msgid "Timeline (Coming Soon)"
+msgstr ""
+
+#: assets/src/js/blocks/database-view.js:107
+msgid "Choose how to display the database."
+msgstr ""
+
+#: assets/src/js/blocks/database-view.js:118
+#: blocks/database-view/src/edit.js:146
+msgid "Display Options"
+msgstr ""
+
+#: assets/src/js/blocks/database-view.js:124
+#: blocks/database-view/src/edit.js:150
+msgid "Show Filters"
+msgstr ""
+
+#: assets/src/js/blocks/database-view.js:128
+msgid "Allow users to filter table columns."
+msgstr ""
+
+#: assets/src/js/blocks/database-view.js:135
+msgid "Show Export Buttons"
+msgstr ""
+
+#: assets/src/js/blocks/database-view.js:139
+msgid "Allow users to export data as CSV or JSON."
+msgstr ""
+
+#: assets/src/js/blocks/database-view.js:146
+msgid "Page Size"
+msgstr ""
+
+#: assets/src/js/blocks/database-view.js:153
+msgid "Number of rows to display per page."
+msgstr ""
+
+#: assets/src/js/blocks/database-view.js:182
+msgid "Select a Notion database to display from the sidebar →"
+msgstr ""
+
+#: assets/src/js/blocks/database-view.js:220
+msgid "Unknown Database"
+msgstr ""
+
+#: assets/src/js/blocks/database-view.js:233
+msgid "This database will be displayed as an interactive table on the frontend."
+msgstr ""
+
+#: assets/src/js/blocks/database-view.js:255
+msgid "View Type: "
+msgstr ""
+
+#: assets/src/js/blocks/database-view.js:263
+msgid "Page Size: "
+msgstr ""
+
+#: assets/src/js/blocks/database-view.js:265
+#: blocks/database-view/src/edit.js:128
+msgid "rows"
+msgstr ""
+
+#: assets/src/js/blocks/database-view.js:271
+msgid "Filters: "
+msgstr ""
+
+#: assets/src/js/blocks/database-view.js:274
+#: assets/src/js/blocks/database-view.js:284
+msgid "Enabled"
+msgstr ""
+
+#: assets/src/js/blocks/database-view.js:275
+#: assets/src/js/blocks/database-view.js:285
+msgid "Disabled"
+msgstr ""
+
+#: assets/src/js/blocks/database-view.js:281
+msgid "Export: "
+msgstr ""
+
+#: assets/src/js/blocks/database-view.js:299
+#: blocks/database-view/src/edit.js:83
+msgid "Notion Database View"
+msgstr ""
+
+#: assets/src/js/blocks/database-view.js:300
+msgid "Display an embedded Notion database with interactive filtering, sorting, and pagination."
+msgstr ""
+
+#: assets/src/js/blocks/notion-link.js:63
+msgid "Link Settings"
+msgstr ""
+
+#: assets/src/js/blocks/notion-link.js:69
+msgid "Enter the Notion page or database ID"
+msgstr ""
+
+#: assets/src/js/blocks/notion-link.js:76
+msgid "Show Icon"
+msgstr ""
+
+#: assets/src/js/blocks/notion-link.js:82
+msgid "Open in New Tab"
+msgstr ""
+
+#: assets/src/js/blocks/notion-link.js:89
+msgid "Custom Link Text (optional)"
+msgstr ""
+
+#: assets/src/js/blocks/notion-link.js:93
+msgid "Leave empty to use the current Notion title"
+msgstr ""
+
+#: assets/src/js/blocks/notion-link.js:145
+msgid "Enter a Notion ID in the sidebar →"
+msgstr ""
+
+#: assets/src/js/blocks/notion-link.js:217
+msgid "Notion Link"
+msgstr ""
+
+#: assets/src/js/blocks/notion-link.js:218
+msgid "Link to a Notion page or database with always-current title"
+msgstr ""
+
+#: blocks/database-view/src/edit.js:72
+msgid "Calendar (Coming Soon)"
+msgstr ""
+
+#: blocks/database-view/src/edit.js:84
+msgid "Select a Notion database to display."
+msgstr ""
+
+#: blocks/database-view/src/edit.js:108
+msgid "Change Database"
+msgstr ""
+
+#: blocks/database-view/src/edit.js:138
+msgid "Only Table view is available in this release."
+msgstr ""
+
+#: blocks/database-view/src/edit.js:155
+msgid "Allow users to filter the data."
+msgstr ""
+
+#: blocks/database-view/src/edit.js:162
+msgid "Show Export"
+msgstr ""
+
+#: blocks/database-view/src/edit.js:167
+msgid "Allow users to export data to CSV."
+msgstr ""
+
+#: blocks/database-view/src/edit.js:182
+msgid "Loading Database…"
+msgstr ""
+
+#: blocks/database-view/src/edit.js:188
+msgid "Error Loading Database"
+msgstr ""
+
+#: blocks/database-view/block.json
+msgctxt "block title"
+msgid "Notion Database View"
+msgstr ""
+
+#: blocks/database-view/block.json
+msgctxt "block description"
+msgid "Display a Notion database with interactive filtering and sorting"
+msgstr ""
+
+#: blocks/database-view/block.json
+msgctxt "block keyword"
+msgid "notion"
+msgstr ""
+
+#: blocks/database-view/block.json
+msgctxt "block keyword"
+msgid "database"
+msgstr ""
+
+#: blocks/database-view/block.json
+msgctxt "block keyword"
+msgid "table"
+msgstr ""
+
+#: blocks/database-view/block.json
+msgctxt "block keyword"
+msgid "data"
+msgstr ""

@@ -3,7 +3,7 @@
  * Plugin Name: Notion Sync
  * Plugin URI: https://github.com/thevgergroup/notion-wp
  * Description: Bi-directional synchronization between Notion and WordPress
- * Version: 0.2.0-dev
+ * Version: 1.0.0
  * Requires at least: 6.0
  * Requires PHP: 8.0
  * Author: The Verger Group
@@ -24,7 +24,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 // Plugin constants.
-define( 'NOTION_SYNC_VERSION', '0.2.0-dev' );
+define( 'NOTION_SYNC_VERSION', '1.0.0' );
 define( 'NOTION_SYNC_FILE', __FILE__ );
 define( 'NOTION_SYNC_PATH', plugin_dir_path( __FILE__ ) );
 define( 'NOTION_SYNC_URL', plugin_dir_url( __FILE__ ) );
@@ -81,6 +81,20 @@ spl_autoload_register(
 		}
 	}
 );
+
+/**
+ * Load plugin text domain for internationalization.
+ *
+ * @return void
+ */
+function load_textdomain() {
+	load_plugin_textdomain(
+		'notion-wp',
+		false,
+		dirname( plugin_basename( __FILE__ ) ) . '/languages'
+	);
+}
+add_action( 'plugins_loaded', __NAMESPACE__ . '\\load_textdomain' );
 
 /**
  * Initialize plugin.
