@@ -713,6 +713,12 @@ See [Phase 5 Detailed Plan](./phase-5-hierarchy-navigation.md) for full breakdow
 - [ ] Config files documented in DEVELOPMENT.md
 - [ ] Consistent configuration across root and plugin/ where applicable
 
+**Docker Environment:**
+- [ ] Shared database volume for data persistence across branches
+- [ ] Notion token and WordPress settings persist when switching branches
+- [ ] Option to use isolated volumes when needed (testing)
+- [ ] Documentation updated in docker/README.md
+
 ### Dependencies
 
 **Required from Phase 5.7:**
@@ -749,6 +755,13 @@ See [Phase 5 Detailed Plan](./phase-5-hierarchy-navigation.md) for full breakdow
    - Check .php-cs-fixer.php integration
    - Remove or fix non-working configs
    - Document all configs in DEVELOPMENT.md
+
+5. **Docker Volume Persistence** (developer experience)
+   - Create shared database volume across branches
+   - Preserve Notion token and WordPress settings
+   - Add environment variable for isolated vs shared mode
+   - Update docker/compose.yml with shared volume option
+   - Document volume management in docker/README.md
 
 ### Current State Analysis
 
@@ -882,6 +895,43 @@ notion-wp/
 - ⚠️ Verify: `.npmrc` (ensure it's needed)
 - ⚠️ Review: `.mcp.json` (document purpose)
 
+**5. Docker Volume Persistence:**
+
+Current behavior (isolated volumes per branch):
+```yaml
+volumes:
+  db_data:
+    name: ${COMPOSE_PROJECT_NAME}_db_data  # Isolated per branch
+    driver: local
+```
+
+Proposed solution (shared volume with option for isolation):
+```yaml
+volumes:
+  db_data:
+    name: ${DB_VOLUME_NAME:-notionwp_shared_db}  # Shared by default
+    driver: local
+```
+
+Add to `.env.example`:
+```bash
+# Database Volume Strategy
+# Use shared volume (default) to persist data across branches
+DB_VOLUME_NAME=notionwp_shared_db
+
+# Or use isolated volume per branch (uncomment to enable)
+# DB_VOLUME_NAME=${COMPOSE_PROJECT_NAME}_db_data
+```
+
+Benefits:
+- ✅ Notion token persists when switching branches
+- ✅ WordPress admin settings persist
+- ✅ Test data available across all branches
+- ✅ Faster branch switching (no re-setup needed)
+- ✅ Optional isolation for testing clean installs
+
+Rationale: Most development work benefits from shared data. Notion tokens and WordPress configuration should be consistent across feature branches. When testing fresh installs, developers can override `DB_VOLUME_NAME` in their local `.env`.
+
 ### Deliverables
 
 **Visible to Developers:**
@@ -914,6 +964,12 @@ notion-wp/
 - Composer scripts verified
 - Pre-commit hooks optimized
 - CI/CD workflows tested
+
+**Docker Environment:**
+- Updated `docker/compose.yml` with shared volume option
+- Updated `.env.example` with `DB_VOLUME_NAME` configuration
+- Updated `docker/README.md` with volume management guide
+- Migration guide for developers with existing isolated volumes
 
 ### Implementation Checklist
 
@@ -952,12 +1008,22 @@ notion-wp/
 - [ ] Update DEVELOPMENT.md command reference
 - [ ] Test all commands in fresh environment
 
+**Week 2: Docker Volume Persistence (half day)**
+- [ ] Update docker/compose.yml with DB_VOLUME_NAME variable
+- [ ] Update .env.example with DB_VOLUME_NAME options
+- [ ] Update .env.template with DB_VOLUME_NAME options
+- [ ] Document volume migration in docker/README.md
+- [ ] Test shared volume across branch switches
+- [ ] Test isolated volume mode
+- [ ] Verify Notion token persists with shared volume
+
 **Week 2: Validation & Testing (half day)**
 - [ ] Fresh clone and setup test
 - [ ] Verify all commands work
 - [ ] Check all documentation links
 - [ ] Run full test suite
 - [ ] Validate CI/CD pipeline
+- [ ] Test Docker volume persistence across branches
 
 ### Estimated Complexity: S (Small)
 
