@@ -541,15 +541,16 @@ Many block types with varying complexity.
 - **Phase 5.4:** Database View Infrastructure - DatabaseRestController, RowRepository, PropertyFormatter, caching
 - **Phase 5.5:** Table View Display - Gutenberg block with Tabulator integration, filters, export
 - **Phase 5.6:** Enhanced ChildDatabaseConverter - Notion API integration, collection_id lookup, fallback handling
+- **Phase 5.7:** User Documentation & Release Preparation - README rewrite, DEVELOPMENT.md, 6 screenshots, architecture docs
 
 **📋 Ready to Start:**
-- **Phase 5.7:** User Documentation & Release Preparation (HIGH PRIORITY - Release Blocker)
-  - README rework for WordPress users (installation, usage, configuration)
-  - Development documentation separation (DEVELOPMENT.md)
-  - Screenshots with Playwright automation (7 images to docs/images/)
-  - Document what's available vs. coming soon
-  - **Detailed Plan:** See [Phase 5.7 Detailed Plan](./phase-5.7-user-documentation.md)
-  - **Estimated Effort:** 1-2 weeks
+- **Phase 5.8:** DevOps Cleanup & Polish (Release Blocker)
+  - Consolidate composer configuration (root vs plugin directory)
+  - Standardize build/test commands (composer vs make)
+  - Organize scattered documentation files
+  - Audit and cleanup config files
+  - CI/CD pipeline improvements
+  - **Estimated Effort:** 3-5 days
 
 **⏳ Future Work (Post-Release):**
 - Additional database view types (board, gallery, timeline, calendar) - UI marked "Coming Soon"
@@ -576,15 +577,28 @@ Many block types with varying complexity.
 - [x] Sort configurations applied correctly
 - [x] Embedded entries link to synced WordPress posts when available
 
-#### User Documentation (Phase 5.7 - Release Blocker)
-- [ ] README.md is WordPress user-focused (not developer-focused)
-- [ ] README.md includes installation instructions
-- [ ] README.md includes usage guide (connect, sync, configure)
-- [ ] README.md includes theme integration instructions
-- [ ] 7 screenshots captured and saved to docs/images/
-- [ ] DEVELOPMENT.md contains all technical/contributor content
-- [ ] Feature status clearly documented (available vs. coming soon)
-- [ ] All internal documentation links work correctly
+#### User Documentation (Phase 5.7 - Complete ✅)
+- [x] README.md is WordPress user-focused (not developer-focused)
+- [x] README.md includes installation instructions
+- [x] README.md includes usage guide (connect, sync, configure)
+- [x] README.md includes theme integration instructions
+- [x] 6 screenshots captured and saved to docs/images/
+- [x] DEVELOPMENT.md contains all technical/contributor content
+- [x] Feature status clearly documented (available vs. coming soon)
+- [x] All internal documentation links work correctly
+- [x] Architecture overview with Mermaid diagrams created
+
+#### DevOps & Build System (Phase 5.8 - Release Blocker)
+- [ ] Composer configuration consolidated (single source of truth)
+- [ ] Root composer.json vs plugin/composer.json relationship clarified
+- [ ] Build commands standardized (prefer composer over make where possible)
+- [ ] All composer scripts working and documented
+- [ ] Scattered documentation files organized into docs/
+- [ ] Unused/broken config files removed or fixed
+- [ ] CI/CD workflows validated and optimized
+- [ ] Pre-commit hooks streamlined
+- [ ] Development setup documented in DEVELOPMENT.md
+- [ ] All make commands have composer equivalents (or rationale documented)
 
 ### Dependencies
 
@@ -660,6 +674,306 @@ Originally scoped as Medium complexity for basic hierarchy and navigation. Now e
 - Advanced link resolution with validation
 
 See [Phase 5 Detailed Plan](./phase-5-hierarchy-navigation.md) for full breakdown and implementation phases.
+
+---
+
+## Phase 5.8: DevOps Cleanup & Polish
+
+**Status:** 📋 Ready to Start (Release Blocker)
+
+**Goal:** Clean up build system, consolidate configuration, and organize project structure for maintainability and release readiness.
+
+### Success Criteria
+
+**Composer Configuration:**
+- [x] Single source of truth for dependencies
+- [ ] Root composer.json vs plugin/composer.json relationship documented
+- [ ] Vendor directory location rationalized (currently `plugin/vendor`)
+- [ ] All composer scripts working without warnings
+- [ ] Composer scripts aligned with make commands
+
+**Build & Test Commands:**
+- [ ] All `composer` scripts documented in composer.json
+- [ ] All `make` commands documented in Makefile
+- [ ] Clear decision on when to use composer vs make
+- [ ] Pre-commit hooks streamlined and fast
+- [ ] CI/CD workflows validated
+
+**Documentation Organization:**
+- [ ] Root directory cleaned of scattered .md files
+- [ ] Implementation summaries archived to docs/archive/
+- [ ] Active documentation in appropriate docs/ subdirectories
+- [ ] CLAUDE.md, CHANGELOG.md, CONTRIBUTING.md remain in root
+- [ ] Development guides in docs/development/
+- [ ] Phase summaries in docs/plans/
+
+**Config File Audit:**
+- [ ] All dot-files (.eslintrc, .stylelintrc, etc.) validated as working
+- [ ] Unused config files removed
+- [ ] Config files documented in DEVELOPMENT.md
+- [ ] Consistent configuration across root and plugin/ where applicable
+
+### Dependencies
+
+**Required from Phase 5.7:**
+- Documentation structure established
+- DEVELOPMENT.md exists for developer guidance
+
+### Parallel Work Streams
+
+1. **Composer Consolidation** (primary focus)
+   - Analyze root vs plugin composer.json relationship
+   - Decide on vendor directory location
+   - Consolidate duplicate scripts
+   - Document dependency management strategy
+   - Ensure all scripts work from both locations
+
+2. **Make vs Composer Standardization** (command interface)
+   - Audit all make commands
+   - Create composer equivalents where sensible
+   - Document when to use make (Docker operations)
+   - Document when to use composer (PHP operations)
+   - Update DEVELOPMENT.md with command reference
+
+3. **Documentation Cleanup** (organization)
+   - Create docs/archive/ for old implementation summaries
+   - Move scattered .md files to appropriate docs/ locations
+   - Update all internal links
+   - Remove duplicate or outdated documentation
+   - Ensure README, CONTRIBUTING, CHANGELOG stay in root
+
+4. **Config File Audit** (development environment)
+   - Test all linting configs (.eslintrc.json, .stylelintrc.json)
+   - Test .prettierrc and .prettierignore
+   - Validate .editorconfig
+   - Check .php-cs-fixer.php integration
+   - Remove or fix non-working configs
+   - Document all configs in DEVELOPMENT.md
+
+### Current State Analysis
+
+**Composer Files:**
+```
+./composer.json          - Root configuration
+./plugin/composer.json   - Plugin configuration
+```
+
+Root composer.json currently:
+- Sets `vendor-dir: plugin/vendor`
+- Has autoload pointing to `plugin/src/`
+- Contains all dev dependencies
+- Has comprehensive scripts
+
+Plugin composer.json:
+- Minimal configuration
+- Some overlapping scripts
+- Uses for plugin-specific operations
+
+**Scattered Documentation (17 files in root):**
+```
+CACHING_IMPLEMENTATION.md
+CHANGELOG.md (keep)
+CHILD-DATABASE-CONVERTER-CHANGES.md
+CLAUDE.md (keep)
+CONTRIBUTING.md (keep)
+DEVELOPMENT.md (keep)
+DYNAMIC_BLOCK_FIX_SUMMARY.md
+FILES-CREATED.md
+IMPLEMENTATION-COMPLETE.txt
+IMPLEMENTATION-SUMMARY.md
+PHASE-5.3-BLOCK-IMPLEMENTATION.md
+PHASE-5.3-CHECKLIST.md
+PHASE-5.3-IMPLEMENTATION-SUMMARY.md
+PHASE-5.3.4-SUMMARY.md
+README.md (keep)
+TESTING-CHECKLIST.md
+```
+
+**Config Files (14 dot-files):**
+```
+.editorconfig              - IDE configuration
+.env, .env.example, .env.template - Environment configs
+.eslintrc.json             - JavaScript linting
+.gitignore                 - Git ignore rules
+.mcp.json                  - MCP configuration
+.npmrc                     - NPM configuration
+.php-cs-fixer.php          - PHP CS Fixer config
+.phpunit.result.cache      - PHPUnit cache (gitignored)
+.prettierignore            - Prettier ignore rules
+.prettierrc                - Prettier configuration
+.serenaignore              - Unknown - needs investigation
+.stylelintrc.json          - CSS/SCSS linting
+```
+
+### Proposed Solutions
+
+**1. Composer Strategy (Recommended):**
+
+Keep both composer.json files but clarify their roles:
+
+- **Root composer.json**:
+  - Development dependencies (testing, linting, analysis)
+  - Build scripts (lint, test, analyze)
+  - Sets vendor-dir to `plugin/vendor`
+  - Used for: `composer install`, `composer lint`, `composer test`
+
+- **Plugin composer.json**:
+  - Production dependencies only (Action Scheduler)
+  - Plugin autoload configuration
+  - Minimal scripts for plugin-specific operations
+  - Used when plugin is deployed standalone
+
+Rationale: This allows plugin to work standalone (when installed via WordPress.org) while keeping dev tools at root level.
+
+**2. Command Standardization:**
+
+Use composer for PHP operations, make for Docker/environment:
+
+```bash
+# PHP Operations (use composer)
+composer install         # Install dependencies
+composer lint            # Run all linters
+composer test            # Run tests
+composer lint:fix        # Auto-fix code style
+
+# Docker Operations (use make)
+make up                  # Start Docker containers
+make install             # Install WordPress
+make wp                  # Run WP-CLI commands
+make logs                # View logs
+make shell               # Access container shell
+
+# Hybrid Operations (documented in both)
+make test                # Runs: docker exec ... composer test
+make lint                # Runs: docker exec ... composer lint
+```
+
+**3. Documentation Organization:**
+
+```
+notion-wp/
+├── README.md                          (keep - user guide)
+├── DEVELOPMENT.md                     (keep - developer guide)
+├── CHANGELOG.md                       (keep - version history)
+├── CONTRIBUTING.md                    (keep - contribution guide)
+├── CLAUDE.md                          (keep - AI assistant instructions)
+├── docs/
+│   ├── archive/                       (NEW - old implementation docs)
+│   │   ├── phase-5.3/
+│   │   │   ├── BLOCK-IMPLEMENTATION.md
+│   │   │   ├── CHECKLIST.md
+│   │   │   └── SUMMARY.md
+│   │   ├── CACHING_IMPLEMENTATION.md
+│   │   ├── CHILD-DATABASE-CONVERTER-CHANGES.md
+│   │   ├── DYNAMIC_BLOCK_FIX_SUMMARY.md
+│   │   └── IMPLEMENTATION-SUMMARY.md
+│   ├── architecture/                  (existing)
+│   ├── development/                   (existing)
+│   ├── images/                        (existing - screenshots)
+│   ├── plans/                         (existing - phase plans)
+│   └── testing/                       (existing)
+```
+
+**4. Config File Actions:**
+
+- ✅ Keep and validate: `.editorconfig`, `.gitignore`, `.eslintrc.json`, `.stylelintrc.json`, `.php-cs-fixer.php`, `.prettierrc`, `.prettierignore`
+- ⚠️ Investigate: `.serenaignore` (unknown purpose)
+- ✅ Keep: `.env.example`, `.env.template`
+- ⚠️ Verify: `.npmrc` (ensure it's needed)
+- ⚠️ Review: `.mcp.json` (document purpose)
+
+### Deliverables
+
+**Visible to Developers:**
+- Clean, organized project root
+- Clear command documentation
+- Fast, reliable build commands
+- Consistent development experience
+
+**Technical:**
+
+**Composer:**
+- Updated root `composer.json` with clear documentation
+- Updated plugin `composer.json` with minimal config
+- `docs/development/dependency-management.md` - Explains the two-composer strategy
+
+**Documentation:**
+- `docs/archive/` - Contains all old implementation docs
+- Updated `DEVELOPMENT.md` - Complete command reference
+- All scattered .md files moved to appropriate locations
+- All internal links validated
+
+**Configuration:**
+- All config files documented in `DEVELOPMENT.md`
+- Unused configs removed
+- Tested and validated configs
+- `.serenaignore` investigated and documented or removed
+
+**Build System:**
+- Makefile cleaned and documented
+- Composer scripts verified
+- Pre-commit hooks optimized
+- CI/CD workflows tested
+
+### Implementation Checklist
+
+**Week 1: Analysis & Planning (1-2 days)**
+- [x] Audit current composer.json files
+- [x] List all make commands
+- [ ] List all composer scripts
+- [ ] Identify overlaps and gaps
+- [ ] Document decision tree (when to use make vs composer)
+
+**Week 1: Composer Consolidation (1-2 days)**
+- [ ] Document root vs plugin composer.json relationship
+- [ ] Add comments to both composer.json files explaining their roles
+- [ ] Verify all composer scripts work
+- [ ] Test plugin standalone with only plugin/composer.json
+- [ ] Update DEVELOPMENT.md with composer usage guide
+
+**Week 1: Documentation Cleanup (1 day)**
+- [ ] Create docs/archive/ directory structure
+- [ ] Move old implementation docs to archive
+- [ ] Update all internal documentation links
+- [ ] Verify README, CHANGELOG, CONTRIBUTING stay in root
+- [ ] Test all documentation links
+
+**Week 2: Config File Audit (1 day)**
+- [ ] Test each linting config file
+- [ ] Document purpose of each config in DEVELOPMENT.md
+- [ ] Investigate .serenaignore
+- [ ] Remove or fix unused configs
+- [ ] Ensure configs work in CI/CD
+
+**Week 2: Command Standardization (1 day)**
+- [ ] Create composer equivalents for make PHP commands
+- [ ] Document when to use make (Docker ops)
+- [ ] Document when to use composer (PHP ops)
+- [ ] Update DEVELOPMENT.md command reference
+- [ ] Test all commands in fresh environment
+
+**Week 2: Validation & Testing (half day)**
+- [ ] Fresh clone and setup test
+- [ ] Verify all commands work
+- [ ] Check all documentation links
+- [ ] Run full test suite
+- [ ] Validate CI/CD pipeline
+
+### Estimated Complexity: S (Small)
+
+**Duration:** 3-5 days
+
+This is primarily organizational work with clear outcomes. Most changes are non-breaking and improve developer experience.
+
+### Gatekeeping Criteria
+
+**DO NOT PROCEED to Phase 6 until:**
+- All documentation is organized (no scattered files)
+- Composer strategy is documented and clear
+- All build commands work reliably
+- DEVELOPMENT.md has complete command reference
+- Fresh clone can be set up in under 5 minutes
+- All config files are documented or removed
 
 ---
 
