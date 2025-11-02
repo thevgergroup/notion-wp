@@ -131,6 +131,10 @@ function init() {
 	$database_view_block = new \NotionWP\Blocks\DatabaseViewBlock( __FILE__ );
 	$database_view_block->init();
 
+	// Register block patterns for Notion content (Phase 6).
+	$block_patterns = new Blocks\Patterns();
+	$block_patterns->register();
+
 	// Initialize hierarchy detection (Phase 5).
 	$hierarchy_detector = new \NotionWP\Hierarchy\HierarchyDetector();
 	$hierarchy_detector->init();
