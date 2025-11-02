@@ -1,8 +1,10 @@
 {
+	"_comment": "ROOT COMPOSER.JSON - Development Environment",
+	"_purpose": "This file manages development dependencies, testing frameworks, and code quality tools. For production plugin deployment, use plugin/composer.json instead.",
 	"name": "thevgergroup/notion-wp",
 	"description": "Bi-directional sync between Notion and WordPress",
 	"type": "wordpress-plugin",
-	"license": "GPL-2.0-or-later",
+	"license": "GPL-3.0-or-later",
 	"authors": [
 		{
 			"name": "The VGER Group",
@@ -13,7 +15,7 @@
 	"prefer-stable": true,
 	"require": {
 		"php": ">=8.0",
-		"woocommerce/action-scheduler": "^3.7"
+		"woocommerce/action-scheduler": "^3.9"
 	},
 	"require-dev": {
 		"brain/monkey": "^2.6",

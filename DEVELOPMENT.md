@@ -100,6 +100,159 @@ make logs    # View container logs
 make restart # Restart containers
 ```
 
+For complete Docker documentation, see [docker/README.md](docker/README.md).
+
+---
+
+## Command Reference
+
+This project uses three command tools: **Make**, **Composer**, and **NPM**. Each has a specific purpose.
+
+### When to Use Which Tool
+
+| Tool | Purpose | Run From | Examples |
+|------|---------|----------|----------|
+| **Make** | Docker & WordPress operations | Project root | `make up`, `make install`, `make wp` |
+| **Composer** | PHP code quality & testing | Project root | `composer lint`, `composer test` |
+| **NPM** | JavaScript/CSS building | Plugin directory | `npm run build`, `npm run watch` |
+
+### Make Commands - Docker & WordPress
+
+Run from **project root**. Complete list available via `make help`.
+
+#### Essential Docker Operations
+```bash
+make up              # Start all Docker services
+make down            # Stop all Docker services
+make restart         # Restart all services
+make clean           # Remove all volumes and data (destructive!)
+make status          # Show environment status and URLs
+make logs            # View logs from all services
+make shell           # Open bash shell in WordPress container
+```
+
+#### WordPress Management
+```bash
+make install         # Install WordPress and activate plugin
+make wp ARGS="..."   # Run WP-CLI commands
+make activate        # Activate notion-sync plugin
+make deactivate      # Deactivate notion-sync plugin
+make plugin-status   # Show plugin status
+```
+
+#### Database Operations
+```bash
+make db-export                     # Export database to SQL file
+make db-import FILE=dump.sql       # Import database from SQL file
+make reset-wp                      # Delete and reinstall WordPress
+```
+
+#### WP-Cron & Action Scheduler
+```bash
+make cron            # Process Action Scheduler queue once
+make cron-loop       # Process queue 10 times (clear backlog)
+make cron-status     # Show Action Scheduler queue status
+make cron-reset      # Reset stuck "in-progress" actions
+make cron-log        # View automated cron execution log
+```
+
+#### Logging & Debugging
+```bash
+make logs            # All service logs (live tail)
+make logs-wp         # WordPress logs only
+make logs-db         # Database logs only
+make logs-php        # PHP error logs (last 100 lines)
+make logs-errors     # All error logs (last 100 lines)
+make logs-perf       # Performance logs (last 100 lines)
+make logs-sync       # Sync-related logs (last 100 lines)
+make logs-live       # Live tail with color filtering
+```
+
+### Composer Commands - PHP Quality & Testing
+
+Run from **project root** (not plugin directory).
+
+**Important**: Use `composer` (not `php composer.phar`) if you have Composer globally installed.
+
+#### Code Quality
+```bash
+composer lint                   # Run all linters (PHPCS + PHPStan)
+composer lint:phpcs             # WordPress Coding Standards check
+composer lint:phpstan           # Static analysis (type checking)
+composer lint:php-cs-fixer      # PHP-CS-Fixer check (dry-run)
+composer lint:fix               # Auto-fix all issues (PHPCBF + PHP-CS-Fixer)
+composer lint:phpcbf            # Auto-fix coding standards only
+composer check                  # Run all checks (lint + analyze)
+```
+
+#### Testing
+```bash
+composer test                   # Run PHPUnit test suite
+composer test:unit              # Run unit tests only
+```
+
+#### Dependency Management
+```bash
+composer install                # Install all dependencies
+composer update                 # Update dependencies
+composer require vendor/package # Add new dependency
+```
+
+**Note**: Root composer.json installs to `plugin/vendor` for plugin code analysis.
+
+### NPM Commands - JavaScript & CSS
+
+Run from **plugin directory** (`cd plugin`).
+
+#### Asset Building
+```bash
+npm install          # Install Node dependencies
+npm run build        # Build production assets (minified)
+npm run dev          # Build development assets (source maps)
+npm run watch        # Watch and rebuild on changes
+```
+
+#### Linting & Formatting (if configured)
+```bash
+npm run lint         # Run ESLint + Stylelint (if configured)
+npm run format       # Run Prettier (if configured)
+```
+
+### Two composer.json Files Explained
+
+The project has **two separate** composer.json files with different purposes:
+
+#### 1. Root `composer.json` - Development Environment
+- **Location**: `/composer.json`
+- **Purpose**: Development tools, testing frameworks, code quality
+- **Vendor Directory**: `plugin/vendor` (so tools can analyze plugin code)
+- **Used For**: Local development, CI/CD, GitHub Actions
+- **Contains**: PHPUnit, PHPStan, PHPCS, PHP-CS-Fixer, testing mocks
+
+```bash
+# Use for development
+composer install     # Installs dev tools + production deps
+composer lint        # Runs code quality tools
+composer test        # Runs test suite
+```
+
+#### 2. Plugin `plugin/composer.json` - Production Deployment
+- **Location**: `/plugin/composer.json`
+- **Purpose**: Only production dependencies for WordPress.org deployment
+- **Vendor Directory**: `plugin/vendor` (standard WordPress plugin structure)
+- **Used For**: WordPress.org SVN, plugin zip distribution
+- **Contains**: Only `woocommerce/action-scheduler` (production dependency)
+
+```bash
+# Use for standalone plugin deployment
+cd plugin
+composer install --no-dev   # Production dependencies only
+```
+
+**When to use which:**
+- **Development**: Always use root `composer install`
+- **Plugin Distribution**: Only use `plugin/composer.json` when building release zips
+
 ### Environment Configuration
 
 Docker Compose configuration is in `docker/docker-compose.yml`:

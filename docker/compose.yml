@@ -167,10 +167,12 @@ services:
     # Healthcheck disabled - streamable-http transport doesn't expose /health endpoint
     # The server will be accessible via the MCP endpoint at http://localhost:9121
 
-# Named volumes for data persistence (unique per worktree)
+# Named volumes for data persistence
+# By default, database is shared across branches for persistent Notion tokens and settings
+# Override DB_VOLUME_NAME in .env for isolated testing
 volumes:
   db_data:
-    name: ${COMPOSE_PROJECT_NAME}_db_data
+    name: ${DB_VOLUME_NAME:-notionwp_shared_db}
     driver: local
 
   wp_data:
