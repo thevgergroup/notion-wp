@@ -117,19 +117,9 @@ This is the most important step. Follow these instructions carefully.
 - **Never email it or post it in support forums**
 - If your token is compromised, you can regenerate it on the integration details page
 
-### Screenshot Placeholder
+### Visual Reference
 
-```
-[Screenshot: Notion Integration Creation Form]
-- Shows the new integration form with fields filled out
-- Highlights the "Submit" button
-```
-
-```
-[Screenshot: Integration Token Display]
-- Shows the Internal Integration Token field
-- Highlights the "Copy" button
-```
+For a visual guide to creating Notion integrations, refer to Notion's official documentation at https://developers.notion.com/docs/create-a-notion-integration.
 
 ## Installing the WordPress Plugin
 
@@ -231,19 +221,13 @@ When you click "Connect to Notion":
 
 Your token is encrypted and stored in the WordPress database. It's never displayed again for security reasons.
 
-### Screenshot Placeholder
+### Settings Page
 
-```
-[Screenshot: Connection Form - Empty State]
-- Shows the token input field
-- Highlights the "Connect to Notion" button
-```
+![Settings - Connection](images/settings-connection.png)
 
-```
-[Screenshot: Connection Success]
-- Shows success message with workspace name
-- Shows empty pages list with helpful message
-```
+After successfully connecting, you'll see your workspace information and available pages:
+
+![Settings - Page Selection](images/settings-page-selection.png)
 
 ## Sharing Pages with Your Integration
 
@@ -288,19 +272,9 @@ For security and privacy, Notion integrations start with zero access. You contro
 - After sharing, you should see your integration listed in the "Shared with" section
 - If you don't see it, the sharing didn't work - try again
 
-### Screenshot Placeholder
+### Visual Guide
 
-```
-[Screenshot: Notion Share Button Location]
-- Shows where to find the Share button in Notion
-```
-
-```
-[Screenshot: Notion Share Modal]
-- Shows the invite interface
-- Highlights where to search for integration
-- Shows integration appearing in search results
-```
+For step-by-step screenshots of sharing pages with integrations in Notion, see [Notion's official guide on authorizing integrations](https://developers.notion.com/docs/authorization).
 
 ## Verifying the Connection
 

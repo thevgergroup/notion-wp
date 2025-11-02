@@ -159,6 +159,30 @@ install: check-env ## Install WordPress and activate plugin
 	@echo "$(YELLOW)Waiting for services to be ready...$(NC)"
 	@sleep 10
 
+	@echo "$(CYAN)Checking for WordPress core files...$(NC)"
+	@if ! docker exec notionwp_main_wpcli test -f /var/www/html/wp-load.php 2>/dev/null; then \
+		echo "$(YELLOW)WordPress core not found, downloading...$(NC)"; \
+		docker exec -u www-data notionwp_main_wpcli wp core download --force || \
+		docker exec -u www-data notionwp_main_wp bash -c "cd /var/www/html && curl -sO https://wordpress.org/latest.tar.gz && tar --strip-components=1 -xzf latest.tar.gz && rm latest.tar.gz"; \
+		echo "$(GREEN)WordPress core downloaded$(NC)"; \
+	else \
+		echo "$(GREEN)WordPress core already present$(NC)"; \
+	fi
+
+	@echo "$(CYAN)Checking for wp-config.php...$(NC)"
+	@if ! docker exec notionwp_main_wpcli test -f /var/www/html/wp-config.php 2>/dev/null; then \
+		echo "$(YELLOW)Creating wp-config.php...$(NC)"; \
+		$(WP) config create \
+			--dbname=$(DB_NAME) \
+			--dbuser=$(DB_USER) \
+			--dbpass=$(DB_PASSWORD) \
+			--dbhost=db:3306 \
+			--skip-check; \
+		echo "$(GREEN)wp-config.php created$(NC)"; \
+	else \
+		echo "$(GREEN)wp-config.php already exists$(NC)"; \
+	fi
+
 	@echo "$(CYAN)Running WordPress installation...$(NC)"
 	@$(WP) core install \
 		--url=http://$(WP_SITE_HOST) \

@@ -1,494 +1,427 @@
-# Notion-WP Sync Plugin
+# Notion Sync for WordPress
 
 [![Tests](https://github.com/thevgergroup/notion-wp/actions/workflows/test.yml/badge.svg)](https://github.com/thevgergroup/notion-wp/actions/workflows/test.yml)
 [![Code Quality](https://github.com/thevgergroup/notion-wp/actions/workflows/lint.yml/badge.svg)](https://github.com/thevgergroup/notion-wp/actions/workflows/lint.yml)
 [![Coverage](https://img.shields.io/endpoint?url=https://gist.githubusercontent.com/pjaol/2cb753e52d7fcf0a1176d34f406ad613/raw/notion-wp-coverage.json)](https://gist.github.com/pjaol/2cb753e52d7fcf0a1176d34f406ad613)
-[![codecov](https://codecov.io/gh/thevgergroup/notion-wp/branch/main/graph/badge.svg)](https://codecov.io/gh/thevgergroup/notion-wp)
 [![PHP Version](https://img.shields.io/badge/php-8.0%2B-blue)](https://www.php.net/)
 [![WordPress](https://img.shields.io/badge/wordpress-6.0%2B-blue)](https://wordpress.org/)
 [![License](https://img.shields.io/badge/license-GPL--2.0--or--later-green)](LICENSE)
 
-A WordPress plugin for bi-directional synchronization between Notion and WordPress, designed for enterprise-grade performance and extensibility.
+**Sync your Notion pages and databases to WordPress with automatic navigation menus and embedded database views.**
 
-## Project Overview
+Write and organize your content in Notion, then publish it to your WordPress site with one click. Perfect for teams who love Notion's collaborative writing experience but need WordPress for their public-facing website.
 
-This plugin enables content management in Notion while publishing to WordPress, addressing gaps in existing solutions:
+---
 
-- **Bi-directional sync**: Notion → WordPress (primary), WordPress → Notion (optional)
-- **Complete block support**: Extensible converter system for all Notion block types
-- **Navigation generation**: Automatic WordPress menu creation from Notion hierarchy
-- **Internal link conversion**: Notion page links → WordPress permalinks
-- **Media handling**: Download images from Notion, upload to WP Media Library with deduplication
-- **Background processing**: Action Scheduler integration for large syncs
-- **Field mapping**: Notion properties → WordPress fields (including custom fields, taxonomies, SEO meta)
+## ✨ Features
 
-## Architecture Highlights
+- ✅ **One-Click Page Sync** - Import Notion pages as WordPress posts with rich content
+- ✅ **Automatic Menus** - Generate WordPress navigation menus from your Notion page hierarchy
+- ✅ **Embedded Database Tables** - Display Notion databases as interactive tables on your site
+- ✅ **Rich Content Support** - Images, tables, code blocks, callouts, toggles, and more
+- ✅ **Background Processing** - Handle large imports without timeouts
+- ✅ **Parent-Child Hierarchies** - Maintain nested page structures from Notion
+- ✅ **Internal Link Resolution** - Notion page links automatically convert to WordPress permalinks
+- ⚠️ **Coming Soon:** Board, gallery, timeline, and calendar database views
+- ⚠️ **Coming Soon:** WordPress → Notion bi-directional sync
 
-- **PSR-4 Autoloading**: Clean namespace structure (`NotionSync\`)
-- **Dependency Injection**: Container-based DI for loose coupling and testability
-- **Repository Pattern**: Data access abstraction with custom tables for scale
-- **Action Scheduler**: Reliable background job processing
-- **WordPress VIP Standards**: Follows enterprise coding standards
-- **Extensibility**: Hooks and filters for custom block converters and field mappings
+---
 
-See [docs/architecture/project-structure.md](docs/architecture/project-structure.md) for complete architectural details.
+## 📸 Screenshots
 
-## Development Setup
+### Settings - Connection
+Configure your Notion integration token to connect WordPress with Notion.
 
-This project uses **git worktrees** with isolated Docker environments for parallel feature development.
+![Settings Connection](docs/images/settings-connection.png)
 
-### Prerequisites
+### Page Selection
+Choose which Notion pages to sync to your WordPress site.
 
-- Docker and Docker Compose
-- Git 2.5+ (for worktree support)
-- Node.js 18+ (for asset building)
-- Composer (for PHP dependencies)
+![Page Selection](docs/images/settings-page-selection.png)
 
-### Quick Start
+### Sync Dashboard
+Monitor sync status and manage your synced content.
 
-1. **Clone the repository**
+![Sync Dashboard](docs/images/sync-dashboard.png)
 
-    ```bash
-    git clone <repository-url>
-    cd notion-wp
-    ```
+### Database Table View
+Interactive Notion databases displayed as filterable, sortable tables.
 
-2. **Create your first worktree**
+![Database Table View](docs/images/database-table-view.png)
 
-    ```bash
-    ./scripts/setup-worktree.sh main 8080 3306
-    ```
+### Published Hierarchy
+Nested Notion pages maintain their parent-child relationships in WordPress.
 
-    This script:
-    - Creates a git worktree named `main`
-    - Sets up `.env` with unique ports (HTTP: 8080, DB: 3306)
-    - Starts Docker containers (WordPress, MariaDB, Traefik)
-    - Installs WordPress
-    - Installs Composer/NPM dependencies
-    - Builds assets
-    - Activates the plugin
+![Published Hierarchy](docs/images/published-hierarchy.png)
 
-3. **Access WordPress**
-    - URL: http://main.localtest.me
-    - Admin: http://main.localtest.me/wp-admin
-    - Username: `admin`
-    - Password: `admin`
+### Auto-Generated Navigation
+WordPress navigation menus automatically generated from Notion page structure.
 
-### Creating Additional Worktrees
+![Menu Generation](docs/images/menu-generation.png)
 
-For parallel feature development:
+---
 
-```bash
-# Terminal 1: Work on sync engine
-./scripts/setup-worktree.sh feature-sync 8081 3307
-cd ../feature-sync
-# Access: http://feature-sync.localtest.me
+## 🚀 Installation
 
-# Terminal 2: Work on block converters
-./scripts/setup-worktree.sh feature-blocks 8082 3308
-cd ../feature-blocks
-# Access: http://feature-blocks.localtest.me
-```
+### From GitHub (Manual Installation)
 
-Each worktree has:
+1. Download the latest release from the [Releases page](https://github.com/thevgergroup/notion-wp/releases)
+2. Upload the `notion-sync` folder to `/wp-content/plugins/`
+3. Activate the plugin through the 'Plugins' menu in WordPress
+4. Go to **Settings → Notion Sync** to configure
 
-- Isolated WordPress installation
-- Separate database
-- Unique containers and volumes
-- Hostname-based routing (via Traefik)
+### Requirements
 
-### Common Commands
+- **WordPress:** 6.0 or higher
+- **PHP:** 8.0 or higher
+- **Notion Account:** Free or paid plan
+- **Notion Integration:** You'll need to create a Notion integration (free)
 
-```bash
-# From any worktree directory:
-make help              # Show all available commands
-make up                # Start containers
-make down              # Stop containers
-make logs              # View logs
-make shell             # Access WordPress container
-make wp ARGS="..."     # Run WP-CLI commands
-make test              # Run PHPUnit tests
-make npm-watch         # Auto-rebuild assets on change
-```
+> **Coming Soon:** Installation from WordPress.org plugin directory
 
-See `Makefile` for complete command reference.
+---
 
-## Project Structure
+## 🔧 Getting Started
 
-```
-notion-wp/                      # Main repository
-├── docker/                     # Shared Docker infrastructure
-│   ├── compose.yml             # Docker Compose configuration
-│   └── config/                 # PHP, Apache configs
-├── plugin/                     # Plugin source code
-│   ├── notion-sync.php         # Main plugin file
-│   ├── composer.json           # PHP dependencies
-│   ├── package.json            # Node.js dependencies
-│   ├── src/                    # PSR-4 source code (NotionSync\)
-│   │   ├── Admin/              # WordPress admin UI
-│   │   ├── API/                # Notion API client
-│   │   ├── Sync/               # Sync orchestration
-│   │   ├── Converters/         # Block converters
-│   │   ├── Media/              # Media handling
-│   │   ├── Navigation/         # Menu generation
-│   │   ├── Database/           # Data persistence
-│   │   ├── Queue/              # Background jobs
-│   │   └── REST/               # REST API endpoints
-│   ├── assets/                 # Frontend assets
-│   │   ├── src/                # Source files (committed)
-│   │   └── dist/               # Built files (gitignored)
-│   ├── templates/              # PHP templates
-│   ├── tests/                  # Test suite
-│   └── config/                 # Runtime config (gitignored per worktree)
-├── scripts/                    # Development automation
-│   ├── setup-worktree.sh       # Create new worktree
-│   └── teardown-worktree.sh    # Remove worktree
-├── docs/                       # Documentation
-│   ├── architecture/           # Technical architecture docs
-│   ├── product/                # Product requirements
-│   └── requirements/           # Functional requirements
-├── .env.template               # Environment variable template
-├── Makefile                    # Common commands
-└── README.md                   # This file
+### Step 1: Create a Notion Integration
 
-# Worktree structure (e.g., feature-sync/)
-feature-sync/                   # Git worktree
-├── .env                        # Worktree-specific config (GITIGNORED)
-├── plugin/                     # Shared from main repo
-│   └── config/                 # Worktree-specific configs (GITIGNORED)
-└── logs/                       # Worktree logs (GITIGNORED)
-```
+1. Go to [Notion Integrations](https://www.notion.so/my-integrations)
+2. Click **+ New integration**
+3. Give it a name (e.g., "WordPress Sync")
+4. Select the workspace you want to use
+5. Click **Submit**
+6. Copy your **Internal Integration Token** (starts with `secret_`)
 
-## Git Worktree Workflow
+### Step 2: Share Pages with Your Integration
 
-### Creating a Feature Branch
+1. Open the Notion page you want to sync
+2. Click **Share** in the top right
+3. Click **Invite** and select your integration
+4. Repeat for all pages you want to sync
 
-```bash
-# 1. Create worktree with setup script
-./scripts/setup-worktree.sh feature-media-import 8083 3309
+> **Tip:** If you share a parent page, all child pages are automatically shared!
 
-# 2. Navigate to worktree
-cd ../feature-media-import
+### Step 3: Connect WordPress to Notion
 
-# 3. Start coding
-vim plugin/src/Media/MediaImporter.php
+1. In WordPress, go to **Settings → Notion Sync**
+2. Paste your **Integration Token**
+3. Click **Test Connection**
+4. If successful, you'll see your available pages
 
-# 4. Commit changes
-git add plugin/src/Media/MediaImporter.php
-git commit -m "Implement media import with deduplication"
+### Step 4: Select Pages to Sync
 
-# 5. Push to remote
-git push origin feature-media-import
-```
+1. Check the boxes next to pages you want to sync
+2. Click **Sync Selected Pages**
+3. The plugin will import your content in the background
 
-### Merging Changes
+### Step 5: Add Menu to Your Site
 
-```bash
-# From main worktree
-cd ~/Projects/notion-wp/main
-git merge feature-media-import
-git push origin main
-```
+1. Go to **Appearance → Menus**
+2. Find the menu named **Notion Pages** (auto-created)
+3. Assign it to a menu location in your theme
+4. Visit your site to see the navigation!
 
-### Cleaning Up
+---
 
-```bash
-# Teardown worktree and optionally delete branch
-./scripts/teardown-worktree.sh feature-media-import --delete-branch
-```
+## 📚 Usage Guide
 
-## Configuration
+### Syncing Pages
 
-### Environment Variables
+**Manual Sync:**
+1. Go to **Settings → Notion Sync**
+2. Select pages to sync
+3. Click **Sync Now**
 
-Each worktree has its own `.env` file (copied from `.env.template`):
+**What Gets Synced:**
+- Page title
+- Page content (all supported block types)
+- Images and media files
+- Parent-child relationships
+- Page hierarchy
 
-```bash
-# Docker isolation (must be unique)
-COMPOSE_PROJECT_NAME=notionwp_main
-WP_SITE_HOST=main.localtest.me
-DB_NAME=wp_main
-DB_PORT=3306    # For external DB access
-HTTP_PORT=8080  # Not needed with Traefik
+**Sync Frequency:**
+- Currently manual sync only
+- ⚠️ Automatic scheduled sync coming soon
+- ⚠️ Real-time webhook sync coming soon (Notion paid plans)
 
-# WordPress credentials
-WP_ADMIN_USER=admin
-WP_ADMIN_PASSWORD=admin
+### Syncing Databases
 
-# Plugin config (add after setup)
-NOTION_TOKEN=secret_xxx
-NOTION_WORKSPACE_ID=abc123
-```
+**Display Notion Databases:**
+1. Sync a page that contains a database
+2. The database appears as an interactive table
+3. Users can filter, sort, and search
+4. Export to CSV available
 
-### Runtime Configuration
+**Current Support:**
+- ✅ Table view with filters and sorting
+- ⚠️ Board, gallery, timeline, calendar views coming soon
 
-Worktree-specific plugin configs (gitignored):
+### Embedding Database Views
 
-```json
-// plugin/config/block-maps.json
-{
-	"converters": {
-		"paragraph": "NotionSync\\Converters\\NotionToGutenberg\\ParagraphConverter",
-		"callout": "MyCustom\\CalloutConverter"
-	}
+**In the Block Editor:**
+1. Add a new block
+2. Search for "Notion Database"
+3. Select your database
+4. Configure display options
+5. Publish!
+
+**On the Frontend:**
+- Interactive tables with live filtering
+- Sorting by any column
+- Search across all fields
+- Export to CSV
+
+### Managing Menus
+
+**Auto-Generated Menus:**
+- Created automatically from Notion hierarchy
+- Updates on each sync
+- Maintains nesting up to 3 levels deep
+
+**Manual Menu Items:**
+- Add custom items to the Notion menu
+- Plugin preserves your manual additions
+- Mix Notion pages with custom links
+
+**Assigning Menus:**
+1. **Appearance → Menus**
+2. Select **Notion Pages** menu
+3. Assign to a menu location
+4. Save
+
+---
+
+## 🎨 Theme Integration
+
+### Adding Menus to Your Theme
+
+**For Block Themes (2024+):**
+1. Open Site Editor (**Appearance → Editor**)
+2. Click on the Navigation block
+3. Select **Notion Pages** from the menu dropdown
+4. Save
+
+**For Classic Themes:**
+1. **Appearance → Menus**
+2. Find "Theme Locations" section
+3. Select **Notion Pages** for your primary location
+4. Save Menu
+
+**Popular Themes:**
+
+| Theme | Menu Location |
+|-------|---------------|
+| Twenty Twenty-Four | Site Editor → Navigation block |
+| Twenty Twenty-Three | Site Editor → Navigation block |
+| Astra | Appearance → Menus → Primary Menu |
+| GeneratePress | Appearance → Menus → Primary Navigation |
+| Neve | Appearance → Menus → Primary Menu |
+
+### Styling Notion Content
+
+The plugin outputs standard WordPress blocks with class names for styling:
+
+```css
+/* Callout blocks */
+.notion-callout {
+  padding: 1rem;
+  border-left: 4px solid;
+}
+
+/* Database tables */
+.notion-database-table {
+  width: 100%;
+}
+
+/* Toggle blocks */
+.notion-toggle summary {
+  cursor: pointer;
+  font-weight: bold;
 }
 ```
 
-```json
-// plugin/config/field-maps.json
-{
-	"databases": {
-		"notion-db-id": {
-			"target_post_type": "post",
-			"property_mappings": {
-				"Name": "post_title",
-				"Tags": "post_tag",
-				"Meta Description": "_yoast_wpseo_metadesc"
-			}
-		}
-	}
-}
-```
+---
 
-## Development Workflow
+## ❓ FAQ
 
-### Daily Development
+### What Notion content is supported?
 
-1. **Start environment**
-
-    ```bash
-    cd ~/Projects/notion-wp/feature-x
-    make up
-    ```
-
-2. **Watch assets** (auto-rebuild on changes)
-
-    ```bash
-    cd plugin
-    npm run watch
-    ```
-
-3. **Make code changes**
-    - Edit files in `plugin/src/`
-    - Changes reflect immediately in container
-
-4. **Test changes**
-
-    ```bash
-    make test           # PHPUnit tests
-    make phpcs          # Code standards check
-    ```
-
-5. **Commit and push**
-    ```bash
-    git add .
-    git commit -m "Descriptive message"
-    git push
-    ```
-
-### Testing
-
-```bash
-# Unit tests (fast, no WordPress)
-cd plugin
-vendor/bin/phpunit tests/Unit/
-
-# Integration tests (requires WordPress)
-vendor/bin/phpunit tests/Integration/
-
-# Code standards
-vendor/bin/phpcs --standard=WordPress src/
-vendor/bin/phpcbf --standard=WordPress src/  # Auto-fix
-```
-
-### Debugging
-
-1. **View logs**
-
-    ```bash
-    make logs           # All containers
-    make logs-wp        # WordPress only
-    ```
-
-2. **Access container shell**
-
-    ```bash
-    make shell          # WordPress container
-    make shell-db       # Database container
-    ```
-
-3. **WP-CLI commands**
-
-    ```bash
-    make wp ARGS="plugin list"
-    make wp ARGS="option get siteurl"
-    make wp ARGS="db query 'SELECT * FROM wp_posts LIMIT 5'"
-    ```
-
-4. **Enable WordPress debug mode**
-
-    ```php
-    // Edit .env
-    WP_DEBUG=1
-    WP_DEBUG_LOG=1
-    WP_DEBUG_DISPLAY=0
-
-    // Restart containers
-    make restart
+**Fully Supported:**
+- Paragraphs, headings, lists
+- Images and file attachments
+- Tables
+- Code blocks with syntax highlighting
+- Callouts
+- Toggles (collapsible content)
+- Quotes
+- Dividers
+- Embeds (YouTube, Twitter, etc.)
+- Database table views
 
-    // View logs
-    make shell
-    tail -f /var/www/html/wp-content/debug.log
-    ```
+**Coming Soon:**
+- Board views
+- Gallery views
+- Timeline views
+- Calendar views
 
-## Plugin Development
+### How often should I sync?
 
-### Adding a New Block Converter
+- **Manual sync** whenever you update content in Notion
+- Syncing is safe - it won't create duplicates
+- Large syncs process in the background
+- ⚠️ Automatic scheduled sync coming soon
 
-1. **Create converter class**
+### What happens to WordPress edits?
 
-    ```php
-    // plugin/src/Converters/NotionToGutenberg/MyBlockConverter.php
-    namespace NotionSync\Converters\NotionToGutenberg;
+Currently, syncing is **one-way only** (Notion → WordPress):
+- WordPress edits will be overwritten on next sync
+- Make all content changes in Notion
+- ⚠️ Bi-directional sync coming in a future release
 
-    class MyBlockConverter implements BlockConverterInterface {
-        public function convert(array $notion_block): string {
-            // Convert Notion block to Gutenberg HTML
-            return '<!-- wp:custom/block -->Content<!-- /wp:custom/block -->';
-        }
-    }
-    ```
+### Can I sync private Notion pages?
 
-2. **Register converter via filter**
-    ```php
-    add_filter('notion_sync_block_converters', function($converters) {
-        $converters['my_block_type'] = MyBlockConverter::class;
-        return $converters;
-    });
-    ```
+Yes! As long as:
+1. The page is shared with your integration
+2. Your integration has the right permissions
+3. The page is in the connected workspace
 
-### Adding a Background Job
+The plugin respects Notion permissions:
+- Private pages → Private WordPress posts
+- Public pages → Public WordPress posts
 
-1. **Create job class**
+### Does this work with page builders?
 
-    ```php
-    // plugin/src/Queue/Jobs/MyJob.php
-    namespace NotionSync\Queue\Jobs;
+The plugin outputs standard WordPress Gutenberg blocks, which work with:
+- ✅ WordPress Block Editor (Gutenberg)
+- ✅ Full Site Editing themes
+- ⚠️ Limited support for page builders (Elementor, Divi, etc.)
 
-    class MyJob {
-        public function execute($args) {
-            // Job logic
-        }
-    }
-    ```
+For page builders, content syncs as HTML that you can copy/paste into page builder modules.
 
-2. **Dispatch job**
+### Can I sync multiple Notion workspaces?
 
-    ```php
-    use NotionSync\Queue\JobDispatcher;
+Currently, one workspace per WordPress site. To sync multiple workspaces:
+- Use WordPress Multisite
+- Create separate integration tokens
+- ⚠️ Native multi-workspace support coming soon
 
-    $dispatcher = Container::get(JobDispatcher::class);
-    $dispatcher->dispatch(MyJob::class, ['arg1' => 'value']);
-    ```
+### How do I uninstall?
 
-### Adding a REST Endpoint
+1. **Deactivate** the plugin
+2. **Delete** it from the Plugins page
+3. **Optional:** Delete Notion sync data
+   - Go to **Settings → Notion Sync**
+   - Click **Delete All Sync Data**
+   - Confirm deletion
 
-```php
-// plugin/src/REST/CustomController.php
-namespace NotionSync\REST;
+This removes all sync history but keeps your WordPress posts.
 
-class CustomController {
-    public function register_routes() {
-        register_rest_route('notion-sync/v1', '/custom', [
-            'methods' => 'POST',
-            'callback' => [$this, 'handle_request'],
-            'permission_callback' => [$this, 'check_permissions'],
-        ]);
-    }
+### My images aren't showing up!
 
-    public function handle_request($request) {
-        // Handle request
-        return rest_ensure_response(['status' => 'success']);
-    }
+Images process in the background to avoid timeouts:
+1. Check **Settings → Notion Sync → Sync Status**
+2. Look for image processing jobs
+3. Refresh your page after a few minutes
 
-    public function check_permissions() {
-        return current_user_can('manage_options');
-    }
-}
-```
+For troubleshooting:
+- Ensure your WordPress site can access Notion's S3 URLs
+- Check PHP max_execution_time setting
+- Review error logs
 
-## Troubleshooting
+### Internal links aren't working!
 
-### Port Conflicts
+Make sure both pages are synced to WordPress:
+1. Sync the page you're linking FROM
+2. Sync the page you're linking TO
+3. Links resolve automatically after both pages sync
 
-If you get "port already in use" errors:
+If still broken:
+- Check **Settings → Notion Sync → Link Status**
+- Look for unresolved links
+- Sync missing pages
 
-1. Check `.env` for unique `HTTP_PORT` and `DB_PORT`
-2. Ensure `COMPOSE_PROJECT_NAME` is unique
-3. Check for orphaned containers: `docker ps -a`
+---
 
-### Database Connection Errors
+## 🛠️ Requirements
 
-```bash
-# Check database status
-make ps
+- **WordPress:** 6.0+
+- **PHP:** 8.0+
+- **Notion:** Free or paid account
+- **Server Requirements:**
+  - `curl` extension enabled
+  - `gd` or `imagick` for image processing
+  - Minimum 128MB PHP memory limit
 
-# View database logs
-make logs-db
+---
 
-# Restart services
-make restart
-```
+## 📖 Documentation
 
-### Plugin Not Activating
+- [Getting Started Guide](docs/getting-started.md) - Detailed setup and usage instructions
+- [Development Guide](DEVELOPMENT.md) - For contributors and developers
+- [Architecture Documentation](docs/architecture/) - Technical architecture details
+- [Testing Documentation](docs/testing/) - Testing strategies and examples
 
-```bash
-# Check plugin status
-make wp ARGS="plugin list"
+---
 
-# View error logs
-make logs-wp
+## 🤝 Support
 
-# Try manual activation
-make activate-plugin
-```
+Need help? Here's how to get support:
 
-### Asset Build Failures
+- **Bug Reports:** [GitHub Issues](https://github.com/thevgergroup/notion-wp/issues)
+- **Feature Requests:** [GitHub Discussions](https://github.com/thevgergroup/notion-wp/discussions)
+- **Documentation:** [docs/](docs/)
 
-```bash
-cd plugin
-rm -rf node_modules/
-npm install
-npm run build
-```
+---
 
-## Documentation
+## 🚧 Roadmap
 
-- [Project Structure](docs/architecture/project-structure.md) - Complete directory structure and architecture
-- [Git Worktrees Guide](docs/architecture/worktrees.md) - Worktree setup and best practices
-- [Product Requirements](docs/product/prd.md) - Feature specifications and research
-- [Technical Requirements](docs/requirements/requirements.md) - Functional requirements
+**Current Version:** Supports core sync, menus, and table views
 
-## Contributing
+**Coming Soon:**
+- Additional database views (board, gallery, timeline, calendar)
+- Scheduled automatic sync
+- Webhook support for real-time updates
+- WordPress → Notion bi-directional sync
+- Advanced field mapping UI
+- Custom post type support
 
-1. Create a new worktree for your feature
-2. Follow WordPress VIP coding standards
-3. Write tests for new functionality
-4. Run `make phpcs` and `make test` before committing
-5. Submit pull request with detailed description
+See [docs/plans/main-plan.md](docs/plans/main-plan.md) for the complete roadmap.
 
-## License
+---
 
-GPL-3.0+ (WordPress plugin license)
+## 💻 Contributing
 
-## Credits
+We welcome contributions! See [CONTRIBUTING.md](CONTRIBUTING.md) for guidelines.
 
-Developed as a WordPress plugin architecture reference following enterprise best practices.
+For development setup and technical documentation, see [DEVELOPMENT.md](DEVELOPMENT.md).
 
-## Support
+---
 
-For questions or issues, please refer to:
+## 📄 License
 
-- [CLAUDE.md](CLAUDE.md) - Claude Code development instructions
-- [docs/](docs/) - Technical documentation
-- Project issue tracker (add GitHub/GitLab URL)
+This plugin is licensed under [GPL v2 or later](LICENSE).
+
+---
+
+## 🙏 Credits
+
+Developed by [The VGER Group](https://github.com/thevgergroup)
+
+**Built with:**
+- [Notion API](https://developers.notion.com/)
+- [WordPress](https://wordpress.org/)
+- [Tabulator](http://tabulator.info/) for interactive tables
+- [Action Scheduler](https://actionscheduler.org/) for background processing
+
+---
+
+## ⭐ Show Your Support
+
+If this plugin helps you, please:
+- ⭐ Star the repository on GitHub
+- 🐛 Report bugs and issues
+- 💡 Suggest new features
+- 📖 Improve documentation
+- 🔧 Contribute code
+
+Thank you for using Notion Sync for WordPress!

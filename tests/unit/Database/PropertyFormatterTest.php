@@ -37,7 +37,7 @@ class PropertyFormatterTest extends BaseTestCase {
 		Functions\stubs(
 			array(
 				'date_i18n'            => function ( $format, $timestamp = null ) {
-					return gmdate( $format ?: 'M d, Y', $timestamp ?: time() );
+					return gmdate( $format ? $format : 'M d, Y', $timestamp ? $timestamp : time() );
 				},
 				'_n'                   => function ( $single, $plural, $number ) {
 					return $number === 1 ? $single : $plural;
