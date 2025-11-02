@@ -1,0 +1,41 @@
+# Copyright (C) 2025 The Verger Group
+# This file is distributed under the GPL-3.0+.
+msgid ""
+msgstr ""
+"Project-Id-Version: Notion Sync 1.0.0\n"
+"Report-Msgid-Bugs-To: https://github.com/thevgergroup/notion-wp/issues\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"POT-Creation-Date: 2025-11-02T12:00:00+00:00\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"X-Generator: WP-CLI 2.10.0\n"
+"X-Domain: notion-wp\n"
+
+#. Plugin Name of the plugin
+msgid "Notion Sync"
+msgstr ""
+
+#. Plugin URI of the plugin
+msgid "https://github.com/thevgergroup/notion-wp"
+msgstr ""
+
+#. Description of the plugin
+msgid "Bi-directional synchronization between Notion and WordPress"
+msgstr ""
+
+#. Author of the plugin
+msgid "The Verger Group"
+msgstr ""
+
+#. Author URI of the plugin
+msgid "https://thevgergroup.com"
+msgstr ""
+
+# NOTE: This is a placeholder POT file for Phase 6 development.
+# Before WordPress.org submission, regenerate with:
+#   make up
+#   make wp ARGS="i18n make-pot /var/www/html/wp-content/plugins/notion-sync /var/www/html/wp-content/plugins/notion-sync/languages/notion-wp.pot --domain=notion-wp"
+# This will extract all translatable strings from the plugin code.

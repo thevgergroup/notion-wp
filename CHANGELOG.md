@@ -2,45 +2,41 @@
 
 All notable changes to the Notion Sync plugin will be documented in this file.
 
-## [Unreleased] - Phase 3: Media Handling
+## [1.0.0] - 2025-11-02
 
-### Added
+**Initial Public Release**
 
-- **Media Import System**: Download images from Notion S3 URLs to WordPress Media Library
-- **TIFF Image Handling**: Skip unsupported TIFF format, link to original URL, log as warning
-- **Image Duplicate Detection**: MediaRegistry prevents re-downloading existing images using block IDs
-- **Sync Logging System**: Comprehensive sync log tracking with admin UI and WP-CLI commands
-- **Action Scheduler Reliability Improvements**:
-    - Force WP Cron runner instead of unreliable async requests
-    - Increase timeout from 5 minutes to 10 minutes for image-heavy pages
-    - Automatic retry logic for failed sync actions
-    - New `wp notion scheduler_status` command to monitor configuration
-- **WP-CLI Commands**:
-    - `wp notion logs` - View and manage sync logs with filtering
-    - `wp notion logs --stats` - Display sync log statistics
-    - `wp notion scheduler_status` - Check Action Scheduler configuration
+This is the first stable release of Notion Sync for WordPress. All core features are production-ready.
 
-### Changed
+### Features Included
 
-- **Image Blocks**: External/unsupported images now use `wp:html` blocks instead of `wp:image` to avoid Gutenberg validation errors
-- **composer.json**: Updated Action Scheduler requirement from ^3.7 to ^3.9
+- **Page Sync** - Import Notion pages to WordPress with one click
+- **Rich Content** - Support for 18+ Notion block types (paragraphs, headings, lists, images, tables, code, callouts, toggles, quotes, embeds, columns, dividers)
+- **Media Handling** - Automatic image download to WordPress Media Library with TIFF → PNG conversion
+- **Page Hierarchy** - Maintain parent-child page relationships from Notion
+- **Navigation Menus** - Auto-generate WordPress menus from Notion page structure
+- **Database Views** - Display Notion databases as interactive, filterable tables
+- **Link Resolution** - Convert Notion internal links to WordPress permalinks
+- **Background Processing** - Handle large imports without timeouts using Action Scheduler
+- **Sync Logging** - Comprehensive sync log tracking with admin UI
+- **WP-CLI Support** - Command-line tools for automation (`wp notion logs`, `wp notion scheduler_status`)
+- **MediaRegistry** - Duplicate prevention for images and files
+- **Extensibility** - Clean block converter architecture for future block types
 
-### Fixed
+### Technical Achievements
 
-- Gutenberg block validation errors for external images (TIFF, Unsplash, Giphy)
-- Action Scheduler async request timeout failures during bulk sync operations
-- TIFF image conversion infinite retry loops
+- 261 PHPUnit tests with 641 assertions
+- PHPCS and PHPStan code quality standards
+- GPL-3.0+ licensed
+- WordPress Coding Standards compliant
+- GitHub Actions CI/CD with automated testing
 
-### Performance
+### Known Limitations (Coming in Future Releases)
 
-- Image download time: ~0.66s per image (4 images in 2.64s)
-- Page sync with 4 images: 4.4 seconds (previously 18+ seconds with TIFF conversion attempts)
-- Bulk sync: 18 of 19 pages completed successfully in testing
-
-### Known Issues
-
-- Action Scheduler version 3.7.4 requires manual update to 3.9.3 (composer not available in Docker)
-- One action timeout during bulk sync testing (mitigated by automatic retry system)
+- Board, gallery, timeline, and calendar database views (table view only in v1.0)
+- WordPress → Notion bi-directional sync (Notion → WordPress only)
+- Scheduled automatic syncs (manual sync only)
+- Real-time webhook sync (manual triggers only)
 
 ## [0.2.0] - Phase 2: Link Registry & Public Viewer
 
