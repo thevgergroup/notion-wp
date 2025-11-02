@@ -154,6 +154,113 @@ WP_ADMIN_PASSWORD=admin
 WP_ADMIN_EMAIL=dev@example.com
 ```
 
+## Volume Management
+
+### Database Volume Strategy (NEW in Phase 5.8)
+
+By default, the database volume is **shared across all branches** to preserve Notion tokens and WordPress settings when switching branches. This dramatically improves developer experience by eliminating the need to reconfigure settings on every branch switch.
+
+#### Shared Volume (Default)
+
+```bash
+# In your .env file
+DB_VOLUME_NAME=notionwp_shared_db
+```
+
+**Benefits:**
+- ✅ Notion API token persists across all branches
+- ✅ WordPress admin settings (permalink structure, theme, plugins) preserved
+- ✅ Test content and sample data available everywhere
+- ✅ Faster branch switching (no re-setup needed)
+- ✅ Consistent development environment
+
+**Use for:**
+- Normal feature development
+- Bug fixes
+- Documentation updates
+- Most development workflows
+
+#### Isolated Volume (Optional)
+
+```bash
+# In your .env file - uncomment to enable
+DB_VOLUME_NAME=${COMPOSE_PROJECT_NAME}_db_data
+```
+
+**Benefits:**
+- ✅ Clean slate for each branch
+- ✅ Test fresh WordPress installations
+- ✅ Verify plugin activation hooks
+- ✅ Test database migrations
+
+**Use for:**
+- Testing plugin installation from scratch
+- Database migration testing
+- Clean environment verification
+- WordPress version compatibility testing
+
+### Migrating Existing Data to Shared Volume
+
+If you have an existing database with Notion token configured:
+
+```bash
+# 1. Export your database
+make db-export
+
+# This creates: wordpress/db-dump-YYYY-MM-DD-HHMMSS.sql
+
+# 2. Update .env to use shared volume
+echo "DB_VOLUME_NAME=notionwp_shared_db" >> .env
+
+# 3. Restart services (creates new shared volume)
+make down
+make up
+
+# 4. Import your data
+make db-import FILE=wordpress/db-dump-YYYY-MM-DD-HHMMSS.sql
+
+# 5. Verify
+make wp ARGS="option get notion_sync_api_token"
+```
+
+### Volume Management Commands
+
+```bash
+# List all Docker volumes
+docker volume ls | grep notionwp
+
+# Inspect shared database volume
+docker volume inspect notionwp_shared_db
+
+# Remove shared volume (WARNING: deletes all data)
+docker volume rm notionwp_shared_db
+
+# Remove isolated volume for specific branch
+docker volume rm notionwp_main_db_data
+```
+
+### Switching Between Strategies
+
+You can switch between shared and isolated volumes at any time:
+
+```bash
+# Switch from shared to isolated
+# 1. Edit .env
+DB_VOLUME_NAME=${COMPOSE_PROJECT_NAME}_db_data
+
+# 2. Restart
+make down && make up && make install
+
+# Switch from isolated to shared
+# 1. Edit .env
+DB_VOLUME_NAME=notionwp_shared_db
+
+# 2. Restart
+make down && make up && make install
+```
+
+**Note:** Changing volume strategy creates a new, empty database. Export your data first if you need to preserve it.
+
 ## Makefile Commands
 
 All commands should be run from the **worktree directory** (not the docker/ directory).
