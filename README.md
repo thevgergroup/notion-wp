@@ -1,3 +1,7 @@
+<div align="center">
+  <img src="docs/images/notion-wp-logo.png" alt="Notion Sync Logo" width="128">
+</div>
+
 # Notion Sync for WordPress
 
 [![Tests](https://github.com/thevgergroup/notion-wp/actions/workflows/test.yml/badge.svg)](https://github.com/thevgergroup/notion-wp/actions/workflows/test.yml)
