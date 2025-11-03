@@ -16,6 +16,49 @@
 Write and organize your content in Notion, then publish it to your WordPress site with one click. Perfect for teams who love Notion's collaborative writing experience but need WordPress for their public-facing website.
 
 ---
+- [Notion Sync for WordPress](#notion-sync-for-wordpress)
+  - [✨ Features](#-features)
+  - [📸 Screenshots](#-screenshots)
+    - [Settings - Connection](#settings---connection)
+    - [Page Selection](#page-selection)
+    - [Sync Dashboard](#sync-dashboard)
+  - [🚀 Installation](#-installation)
+    - [From GitHub (Manual Installation)](#from-github-manual-installation)
+    - [Requirements](#requirements)
+  - [🔧 Getting Started](#-getting-started)
+    - [Step 1: Create a Notion Integration](#step-1-create-a-notion-integration)
+    - [Step 2: Share Pages with Your Integration](#step-2-share-pages-with-your-integration)
+    - [Step 3: Connect WordPress to Notion](#step-3-connect-wordpress-to-notion)
+    - [Step 4: Select Pages to Sync](#step-4-select-pages-to-sync)
+    - [Step 5: Add Menu to Your Site](#step-5-add-menu-to-your-site)
+  - [📚 Usage Guide](#-usage-guide)
+    - [Syncing Pages](#syncing-pages)
+    - [Syncing Databases](#syncing-databases)
+    - [Embedding Database Views](#embedding-database-views)
+    - [Managing Menus](#managing-menus)
+    - [Displaying Sidebar Navigation](#displaying-sidebar-navigation)
+  - [🎨 Theme Integration](#-theme-integration)
+    - [Adding Menus to Your Theme](#adding-menus-to-your-theme)
+    - [Styling Notion Content](#styling-notion-content)
+  - [❓ FAQ](#-faq)
+    - [What Notion content is supported?](#what-notion-content-is-supported)
+    - [How often should I sync?](#how-often-should-i-sync)
+    - [What happens to WordPress edits?](#what-happens-to-wordpress-edits)
+    - [Can I sync private Notion pages?](#can-i-sync-private-notion-pages)
+    - [Does this work with page builders?](#does-this-work-with-page-builders)
+    - [Can I sync multiple Notion workspaces?](#can-i-sync-multiple-notion-workspaces)
+    - [How do I uninstall?](#how-do-i-uninstall)
+    - [My images aren't showing up!](#my-images-arent-showing-up)
+    - [Internal links aren't working!](#internal-links-arent-working)
+  - [🛠️ Requirements](#️-requirements)
+  - [📖 Documentation](#-documentation)
+  - [🤝 Support](#-support)
+  - [🚧 Roadmap](#-roadmap)
+  - [💻 Contributing](#-contributing)
+  - [📄 License](#-license)
+  - [🙏 Credits](#-credits)
+  - [⭐ Show Your Support](#-show-your-support)
+
 
 ## ✨ Features
 
@@ -371,9 +414,11 @@ If still broken:
 
 - [Getting Started Guide](docs/getting-started.md) - Detailed setup and usage instructions
 - [Block Patterns Guide](docs/features/BLOCK-PATTERNS.md) - How to use collapsible sidebar navigation
+- [Security Guide](docs/SECURITY.md) - Security features, best practices, and vulnerability reporting
+- [Testing Guide](docs/TESTING.md) - How to run tests, write tests, and contribute test coverage
 - [Development Guide](DEVELOPMENT.md) - For contributors and developers
 - [Architecture Documentation](docs/architecture/) - Technical architecture details
-- [Testing Documentation](docs/testing/) - Testing strategies and examples
+- [Testing Documentation](docs/testing/) - Detailed testing strategies and examples
 
 ---
 
