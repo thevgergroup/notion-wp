@@ -269,6 +269,24 @@ function enqueue_frontend_assets(): void {
 		NOTION_SYNC_VERSION,
 		'all'
 	);
+
+	// Enqueue navigation pattern styles.
+	wp_enqueue_style(
+		'notion-sync-navigation-patterns',
+		NOTION_SYNC_URL . 'assets/css/navigation-patterns.css',
+		array(),
+		NOTION_SYNC_VERSION,
+		'all'
+	);
+
+	// Enqueue navigation pattern scripts.
+	wp_enqueue_script(
+		'notion-sync-navigation-patterns',
+		NOTION_SYNC_URL . 'assets/js/navigation-patterns.js',
+		array(),
+		NOTION_SYNC_VERSION,
+		true
+	);
 }
 
 /**

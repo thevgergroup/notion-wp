@@ -207,11 +207,23 @@ class Patterns {
 			return $html;
 		}
 
-		$html .= '<!-- wp:list --><ul>';
+		// Add class for collapsible navigation on root level.
+		$list_class = ( 0 === $parent_id ) ? ' class="wp-block-list notion-nav-collapsible"' : ' class="wp-block-list"';
+		$html      .= '<!-- wp:list --><ul' . $list_class . '>';
 
 		foreach ( $items_at_level as $item ) {
+			// Check if item has children.
+			$has_children = $this->item_has_children( $menu_items, (int) $item->ID );
+
 			$html .= '<!-- wp:list-item -->';
-			$html .= '<li><a href="' . esc_url( $item->url ) . '">' . esc_html( $item->title ) . '</a>';
+			$html .= '<li' . ( $has_children ? ' class="has-children"' : '' ) . '>';
+
+			// Add toggle button for items with children.
+			if ( $has_children ) {
+				$html .= '<button class="notion-nav-toggle" aria-expanded="false" aria-label="' . esc_attr__( 'Expand submenu', 'notion-wp' ) . '"><span class="chevron"></span></button>';
+			}
+
+			$html .= '<a href="' . esc_url( $item->url ) . '">' . esc_html( $item->title ) . '</a>';
 
 			// Recursively build children.
 			$children = $this->build_hierarchical_list( $menu_items, (int) $item->ID );
@@ -226,5 +238,23 @@ class Patterns {
 		$html .= '</ul><!-- /wp:list -->';
 
 		return $html;
+	}
+
+	/**
+	 * Check if a menu item has children.
+	 *
+	 * @since 1.0.0
+	 *
+	 * @param array $menu_items All menu items.
+	 * @param int   $item_id    Menu item ID to check.
+	 * @return bool True if item has children, false otherwise.
+	 */
+	private function item_has_children( array $menu_items, int $item_id ): bool {
+		foreach ( $menu_items as $item ) {
+			if ( (int) $item->menu_item_parent === $item_id ) {
+				return true;
+			}
+		}
+		return false;
 	}
 }
