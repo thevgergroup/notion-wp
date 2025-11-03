@@ -9,7 +9,7 @@
 [![Coverage](https://img.shields.io/endpoint?url=https://gist.githubusercontent.com/pjaol/2cb753e52d7fcf0a1176d34f406ad613/raw/notion-wp-coverage.json)](https://gist.github.com/pjaol/2cb753e52d7fcf0a1176d34f406ad613)
 [![PHP Version](https://img.shields.io/badge/php-8.0%2B-blue)](https://www.php.net/)
 [![WordPress](https://img.shields.io/badge/wordpress-6.0%2B-blue)](https://wordpress.org/)
-[![License](https://img.shields.io/badge/license-GPL--2.0--or--later-green)](LICENSE)
+[![License](https://img.shields.io/badge/license-GPL--3.0-green)](LICENSE)
 
 **Sync your Notion pages and databases to WordPress with automatic navigation menus and embedded database views.**
 
@@ -49,20 +49,7 @@ Monitor sync status and manage your synced content.
 
 ![Sync Dashboard](docs/images/sync-dashboard.png)
 
-### Database Table View
-Interactive Notion databases displayed as filterable, sortable tables.
-
-![Database Table View](docs/images/database-table-view.png)
-
-### Published Hierarchy
-Nested Notion pages maintain their parent-child relationships in WordPress.
-
-![Published Hierarchy](docs/images/published-hierarchy.png)
-
-### Auto-Generated Navigation
-WordPress navigation menus automatically generated from Notion page structure.
-
-![Menu Generation](docs/images/menu-generation.png)
+**[View more screenshots →](docs/SCREENSHOTS.md)** - See examples of published content, database tables, and navigation menus.
 
 ---
 
@@ -426,7 +413,7 @@ For development setup and technical documentation, see [DEVELOPMENT.md](DEVELOPM
 
 ## 📄 License
 
-This plugin is licensed under [GPL v2 or later](LICENSE).
+This plugin is licensed under [GPL v3.0](LICENSE).
 
 ---
 
