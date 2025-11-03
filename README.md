@@ -16,66 +16,43 @@
 Write and organize your content in Notion, then publish it to your WordPress site with one click. Perfect for teams who love Notion's collaborative writing experience but need WordPress for their public-facing website.
 
 ---
-- [Notion Sync for WordPress](#notion-sync-for-wordpress)
-  - [✨ Features](#-features)
-  - [📸 Screenshots](#-screenshots)
-    - [Settings - Connection](#settings---connection)
-    - [Page Selection](#page-selection)
-    - [Sync Dashboard](#sync-dashboard)
-  - [🚀 Installation](#-installation)
-    - [From GitHub (Manual Installation)](#from-github-manual-installation)
-    - [Requirements](#requirements)
-  - [🔧 Getting Started](#-getting-started)
-    - [Step 1: Create a Notion Integration](#step-1-create-a-notion-integration)
-    - [Step 2: Share Pages with Your Integration](#step-2-share-pages-with-your-integration)
-    - [Step 3: Connect WordPress to Notion](#step-3-connect-wordpress-to-notion)
-    - [Step 4: Select Pages to Sync](#step-4-select-pages-to-sync)
-    - [Step 5: Add Menu to Your Site](#step-5-add-menu-to-your-site)
-  - [📚 Usage Guide](#-usage-guide)
-    - [Syncing Pages](#syncing-pages)
-    - [Syncing Databases](#syncing-databases)
-    - [Embedding Database Views](#embedding-database-views)
-    - [Managing Menus](#managing-menus)
-    - [Displaying Sidebar Navigation](#displaying-sidebar-navigation)
-  - [🎨 Theme Integration](#-theme-integration)
-    - [Adding Menus to Your Theme](#adding-menus-to-your-theme)
-    - [Styling Notion Content](#styling-notion-content)
-  - [❓ FAQ](#-faq)
-    - [What Notion content is supported?](#what-notion-content-is-supported)
-    - [How often should I sync?](#how-often-should-i-sync)
-    - [What happens to WordPress edits?](#what-happens-to-wordpress-edits)
-    - [Can I sync private Notion pages?](#can-i-sync-private-notion-pages)
-    - [Does this work with page builders?](#does-this-work-with-page-builders)
-    - [Can I sync multiple Notion workspaces?](#can-i-sync-multiple-notion-workspaces)
-    - [How do I uninstall?](#how-do-i-uninstall)
-    - [My images aren't showing up!](#my-images-arent-showing-up)
-    - [Internal links aren't working!](#internal-links-arent-working)
-  - [🛠️ Requirements](#️-requirements)
-  - [📖 Documentation](#-documentation)
-  - [🤝 Support](#-support)
-  - [🚧 Roadmap](#-roadmap)
-  - [💻 Contributing](#-contributing)
-  - [📄 License](#-license)
-  - [🙏 Credits](#-credits)
-  - [⭐ Show Your Support](#-show-your-support)
 
+## Table of Contents
 
-## ✨ Features
-
-- ✅ **One-Click Page Sync** - Import Notion pages as WordPress posts with rich content
-- ✅ **Automatic Menus** - Generate WordPress navigation menus from your Notion page hierarchy
-- ✅ **Collapsible Sidebar Navigation** - Ready-to-use block patterns with hierarchical menus ([Learn more](docs/features/BLOCK-PATTERNS.md))
-- ✅ **Embedded Database Tables** - Display Notion databases as interactive tables on your site
-- ✅ **Rich Content Support** - Images, tables, code blocks, callouts, toggles, and more
-- ✅ **Background Processing** - Handle large imports without timeouts
-- ✅ **Parent-Child Hierarchies** - Maintain nested page structures from Notion
-- ✅ **Internal Link Resolution** - Notion page links automatically convert to WordPress permalinks
-- ⚠️ **Coming Soon:** Board, gallery, timeline, and calendar database views
-- ⚠️ **Coming Soon:** WordPress → Notion bi-directional sync
+- [Features](#features)
+- [Screenshots](#screenshots)
+- [Installation](#installation)
+- [Getting Started](#getting-started)
+- [Usage Guide](#usage-guide)
+- [Theme Integration](#theme-integration)
+- [FAQ](#faq)
+- [Requirements](#requirements)
+- [Documentation](#documentation)
+- [Support](#support)
+- [Roadmap](#roadmap)
+- [Contributing](#contributing)
+- [License](#license)
+- [Credits](#credits)
+- [Show Your Support](#show-your-support)
 
 ---
 
-## 📸 Screenshots
+## Features
+
+- **One-Click Page Sync** - Import Notion pages as WordPress posts with rich content
+- **Automatic Menus** - Generate WordPress navigation menus from your Notion page hierarchy
+- **Collapsible Sidebar Navigation** - Ready-to-use block patterns with hierarchical menus ([Learn more](docs/features/BLOCK-PATTERNS.md))
+- **Embedded Database Tables** - Display Notion databases as interactive tables on your site
+- **Rich Content Support** - Images, tables, code blocks, callouts, toggles, and more
+- **Background Processing** - Handle large imports without timeouts
+- **Parent-Child Hierarchies** - Maintain nested page structures from Notion
+- **Internal Link Resolution** - Notion page links automatically convert to WordPress permalinks
+- **Coming Soon:** Board, gallery, timeline, and calendar database views
+- **Coming Soon:** WordPress → Notion bi-directional sync
+
+---
+
+## Screenshots
 
 ### Settings - Connection
 Configure your Notion integration token to connect WordPress with Notion.
@@ -96,7 +73,7 @@ Monitor sync status and manage your synced content.
 
 ---
 
-## 🚀 Installation
+## Installation
 
 ### From GitHub (Manual Installation)
 
@@ -116,7 +93,7 @@ Monitor sync status and manage your synced content.
 
 ---
 
-## 🔧 Getting Started
+## Getting Started
 
 ### Step 1: Create a Notion Integration
 
@@ -158,7 +135,7 @@ Monitor sync status and manage your synced content.
 
 ---
 
-## 📚 Usage Guide
+## Usage Guide
 
 ### Syncing Pages
 
@@ -176,8 +153,8 @@ Monitor sync status and manage your synced content.
 
 **Sync Frequency:**
 - Currently manual sync only
-- ⚠️ Automatic scheduled sync coming soon
-- ⚠️ Real-time webhook sync coming soon (Notion paid plans)
+- Automatic scheduled sync coming soon
+- Real-time webhook sync coming soon (Notion paid plans)
 
 ### Syncing Databases
 
@@ -188,8 +165,8 @@ Monitor sync status and manage your synced content.
 4. Export to CSV available
 
 **Current Support:**
-- ✅ Table view with filters and sorting
-- ⚠️ Board, gallery, timeline, calendar views coming soon
+- Table view with filters and sorting
+- Board, gallery, timeline, calendar views coming soon
 
 ### Embedding Database Views
 
@@ -237,17 +214,17 @@ The plugin includes ready-to-use block patterns that display your Notion pages a
 4. Done! Your navigation sidebar appears with collapsible sections
 
 **Features:**
-- ▶️ **Collapsible sections** with animated chevron icons
-- 📱 **Mobile-friendly** responsive design
-- ♿ **Accessible** with proper ARIA attributes
-- 🎨 **Customizable** colors, spacing, and headings
-- ✅ **Works with Twenty Twenty-Four & Twenty Twenty-Five**
+- **Collapsible sections** with animated chevron icons
+- **Mobile-friendly** responsive design
+- **Accessible** with proper ARIA attributes
+- **Customizable** colors, spacing, and headings
+- **Works with Twenty Twenty-Four & Twenty Twenty-Five**
 
 **[Complete Pattern Documentation →](docs/features/BLOCK-PATTERNS.md)**
 
 ---
 
-## 🎨 Theme Integration
+## Theme Integration
 
 ### Adding Menus to Your Theme
 
@@ -298,7 +275,7 @@ The plugin outputs standard WordPress blocks with class names for styling:
 
 ---
 
-## ❓ FAQ
+## FAQ
 
 ### What Notion content is supported?
 
@@ -325,14 +302,14 @@ The plugin outputs standard WordPress blocks with class names for styling:
 - **Manual sync** whenever you update content in Notion
 - Syncing is safe - it won't create duplicates
 - Large syncs process in the background
-- ⚠️ Automatic scheduled sync coming soon
+- Automatic scheduled sync coming soon
 
 ### What happens to WordPress edits?
 
 Currently, syncing is **one-way only** (Notion → WordPress):
 - WordPress edits will be overwritten on next sync
 - Make all content changes in Notion
-- ⚠️ Bi-directional sync coming in a future release
+- Bi-directional sync coming in a future release
 
 ### Can I sync private Notion pages?
 
@@ -348,9 +325,9 @@ The plugin respects Notion permissions:
 ### Does this work with page builders?
 
 The plugin outputs standard WordPress Gutenberg blocks, which work with:
-- ✅ WordPress Block Editor (Gutenberg)
-- ✅ Full Site Editing themes
-- ⚠️ Limited support for page builders (Elementor, Divi, etc.)
+- WordPress Block Editor (Gutenberg)
+- Full Site Editing themes
+- Limited support for page builders (Elementor, Divi, etc.)
 
 For page builders, content syncs as HTML that you can copy/paste into page builder modules.
 
@@ -359,7 +336,7 @@ For page builders, content syncs as HTML that you can copy/paste into page build
 Currently, one workspace per WordPress site. To sync multiple workspaces:
 - Use WordPress Multisite
 - Create separate integration tokens
-- ⚠️ Native multi-workspace support coming soon
+- Native multi-workspace support coming soon
 
 ### How do I uninstall?
 
@@ -398,7 +375,7 @@ If still broken:
 
 ---
 
-## 🛠️ Requirements
+## Requirements
 
 - **WordPress:** 6.0+
 - **PHP:** 8.0+
@@ -410,7 +387,7 @@ If still broken:
 
 ---
 
-## 📖 Documentation
+## Documentation
 
 - [Getting Started Guide](docs/getting-started.md) - Detailed setup and usage instructions
 - [Block Patterns Guide](docs/features/BLOCK-PATTERNS.md) - How to use collapsible sidebar navigation
@@ -422,7 +399,7 @@ If still broken:
 
 ---
 
-## 🤝 Support
+## Support
 
 Need help? Here's how to get support:
 
@@ -432,7 +409,7 @@ Need help? Here's how to get support:
 
 ---
 
-## 🚧 Roadmap
+## Roadmap
 
 **Current Version:** Supports core sync, menus, and table views
 
@@ -446,7 +423,7 @@ Need help? Here's how to get support:
 
 ---
 
-## 💻 Contributing
+## Contributing
 
 We welcome contributions! See [CONTRIBUTING.md](CONTRIBUTING.md) for guidelines.
 
@@ -454,13 +431,13 @@ For development setup and technical documentation, see [DEVELOPMENT.md](DEVELOPM
 
 ---
 
-## 📄 License
+## License
 
 This plugin is licensed under [GPL v3.0](LICENSE).
 
 ---
 
-## 🙏 Credits
+## Credits
 
 Developed by [The VGER Group](https://github.com/thevgergroup)
 
@@ -472,13 +449,13 @@ Developed by [The VGER Group](https://github.com/thevgergroup)
 
 ---
 
-## ⭐ Show Your Support
+## Show Your Support
 
 If this plugin helps you, please:
-- ⭐ Star the repository on GitHub
-- 🐛 Report bugs and issues
-- 💡 Suggest new features
-- 📖 Improve documentation
-- 🔧 Contribute code
+- Star the repository on GitHub
+- Report bugs and issues
+- Suggest new features
+- Improve documentation
+- Contribute code
 
 Thank you for using Notion Sync for WordPress!
