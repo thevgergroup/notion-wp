@@ -1,0 +1,132 @@
+name: Release
+
+on:
+    push:
+        tags:
+            - 'v*'
+
+permissions:
+    contents: write
+
+jobs:
+    build:
+        name: Build Release
+        runs-on: ubuntu-latest
+
+        steps:
+            - name: Checkout code
+              uses: actions/checkout@v4
+
+            - name: Set up PHP
+              uses: shivammathur/setup-php@v2
+              with:
+                  php-version: '8.0'
+                  coverage: none
+
+            - name: Set up Node
+              uses: actions/setup-node@v4
+              with:
+                  node-version: '20'
+                  cache: 'npm'
+
+            - name: Get version from tag
+              id: version
+              run: echo "VERSION=${GITHUB_REF#refs/tags/v}" >> $GITHUB_OUTPUT
+
+            - name: Verify version matches plugin file
+              run: |
+                  PLUGIN_VERSION=$(grep "Version:" plugin/notion-sync.php | awk '{print $3}')
+                  TAG_VERSION="${{ steps.version.outputs.VERSION }}"
+                  if [ "$PLUGIN_VERSION" != "$TAG_VERSION" ]; then
+                    echo "Error: Plugin version ($PLUGIN_VERSION) doesn't match tag version ($TAG_VERSION)"
+                    exit 1
+                  fi
+
+            - name: Install Composer dependencies (production only)
+              working-directory: ./plugin
+              run: composer install --no-dev --optimize-autoloader --no-interaction
+
+            - name: Install npm dependencies
+              run: npm ci
+
+            - name: Build assets
+              run: npm run build
+
+            - name: Create plugin directory
+              run: mkdir -p build/notion-sync
+
+            - name: Copy plugin files
+              run: |
+                  # Copy main plugin files
+                  cp -r plugin/* build/notion-sync/
+
+                  # Copy compiled assets
+                  mkdir -p build/notion-sync/assets
+                  cp -r plugin/assets/css build/notion-sync/assets/
+                  cp -r plugin/assets/js build/notion-sync/assets/
+
+                  # Copy readme and license
+                  cp README.md build/notion-sync/
+                  cp LICENSE build/notion-sync/
+
+            - name: Remove development files
+              working-directory: build/notion-sync
+              run: |
+                  # Remove development files and directories
+                  rm -rf tests/
+                  rm -rf node_modules/
+                  rm -f composer.json composer.lock
+                  rm -f package.json package-lock.json
+                  rm -f webpack.config.js
+                  rm -f .phpcs.xml.dist phpunit.xml.dist
+                  rm -f .eslintrc.js .eslintignore
+                  rm -rf .github/
+
+                  # Keep only production vendor files
+                  find vendor/ -name "*.md" -delete
+                  find vendor/ -name "*.txt" -delete
+                  find vendor/ -name "tests" -type d -exec rm -rf {} + 2>/dev/null || true
+                  find vendor/ -name "test" -type d -exec rm -rf {} + 2>/dev/null || true
+                  find vendor/ -name "docs" -type d -exec rm -rf {} + 2>/dev/null || true
+
+            - name: Create release zip
+              working-directory: build
+              run: |
+                  zip -r notion-sync-${{ steps.version.outputs.VERSION }}.zip notion-sync/
+
+                  # Calculate checksums
+                  sha256sum notion-sync-${{ steps.version.outputs.VERSION }}.zip > notion-sync-${{ steps.version.outputs.VERSION }}.zip.sha256
+
+            - name: Generate changelog
+              id: changelog
+              run: |
+                  # Get commits since last tag
+                  PREV_TAG=$(git describe --tags --abbrev=0 HEAD^ 2>/dev/null || echo "")
+                  if [ -z "$PREV_TAG" ]; then
+                    CHANGELOG=$(git log --pretty=format:"* %s (%h)" --no-merges)
+                  else
+                    CHANGELOG=$(git log ${PREV_TAG}..HEAD --pretty=format:"* %s (%h)" --no-merges)
+                  fi
+
+                  # Save to file for multiline
+                  echo "$CHANGELOG" > changelog.txt
+
+            - name: Create GitHub Release
+              uses: softprops/action-gh-release@v1
+              with:
+                  name: Release ${{ steps.version.outputs.VERSION }}
+                  body_path: changelog.txt
+                  files: |
+                      build/notion-sync-${{ steps.version.outputs.VERSION }}.zip
+                      build/notion-sync-${{ steps.version.outputs.VERSION }}.zip.sha256
+                  draft: false
+                  prerelease: false
+              env:
+                  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+            - name: Upload artifact
+              uses: actions/upload-artifact@v4
+              with:
+                  name: notion-sync-${{ steps.version.outputs.VERSION }}
+                  path: build/notion-sync-${{ steps.version.outputs.VERSION }}.zip
+                  retention-days: 90

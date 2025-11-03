@@ -9,6 +9,7 @@ echo "Running pre-commit checks..."
 STAGED_PHP_FILES=$(git diff --cached --name-only --diff-filter=ACM | grep '\.php$' || true)
 STAGED_JS_FILES=$(git diff --cached --name-only --diff-filter=ACM | grep '\.[jt]sx\?$' || true)
 STAGED_CSS_FILES=$(git diff --cached --name-only --diff-filter=ACM | grep '\.(css|scss|sass)$' || true)
+STAGED_PRETTIER_FILES=$(git diff --cached --name-only --diff-filter=ACM | grep '\.\(json\|ya\?ml\)$' || true)
 
 # Track if we have any failures
 HAS_ERRORS=0
@@ -67,9 +68,21 @@ if [ -n "$STAGED_JS_FILES" ]; then
 	fi
 
 	# Run Prettier (auto-fix)
-	echo "  → Running Prettier (auto-fix)..."
+	echo "  → Running Prettier on JS/TS (auto-fix)..."
 	echo "$STAGED_JS_FILES" | xargs npx prettier --write --loglevel warn
 	echo "$STAGED_JS_FILES" | xargs git add
+	echo "  ✓ Prettier passed"
+fi
+
+# JSON/YAML Formatting
+if [ -n "$STAGED_PRETTIER_FILES" ]; then
+	echo ""
+	echo "📝 Checking JSON/YAML files..."
+
+	# Run Prettier (auto-fix)
+	echo "  → Running Prettier (auto-fix)..."
+	echo "$STAGED_PRETTIER_FILES" | xargs npx prettier --write --loglevel warn
+	echo "$STAGED_PRETTIER_FILES" | xargs git add
 	echo "  ✓ Prettier passed"
 fi
 
