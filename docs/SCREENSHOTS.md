@@ -74,7 +74,7 @@ The collapsible sidebar navigation:
 - Mobile-responsive design
 - Accessible with keyboard navigation and screen readers
 
-To add the sidebar to your site, see the [Block Patterns Guide](../features/BLOCK-PATTERNS.md).
+To add the sidebar to your site, see the [Block Patterns Guide](features/BLOCK-PATTERNS.md).
 
 ---
 
