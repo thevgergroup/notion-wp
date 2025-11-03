@@ -4,7 +4,7 @@ Visual guide to the Notion Sync for WordPress plugin features.
 
 ---
 
-## 📄 Published Content Examples
+## Published Content Examples
 
 ### Database Table View
 
@@ -50,13 +50,13 @@ WordPress navigation menus automatically generated from Notion page structure.
 
 ---
 
-## ⚙️ Admin Interface
+## Admin Interface
 
-For admin interface screenshots (Settings, Sync Dashboard, etc.), see the [main README](../README.md#-screenshots).
+For admin interface screenshots (Settings, Sync Dashboard, etc.), see the [main README](../README.md#screenshots).
 
 ---
 
-## 🎨 Usage Tips
+## Usage Tips
 
 ### Viewing Database Tables
 
@@ -74,7 +74,7 @@ The collapsible sidebar navigation:
 - Mobile-responsive design
 - Accessible with keyboard navigation and screen readers
 
-To add the sidebar to your site, see the [Block Patterns Guide](features/BLOCK-PATTERNS.md).
+To add the sidebar to your site, see the [Block Patterns Guide](../features/BLOCK-PATTERNS.md).
 
 ---
 
