@@ -314,13 +314,5 @@ If you encounter issues with patterns:
 
 ---
 
-## Related Documentation
-
-- [Menu Sync Guide](MENU-SYNC.md)
-- [Block Themes Guide](BLOCK-THEMES.md)
-- [Customization Guide](CUSTOMIZATION.md)
-
----
-
 **Last Updated:** 2025-11-02
 **Plugin Version:** 1.0.0
