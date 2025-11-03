@@ -287,18 +287,18 @@ class DatabaseViewBlock {
 	 * @return void
 	 */
 	private function enqueue_frontend_assets(): void {
-		// Enqueue Tabulator CSS (from CDN).
+		// Enqueue Tabulator CSS (bundled locally for WordPress.org compliance).
 		wp_enqueue_style(
 			'tabulator',
-			'https://unpkg.com/tabulator-tables@6.3.0/dist/css/tabulator.min.css',
+			NOTION_SYNC_URL . 'assets/vendor/tabulator/tabulator.min.css',
 			array(),
 			'6.3.0'
 		);
 
-		// Enqueue Tabulator JS (from CDN).
+		// Enqueue Tabulator JS (bundled locally for WordPress.org compliance).
 		wp_enqueue_script(
 			'tabulator',
-			'https://unpkg.com/tabulator-tables@6.3.0/dist/js/tabulator.min.js',
+			NOTION_SYNC_URL . 'assets/vendor/tabulator/tabulator.min.js',
 			array(),
 			'6.3.0',
 			true

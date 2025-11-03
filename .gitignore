@@ -35,6 +35,9 @@ yarn-error.log
 
 # PHP
 vendor/
+# Exception: Allow bundled Tabulator library (required for WordPress.org compliance)
+!plugin/assets/vendor/
+!plugin/assets/vendor/tabulator/
 composer.lock
 *.phar
 
