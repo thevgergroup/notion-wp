@@ -22,10 +22,7 @@ Write and organize your content in Notion, then publish it to your WordPress sit
 - [Features](#features)
 - [Screenshots](#screenshots)
 - [Installation](#installation)
-- [Getting Started](#getting-started)
-- [Usage Guide](#usage-guide)
-- [Theme Integration](#theme-integration)
-- [FAQ](#faq)
+- [How It Works](#how-it-works)
 - [Requirements](#requirements)
 - [Documentation](#documentation)
 - [Support](#support)
@@ -93,285 +90,24 @@ Monitor sync status and manage your synced content.
 
 ---
 
-## Getting Started
+## How It Works
 
-### Step 1: Create a Notion Integration
+1. **Create a Notion integration** and share your pages with it
+2. **Connect WordPress** to Notion with your integration token
+3. **Select and sync** the pages you want to publish
+4. **Display your content** using automatically generated menus or sidebar patterns
 
-1. Go to [Notion Integrations](https://www.notion.so/my-integrations)
-2. Click **+ New integration**
-3. Give it a name (e.g., "WordPress Sync")
-4. Select the workspace you want to use
-5. Click **Submit**
-6. Copy your **Internal Integration Token** (starts with `secret_`)
+### Navigation Options
 
-### Step 2: Share Pages with Your Integration
+The plugin creates a WordPress menu from your Notion page hierarchy. You have two ways to display it:
 
-1. Open the Notion page you want to sync
-2. Click **Share** in the top right
-3. Click **Invite** and select your integration
-4. Repeat for all pages you want to sync
+**Option 1: Theme Menus (Recommended)**
+Most themes support navigation menus. Simply assign the auto-created "Notion Pages" menu to your theme's menu location via **Appearance → Menus** or use it in a Navigation block.
 
-> **Tip:** If you share a parent page, all child pages are automatically shared!
+**Option 2: Sidebar Pattern (For themes without menu support)**
+Some themes don't support navigation menus. For these, we include a collapsible sidebar pattern you can insert via the block editor (**Patterns → Notion Sync → Navigation Hierarchy**).
 
-### Step 3: Connect WordPress to Notion
-
-1. In WordPress, go to **Settings → Notion Sync**
-2. Paste your **Integration Token**
-3. Click **Test Connection**
-4. If successful, you'll see your available pages
-
-### Step 4: Select Pages to Sync
-
-1. Check the boxes next to pages you want to sync
-2. Click **Sync Selected Pages**
-3. The plugin will import your content in the background
-
-### Step 5: Add Menu to Your Site
-
-1. Go to **Appearance → Menus**
-2. Find the menu named **Notion Pages** (auto-created)
-3. Assign it to a menu location in your theme
-4. Visit your site to see the navigation!
-
----
-
-## Usage Guide
-
-### Syncing Pages
-
-**Manual Sync:**
-1. Go to **Settings → Notion Sync**
-2. Select pages to sync
-3. Click **Sync Now**
-
-**What Gets Synced:**
-- Page title
-- Page content (all supported block types)
-- Images and media files
-- Parent-child relationships
-- Page hierarchy
-
-**Sync Frequency:**
-- Currently manual sync only
-- Automatic scheduled sync coming soon
-- Real-time webhook sync coming soon (Notion paid plans)
-
-### Syncing Databases
-
-**Display Notion Databases:**
-1. Sync a page that contains a database
-2. The database appears as an interactive table
-3. Users can filter, sort, and search
-4. Export to CSV available
-
-**Current Support:**
-- Table view with filters and sorting
-- Board, gallery, timeline, calendar views coming soon
-
-### Embedding Database Views
-
-**In the Block Editor:**
-1. Add a new block
-2. Search for "Notion Database"
-3. Select your database
-4. Configure display options
-5. Publish!
-
-**On the Frontend:**
-- Interactive tables with live filtering
-- Sorting by any column
-- Search across all fields
-- Export to CSV
-
-### Managing Menus
-
-**Auto-Generated Menus:**
-- Created automatically from Notion hierarchy
-- Updates on each sync
-- Maintains nesting up to 3 levels deep
-
-**Manual Menu Items:**
-- Add custom items to the Notion menu
-- Plugin preserves your manual additions
-- Mix Notion pages with custom links
-
-**Assigning Menus:**
-1. **Appearance → Menus**
-2. Select **Notion Pages** menu
-3. Assign to a menu location
-4. Save
-
-### Displaying Sidebar Navigation
-
-**Use Block Patterns for Easy Setup:**
-
-The plugin includes ready-to-use block patterns that display your Notion pages as a collapsible hierarchical sidebar navigation - perfect for documentation sites, knowledge bases, or any site with nested content.
-
-**Quick Start:**
-1. Edit any page/post or template in the Site Editor
-2. Click **`+`** → **Patterns** → **"Notion Sync"**
-3. Insert **"Notion Navigation Hierarchy"**
-4. Done! Your navigation sidebar appears with collapsible sections
-
-**Features:**
-- **Collapsible sections** with animated chevron icons
-- **Mobile-friendly** responsive design
-- **Accessible** with proper ARIA attributes
-- **Customizable** colors, spacing, and headings
-- **Works with Twenty Twenty-Four & Twenty Twenty-Five**
-
-**[Complete Pattern Documentation →](docs/features/BLOCK-PATTERNS.md)**
-
----
-
-## Theme Integration
-
-### Adding Menus to Your Theme
-
-**For Block Themes (2024+):**
-1. Open Site Editor (**Appearance → Editor**)
-2. Click on the Navigation block
-3. Select **Notion Pages** from the menu dropdown
-4. Save
-
-**For Classic Themes:**
-1. **Appearance → Menus**
-2. Find "Theme Locations" section
-3. Select **Notion Pages** for your primary location
-4. Save Menu
-
-**Popular Themes:**
-
-| Theme | Menu Location |
-|-------|---------------|
-| Twenty Twenty-Four | Site Editor → Navigation block |
-| Twenty Twenty-Three | Site Editor → Navigation block |
-| Astra | Appearance → Menus → Primary Menu |
-| GeneratePress | Appearance → Menus → Primary Navigation |
-| Neve | Appearance → Menus → Primary Menu |
-
-### Styling Notion Content
-
-The plugin outputs standard WordPress blocks with class names for styling:
-
-```css
-/* Callout blocks */
-.notion-callout {
-  padding: 1rem;
-  border-left: 4px solid;
-}
-
-/* Database tables */
-.notion-database-table {
-  width: 100%;
-}
-
-/* Toggle blocks */
-.notion-toggle summary {
-  cursor: pointer;
-  font-weight: bold;
-}
-```
-
----
-
-## FAQ
-
-### What Notion content is supported?
-
-**Fully Supported:**
-- Paragraphs, headings, lists
-- Images and file attachments
-- Tables
-- Code blocks with syntax highlighting
-- Callouts
-- Toggles (collapsible content)
-- Quotes
-- Dividers
-- Embeds (YouTube, Twitter, etc.)
-- Database table views
-
-**Coming Soon:**
-- Board views
-- Gallery views
-- Timeline views
-- Calendar views
-
-### How often should I sync?
-
-- **Manual sync** whenever you update content in Notion
-- Syncing is safe - it won't create duplicates
-- Large syncs process in the background
-- Automatic scheduled sync coming soon
-
-### What happens to WordPress edits?
-
-Currently, syncing is **one-way only** (Notion → WordPress):
-- WordPress edits will be overwritten on next sync
-- Make all content changes in Notion
-- Bi-directional sync coming in a future release
-
-### Can I sync private Notion pages?
-
-Yes! As long as:
-1. The page is shared with your integration
-2. Your integration has the right permissions
-3. The page is in the connected workspace
-
-The plugin respects Notion permissions:
-- Private pages → Private WordPress posts
-- Public pages → Public WordPress posts
-
-### Does this work with page builders?
-
-The plugin outputs standard WordPress Gutenberg blocks, which work with:
-- WordPress Block Editor (Gutenberg)
-- Full Site Editing themes
-- Limited support for page builders (Elementor, Divi, etc.)
-
-For page builders, content syncs as HTML that you can copy/paste into page builder modules.
-
-### Can I sync multiple Notion workspaces?
-
-Currently, one workspace per WordPress site. To sync multiple workspaces:
-- Use WordPress Multisite
-- Create separate integration tokens
-- Native multi-workspace support coming soon
-
-### How do I uninstall?
-
-1. **Deactivate** the plugin
-2. **Delete** it from the Plugins page
-3. **Optional:** Delete Notion sync data
-   - Go to **Settings → Notion Sync**
-   - Click **Delete All Sync Data**
-   - Confirm deletion
-
-This removes all sync history but keeps your WordPress posts.
-
-### My images aren't showing up!
-
-Images process in the background to avoid timeouts:
-1. Check **Settings → Notion Sync → Sync Status**
-2. Look for image processing jobs
-3. Refresh your page after a few minutes
-
-For troubleshooting:
-- Ensure your WordPress site can access Notion's S3 URLs
-- Check PHP max_execution_time setting
-- Review error logs
-
-### Internal links aren't working!
-
-Make sure both pages are synced to WordPress:
-1. Sync the page you're linking FROM
-2. Sync the page you're linking TO
-3. Links resolve automatically after both pages sync
-
-If still broken:
-- Check **Settings → Notion Sync → Link Status**
-- Look for unresolved links
-- Sync missing pages
+**[Complete Setup Guide →](docs/GETTING-STARTED.md)**
 
 ---
 
@@ -389,13 +125,17 @@ If still broken:
 
 ## Documentation
 
-- [Getting Started Guide](docs/getting-started.md) - Detailed setup and usage instructions
-- [Block Patterns Guide](docs/features/BLOCK-PATTERNS.md) - How to use collapsible sidebar navigation
-- [Security Guide](docs/SECURITY.md) - Security features, best practices, and vulnerability reporting
-- [Testing Guide](docs/TESTING.md) - How to run tests, write tests, and contribute test coverage
-- [Development Guide](DEVELOPMENT.md) - For contributors and developers
+### User Guides
+- [Getting Started](docs/GETTING-STARTED.md) - Complete setup guide
+- [Usage Guide](docs/USAGE.md) - How to sync pages and databases
+- [FAQ](docs/FAQ.md) - Common questions and troubleshooting
+- [Block Patterns Guide](docs/features/BLOCK-PATTERNS.md) - Collapsible sidebar navigation
+
+### Developer Resources
+- [Development Guide](DEVELOPMENT.md) - Setup and contribution guidelines
+- [Security Guide](docs/SECURITY.md) - Security features and best practices
+- [Testing Guide](docs/TESTING.md) - Running and writing tests
 - [Architecture Documentation](docs/architecture/) - Technical architecture details
-- [Testing Documentation](docs/testing/) - Detailed testing strategies and examples
 
 ---
 
