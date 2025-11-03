@@ -96,7 +96,8 @@ class Patterns {
 		}
 
 		// Build navigation block markup.
-		$pattern_content = $this->get_navigation_pattern_content( $menu->term_id );
+		// Use list-based pattern instead of Navigation block ref due to rendering issues in templates.
+		$pattern_content = $this->get_list_pattern_content( $menu->term_id );
 
 		register_block_pattern(
 			'notion-sync/navigation-hierarchy',
