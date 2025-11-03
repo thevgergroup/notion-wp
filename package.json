@@ -60,9 +60,6 @@
 		"stylelint-order": "^6.0.4",
 		"stylelint-scss": "^6.1.0"
 	},
-	"overrides": {
-		"ajv": "^8.17.1"
-	},
 	"lint-staged": {
 		"*.php": [
 			"composer lint:fix:quiet",
