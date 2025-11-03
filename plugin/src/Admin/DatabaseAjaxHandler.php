@@ -46,14 +46,14 @@ class DatabaseAjaxHandler {
 		check_ajax_referer( 'notion_sync_ajax', 'nonce' );
 
 		if ( ! current_user_can( 'manage_options' ) ) {
-			wp_send_json_error( __( 'Unauthorized', 'notion-wp' ) );
+			wp_send_json_error( __( 'Unauthorized', 'notion-sync' ) );
 		}
 
 		// phpcs:ignore WordPress.Security.NonceVerification.Missing -- Nonce verified above.
 		$database_id = isset( $_POST['database_id'] ) ? sanitize_text_field( wp_unslash( $_POST['database_id'] ) ) : '';
 
 		if ( empty( $database_id ) ) {
-			wp_send_json_error( __( 'Database ID is required', 'notion-wp' ) );
+			wp_send_json_error( __( 'Database ID is required', 'notion-sync' ) );
 		}
 
 		try {
@@ -61,7 +61,7 @@ class DatabaseAjaxHandler {
 			$token           = Encryption::decrypt( $encrypted_token );
 
 			if ( empty( $token ) ) {
-				wp_send_json_error( __( 'Not connected to Notion', 'notion-wp' ) );
+				wp_send_json_error( __( 'Not connected to Notion', 'notion-sync' ) );
 			}
 
 			$client     = new NotionClient( $token );
@@ -74,7 +74,7 @@ class DatabaseAjaxHandler {
 			wp_send_json_success(
 				array(
 					'batch_id' => $batch_id,
-					'message'  => __( 'Database sync started', 'notion-wp' ),
+					'message'  => __( 'Database sync started', 'notion-sync' ),
 				)
 			);
 		} catch ( \Exception $e ) {
@@ -94,14 +94,14 @@ class DatabaseAjaxHandler {
 		check_ajax_referer( 'notion_sync_ajax', 'nonce' );
 
 		if ( ! current_user_can( 'manage_options' ) ) {
-			wp_send_json_error( __( 'Unauthorized', 'notion-wp' ) );
+			wp_send_json_error( __( 'Unauthorized', 'notion-sync' ) );
 		}
 
 		// phpcs:ignore WordPress.Security.NonceVerification.Missing -- Nonce verified above.
 		$batch_id = isset( $_POST['batch_id'] ) ? sanitize_text_field( wp_unslash( $_POST['batch_id'] ) ) : '';
 
 		if ( empty( $batch_id ) ) {
-			wp_send_json_error( __( 'Batch ID is required', 'notion-wp' ) );
+			wp_send_json_error( __( 'Batch ID is required', 'notion-sync' ) );
 		}
 
 		try {
@@ -109,7 +109,7 @@ class DatabaseAjaxHandler {
 			$token           = Encryption::decrypt( $encrypted_token );
 
 			if ( empty( $token ) ) {
-				wp_send_json_error( __( 'Not connected to Notion', 'notion-wp' ) );
+				wp_send_json_error( __( 'Not connected to Notion', 'notion-sync' ) );
 			}
 
 			$client     = new NotionClient( $token );
@@ -137,14 +137,14 @@ class DatabaseAjaxHandler {
 		check_ajax_referer( 'notion_sync_ajax', 'nonce' );
 
 		if ( ! current_user_can( 'manage_options' ) ) {
-			wp_send_json_error( __( 'Unauthorized', 'notion-wp' ) );
+			wp_send_json_error( __( 'Unauthorized', 'notion-sync' ) );
 		}
 
 		// phpcs:ignore WordPress.Security.NonceVerification.Missing -- Nonce verified above.
 		$batch_id = isset( $_POST['batch_id'] ) ? sanitize_text_field( wp_unslash( $_POST['batch_id'] ) ) : '';
 
 		if ( empty( $batch_id ) ) {
-			wp_send_json_error( __( 'Batch ID is required', 'notion-wp' ) );
+			wp_send_json_error( __( 'Batch ID is required', 'notion-sync' ) );
 		}
 
 		try {
@@ -152,7 +152,7 @@ class DatabaseAjaxHandler {
 			$token           = Encryption::decrypt( $encrypted_token );
 
 			if ( empty( $token ) ) {
-				wp_send_json_error( __( 'Not connected to Notion', 'notion-wp' ) );
+				wp_send_json_error( __( 'Not connected to Notion', 'notion-sync' ) );
 			}
 
 			$client     = new NotionClient( $token );
@@ -163,9 +163,9 @@ class DatabaseAjaxHandler {
 			$success = $processor->cancel_batch( $batch_id );
 
 			if ( $success ) {
-				wp_send_json_success( __( 'Batch cancelled', 'notion-wp' ) );
+				wp_send_json_success( __( 'Batch cancelled', 'notion-sync' ) );
 			} else {
-				wp_send_json_error( __( 'Failed to cancel batch', 'notion-wp' ) );
+				wp_send_json_error( __( 'Failed to cancel batch', 'notion-sync' ) );
 			}
 		} catch ( \Exception $e ) {
 			wp_send_json_error( $e->getMessage() );
@@ -184,7 +184,7 @@ class DatabaseAjaxHandler {
 		check_ajax_referer( 'notion_sync_ajax', 'nonce' );
 
 		if ( ! current_user_can( 'manage_options' ) ) {
-			wp_send_json_error( __( 'Unauthorized', 'notion-wp' ) );
+			wp_send_json_error( __( 'Unauthorized', 'notion-sync' ) );
 		}
 
 		try {
@@ -194,7 +194,7 @@ class DatabaseAjaxHandler {
 				array(
 					'message'         => sprintf(
 						/* translators: 1: posts checked, 2: posts updated, 3: links rewritten */
-						__( 'Link update complete. Checked %1$d posts, updated %2$d posts, rewrote %3$d links.', 'notion-wp' ),
+						__( 'Link update complete. Checked %1$d posts, updated %2$d posts, rewrote %3$d links.', 'notion-sync' ),
 						$result['posts_checked'],
 						$result['posts_updated'],
 						$result['links_rewritten']

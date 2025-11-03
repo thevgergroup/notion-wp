@@ -81,12 +81,12 @@ class PagesListTable extends \WP_List_Table {
 	public function get_columns() {
 		return array(
 			'cb'          => '<input type="checkbox" />',
-			'title'       => __( 'Page Title', 'notion-wp' ),
-			'type'        => __( 'Type', 'notion-wp' ),
-			'notion_id'   => __( 'Notion ID', 'notion-wp' ),
-			'sync_status' => __( 'Status', 'notion-wp' ),
-			'wp_post'     => __( 'WordPress Post', 'notion-wp' ),
-			'last_synced' => __( 'Last Synced', 'notion-wp' ),
+			'title'       => __( 'Page Title', 'notion-sync' ),
+			'type'        => __( 'Type', 'notion-sync' ),
+			'notion_id'   => __( 'Notion ID', 'notion-sync' ),
+			'sync_status' => __( 'Status', 'notion-sync' ),
+			'wp_post'     => __( 'WordPress Post', 'notion-sync' ),
+			'last_synced' => __( 'Last Synced', 'notion-sync' ),
 		);
 	}
 
@@ -119,7 +119,7 @@ class PagesListTable extends \WP_List_Table {
 	 */
 	protected function get_bulk_actions() {
 		return array(
-			'bulk_sync' => __( 'Sync Selected', 'notion-wp' ),
+			'bulk_sync' => __( 'Sync Selected', 'notion-sync' ),
 		);
 	}
 
@@ -149,7 +149,7 @@ class PagesListTable extends \WP_List_Table {
 	 * @return string HTML for title column with actions.
 	 */
 	protected function column_title( $item ) {
-		$title = ! empty( $item['title'] ) ? $item['title'] : __( 'Untitled', 'notion-wp' );
+		$title = ! empty( $item['title'] ) ? $item['title'] : __( 'Untitled', 'notion-sync' );
 
 		// Build row actions.
 		$actions = array();
@@ -162,7 +162,7 @@ class PagesListTable extends \WP_List_Table {
 			'<a href="#" class="notion-sync-now" data-page-id="%s" data-page-title="%s">%s</a>',
 			esc_attr( $item['id'] ),
 			esc_attr( $title ),
-			esc_html__( 'Sync Now', 'notion-wp' )
+			esc_html__( 'Sync Now', 'notion-sync' )
 		);
 
 		// Edit Post action (only if synced).
@@ -172,7 +172,7 @@ class PagesListTable extends \WP_List_Table {
 				$actions['edit'] = sprintf(
 					'<a href="%s">%s</a>',
 					esc_url( $edit_url ),
-					esc_html__( 'Edit Post', 'notion-wp' )
+					esc_html__( 'Edit Post', 'notion-sync' )
 				);
 			}
 
@@ -182,7 +182,7 @@ class PagesListTable extends \WP_List_Table {
 				$actions['view'] = sprintf(
 					'<a href="%s" target="_blank" rel="noopener noreferrer">%s</a>',
 					esc_url( $view_url ),
-					esc_html__( 'View Post', 'notion-wp' )
+					esc_html__( 'View Post', 'notion-sync' )
 				);
 			}
 		}
@@ -192,7 +192,7 @@ class PagesListTable extends \WP_List_Table {
 			$actions['notion'] = sprintf(
 				'<a href="%s" target="_blank" rel="noopener noreferrer">%s</a>',
 				esc_url( $item['url'] ),
-				esc_html__( 'View in Notion', 'notion-wp' )
+				esc_html__( 'View in Notion', 'notion-sync' )
 			);
 		}
 
@@ -219,19 +219,19 @@ class PagesListTable extends \WP_List_Table {
 
 		// Determine display label and icon
 		if ( 'database' === $object_type ) {
-			$label = __( 'Database', 'notion-wp' );
+			$label = __( 'Database', 'notion-sync' );
 			$icon  = 'dashicons-database';
 			$color = '#7c3aed'; // Purple
 		} elseif ( 'database_id' === $parent_type ) {
-			$label = __( 'DB Entry', 'notion-wp' );
+			$label = __( 'DB Entry', 'notion-sync' );
 			$icon  = 'dashicons-list-view';
 			$color = '#2563eb'; // Blue
 		} elseif ( 'page_id' === $parent_type ) {
-			$label = __( 'Child Page', 'notion-wp' );
+			$label = __( 'Child Page', 'notion-sync' );
 			$icon  = 'dashicons-media-document';
 			$color = '#059669'; // Emerald green
 		} else {
-			$label = __( 'Page', 'notion-wp' );
+			$label = __( 'Page', 'notion-sync' );
 			$icon  = 'dashicons-media-document';
 			$color = '#16a34a'; // Green
 		}
@@ -267,8 +267,8 @@ class PagesListTable extends \WP_List_Table {
 			</button>',
 			esc_html( $short_id ),
 			esc_attr( $normalized_id ),
-			esc_attr__( 'Copy full Notion ID', 'notion-wp' ),
-			esc_attr__( 'Copy full Notion ID', 'notion-wp' )
+			esc_attr__( 'Copy full Notion ID', 'notion-sync' ),
+			esc_attr__( 'Copy full Notion ID', 'notion-sync' )
 		);
 	}
 
@@ -294,7 +294,7 @@ class PagesListTable extends \WP_List_Table {
 					' style="color: #00a32a; font-size: 18px; width: 18px; height: 18px;"></span>' .
 				'</span>',
 				esc_attr( $item['id'] ),
-				esc_attr__( 'Synced - WordPress post is up-to-date', 'notion-wp' )
+				esc_attr__( 'Synced - WordPress post is up-to-date', 'notion-sync' )
 			);
 		} else {
 			return sprintf(
@@ -305,7 +305,7 @@ class PagesListTable extends \WP_List_Table {
 					' style="color: #8c8f94; font-size: 18px; width: 18px; height: 18px;"></span>' .
 				'</span>',
 				esc_attr( $item['id'] ),
-				esc_attr__( 'Not Synced - This page has not been synced yet', 'notion-wp' )
+				esc_attr__( 'Not Synced - This page has not been synced yet', 'notion-sync' )
 			);
 		}
 	}
@@ -363,7 +363,7 @@ class PagesListTable extends \WP_List_Table {
 					esc_attr( $item['id'] ),
 					sprintf(
 						/* translators: %s: human-readable time difference */
-						esc_html__( '%s ago', 'notion-wp' ),
+						esc_html__( '%s ago', 'notion-sync' ),
 						human_time_diff( $timestamp, current_time( 'timestamp' ) )
 					)
 				);
@@ -373,7 +373,7 @@ class PagesListTable extends \WP_List_Table {
 		return sprintf(
 			'<span data-page-id="%s">%s</span>',
 			esc_attr( $item['id'] ),
-			esc_html__( 'Never', 'notion-wp' )
+			esc_html__( 'Never', 'notion-sync' )
 		);
 	}
 
@@ -425,7 +425,7 @@ class PagesListTable extends \WP_List_Table {
 		add_settings_error(
 			'notion_sync',
 			'bulk_sync_js_required',
-			__( 'Bulk sync requires JavaScript to be enabled. Please enable JavaScript and try again.', 'notion-wp' ),
+			__( 'Bulk sync requires JavaScript to be enabled. Please enable JavaScript and try again.', 'notion-sync' ),
 			'warning'
 		);
 	}
@@ -448,18 +448,18 @@ class PagesListTable extends \WP_List_Table {
 		?>
 		<div class="alignleft actions">
 			<label for="filter-status" class="screen-reader-text">
-				<?php esc_html_e( 'Filter by status', 'notion-wp' ); ?>
+				<?php esc_html_e( 'Filter by status', 'notion-sync' ); ?>
 			</label>
 			<select name="filter_status" id="filter-status">
-				<option value=""><?php esc_html_e( 'All Statuses', 'notion-wp' ); ?></option>
+				<option value=""><?php esc_html_e( 'All Statuses', 'notion-sync' ); ?></option>
 				<option value="synced" <?php selected( $current_filter, 'synced' ); ?>>
-					<?php esc_html_e( 'Synced', 'notion-wp' ); ?>
+					<?php esc_html_e( 'Synced', 'notion-sync' ); ?>
 				</option>
 				<option value="not_synced" <?php selected( $current_filter, 'not_synced' ); ?>>
-					<?php esc_html_e( 'Not Synced', 'notion-wp' ); ?>
+					<?php esc_html_e( 'Not Synced', 'notion-sync' ); ?>
 				</option>
 			</select>
-			<?php submit_button( __( 'Filter', 'notion-wp' ), 'button', 'filter_action', false ); ?>
+			<?php submit_button( __( 'Filter', 'notion-sync' ), 'button', 'filter_action', false ); ?>
 		</div>
 		<?php
 	}
@@ -611,6 +611,6 @@ class PagesListTable extends \WP_List_Table {
 	 * @since 1.0.0
 	 */
 	public function no_items() {
-		esc_html_e( 'No Notion pages found. Please share pages with your integration in Notion.', 'notion-wp' );
+		esc_html_e( 'No Notion pages found. Please share pages with your integration in Notion.', 'notion-sync' );
 	}
 }

@@ -23,34 +23,34 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 	<!-- Page Header -->
 	<div class="notion-sync-header">
-		<h1><?php esc_html_e( 'Notion Sync Settings', 'notion-wp' ); ?></h1>
+		<h1><?php esc_html_e( 'Notion Sync Settings', 'notion-sync' ); ?></h1>
 		<p class="subtitle">
-			<?php esc_html_e( 'Connect your WordPress site to Notion for seamless content synchronization.', 'notion-wp' ); ?>
+			<?php esc_html_e( 'Connect your WordPress site to Notion for seamless content synchronization.', 'notion-sync' ); ?>
 		</p>
 	</div>
 
 	<!-- Admin Notices (Success Example) -->
 	<div class="notice notice-success is-dismissible notion-sync-notice">
 		<p>
-			<strong><?php esc_html_e( 'Connected successfully!', 'notion-wp' ); ?></strong>
-			<?php esc_html_e( 'Your Notion workspace is now connected.', 'notion-wp' ); ?>
+			<strong><?php esc_html_e( 'Connected successfully!', 'notion-sync' ); ?></strong>
+			<?php esc_html_e( 'Your Notion workspace is now connected.', 'notion-sync' ); ?>
 		</p>
 		<button type="button" class="notice-dismiss">
-			<span class="screen-reader-text"><?php esc_html_e( 'Dismiss this notice', 'notion-wp' ); ?></span>
+			<span class="screen-reader-text"><?php esc_html_e( 'Dismiss this notice', 'notion-sync' ); ?></span>
 		</button>
 	</div>
 
 	<!-- Admin Notices (Error Example) -->
 	<div class="notice notice-error is-dismissible notion-sync-notice">
 		<p>
-			<strong><?php esc_html_e( 'Connection failed', 'notion-wp' ); ?></strong>
-			<?php esc_html_e( 'Invalid token. Please check your Notion integration token and try again.', 'notion-wp' ); ?>
+			<strong><?php esc_html_e( 'Connection failed', 'notion-sync' ); ?></strong>
+			<?php esc_html_e( 'Invalid token. Please check your Notion integration token and try again.', 'notion-sync' ); ?>
 		</p>
 		<p>
 			<?php
 			printf(
 				/* translators: %s: URL to Notion integrations page */
-				esc_html__( 'Get your token from %s', 'notion-wp' ),
+				esc_html__( 'Get your token from %s', 'notion-sync' ),
 				'<a href="https://www.notion.com/my-integrations" target="_blank" rel="noopener noreferrer">notion.com/my-integrations</a>'
 			);
 			?>
@@ -67,7 +67,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 		<!-- Loading State -->
 		<div class="notion-sync-loading">
 			<span class="spinner is-active"></span>
-			<span class="loading-text"><?php esc_html_e( 'Connecting to Notion...', 'notion-wp' ); ?></span>
+			<span class="loading-text"><?php esc_html_e( 'Connecting to Notion...', 'notion-sync' ); ?></span>
 		</div>
 		<?php
 	elseif ( ! $is_connected ) :
@@ -75,27 +75,27 @@ if ( ! defined( 'ABSPATH' ) ) {
 		<!-- STATE 1: Disconnected - Show Connection Form -->
 		<div class="notion-sync-connection-form">
 			<div class="form-intro">
-				<h2><?php esc_html_e( 'Connect to Notion', 'notion-wp' ); ?></h2>
+				<h2><?php esc_html_e( 'Connect to Notion', 'notion-sync' ); ?></h2>
 				<p>
-					<?php esc_html_e( 'To connect your Notion workspace, you\'ll need an Internal Integration Token.', 'notion-wp' ); ?>
+					<?php esc_html_e( 'To connect your Notion workspace, you\'ll need an Internal Integration Token.', 'notion-sync' ); ?>
 				</p>
 				<p>
-					<strong><?php esc_html_e( 'How to get your token:', 'notion-wp' ); ?></strong>
+					<strong><?php esc_html_e( 'How to get your token:', 'notion-sync' ); ?></strong>
 				</p>
 				<ol>
 					<li>
 						<?php
 						printf(
 							/* translators: %s: URL to Notion integrations page */
-							esc_html__( 'Go to %s', 'notion-wp' ),
+							esc_html__( 'Go to %s', 'notion-sync' ),
 							'<a href="https://www.notion.com/my-integrations" target="_blank" rel="noopener noreferrer">notion.com/my-integrations</a>'
 						);
 						?>
 					</li>
-					<li><?php esc_html_e( 'Click "New integration"', 'notion-wp' ); ?></li>
-					<li><?php esc_html_e( 'Give it a name (e.g., "WordPress Sync")', 'notion-wp' ); ?></li>
-					<li><?php esc_html_e( 'Copy the "Internal Integration Token"', 'notion-wp' ); ?></li>
-					<li><?php esc_html_e( 'Share your Notion pages with the integration', 'notion-wp' ); ?></li>
+					<li><?php esc_html_e( 'Click "New integration"', 'notion-sync' ); ?></li>
+					<li><?php esc_html_e( 'Give it a name (e.g., "WordPress Sync")', 'notion-sync' ); ?></li>
+					<li><?php esc_html_e( 'Copy the "Internal Integration Token"', 'notion-sync' ); ?></li>
+					<li><?php esc_html_e( 'Share your Notion pages with the integration', 'notion-sync' ); ?></li>
 				</ol>
 			</div>
 
@@ -105,7 +105,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 				<div class="form-field">
 					<label for="notion_token">
-						<?php esc_html_e( 'Notion Integration Token', 'notion-wp' ); ?>
+						<?php esc_html_e( 'Notion Integration Token', 'notion-sync' ); ?>
 						<span class="required" aria-label="required">*</span>
 					</label>
 					<input
@@ -121,16 +121,16 @@ if ( ! defined( 'ABSPATH' ) ) {
 						aria-describedby="token-description"
 					>
 					<span id="token-description" class="description">
-						<?php esc_html_e( 'Your token starts with "secret_" and should be kept confidential.', 'notion-wp' ); ?>
+						<?php esc_html_e( 'Your token starts with "secret_" and should be kept confidential.', 'notion-sync' ); ?>
 					</span>
 				</div>
 
 				<div class="form-actions">
 					<button type="submit" class="button button-primary" disabled>
-						<?php esc_html_e( 'Connect to Notion', 'notion-wp' ); ?>
+						<?php esc_html_e( 'Connect to Notion', 'notion-sync' ); ?>
 					</button>
 					<span class="description">
-						<?php esc_html_e( 'This will verify your token and establish the connection.', 'notion-wp' ); ?>
+						<?php esc_html_e( 'This will verify your token and establish the connection.', 'notion-sync' ); ?>
 					</span>
 				</div>
 			</form>
@@ -140,7 +140,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 		?>
 		<!-- STATE 2: Connected - Show Workspace Info -->
 		<div class="notion-sync-workspace-info">
-			<span class="success-icon" aria-label="<?php esc_attr_e( 'Connected', 'notion-wp' ); ?>"></span>
+			<span class="success-icon" aria-label="<?php esc_attr_e( 'Connected', 'notion-sync' ); ?>"></span>
 			<h2 class="workspace-name">
 				<?php
 				// In real implementation, this would come from the API response.
@@ -150,11 +150,11 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 			<div class="workspace-details">
 				<p>
-					<strong><?php esc_html_e( 'User:', 'notion-wp' ); ?></strong>
+					<strong><?php esc_html_e( 'User:', 'notion-sync' ); ?></strong>
 					<?php echo esc_html( 'user@example.com' ); ?>
 				</p>
 				<p>
-					<strong><?php esc_html_e( 'Last connected:', 'notion-wp' ); ?></strong>
+					<strong><?php esc_html_e( 'Last connected:', 'notion-sync' ); ?></strong>
 					<?php echo esc_html( wp_date( get_option( 'date_format' ) . ' ' . get_option( 'time_format' ) ) ); ?>
 				</p>
 			</div>
@@ -166,16 +166,16 @@ if ( ! defined( 'ABSPATH' ) ) {
 					type="submit"
 					id="notion-sync-disconnect"
 					class="button disconnect-button"
-					aria-label="<?php esc_attr_e( 'Disconnect from Notion', 'notion-wp' ); ?>"
+					aria-label="<?php esc_attr_e( 'Disconnect from Notion', 'notion-sync' ); ?>"
 				>
-					<?php esc_html_e( 'Disconnect', 'notion-wp' ); ?>
+					<?php esc_html_e( 'Disconnect', 'notion-sync' ); ?>
 				</button>
 			</form>
 		</div>
 
 		<!-- Pages List -->
 		<div class="notion-sync-pages">
-			<h2><?php esc_html_e( 'Available Pages', 'notion-wp' ); ?></h2>
+			<h2><?php esc_html_e( 'Available Pages', 'notion-sync' ); ?></h2>
 			<div class="pages-list">
 				<?php
 				// Sample pages - in real implementation, this would come from the API.

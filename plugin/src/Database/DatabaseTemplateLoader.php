@@ -116,12 +116,12 @@ class DatabaseTemplateLoader {
 				'nonce'   => wp_create_nonce( 'wp_rest' ),
 				'postId'  => $post_id,
 				'i18n'    => array(
-					'loading'      => __( 'Loading database...', 'notion-wp' ),
-					'error'        => __( 'Error loading database', 'notion-wp' ),
-					'noData'       => __( 'No rows found', 'notion-wp' ),
-					'exportCsv'    => __( 'Export CSV', 'notion-wp' ),
-					'exportJson'   => __( 'Export JSON', 'notion-wp' ),
-					'resetFilters' => __( 'Reset Filters', 'notion-wp' ),
+					'loading'      => __( 'Loading database...', 'notion-sync' ),
+					'error'        => __( 'Error loading database', 'notion-sync' ),
+					'noData'       => __( 'No rows found', 'notion-sync' ),
+					'exportCsv'    => __( 'Export CSV', 'notion-sync' ),
+					'exportJson'   => __( 'Export JSON', 'notion-sync' ),
+					'resetFilters' => __( 'Reset Filters', 'notion-sync' ),
 				),
 			)
 		);

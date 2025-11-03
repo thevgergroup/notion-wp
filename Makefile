@@ -220,6 +220,20 @@ deactivate: ## Deactivate the notion-sync plugin
 plugin-status: ## Show plugin status
 	@$(WP) plugin list --name=notion-sync
 
+.PHONY: install-plugin-check
+install-plugin-check: ## Install WordPress Plugin Check plugin
+	@echo "$(CYAN)Installing Plugin Check plugin...$(NC)"
+	@docker exec $(COMPOSE_PROJECT_NAME)_wpcli wp plugin install plugin-check --activate --allow-root 2>&1 | grep -v "Failed to create directory"
+	@echo "$(GREEN)Plugin Check installed and activated!$(NC)"
+
+.PHONY: plugin-check
+plugin-check: ## Run Plugin Check on notion-sync plugin
+	@echo "$(CYAN)Running Plugin Check on notion-sync...$(NC)"
+	@echo "$(YELLOW)This may take a minute...$(NC)"
+	@echo ""
+	@docker exec $(COMPOSE_PROJECT_NAME)_wpcli wp plugin check notion-sync --allow-root
+	@echo ""
+
 .PHONY: db-export
 db-export: ## Export database to SQL file
 	@echo "$(CYAN)Exporting database...$(NC)"

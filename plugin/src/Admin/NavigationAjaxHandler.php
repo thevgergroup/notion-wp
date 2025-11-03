@@ -69,7 +69,7 @@ class NavigationAjaxHandler {
 		if ( ! current_user_can( 'manage_options' ) ) {
 			wp_send_json_error(
 				array(
-					'message' => __( 'Insufficient permissions to sync menu.', 'notion-wp' ),
+					'message' => __( 'Insufficient permissions to sync menu.', 'notion-sync' ),
 				),
 				403
 			);
@@ -100,7 +100,7 @@ class NavigationAjaxHandler {
 					array(
 						'message' => __(
 							'No root pages found. Please sync some pages from Notion first.',
-							'notion-wp'
+							'notion-sync'
 						),
 					),
 					404
@@ -130,7 +130,7 @@ class NavigationAjaxHandler {
 			if ( empty( $combined_hierarchy_map ) ) {
 				wp_send_json_error(
 					array(
-						'message' => __( 'Failed to build hierarchy map. No pages found.', 'notion-wp' ),
+						'message' => __( 'Failed to build hierarchy map. No pages found.', 'notion-sync' ),
 					),
 					500
 				);
@@ -142,7 +142,7 @@ class NavigationAjaxHandler {
 			if ( 0 === $menu_id ) {
 				wp_send_json_error(
 					array(
-						'message' => __( 'Failed to create or update menu.', 'notion-wp' ),
+						'message' => __( 'Failed to create or update menu.', 'notion-sync' ),
 					),
 					500
 				);
@@ -160,7 +160,7 @@ class NavigationAjaxHandler {
 			$success_parts  = array();
 			$success_parts[] = sprintf(
 				/* translators: 1: menu name, 2: number of items */
-				__( 'Menu "%1$s" updated with %2$d items.', 'notion-wp' ),
+				__( 'Menu "%1$s" updated with %2$d items.', 'notion-sync' ),
 				esc_html( $menu_name ),
 				$item_count
 			);
@@ -174,7 +174,7 @@ class NavigationAjaxHandler {
 				$success_parts[] = wp_kses(
 					sprintf(
 						/* translators: %s: URL to menu editor */
-						__( '<a href="%s" target="_blank">View &amp; assign menu</a> in Appearance &rarr; Menus.', 'notion-wp' ),
+						__( '<a href="%s" target="_blank">View &amp; assign menu</a> in Appearance &rarr; Menus.', 'notion-sync' ),
 						esc_url( $menus_url )
 					),
 					array(
@@ -191,7 +191,7 @@ class NavigationAjaxHandler {
 					__(
 						'<a href="%s" target="_blank">View menu</a>. Note: Your theme does not support ' .
 						'menu locations, so you cannot assign this menu without additional theme configuration.',
-						'notion-wp'
+						'notion-sync'
 					),
 					esc_url( $menus_url )
 				);
@@ -207,7 +207,7 @@ class NavigationAjaxHandler {
 			}
 
 			if ( $item_count > 0 ) {
-				$success_parts[] = __( 'Menu will auto-update as you sync more pages from Notion.', 'notion-wp' );
+				$success_parts[] = __( 'Menu will auto-update as you sync more pages from Notion.', 'notion-sync' );
 			}
 
 			// Send success response.
@@ -230,7 +230,7 @@ class NavigationAjaxHandler {
 				array(
 					'message' => sprintf(
 						/* translators: %s: error message */
-						__( 'Menu sync failed: %s', 'notion-wp' ),
+						__( 'Menu sync failed: %s', 'notion-sync' ),
 						$e->getMessage()
 					),
 				),

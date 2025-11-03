@@ -58,7 +58,7 @@ class BulkSyncProcessor {
 			add_settings_error(
 				'notion_sync',
 				'no_pages_selected',
-				__( 'No pages selected. Please select pages to sync.', 'notion-wp' ),
+				__( 'No pages selected. Please select pages to sync.', 'notion-sync' ),
 				'warning'
 			);
 			return;
@@ -101,7 +101,7 @@ class BulkSyncProcessor {
 					++$success_count;
 				} else {
 					++$error_count;
-					$errors[] = $result['error'] ?? __( 'Unknown error', 'notion-wp' );
+					$errors[] = $result['error'] ?? __( 'Unknown error', 'notion-sync' );
 				}
 			} catch ( \Exception $e ) {
 				++$error_count;
@@ -138,7 +138,7 @@ class BulkSyncProcessor {
 						'Successfully synced %d page.',
 						'Successfully synced %d pages.',
 						$success_count,
-						'notion-wp'
+						'notion-sync'
 					),
 					$success_count
 				),
@@ -152,7 +152,7 @@ class BulkSyncProcessor {
 				'bulk_sync_partial',
 				sprintf(
 					/* translators: 1: number of successful syncs, 2: number of errors, 3: error details */
-					__( 'Synced %1$d pages. Failed to sync %2$d pages.%3$s', 'notion-wp' ),
+					__( 'Synced %1$d pages. Failed to sync %2$d pages.%3$s', 'notion-sync' ),
 					$success_count,
 					$error_count,
 					$error_details
@@ -167,7 +167,7 @@ class BulkSyncProcessor {
 				'bulk_sync_error',
 				sprintf(
 					/* translators: 1: number of errors, 2: error details */
-					__( 'Failed to sync %1$d pages.%2$s', 'notion-wp' ),
+					__( 'Failed to sync %1$d pages.%2$s', 'notion-sync' ),
 					$error_count,
 					$error_details
 				),

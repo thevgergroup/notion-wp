@@ -34,8 +34,8 @@ public function register(): void {
  */
 public function add_menu_page(): void {
 	add_menu_page(
-		__( 'Notion Sync', 'notion-wp' ),
-		__( 'Notion Sync', 'notion-wp' ),
+		__( 'Notion Sync', 'notion-sync' ),
+		__( 'Notion Sync', 'notion-sync' ),
 		'manage_options',
 		'notion-sync',
 		array( $this, 'render' ),
@@ -86,10 +86,10 @@ public function enqueue_assets( string $hook_suffix ): void {
 			'ajaxUrl' => admin_url( 'admin-ajax.php' ),
 			'nonce'   => wp_create_nonce( 'notion_sync_ajax' ),
 			'i18n'    => array(
-				'connecting'    => __( 'Connecting...', 'notion-wp' ),
-				'connected'     => __( 'Connected!', 'notion-wp' ),
-				'disconnecting' => __( 'Disconnecting...', 'notion-wp' ),
-				'error'         => __( 'An error occurred. Please try again.', 'notion-wp' ),
+				'connecting'    => __( 'Connecting...', 'notion-sync' ),
+				'connected'     => __( 'Connected!', 'notion-sync' ),
+				'disconnecting' => __( 'Disconnecting...', 'notion-sync' ),
+				'error'         => __( 'An error occurred. Please try again.', 'notion-sync' ),
 			),
 		)
 	);
@@ -136,10 +136,10 @@ public function enqueue_assets( string $hook_suffix ): void {
 			'ajaxUrl' => admin_url( 'admin-ajax.php' ),
 			'nonce'   => wp_create_nonce( 'notion_sync_ajax' ),
 			'i18n'    => array(
-				'connecting'    => __( 'Connecting...', 'notion-wp' ),
-				'connected'     => __( 'Connected!', 'notion-wp' ),
-				'disconnecting' => __( 'Disconnecting...', 'notion-wp' ),
-				'error'         => __( 'An error occurred. Please try again.', 'notion-wp' ),
+				'connecting'    => __( 'Connecting...', 'notion-sync' ),
+				'connected'     => __( 'Connected!', 'notion-sync' ),
+				'disconnecting' => __( 'Disconnecting...', 'notion-sync' ),
+				'error'         => __( 'An error occurred. Please try again.', 'notion-sync' ),
 			),
 		)
 	);

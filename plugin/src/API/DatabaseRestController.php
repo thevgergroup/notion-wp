@@ -552,7 +552,7 @@ class DatabaseRestController {
 		// Check user capabilities.
 		if ( ! current_user_can( 'manage_options' ) ) {
 			wp_send_json_error(
-				array( 'message' => __( 'Insufficient permissions.', 'notion-wp' ) ),
+				array( 'message' => __( 'Insufficient permissions.', 'notion-sync' ) ),
 				403
 			);
 		}
@@ -562,7 +562,7 @@ class DatabaseRestController {
 
 		if ( ! $post_id ) {
 			wp_send_json_error(
-				array( 'message' => __( 'Invalid post ID.', 'notion-wp' ) ),
+				array( 'message' => __( 'Invalid post ID.', 'notion-sync' ) ),
 				400
 			);
 		}
@@ -571,7 +571,7 @@ class DatabaseRestController {
 		$this->invalidate_database_cache( $post_id );
 
 		wp_send_json_success(
-			array( 'message' => __( 'Cache cleared successfully.', 'notion-wp' ) )
+			array( 'message' => __( 'Cache cleared successfully.', 'notion-sync' ) )
 		);
 	}
 

@@ -63,7 +63,7 @@ class AdminNotices {
 
 		printf(
 			'<div class="notice notice-success is-dismissible"><p><strong>%s</strong> %s</p></div>',
-			esc_html__( 'Success:', 'notion-wp' ),
+			esc_html__( 'Success:', 'notion-sync' ),
 			esc_html( $message )
 		);
 	}
@@ -81,7 +81,7 @@ class AdminNotices {
 
 		printf(
 			'<div class="notice notice-error is-dismissible"><p><strong>%s</strong> %s</p></div>',
-			esc_html__( 'Error:', 'notion-wp' ),
+			esc_html__( 'Error:', 'notion-sync' ),
 			esc_html( $message )
 		);
 	}

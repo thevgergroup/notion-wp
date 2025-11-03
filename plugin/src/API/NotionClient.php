@@ -82,14 +82,14 @@ class NotionClient {
 
 			// Extract workspace information.
 			$workspace_name = 'Unknown Workspace';
-			$user_name      = $user_response['name'] ?? __( 'Unknown User', 'notion-wp' );
+			$user_name      = $user_response['name'] ?? __( 'Unknown User', 'notion-sync' );
 			$user_email     = $user_response['person']['email'] ?? '';
 
 			// Try to get workspace name from bot object.
 			if ( isset( $user_response['bot']['workspace_name'] ) ) {
 				$workspace_name = $user_response['bot']['workspace_name'];
 			} elseif ( isset( $user_response['bot']['owner']['workspace'] ) && $user_response['bot']['owner']['workspace'] ) {
-				$workspace_name = __( 'Workspace', 'notion-wp' );
+				$workspace_name = __( 'Workspace', 'notion-sync' );
 			}
 
 			return array(
@@ -159,7 +159,7 @@ class NotionClient {
 	 * @return array Formatted page information.
 	 */
 	private function format_page_info( $page_data ) {
-		$title = __( 'Untitled', 'notion-wp' );
+		$title = __( 'Untitled', 'notion-sync' );
 
 		// Try to get title from properties.
 		if ( isset( $page_data['properties'] ) && is_array( $page_data['properties'] ) ) {
@@ -174,7 +174,7 @@ class NotionClient {
 		}
 
 		// Fallback: Try to get title from child_page or other sources.
-		if ( __( 'Untitled', 'notion-wp' ) === $title ) {
+		if ( __( 'Untitled', 'notion-sync' ) === $title ) {
 			if ( isset( $page_data['child_page']['title'] ) ) {
 				$title = $page_data['child_page']['title'];
 			}
@@ -317,7 +317,7 @@ class NotionClient {
 			throw new \Exception(
 				sprintf(
 					/* translators: %s: error message */
-					__( 'HTTP request failed: %s', 'notion-wp' ),
+					__( 'HTTP request failed: %s', 'notion-sync' ),
 					$response->get_error_message()
 				)
 			);
@@ -429,31 +429,31 @@ class NotionClient {
 			case 400:
 				return sprintf(
 					/* translators: %s: API error message */
-					__( 'Bad request: %s', 'notion-wp' ),
-					$api_message ? $api_message : __( 'The request was invalid.', 'notion-wp' )
+					__( 'Bad request: %s', 'notion-sync' ),
+					$api_message ? $api_message : __( 'The request was invalid.', 'notion-sync' )
 				);
 
 			case 401:
 				$message  = 'Authentication failed. Please check that your API token is correct';
 				$message .= ' and has not been revoked.';
-				return __( $message, 'notion-wp' );
+				return __( $message, 'notion-sync' );
 
 			case 403:
 				$message  = 'Access forbidden. Make sure you have shared your Notion pages';
 				$message .= ' with this integration.';
-				return __( $message, 'notion-wp' );
+				return __( $message, 'notion-sync' );
 
 			case 404:
 				return sprintf(
 					/* translators: %s: API error message */
-					__( 'Resource not found: %s', 'notion-wp' ),
-					$api_message ? $api_message : __( 'The requested resource does not exist.', 'notion-wp' )
+					__( 'Resource not found: %s', 'notion-sync' ),
+					$api_message ? $api_message : __( 'The requested resource does not exist.', 'notion-sync' )
 				);
 
 			case 429:
 				$message  = 'Too many requests. Please wait a moment and try again.';
 				$message .= ' Notion has rate limits to ensure service stability.';
-				return __( $message, 'notion-wp' );
+				return __( $message, 'notion-sync' );
 
 			case 500:
 			case 502:
@@ -461,16 +461,16 @@ class NotionClient {
 			case 504:
 				return sprintf(
 					/* translators: %s: API error message */
-					__( 'Notion server error: %s. Please try again later.', 'notion-wp' ),
-					$api_message ? $api_message : __( 'The Notion API is experiencing issues.', 'notion-wp' )
+					__( 'Notion server error: %s. Please try again later.', 'notion-sync' ),
+					$api_message ? $api_message : __( 'The Notion API is experiencing issues.', 'notion-sync' )
 				);
 
 			default:
 				return sprintf(
 					/* translators: 1: HTTP status code, 2: API error message */
-					__( 'API error (Code %1$d): %2$s', 'notion-wp' ),
+					__( 'API error (Code %1$d): %2$s', 'notion-sync' ),
 					$status_code,
-					$api_message ? $api_message : __( 'An unknown error occurred.', 'notion-wp' )
+					$api_message ? $api_message : __( 'An unknown error occurred.', 'notion-sync' )
 				);
 		}
 	}

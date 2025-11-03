@@ -89,7 +89,7 @@ spl_autoload_register(
  */
 function load_textdomain() {
 	load_plugin_textdomain(
-		'notion-wp',
+		'notion-sync',
 		false,
 		dirname( plugin_basename( __FILE__ ) ) . '/languages'
 	);
