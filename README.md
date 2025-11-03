@@ -79,6 +79,21 @@ Monitor sync status and manage your synced content.
 3. Activate the plugin through the 'Plugins' menu in WordPress
 4. Go to **Settings → Notion Sync** to configure
 
+### Via WP-CLI
+
+Install and activate the plugin with a single command:
+
+```bash
+wp plugin install https://github.com/thevgergroup/notion-wp/releases/download/v1.0.0/notion-sync-1.0.0.zip --activate
+```
+
+Replace `v1.0.0` with the latest version from the [Releases page](https://github.com/thevgergroup/notion-wp/releases).
+
+**Benefits:**
+- One-command installation and activation
+- Perfect for automated deployments and CI/CD pipelines
+- Works with remote URLs - no manual download required
+
 ### Requirements
 
 - **WordPress:** 6.0 or higher
