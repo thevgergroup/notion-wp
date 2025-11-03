@@ -2,7 +2,7 @@
 Contributors: thevgergroup
 Tags: notion, sync, content, database, blocks, menu, gutenberg, import, collaboration
 Requires at least: 6.0
-Tested up to: 6.4
+Tested up to: 6.7
 Requires PHP: 8.0
 Stable tag: 1.0.0
 License: GPL-3.0+
