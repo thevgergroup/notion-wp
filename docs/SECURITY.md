@@ -201,7 +201,7 @@ We take security seriously. If you discover a security vulnerability:
 
 ### DO
 
-1. **Email us privately:** security@thevgergroup.com
+1. **Email us privately:** hello 📧 thevgergroup.com
 2. **Include:**
    - Description of the vulnerability
    - Steps to reproduce
@@ -365,7 +365,7 @@ Security updates are announced via:
 For security-related questions:
 
 - **General questions:** Open a [GitHub Discussion](https://github.com/thevgergroup/notion-wp/discussions)
-- **Security concerns:** Email security@thevgergroup.com
+- **Security concerns:** Email hello 📧 thevgergroup.com
 - **Bug reports:** [GitHub Issues](https://github.com/thevgergroup/notion-wp/issues)
 
 ---
