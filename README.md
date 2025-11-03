@@ -444,8 +444,6 @@ Need help? Here's how to get support:
 - Advanced field mapping UI
 - Custom post type support
 
-See [docs/plans/main-plan.md](docs/plans/main-plan.md) for the complete roadmap.
-
 ---
 
 ## 💻 Contributing

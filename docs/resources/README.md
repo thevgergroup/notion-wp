@@ -330,8 +330,9 @@ Use `wordpress-technical-writer` to document hooks and APIs immediately.
 These resources complement the existing project docs:
 
 - **[CLAUDE.md](../../CLAUDE.md)** - Overall project guidance
-- **[docs/product/prd.md](../product/prd.md)** - Product requirements
-- **[docs/requirements/requirements.md](../requirements/requirements.md)** - Technical requirements
+- **[README.md](../../README.md)** - Plugin features and usage
+- **[DEVELOPMENT.md](../../DEVELOPMENT.md)** - Development setup and guidelines
+- **[docs/architecture/](../architecture/)** - Technical architecture reference
 
 **This resources directory** provides the "how" while the other docs provide the "what".
 
