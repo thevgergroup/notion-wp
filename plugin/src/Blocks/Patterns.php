@@ -129,13 +129,14 @@ class Patterns {
 		$menu_slug = $menu ? $menu->slug : '';
 
 		// Build the pattern with Group > Heading + Navigation.
+		// Include openSubmenusOnClick and showSubmenuIcon for hierarchical display.
 		$pattern = '<!-- wp:group {"layout":{"type":"constrained"}} -->
 <div class="wp-block-group">
 	<!-- wp:heading {"level":3,"fontSize":"medium"} -->
 	<h3 class="wp-block-heading has-medium-font-size">' . esc_html__( 'Notion Pages', 'notion-wp' ) . '</h3>
 	<!-- /wp:heading -->
 
-	<!-- wp:navigation {"ref":' . absint( $menu_id ) . ',"overlayMenu":"never","layout":{"type":"flex","orientation":"vertical"},"style":{"spacing":{"blockGap":"0.5rem"}}} /-->
+	<!-- wp:navigation {"ref":' . absint( $menu_id ) . ',"overlayMenu":"never","openSubmenusOnClick":true,"showSubmenuIcon":true,"layout":{"type":"flex","orientation":"vertical"},"style":{"spacing":{"blockGap":"0.5rem"}}} /-->
 </div>
 <!-- /wp:group -->';
 
