@@ -30,8 +30,11 @@ WordPress Plugin Check identified several critical issues that must be resolved 
 # Find all instances
 grep -r "notion-wp" plugin/src/ plugin/templates/
 
-# Replace globally
-find plugin/src plugin/templates -name "*.php" -exec sed -i '' "s/'notion-wp'/'notion-sync'/g" {} \;
+# Replace globally (cross-platform using perl)
+find plugin/src plugin/templates -name "*.php" -exec perl -pi -e "s/'notion-wp'/'notion-sync'/g" {} \;
+
+# Alternative using portable sed with backup
+# find plugin/src plugin/templates -name "*.php" -exec sed -i.bak "s/'notion-wp'/'notion-sync'/g" {} \; && find . -name "*.bak" -delete
 ```
 
 **Verification:**
@@ -127,6 +130,28 @@ echo '<a href="' . esc_url( $url ) . '">'; // GOOD
 echo "<script>var data = '$value';</script>"; // BAD
 echo '<script>var data = ' . wp_json_encode( $value ) . ';</script>'; // GOOD
 ```
+
+**Escaping Function Reference:**
+
+| Context | Function | Use Case | Example |
+|---------|----------|----------|---------|
+| **HTML Content** | `esc_html()` | Text content between HTML tags | `echo esc_html( $post->post_title );` |
+| **HTML Attributes** | `esc_attr()` | HTML attribute values | `<div data-id="<?php echo esc_attr( $id ); ?>">` |
+| **URLs** | `esc_url()` | href, src attributes | `<a href="<?php echo esc_url( $link ); ?>">` |
+| **JavaScript Strings** | `esc_js()` | Inline JavaScript strings | `var name = '<?php echo esc_js( $name ); ?>';` |
+| **Textarea** | `esc_textarea()` | Textarea content | `<textarea><?php echo esc_textarea( $content ); ?></textarea>` |
+| **SQL Queries** | `$wpdb->prepare()` | Database queries | `$wpdb->prepare( "SELECT * WHERE id = %d", $id );` |
+| **JSON Data** | `wp_json_encode()` | JSON/AJAX responses | `echo wp_json_encode( $data );` |
+
+**Input Sanitization (before escaping):**
+
+| Type | Function | Use Case |
+|------|----------|----------|
+| Text | `sanitize_text_field()` | General text input |
+| Email | `sanitize_email()` | Email addresses |
+| Key | `sanitize_key()` | Database keys, option names |
+| Title | `sanitize_title()` | Post titles, slugs |
+| HTML | `wp_kses_post()` | Allow limited HTML |
 
 **Fix Strategy:**
 
@@ -332,25 +357,25 @@ zip -r notion-sync.zip notion-sync \
 ## Implementation Order
 
 ### Phase 1: Quick Wins (30 minutes)
-1. ✅ Fix text domain mismatches (automated find/replace)
-2. ✅ Update "Tested up to" header
-3. ✅ Fix hidden files in build
+1. [ ] Fix text domain mismatches (automated find/replace)
+2. [ ] Update "Tested up to" header
+3. [ ] Fix hidden files in build
 
 ### Phase 2: Critical Security (3-4 hours)
-4. ✅ Bundle Tabulator locally
-5. ✅ Fix output escaping (46 instances)
-6. ✅ Add nonce verification (28 instances)
+4. [ ] Bundle Tabulator locally
+5. [ ] Fix output escaping (46 instances)
+6. [ ] Add nonce verification (28 instances)
 
 ### Phase 3: Code Quality (5-6 hours)
-7. ✅ Clean up error_log() calls (56 instances)
-8. ✅ Add database query caching (36 instances)
-9. ✅ Fix translation string literals (9 instances)
+7. [ ] Clean up error_log() calls (56 instances)
+8. [ ] Add database query caching (36 instances)
+9. [ ] Fix translation string literals (9 instances)
 
 ### Phase 4: Verification (1 hour)
-10. ✅ Run Plugin Check again
-11. ✅ Test all functionality
-12. ✅ Update CHANGELOG.md
-13. ✅ Create v1.0.1 release
+10. [ ] Run Plugin Check again
+11. [ ] Test all functionality
+12. [ ] Update CHANGELOG.md
+13. [ ] Create v1.0.1 release
 
 **Total Estimated Time:** 10-12 hours
 
