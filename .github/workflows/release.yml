@@ -92,7 +92,11 @@ jobs:
             - name: Create release zip
               working-directory: build
               run: |
-                  zip -r notion-sync-${{ steps.version.outputs.VERSION }}.zip notion-sync/
+                  # Create zip excluding hidden files (.DS_Store, etc.)
+                  zip -r notion-sync-${{ steps.version.outputs.VERSION }}.zip notion-sync/ \
+                    -x "*/.*" \
+                    -x "*/.DS_Store" \
+                    -x "*/Thumbs.db"
 
                   # Calculate checksums
                   sha256sum notion-sync-${{ steps.version.outputs.VERSION }}.zip > notion-sync-${{ steps.version.outputs.VERSION }}.zip.sha256

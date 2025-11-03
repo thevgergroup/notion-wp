@@ -128,6 +128,11 @@ jobs:
             - name: Check code formatting (Prettier)
               run: npm run format:check
 
+            - name: Lint YAML and JSON files
+              run: |
+                  echo "Validating YAML files..."
+                  npm run format:check -- '**/*.{yml,yaml,json}'
+
     file-size-check:
         name: File Size Compliance
         runs-on: ubuntu-latest
