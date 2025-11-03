@@ -21,6 +21,7 @@ Write and organize your content in Notion, then publish it to your WordPress sit
 
 - ✅ **One-Click Page Sync** - Import Notion pages as WordPress posts with rich content
 - ✅ **Automatic Menus** - Generate WordPress navigation menus from your Notion page hierarchy
+- ✅ **Collapsible Sidebar Navigation** - Ready-to-use block patterns with hierarchical menus ([Learn more](docs/features/BLOCK-PATTERNS.md))
 - ✅ **Embedded Database Tables** - Display Notion databases as interactive tables on your site
 - ✅ **Rich Content Support** - Images, tables, code blocks, callouts, toggles, and more
 - ✅ **Background Processing** - Handle large imports without timeouts
@@ -193,6 +194,27 @@ WordPress navigation menus automatically generated from Notion page structure.
 3. Assign to a menu location
 4. Save
 
+### Displaying Sidebar Navigation
+
+**Use Block Patterns for Easy Setup:**
+
+The plugin includes ready-to-use block patterns that display your Notion pages as a collapsible hierarchical sidebar navigation - perfect for documentation sites, knowledge bases, or any site with nested content.
+
+**Quick Start:**
+1. Edit any page/post or template in the Site Editor
+2. Click **`+`** → **Patterns** → **"Notion Sync"**
+3. Insert **"Notion Navigation Hierarchy"**
+4. Done! Your navigation sidebar appears with collapsible sections
+
+**Features:**
+- ▶️ **Collapsible sections** with animated chevron icons
+- 📱 **Mobile-friendly** responsive design
+- ♿ **Accessible** with proper ARIA attributes
+- 🎨 **Customizable** colors, spacing, and headings
+- ✅ **Works with Twenty Twenty-Four & Twenty Twenty-Five**
+
+**[Complete Pattern Documentation →](docs/features/BLOCK-PATTERNS.md)**
+
 ---
 
 ## 🎨 Theme Integration
@@ -361,6 +383,7 @@ If still broken:
 ## 📖 Documentation
 
 - [Getting Started Guide](docs/getting-started.md) - Detailed setup and usage instructions
+- [Block Patterns Guide](docs/features/BLOCK-PATTERNS.md) - How to use collapsible sidebar navigation
 - [Development Guide](DEVELOPMENT.md) - For contributors and developers
 - [Architecture Documentation](docs/architecture/) - Technical architecture details
 - [Testing Documentation](docs/testing/) - Testing strategies and examples
