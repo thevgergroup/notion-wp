@@ -209,8 +209,6 @@ class DatabasesListTable extends \WP_List_Table {
 
 		} catch ( \Exception $e ) {
 			$this->items = array();
-			// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log -- Debug logging for development.
-			error_log( 'NotionSync: Failed to fetch databases: ' . $e->getMessage() );
 		}
 	}
 

@@ -103,23 +103,17 @@ class NotionRouter {
 
 		$slug = sanitize_title( $wp->query_vars['notion_link'] );
 
-		// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log -- Debug logging.
-		error_log( sprintf( '[NotionRouter] Routing request for slug: %s', $slug ) );
 
 		// Look up in registry.
 		$link_entry = $this->registry->find_by_slug( $slug );
 
 		if ( ! $link_entry ) {
-			// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log -- Debug logging.
-			error_log( sprintf( '[NotionRouter] Slug not found in registry: %s', $slug ) );
 			// Slug not found - 404.
 			status_header( 404 );
 			include get_404_template();
 			exit;
 		}
 
-		// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log, Generic.Files.LineLength.MaxExceeded -- Debug logging.
-		error_log( sprintf( '[NotionRouter] Found entry - sync_status: %s, wp_post_id: %s', $link_entry->sync_status, $link_entry->wp_post_id ?? 'null' ) );
 
 		// Handle based on sync status.
 		if ( 'synced' === $link_entry->sync_status && $link_entry->wp_post_id ) {

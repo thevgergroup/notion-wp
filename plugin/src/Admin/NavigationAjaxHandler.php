@@ -79,8 +79,6 @@ class NavigationAjaxHandler {
 			// Get menu name from settings.
 			$menu_name = get_option( 'notion_sync_menu_name', 'Notion Navigation' );
 
-			// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log -- Debug logging.
-			error_log( '[NavigationAjax] Starting menu sync. Menu name: ' . $menu_name );
 
 			// Initialize dependencies.
 			$hierarchy_detector = new HierarchyDetector();
@@ -90,12 +88,8 @@ class NavigationAjaxHandler {
 			// Find all root pages (pages with no parent).
 			$root_pages = $this->find_root_pages();
 
-			// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log -- Debug logging.
-			error_log( '[NavigationAjax] Found ' . count( $root_pages ) . ' root pages: ' . wp_json_encode( $root_pages ) );
 
 			if ( empty( $root_pages ) ) {
-				// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log -- Debug logging.
-				error_log( '[NavigationAjax] No root pages found - returning error' );
 				wp_send_json_error(
 					array(
 						'message' => __(
@@ -111,21 +105,11 @@ class NavigationAjaxHandler {
 			$combined_hierarchy_map = array();
 			foreach ( $root_pages as $root_page_id ) {
 				$hierarchy_map = $hierarchy_detector->build_hierarchy_map( $root_page_id );
-				// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log -- Debug logging.
-				error_log(
-					'[NavigationAjax] Hierarchy map for root ' . $root_page_id . ': ' .
-					wp_json_encode( $hierarchy_map )
-				);
 				if ( ! empty( $hierarchy_map ) ) {
 					$combined_hierarchy_map = array_merge( $combined_hierarchy_map, $hierarchy_map );
 				}
 			}
 
-			// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log -- Debug logging.
-			error_log(
-				'[NavigationAjax] Combined hierarchy map (' . count( $combined_hierarchy_map ) .
-				' items): ' . wp_json_encode( array_keys( $combined_hierarchy_map ) )
-			);
 
 			if ( empty( $combined_hierarchy_map ) ) {
 				wp_send_json_error(

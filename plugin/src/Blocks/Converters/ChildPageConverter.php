@@ -70,12 +70,8 @@ class ChildPageConverter implements BlockConverterInterface {
 		$registry = new LinkRegistry();
 		$entry    = $registry->find_by_notion_id( $normalized_id );
 
-		// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log, Generic.Files.LineLength.TooLong, Generic.Files.LineLength.MaxExceeded -- Debug logging.
-		error_log( sprintf( '[ChildPageConverter] Page: %s, ID: %s, Entry exists: %s, Entry title: %s', $title, $normalized_id, $entry ? 'yes' : 'no', $entry ? $entry->notion_title : 'N/A' ) );
 
 		if ( $entry && $entry->notion_title === $normalized_id ) {
-			// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log -- Debug logging.
-			error_log( sprintf( '[ChildPageConverter] Updating title from "%s" to "%s"', $entry->notion_title, $title ) );
 			// Update with actual title if we have it.
 			$registry->register(
 				array(

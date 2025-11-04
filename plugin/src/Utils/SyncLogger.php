@@ -99,12 +99,6 @@ class SyncLogger {
 		);
 
 		if ( false === $result ) {
-			error_log(
-				sprintf(
-					'[NotionSync] Failed to insert sync log: %s',
-					$wpdb->last_error
-				)
-			);
 			return false;
 		}
 

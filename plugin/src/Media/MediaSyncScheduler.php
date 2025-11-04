@@ -113,7 +113,6 @@ class MediaSyncScheduler {
 		// Schedule background processing (large batch).
 		if ( ! function_exists( 'as_schedule_single_action' ) ) {
 			// Action Scheduler not available - fall back to sync.
-			error_log( 'MediaSyncScheduler: Action Scheduler not available, processing synchronously' );
 			return [
 				'status'  => 'sync',
 				'total'   => $total,
@@ -159,7 +158,6 @@ class MediaSyncScheduler {
 		$media_items = get_post_meta( $post_id, "_notion_media_batch_{$batch_id}", true );
 
 		if ( empty( $media_items ) || ! is_array( $media_items ) ) {
-			error_log( "MediaSyncScheduler: No media items found for batch {$batch_id}" );
 			update_post_meta( $post_id, '_notion_media_batch_status', 'failed' );
 			return;
 		}
@@ -177,10 +175,8 @@ class MediaSyncScheduler {
 			delete_post_meta( $post_id, "_notion_media_batch_{$batch_id}" );
 
 			$processed_count = count( $results );
-			error_log( "MediaSyncScheduler: Completed batch {$batch_id} - {$processed_count}/{$total} items processed" );
 
 		} catch ( \Exception $e ) {
-			error_log( "MediaSyncScheduler: Batch {$batch_id} failed - " . $e->getMessage() );
 			update_post_meta( $post_id, '_notion_media_batch_status', 'failed' );
 			update_post_meta( $post_id, '_notion_media_batch_error', $e->getMessage() );
 		}
@@ -228,13 +224,6 @@ class MediaSyncScheduler {
 				$results[ $block_id ] = $attachment_id;
 
 			} catch ( \Exception $e ) {
-				error_log(
-					sprintf(
-						'MediaSyncScheduler: Failed to process media item %s: %s',
-						$item['block_id'] ?? 'unknown',
-						$e->getMessage()
-					)
-				);
 			}
 		}
 

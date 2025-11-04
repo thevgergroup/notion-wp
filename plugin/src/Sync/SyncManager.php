@@ -183,7 +183,6 @@ class SyncManager {
 				);
 			}
 
-			error_log( sprintf( '[PERF] Fetched %d blocks for page %s', count( $notion_blocks ), $notion_page_id ) );
 
 			// Step 3: Check if page already synced (duplicate detection).
 			$existing_post_id = $this->find_existing_post( $notion_page_id );
@@ -248,7 +247,6 @@ class SyncManager {
 			}
 			PerformanceLogger::stop( 'convert_blocks' );
 
-			error_log( sprintf( '[PERF] Converted content length: %d characters', strlen( $gutenberg_html ) ) );
 
 			// Step 7: Update post with converted content.
 			PerformanceLogger::start( 'update_post_content' );
@@ -711,14 +709,6 @@ class SyncManager {
 
 		} catch ( \Exception $e ) {
 			// Log error but don't fail the entire sync.
-			// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log -- Debug logging for sync operations.
-			error_log(
-				sprintf(
-					'SyncManager: Failed to sync cover image for post %d: %s',
-					$post_id,
-					$e->getMessage()
-				)
-			);
 		}
 	}
 }

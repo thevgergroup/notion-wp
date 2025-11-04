@@ -79,16 +79,10 @@ class PageSyncScheduler {
 		}
 
 		// Check if Action Scheduler is available.
-		// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log -- Debug logging.
-		error_log( 'PageSyncScheduler: Checking Action Scheduler availability' );
 		$fn_exists = function_exists( 'as_schedule_single_action' ) ? 'true' : 'false';
-		error_log( 'PageSyncScheduler: function_exists(as_schedule_single_action) = ' . $fn_exists );
 		$class_exists = class_exists( 'ActionScheduler' ) ? 'true' : 'false';
-		error_log( 'PageSyncScheduler: class_exists(ActionScheduler) = ' . $class_exists );
 
 		if ( ! function_exists( 'as_schedule_single_action' ) ) {
-			// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log -- Debug logging.
-			error_log( 'PageSyncScheduler: Action Scheduler functions not available' );
 			return [
 				'status' => 'error',
 				'error'  => 'Action Scheduler not available. Please ensure Action Scheduler is properly loaded.',
@@ -134,14 +128,6 @@ class PageSyncScheduler {
 			);
 		}
 
-		// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log -- Debug logging.
-		error_log(
-			sprintf(
-				'[PageSync] ══ BATCH SCHEDULED ══ %d pages queued for batch %s',
-				$total,
-				substr( $batch_id, -8 )
-			)
-		);
 
 		return [
 			'status'   => 'scheduled',
@@ -164,8 +150,6 @@ class PageSyncScheduler {
 		$batch = get_option( "notion_sync_page_batch_{$batch_id}", [] );
 
 		if ( empty( $batch ) ) {
-			// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log -- Debug logging.
-			error_log( "PageSyncScheduler: Batch {$batch_id} not found" );
 			return;
 		}
 
@@ -184,16 +168,6 @@ class PageSyncScheduler {
 		$batch['page_statuses'][ $page_id ] = 'processing';
 		update_option( "notion_sync_page_batch_{$batch_id}", $batch, false );
 
-		// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log -- Debug logging.
-		error_log(
-			sprintf(
-				'[PageSync] Starting sync for page %s (batch %s, %d/%d)',
-				substr( $page_id, 0, 8 ),
-				substr( $batch_id, -8 ),
-				$batch['processed'] + 1,
-				$batch['total']
-			)
-		);
 
 		try {
 			// Sync the page.
@@ -210,15 +184,6 @@ class PageSyncScheduler {
 					'duration' => $duration,
 				];
 
-				// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log -- Debug logging.
-				error_log(
-					sprintf(
-						'[PageSync] ✓ Success: page %s -> post %d (%.2fs)',
-						substr( $page_id, 0, 8 ),
-						$result['post_id'],
-						$duration
-					)
-				);
 			} else {
 				++$batch['failed'];
 				$batch['page_statuses'][ $page_id ] = 'failed';
@@ -228,15 +193,6 @@ class PageSyncScheduler {
 					'duration' => $duration,
 				];
 
-				// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log -- Debug logging.
-				error_log(
-					sprintf(
-						'[PageSync] ✗ Failed: page %s - %s (%.2fs)',
-						substr( $page_id, 0, 8 ),
-						$result['error'] ?? 'Unknown error',
-						$duration
-					)
-				);
 			}
 		} catch ( \Exception $e ) {
 			$duration = isset( $start_time ) ? microtime( true ) - $start_time : 0;
@@ -249,15 +205,6 @@ class PageSyncScheduler {
 				'duration' => $duration,
 			];
 
-			// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log -- Debug logging.
-			error_log(
-				sprintf(
-					'[PageSync] ✗ Exception: page %s - %s (%.2fs)',
-					substr( $page_id, 0, 8 ),
-					$e->getMessage(),
-					$duration
-				)
-			);
 		}
 
 		// Increment processed counter.
@@ -277,28 +224,10 @@ class PageSyncScheduler {
 				$total_duration += $page_result['duration'] ?? 0;
 			}
 
-			// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log -- Debug logging.
-			error_log(
-				sprintf(
-					'[PageSync] ═══ BATCH COMPLETE ═══ Batch %s: %d successful, %d failed (%.2fs total)',
-					substr( $batch_id, -8 ),
-					$batch['successful'],
-					$batch['failed'],
-					$total_duration
-				)
-			);
 
 			// Log individual results for debugging.
 			foreach ( $batch['results'] as $result_page_id => $result ) {
 				if ( ! $result['success'] ) {
-					// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log -- Debug logging.
-					error_log(
-						sprintf(
-							'[PageSync] Failed page %s: %s',
-							substr( $result_page_id, 0, 8 ),
-							$result['error']
-						)
-					);
 				}
 			}
 		}
@@ -407,8 +336,6 @@ class PageSyncScheduler {
 		$batch['completed_at'] = current_time( 'mysql' );
 		update_option( "notion_sync_page_batch_{$batch_id}", $batch, false );
 
-		// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log -- Debug logging.
-		error_log( "PageSyncScheduler: Cancelled batch {$batch_id}" );
 
 		return true;
 	}

@@ -180,15 +180,6 @@ class ImageDownloader {
 				$last_exception = $e;
 
 				// Log retry attempt.
-				error_log(
-					sprintf(
-						'ImageDownloader: Attempt %d/%d failed for %s: %s',
-						$attempt,
-						self::MAX_RETRIES,
-						$url,
-						$e->getMessage()
-					)
-				);
 
 				// Wait before retry (exponential backoff).
 				if ( $attempt < self::MAX_RETRIES ) {
@@ -330,13 +321,6 @@ class ImageDownloader {
 
 			if ( $converted_path ) {
 				// Conversion successful - use converted file.
-				error_log(
-					sprintf(
-						'ImageDownloader: Converted %s to PNG: %s',
-						$mime_type,
-						basename( $converted_path )
-					)
-				);
 
 				// Clean up original file.
 				wp_delete_file( $temp_path );
@@ -367,13 +351,6 @@ class ImageDownloader {
 					);
 				}
 
-				error_log(
-					sprintf(
-						'ImageDownloader: Failed to convert %s for URL %s - will link instead of download',
-						$mime_type,
-						$url
-					)
-				);
 
 				// Return special result indicating unsupported type.
 				return array(
@@ -534,7 +511,6 @@ class ImageDownloader {
 	private function convert_to_png( string $file_path, string $mime_type ): ?string {
 		// Check if Imagick extension is available.
 		if ( ! extension_loaded( 'imagick' ) ) {
-			error_log( 'ImageDownloader: Imagick extension not available for image conversion' );
 			return null;
 		}
 
@@ -558,25 +534,10 @@ class ImageDownloader {
 			$imagick->clear();
 			$imagick->destroy();
 
-			error_log(
-				sprintf(
-					'ImageDownloader: Successfully converted %s to PNG (%s → %s)',
-					$mime_type,
-					basename( $file_path ),
-					basename( $png_path )
-				)
-			);
 
 			return $png_path;
 
 		} catch ( \Exception $e ) {
-			error_log(
-				sprintf(
-					'ImageDownloader: Failed to convert %s to PNG: %s',
-					$mime_type,
-					$e->getMessage()
-				)
-			);
 			return null;
 		}
 	}

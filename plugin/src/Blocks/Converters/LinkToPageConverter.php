@@ -78,14 +78,6 @@ class LinkToPageConverter implements BlockConverterInterface {
 
 			if ( $db_post_id ) {
 				// Database is synced - create interactive database-view block.
-				// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log -- Debug logging.
-				error_log(
-					sprintf(
-						'[LinkToPageConverter] Database link found and synced, creating database-view block (Notion ID: %s, WP Post ID: %d)',
-						$normalized_id,
-						$db_post_id
-					)
-				);
 
 				return sprintf(
 					'<!-- wp:notion-wp/database-view ' .
@@ -95,13 +87,6 @@ class LinkToPageConverter implements BlockConverterInterface {
 			}
 
 			// Database not synced - continue with link fallback below.
-			// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log -- Debug logging.
-			error_log(
-				sprintf(
-					'[LinkToPageConverter] Database link not synced, creating text link (Notion ID: %s)',
-					$normalized_id
-				)
-			);
 		}
 
 		// Register link in registry (creates entry if doesn't exist).

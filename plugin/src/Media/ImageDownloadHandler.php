@@ -87,13 +87,6 @@ class ImageDownloadHandler {
 			// Check if already processed (deduplication).
 			if ( MediaRegistry::exists( $block_id ) ) {
 				$existing_id = MediaRegistry::find( $block_id );
-				error_log(
-					sprintf(
-						'[ImageDownloadHandler] Image already exists: block %s → attachment %d',
-						substr( $block_id, 0, 8 ),
-						$existing_id
-					)
-				);
 				return;
 			}
 
@@ -102,26 +95,12 @@ class ImageDownloadHandler {
 			$content_check = $downloader->check_content_type( $notion_url );
 
 			if ( $content_check['is_unsupported'] ) {
-				error_log(
-					sprintf(
-						'[ImageDownloadHandler] Unsupported content-type %s for block %s, skipping',
-						$content_check['content_type'],
-						substr( $block_id, 0, 8 )
-					)
-				);
 				// Register as unsupported so dynamic block knows to show Notion URL permanently.
 				MediaRegistry::register( $block_id, null, $notion_url, 'unsupported' );
 				return;
 			}
 
 			if ( ! $content_check['is_supported'] && $content_check['content_type'] ) {
-				error_log(
-					sprintf(
-						'[ImageDownloadHandler] Unknown content-type %s for block %s, attempting download anyway',
-						$content_check['content_type'],
-						substr( $block_id, 0, 8 )
-					)
-				);
 			}
 
 			// Download from Notion S3.
@@ -136,12 +115,6 @@ class ImageDownloadHandler {
 
 			// Check if image type is unsupported (e.g., TIFF).
 			if ( ! empty( $downloaded['unsupported'] ) ) {
-				error_log(
-					sprintf(
-						'[ImageDownloadHandler] Unsupported image type for block %s, skipping upload',
-						substr( $block_id, 0, 8 )
-					)
-				);
 				// Register as unsupported so dynamic block knows to show Notion URL permanently.
 				MediaRegistry::register( $block_id, null, $notion_url, 'unsupported' );
 				return;
@@ -161,23 +134,8 @@ class ImageDownloadHandler {
 			// Register in MediaRegistry (enables deduplication and dynamic block rendering).
 			MediaRegistry::register( $block_id, $attachment_id, $notion_url );
 
-			error_log(
-				sprintf(
-					'[ImageDownloadHandler] Successfully processed: block %s → attachment %d (post %d)',
-					substr( $block_id, 0, 8 ),
-					$attachment_id,
-					$wp_post_id
-				)
-			);
 
 		} catch ( \Exception $e ) {
-			error_log(
-				sprintf(
-					'[ImageDownloadHandler] Failed to process block %s: %s',
-					substr( $block_id, 0, 8 ),
-					$e->getMessage()
-				)
-			);
 
 			// Track error in MediaRegistry (but don't mark as 'failed' since Action Scheduler will retry).
 			global $wpdb;
@@ -241,12 +199,6 @@ class ImageDownloadHandler {
 
 		$block_id = $args[0];
 
-		error_log(
-			sprintf(
-				'[ImageDownloadHandler] Final failure for block %s after all retries exhausted',
-				substr( $block_id, 0, 8 )
-			)
-		);
 
 		// Update MediaRegistry to mark as failed so it's not stuck in processing state.
 		global $wpdb;

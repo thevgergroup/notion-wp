@@ -134,13 +134,6 @@ class MediaUploader {
 				$metadata         = $metadata_array[ $index ] ?? [];
 				$attachment_ids[] = $this->upload( $file_path, $metadata, $parent_post_id );
 			} catch ( \Exception $e ) {
-				error_log(
-					sprintf(
-						'MediaUploader: Failed to upload file %s: %s',
-						$file_path,
-						$e->getMessage()
-					)
-				);
 			}
 		}
 

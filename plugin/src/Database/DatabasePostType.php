@@ -95,16 +95,6 @@ class DatabasePostType {
 			$normalized_id  = str_replace( '-', '', $notion_database_id );
 
 			if ( $api_id !== $normalized_id ) {
-				// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log -- Debug logging.
-				error_log(
-					sprintf(
-						'[DatabasePostType] ID mismatch detected! Param: %s, API response: %s. ' .
-						'This may indicate you are trying to sync a child_database block ID ' .
-						'instead of the collection_id.',
-						$notion_database_id,
-						$database_info['id']
-					)
-				);
 				// Use the API-returned ID as the source of truth.
 				$notion_database_id = $api_id;
 			}
@@ -175,14 +165,6 @@ class DatabasePostType {
 			);
 		}
 
-		// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log -- Debug logging.
-		error_log(
-			sprintf(
-				'[DatabasePostType] Created database post %d for Notion database %s',
-				$post_id,
-				$notion_database_id
-			)
-		);
 
 		return $post_id;
 	}
