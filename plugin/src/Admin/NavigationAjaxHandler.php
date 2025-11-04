@@ -188,11 +188,7 @@ class NavigationAjaxHandler {
 				// Theme doesn't support menus - show alternative guidance.
 				$no_support_msg = sprintf(
 					/* translators: %s: URL to menu editor */
-					__(
-						'<a href="%s" target="_blank">View menu</a>. Note: Your theme does not support ' .
-						'menu locations, so you cannot assign this menu without additional theme configuration.',
-						'notion-sync'
-					),
+					__( '<a href="%s" target="_blank">View menu</a>. Note: Your theme does not support menu locations, so you cannot assign this menu without additional theme configuration.', 'notion-sync' ),
 					esc_url( $menus_url )
 				);
 				$success_parts[] = wp_kses(

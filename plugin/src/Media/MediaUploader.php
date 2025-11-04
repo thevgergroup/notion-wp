@@ -64,7 +64,7 @@ class MediaUploader {
 		}
 
 		// Clean up temporary file.
-		unlink( $file_path );
+		wp_delete_file( $file_path );
 
 		// Prepare attachment data.
 		$attachment_data = [

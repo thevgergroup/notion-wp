@@ -434,14 +434,10 @@ class NotionClient {
 				);
 
 			case 401:
-				$message  = 'Authentication failed. Please check that your API token is correct';
-				$message .= ' and has not been revoked.';
-				return __( $message, 'notion-sync' );
+				return __( 'Authentication failed. Please check that your API token is correct and has not been revoked.', 'notion-sync' );
 
 			case 403:
-				$message  = 'Access forbidden. Make sure you have shared your Notion pages';
-				$message .= ' with this integration.';
-				return __( $message, 'notion-sync' );
+				return __( 'Access forbidden. Make sure you have shared your Notion pages with this integration.', 'notion-sync' );
 
 			case 404:
 				return sprintf(
@@ -451,9 +447,7 @@ class NotionClient {
 				);
 
 			case 429:
-				$message  = 'Too many requests. Please wait a moment and try again.';
-				$message .= ' Notion has rate limits to ensure service stability.';
-				return __( $message, 'notion-sync' );
+				return __( 'Too many requests. Please wait a moment and try again. Notion has rate limits to ensure service stability.', 'notion-sync' );
 
 			case 500:
 			case 502:
