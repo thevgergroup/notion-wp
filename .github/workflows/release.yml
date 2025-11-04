@@ -82,11 +82,16 @@ jobs:
                   rm -f .eslintrc.js .eslintignore .eslintrc.json
                   rm -rf .github/
 
+                  # Remove build scripts (WordPress.org requirement)
+                  find assets/ -name "*.sh" -delete 2>/dev/null || true
+
                   # Remove hidden files (WordPress.org requirement)
                   find . -name ".gitignore" -delete
                   find . -name ".gitkeep" -delete
                   find . -name ".git*" -delete
                   find . -name ".editorconfig" -delete
+                  find . -name ".envrc" -delete
+                  find . -name ".*" -type f -delete 2>/dev/null || true
 
                   # Keep only production vendor files
                   find vendor/ -name "*.md" -delete
