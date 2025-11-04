@@ -4,7 +4,7 @@ Tags: notion, sync, database, import, gutenberg
 Requires at least: 6.0
 Tested up to: 6.8
 Requires PHP: 8.0
-Stable tag: 1.0.1
+Stable tag: 1.0.2
 License: GPL-3.0+
 License URI: https://www.gnu.org/licenses/gpl-3.0.html
 
@@ -259,6 +259,24 @@ Notion Sync works with any WordPress theme. We test with:
 6. Menu generation - WordPress navigation menus automatically generated from Notion page structure
 
 == Changelog ==
+
+= 1.0.2 - 2025-11-04 =
+
+**WordPress.org Automated Scan Fixes**
+
+This release resolves issues flagged by WordPress.org automated plugin scanning.
+
+*Fixes:*
+
+* **PHPCS False Positive** - Reworded user instructions to avoid triggering Generic.PHP.DiscourageGoto rule
+* **Composer.json Missing** - Include composer.json in release package for dependency verification
+
+*Technical Changes:*
+
+* Changed "To grant access" to "Share your pages" in settings template
+* Changed "To grant access" to "Grant access for" in database instructions
+* Release workflow now keeps composer.json (removes only composer.lock)
+* No functional changes or regressions
 
 = 1.0.1 - 2025-11-04 =
 
