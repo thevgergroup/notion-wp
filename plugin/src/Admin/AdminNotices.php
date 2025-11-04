@@ -38,14 +38,20 @@ class AdminNotices {
 		}
 
 		// Check for success message.
+		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Read-only display of redirect messages, no state change.
 		if ( isset( $_GET['notion_sync_success'] ) ) {
+			// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Read-only display of redirect messages, no state change.
 			$message = sanitize_text_field( wp_unslash( $_GET['notion_sync_success'] ) );
+			// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Read-only display of redirect messages, no state change.
 			$this->show_success( rawurldecode( $message ) );
 		}
 
 		// Check for error message.
+		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Read-only display of redirect messages, no state change.
 		if ( isset( $_GET['notion_sync_error'] ) ) {
+			// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Read-only display of redirect messages, no state change.
 			$message = sanitize_text_field( wp_unslash( $_GET['notion_sync_error'] ) );
+			// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Read-only display of redirect messages, no state change.
 			$this->show_error( rawurldecode( $message ) );
 		}
 	}

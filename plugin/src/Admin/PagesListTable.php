@@ -411,7 +411,7 @@ class PagesListTable extends \WP_List_Table {
 		}
 
 		// Check if any pages were selected.
-		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Nonce verified in SettingsPage.
+		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Fallback for JS-disabled browsers. Actual bulk sync uses AJAX with nonce verification in SyncAjaxHandler.
 		$page_ids = isset( $_REQUEST['notion_page'] ) ? array_map( 'sanitize_text_field', wp_unslash( (array) $_REQUEST['notion_page'] ) ) : array();
 
 		if ( empty( $page_ids ) ) {
@@ -442,7 +442,9 @@ class PagesListTable extends \WP_List_Table {
 			return;
 		}
 
+		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Filter parameter for list table display, read-only.
 		$current_filter = isset( $_GET['filter_status'] ) ?
+			// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Filter parameter for list table display, read-only.
 			sanitize_text_field( wp_unslash( $_GET['filter_status'] ) ) :
 			'';
 		?>
@@ -563,6 +565,7 @@ class PagesListTable extends \WP_List_Table {
 		);
 
 		// Apply status filter if requested.
+		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Filter parameter for list table display, read-only.
 		$filter_status = isset( $_GET['filter_status'] ) ? sanitize_text_field( wp_unslash( $_GET['filter_status'] ) ) : '';
 
 		if ( ! empty( $filter_status ) ) {
@@ -581,9 +584,13 @@ class PagesListTable extends \WP_List_Table {
 				}
 			);
 		}
+		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Sorting parameters for list table display, read-only.
 
+		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Sorting parameters for list table display, read-only.
 		// Apply sorting if requested.
+		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Sorting parameters for list table display, read-only.
 		$orderby = isset( $_GET['orderby'] ) ? sanitize_text_field( wp_unslash( $_GET['orderby'] ) ) : '';
+		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Sorting parameters for list table display, read-only.
 		$order   = isset( $_GET['order'] ) && 'desc' === strtolower( sanitize_text_field( wp_unslash( $_GET['order'] ) ) ) ?
 			'desc' :
 			'asc';

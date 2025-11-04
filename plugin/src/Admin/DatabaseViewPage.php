@@ -110,6 +110,7 @@ class DatabaseViewPage {
 		);
 
 		// Localize script with REST API data.
+		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Read-only parameter for determining which database to display.
 		$post_id = isset( $_GET['post_id'] ) ? absint( $_GET['post_id'] ) : 0;
 
 		wp_localize_script(
@@ -190,6 +191,7 @@ class DatabaseViewPage {
 		}
 
 		// Get database title if available.
+		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Read-only parameter for determining which database to display.
 		$post_id = isset( $_GET['post_id'] ) ? absint( $_GET['post_id'] ) : 0;
 		if ( $post_id ) {
 			$post = get_post( $post_id );
@@ -209,6 +211,7 @@ class DatabaseViewPage {
 	 */
 	public function render_page(): void {
 		// Get database post ID.
+		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Read-only parameter for determining which database to display.
 		$post_id = isset( $_GET['post_id'] ) ? absint( $_GET['post_id'] ) : 0;
 
 		if ( ! $post_id ) {

@@ -186,6 +186,7 @@ class SettingsPage {
 		$list_table      = null;
 		$databases_table = null;
 		$error_message   = '';
+		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Tab parameter for display only, no state change.
 		$current_tab     = isset( $_GET['tab'] ) ? sanitize_text_field( wp_unslash( $_GET['tab'] ) ) : 'pages';
 
 		// If connected, fetch workspace info.
@@ -523,6 +524,7 @@ class SettingsPage {
 		}
 
 		// Get and sanitize settings.
+		// phpcs:ignore WordPress.Security.NonceVerification.Missing -- Nonce verified on line 518.
 		$menu_enabled = isset( $_POST['notion_sync_menu_enabled'] ) && '1' === $_POST['notion_sync_menu_enabled'];
 		$menu_name    = isset( $_POST['notion_sync_menu_name'] ) ?
 			sanitize_text_field( wp_unslash( $_POST['notion_sync_menu_name'] ) ) :
