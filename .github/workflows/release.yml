@@ -75,7 +75,7 @@ jobs:
                   # Remove development files and directories
                   rm -rf tests/
                   rm -rf node_modules/
-                  rm -f composer.json composer.lock
+                  rm -f composer.lock
                   rm -f package.json package-lock.json
                   rm -f webpack.config.js
                   rm -f .phpcs.xml.dist phpunit.xml.dist

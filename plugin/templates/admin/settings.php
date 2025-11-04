@@ -164,7 +164,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 							<?php esc_html_e( 'No databases are currently accessible by this integration.', 'notion-sync' ); ?>
 						</p>
 						<p>
-							<?php esc_html_e( 'To grant access to your Notion databases:', 'notion-sync' ); ?>
+							<?php esc_html_e( 'Grant access for your Notion databases:', 'notion-sync' ); ?>
 						</p>
 						<ol style="margin-left: 20px; line-height: 1.8;">
 							<li><?php esc_html_e( 'Open a database in Notion', 'notion-sync' ); ?></li>
@@ -528,7 +528,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 					</p>
 
 					<p>
-						<?php esc_html_e( 'To grant access to your Notion pages:', 'notion-sync' ); ?>
+						<?php esc_html_e( 'Share your pages with this plugin:', 'notion-sync' ); ?>
 					</p>
 
 					<ol style="margin-left: 20px; line-height: 1.8;">
