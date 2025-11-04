@@ -74,12 +74,6 @@ class SyncLogSchema {
 		dbDelta( $sql );
 
 		// Log table creation.
-		error_log(
-			sprintf(
-				'[NotionSync] Sync log table created or updated: %s',
-				$table_name
-			)
-		);
 	}
 
 	/**
@@ -97,12 +91,6 @@ class SyncLogSchema {
 		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.DirectDatabaseQuery.SchemaChange, WordPress.DB.PreparedSQL.InterpolatedNotPrepared
 		$wpdb->query( "DROP TABLE IF EXISTS {$table_name}" );
 
-		error_log(
-			sprintf(
-				'[NotionSync] Sync log table dropped: %s',
-				$table_name
-			)
-		);
 	}
 
 	/**

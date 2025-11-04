@@ -136,15 +136,6 @@ class FileDownloader {
 				$last_exception = $e;
 
 				// Log retry attempt.
-				error_log(
-					sprintf(
-						'FileDownloader: Attempt %d/%d failed for %s: %s',
-						$attempt,
-						self::MAX_RETRIES,
-						$url,
-						$e->getMessage()
-					)
-				);
 
 				// Wait before retry (exponential backoff).
 				if ( $attempt < self::MAX_RETRIES ) {

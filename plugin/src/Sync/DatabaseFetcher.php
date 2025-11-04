@@ -408,14 +408,6 @@ class DatabaseFetcher {
 				// Log the error but don't fail the entire operation.
 				// Collection ID is optional for some operations.
 				if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
-					// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log -- Debug logging is intentional.
-					error_log(
-						sprintf(
-							'NotionSync: Failed to retrieve collection_id for database %s: %s',
-							$database_id,
-							$chunk_data['error']
-						)
-					);
 				}
 				return null;
 			}
@@ -435,27 +427,12 @@ class DatabaseFetcher {
 
 			// Collection ID not found in expected location.
 			if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
-				// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log -- Debug logging is intentional.
-				error_log(
-					sprintf(
-						'NotionSync: Collection ID not found in page chunk data for database %s',
-						$database_id
-					)
-				);
 			}
 			return null;
 
 		} catch ( \Exception $e ) {
 			// Log exception but don't fail the entire operation.
 			if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
-				// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log -- Debug logging is intentional.
-				error_log(
-					sprintf(
-						'NotionSync: Exception while extracting collection_id for database %s: %s',
-						$database_id,
-						$e->getMessage()
-					)
-				);
 			}
 			return null;
 		}

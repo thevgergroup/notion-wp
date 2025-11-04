@@ -53,21 +53,12 @@ class ContentFetcher {
 			$pages = $this->client->list_pages( $limit );
 
 			if ( ! is_array( $pages ) ) {
-		// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log -- Debug logging for development.
-				error_log( 'NotionSync: fetch_pages_list returned non-array response' );
 				return array();
 			}
 
 			return $pages;
 
 		} catch ( \Exception $e ) {
-		// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log -- Debug logging for development.
-			error_log(
-				sprintf(
-					'NotionSync: Failed to fetch pages list - %s',
-					$e->getMessage()
-				)
-			);
 			return array();
 		}
 	}
@@ -84,8 +75,6 @@ class ContentFetcher {
 	 */
 	public function fetch_page_properties( string $page_id ): array {
 		if ( empty( $page_id ) ) {
-		// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log -- Debug logging for development.
-			error_log( 'NotionSync: fetch_page_properties called with empty page_id' );
 			return array();
 		}
 
@@ -99,14 +88,6 @@ class ContentFetcher {
 			PerformanceLogger::stop( 'api_get_page' );
 
 			if ( isset( $response['error'] ) ) {
-		// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log -- Debug logging for development.
-				error_log(
-					sprintf(
-						'NotionSync: Failed to fetch page properties for %s - %s',
-						$page_id,
-						$response['error']
-					)
-				);
 				return array();
 			}
 
@@ -114,14 +95,6 @@ class ContentFetcher {
 			return $this->format_page_properties( $response );
 
 		} catch ( \Exception $e ) {
-		// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log -- Debug logging for development.
-			error_log(
-				sprintf(
-					'NotionSync: Exception fetching page properties for %s - %s',
-					$page_id,
-					$e->getMessage()
-				)
-			);
 			return array();
 		}
 	}
@@ -141,8 +114,6 @@ class ContentFetcher {
 	 */
 	public function fetch_page_blocks( string $page_id ): array {
 		if ( empty( $page_id ) ) {
-		// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log -- Debug logging for development.
-			error_log( 'NotionSync: fetch_page_blocks called with empty page_id' );
 			return array();
 		}
 
@@ -162,14 +133,6 @@ class ContentFetcher {
 
 				if ( empty( $batch_result ) || isset( $batch_result['error'] ) ) {
 					if ( isset( $batch_result['error'] ) ) {
-		// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log -- Debug logging for development.
-						error_log(
-							sprintf(
-								'NotionSync: Error fetching blocks batch for page %s - %s',
-								$page_id,
-								$batch_result['error']
-							)
-						);
 					}
 					break;
 				}
@@ -186,40 +149,16 @@ class ContentFetcher {
 			}
 
 			if ( $batch_count >= $max_batches && $has_more ) {
-		// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log -- Debug logging for development.
-				error_log(
-					sprintf(
-						'NotionSync: Reached maximum batch limit (%d) for page %s - some blocks may be missing',
-						$max_batches,
-						$page_id
-					)
-				);
 			}
 
 			// Phase 4: Recursively fetch children for blocks that have them.
 			$all_blocks = $this->fetch_children_for_blocks( $all_blocks );
 
 			// Log total blocks fetched.
-		// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log -- Debug logging.
-			error_log(
-				sprintf(
-					'[PERF] Fetched %d blocks for page %s',
-					count( $all_blocks ),
-					$page_id
-				)
-			);
 
 			return $all_blocks;
 
 		} catch ( \Exception $e ) {
-		// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log -- Debug logging for development.
-			error_log(
-				sprintf(
-					'NotionSync: Exception fetching blocks for page %s - %s',
-					$page_id,
-					$e->getMessage()
-				)
-			);
 			return array();
 		}
 	}
@@ -310,15 +249,6 @@ class ContentFetcher {
 			if ( ! empty( $children ) ) {
 				$block['children'] = $children;
 
-				// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log -- Debug logging.
-				error_log(
-					sprintf(
-						'[ContentFetcher] Fetched %d children for %s block %s',
-						count( $children ),
-						$block_type,
-						substr( $block_id, 0, 8 )
-					)
-				);
 			}
 		}
 

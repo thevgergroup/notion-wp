@@ -587,19 +587,13 @@ class LinkRegistry {
 		// This prevents URL-encoded emojis in slugs (e.g., %f0%9f%93%9d).
 		$title_without_emojis = $this->remove_emojis( $title );
 
-		// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log -- Debug logging.
-		error_log( sprintf( '[LinkRegistry] Slug generation - Original: "%s", After emoji removal: "%s"', $title, $title_without_emojis ) );
 
 		// Sanitize title to slug format.
 		$base_slug = sanitize_title( $title_without_emojis );
 
-		// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log -- Debug logging.
-		error_log( sprintf( '[LinkRegistry] Base slug: "%s"', $base_slug ) );
 
 		if ( empty( $base_slug ) ) {
 			// Title couldn't be converted to slug - use Notion ID.
-			// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log -- Debug logging.
-			error_log( '[LinkRegistry] Base slug empty, using Notion ID' );
 			$base_slug = $notion_id;
 		}
 

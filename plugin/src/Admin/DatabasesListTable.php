@@ -53,13 +53,13 @@ class DatabasesListTable extends \WP_List_Table {
 	 */
 	public function get_columns(): array {
 		return array(
-			'title'       => __( 'Database Title', 'notion-wp' ),
-			'notion_id'   => __( 'Notion ID', 'notion-wp' ),
-			'sync_status' => __( 'Status', 'notion-wp' ),
-			'entries'     => __( 'Entries', 'notion-wp' ),
-			'last_synced' => __( 'Last Synced', 'notion-wp' ),
-			'wp_post'     => __( 'WordPress Post', 'notion-wp' ),
-			'actions'     => __( 'Actions', 'notion-wp' ),
+			'title'       => __( 'Database Title', 'notion-sync' ),
+			'notion_id'   => __( 'Notion ID', 'notion-sync' ),
+			'sync_status' => __( 'Status', 'notion-sync' ),
+			'entries'     => __( 'Entries', 'notion-sync' ),
+			'last_synced' => __( 'Last Synced', 'notion-sync' ),
+			'wp_post'     => __( 'WordPress Post', 'notion-sync' ),
+			'actions'     => __( 'Actions', 'notion-sync' ),
 		);
 	}
 
@@ -91,22 +91,23 @@ class DatabasesListTable extends \WP_List_Table {
 			return;
 		}
 
+		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Filter parameter for list table display, read-only.
 		$current_filter = isset( $_GET['filter_status'] ) ? sanitize_text_field( wp_unslash( $_GET['filter_status'] ) ) : '';
 		?>
 		<div class="alignleft actions">
 			<label for="filter-status" class="screen-reader-text">
-				<?php esc_html_e( 'Filter by status', 'notion-wp' ); ?>
+				<?php esc_html_e( 'Filter by status', 'notion-sync' ); ?>
 			</label>
 			<select name="filter_status" id="filter-status">
-				<option value=""><?php esc_html_e( 'All Statuses', 'notion-wp' ); ?></option>
+				<option value=""><?php esc_html_e( 'All Statuses', 'notion-sync' ); ?></option>
 				<option value="synced" <?php selected( $current_filter, 'synced' ); ?>>
-					<?php esc_html_e( 'Synced', 'notion-wp' ); ?>
+					<?php esc_html_e( 'Synced', 'notion-sync' ); ?>
 				</option>
 				<option value="not_synced" <?php selected( $current_filter, 'not_synced' ); ?>>
-					<?php esc_html_e( 'Not Synced', 'notion-wp' ); ?>
+					<?php esc_html_e( 'Not Synced', 'notion-sync' ); ?>
 				</option>
 			</select>
-			<?php submit_button( __( 'Filter', 'notion-wp' ), 'button', 'filter_action', false ); ?>
+			<?php submit_button( __( 'Filter', 'notion-sync' ), 'button', 'filter_action', false ); ?>
 		</div>
 		<?php
 	}
@@ -179,6 +180,7 @@ class DatabasesListTable extends \WP_List_Table {
 			}
 
 			// Apply status filter if requested.
+			// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Filter parameter for list table display, read-only.
 			$filter_status = isset( $_GET['filter_status'] ) ? sanitize_text_field( wp_unslash( $_GET['filter_status'] ) ) : '';
 
 			if ( ! empty( $filter_status ) ) {
@@ -195,8 +197,11 @@ class DatabasesListTable extends \WP_List_Table {
 				);
 			}
 
+			// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Sorting parameters for list table display, read-only.
 			// Apply sorting if requested.
+			// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Sorting parameters for list table display, read-only.
 			$orderby = isset( $_GET['orderby'] ) ? sanitize_text_field( wp_unslash( $_GET['orderby'] ) ) : '';
+			// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Sorting parameters for list table display, read-only.
 			$order   = isset( $_GET['order'] ) && 'desc' === strtolower( sanitize_text_field( wp_unslash( $_GET['order'] ) ) ) ?
 				'desc' :
 				'asc';
@@ -209,8 +214,6 @@ class DatabasesListTable extends \WP_List_Table {
 
 		} catch ( \Exception $e ) {
 			$this->items = array();
-			// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log -- Debug logging for development.
-			error_log( 'NotionSync: Failed to fetch databases: ' . $e->getMessage() );
 		}
 	}
 
@@ -223,7 +226,7 @@ class DatabasesListTable extends \WP_List_Table {
 	public function column_title( $item ): string {
 		$title = sprintf(
 			'<strong>%s</strong>',
-			esc_html( $item['title'] ?? __( 'Untitled', 'notion-wp' ) )
+			esc_html( $item['title'] ?? __( 'Untitled', 'notion-sync' ) )
 		);
 
 		// Build row actions.
@@ -242,7 +245,7 @@ class DatabasesListTable extends \WP_List_Table {
 			$actions['view'] = sprintf(
 				'<a href="%s">%s</a>',
 				esc_url( $view_url ),
-				esc_html__( 'View', 'notion-wp' )
+				esc_html__( 'View', 'notion-sync' )
 			);
 		}
 
@@ -251,7 +254,7 @@ class DatabasesListTable extends \WP_List_Table {
 			$actions['notion'] = sprintf(
 				'<a href="%s" target="_blank" rel="noopener noreferrer">%s</a>',
 				esc_url( $item['url'] ),
-				esc_html__( 'Open in Notion', 'notion-wp' )
+				esc_html__( 'Open in Notion', 'notion-sync' )
 			);
 		}
 
@@ -280,7 +283,7 @@ class DatabasesListTable extends \WP_List_Table {
 					' style="color: #00a32a; font-size: 18px; width: 18px; height: 18px;"></span>' .
 				'</span>',
 				esc_attr( $item['id'] ),
-				esc_attr__( 'Synced - WordPress post is up-to-date', 'notion-wp' )
+				esc_attr__( 'Synced - WordPress post is up-to-date', 'notion-sync' )
 			);
 		} else {
 			return sprintf(
@@ -291,7 +294,7 @@ class DatabasesListTable extends \WP_List_Table {
 					' style="color: #8c8f94; font-size: 18px; width: 18px; height: 18px;"></span>' .
 				'</span>',
 				esc_attr( $item['id'] ),
-				esc_attr__( 'Not Synced - This database has not been synced yet', 'notion-wp' )
+				esc_attr__( 'Not Synced - This database has not been synced yet', 'notion-sync' )
 			);
 		}
 	}
@@ -323,7 +326,7 @@ class DatabasesListTable extends \WP_List_Table {
 			);
 		}
 
-		return '<em>' . esc_html__( 'Unknown', 'notion-wp' ) . '</em>';
+		return '<em>' . esc_html__( 'Unknown', 'notion-sync' ) . '</em>';
 	}
 
 	/**
@@ -341,7 +344,7 @@ class DatabasesListTable extends \WP_List_Table {
 			);
 		}
 
-		return '<em>' . esc_html__( 'Never', 'notion-wp' ) . '</em>';
+		return '<em>' . esc_html__( 'Never', 'notion-sync' ) . '</em>';
 	}
 
 	/**
@@ -370,7 +373,7 @@ class DatabasesListTable extends \WP_List_Table {
 			);
 		}
 
-		return '<em>' . esc_html__( 'Not synced yet', 'notion-wp' ) . '</em>';
+		return '<em>' . esc_html__( 'Not synced yet', 'notion-sync' ) . '</em>';
 	}
 
 	/**
@@ -383,8 +386,8 @@ class DatabasesListTable extends \WP_List_Table {
 		$has_synced = ! empty( $item['wp_post_id'] );
 
 		$button_text = $has_synced
-			? __( 'Re-sync', 'notion-wp' )
-			: __( 'Sync Now', 'notion-wp' );
+			? __( 'Re-sync', 'notion-sync' )
+			: __( 'Sync Now', 'notion-sync' );
 
 		return sprintf(
 			'<button type="button" class="button button-small sync-database" data-database-id="%s">%s</button>',
@@ -476,7 +479,7 @@ class DatabasesListTable extends \WP_List_Table {
 			?>
 			<div class="notice notice-info inline">
 				<p>
-					<?php esc_html_e( 'No databases found. Make sure you have shared databases with your Notion integration.', 'notion-wp' ); ?>
+					<?php esc_html_e( 'No databases found. Make sure you have shared databases with your Notion integration.', 'notion-sync' ); ?>
 				</p>
 			</div>
 			<?php

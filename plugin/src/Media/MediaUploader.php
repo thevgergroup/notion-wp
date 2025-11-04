@@ -64,7 +64,7 @@ class MediaUploader {
 		}
 
 		// Clean up temporary file.
-		unlink( $file_path );
+		wp_delete_file( $file_path );
 
 		// Prepare attachment data.
 		$attachment_data = [
@@ -134,13 +134,6 @@ class MediaUploader {
 				$metadata         = $metadata_array[ $index ] ?? [];
 				$attachment_ids[] = $this->upload( $file_path, $metadata, $parent_post_id );
 			} catch ( \Exception $e ) {
-				error_log(
-					sprintf(
-						'MediaUploader: Failed to upload file %s: %s',
-						$file_path,
-						$e->getMessage()
-					)
-				);
 			}
 		}
 

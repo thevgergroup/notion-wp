@@ -104,13 +104,6 @@ class FileConverter implements BlockConverterInterface {
 			return $this->handle_notion_file( $file_data, $block_id );
 
 		} catch ( \Exception $e ) {
-			error_log(
-				sprintf(
-					'FileConverter: Failed to convert file block %s: %s',
-					$block_id,
-					$e->getMessage()
-				)
-			);
 			return $this->generate_placeholder( 'File conversion failed: ' . $e->getMessage() );
 		}
 	}
@@ -138,7 +131,6 @@ class FileConverter implements BlockConverterInterface {
 
 		// Check if we need to re-upload (file changed in Notion).
 		if ( $attachment_id && MediaRegistry::needs_reupload( $block_id, $notion_url ) ) {
-			error_log( "FileConverter: File changed in Notion, re-uploading block {$block_id}" );
 			$attachment_id = null;
 		}
 

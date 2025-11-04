@@ -38,14 +38,14 @@ class DatabasePostType {
 			self::POST_TYPE,
 			array(
 				'labels'             => array(
-					'name'          => __( 'Notion Databases', 'notion-wp' ),
-					'singular_name' => __( 'Notion Database', 'notion-wp' ),
-					'add_new'       => __( 'Add New', 'notion-wp' ),
-					'add_new_item'  => __( 'Add New Database', 'notion-wp' ),
-					'edit_item'     => __( 'Edit Database', 'notion-wp' ),
-					'view_item'     => __( 'View Database', 'notion-wp' ),
-					'all_items'     => __( 'All Databases', 'notion-wp' ),
-					'search_items'  => __( 'Search Databases', 'notion-wp' ),
+					'name'          => __( 'Notion Databases', 'notion-sync' ),
+					'singular_name' => __( 'Notion Database', 'notion-sync' ),
+					'add_new'       => __( 'Add New', 'notion-sync' ),
+					'add_new_item'  => __( 'Add New Database', 'notion-sync' ),
+					'edit_item'     => __( 'Edit Database', 'notion-sync' ),
+					'view_item'     => __( 'View Database', 'notion-sync' ),
+					'all_items'     => __( 'All Databases', 'notion-sync' ),
+					'search_items'  => __( 'Search Databases', 'notion-sync' ),
 				),
 				'public'             => true,
 				'publicly_queryable' => true,
@@ -95,16 +95,6 @@ class DatabasePostType {
 			$normalized_id  = str_replace( '-', '', $notion_database_id );
 
 			if ( $api_id !== $normalized_id ) {
-				// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log -- Debug logging.
-				error_log(
-					sprintf(
-						'[DatabasePostType] ID mismatch detected! Param: %s, API response: %s. ' .
-						'This may indicate you are trying to sync a child_database block ID ' .
-						'instead of the collection_id.',
-						$notion_database_id,
-						$database_info['id']
-					)
-				);
 				// Use the API-returned ID as the source of truth.
 				$notion_database_id = $api_id;
 			}
@@ -175,14 +165,6 @@ class DatabasePostType {
 			);
 		}
 
-		// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log -- Debug logging.
-		error_log(
-			sprintf(
-				'[DatabasePostType] Created database post %d for Notion database %s',
-				$post_id,
-				$notion_database_id
-			)
-		);
 
 		return $post_id;
 	}

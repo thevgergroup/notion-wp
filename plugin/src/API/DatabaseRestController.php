@@ -552,7 +552,7 @@ class DatabaseRestController {
 		// Check user capabilities.
 		if ( ! current_user_can( 'manage_options' ) ) {
 			wp_send_json_error(
-				array( 'message' => __( 'Insufficient permissions.', 'notion-wp' ) ),
+				array( 'message' => __( 'Insufficient permissions.', 'notion-sync' ) ),
 				403
 			);
 		}
@@ -562,7 +562,7 @@ class DatabaseRestController {
 
 		if ( ! $post_id ) {
 			wp_send_json_error(
-				array( 'message' => __( 'Invalid post ID.', 'notion-wp' ) ),
+				array( 'message' => __( 'Invalid post ID.', 'notion-sync' ) ),
 				400
 			);
 		}
@@ -571,7 +571,7 @@ class DatabaseRestController {
 		$this->invalidate_database_cache( $post_id );
 
 		wp_send_json_success(
-			array( 'message' => __( 'Cache cleared successfully.', 'notion-wp' ) )
+			array( 'message' => __( 'Cache cleared successfully.', 'notion-sync' ) )
 		);
 	}
 
@@ -652,7 +652,6 @@ class DatabaseRestController {
 
 		// Log cache invalidation in debug mode.
 		if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
-			error_log( sprintf( '[NotionWP Cache] Invalidated cache for database post ID: %d', $post_id ) );
 		}
 	}
 
@@ -676,14 +675,12 @@ class DatabaseRestController {
 		if ( false !== $cached ) {
 			// Cache hit - log if debugging.
 			if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
-				error_log( sprintf( '[NotionWP Cache] HIT: %s', $cache_key ) );
 			}
 			return array( $cached, true );
 		}
 
 		// Cache miss - execute callback.
 		if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
-			error_log( sprintf( '[NotionWP Cache] MISS: %s', $cache_key ) );
 		}
 
 		$data = $callback();
@@ -693,7 +690,6 @@ class DatabaseRestController {
 		if ( $data_size <= self::MAX_CACHE_SIZE ) {
 			set_transient( $cache_key, $data, $ttl );
 		} elseif ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
-			error_log( sprintf( '[NotionWP Cache] Data too large to cache (%d bytes): %s', $data_size, $cache_key ) );
 		}
 
 		return array( $data, false );

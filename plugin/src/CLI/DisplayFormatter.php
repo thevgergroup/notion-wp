@@ -77,8 +77,6 @@ class DisplayFormatter {
 					return $parent_title;
 				}
 			} catch ( \Exception $e ) {
-				// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log -- Debug logging.
-				error_log( 'Failed to resolve parent title: ' . $e->getMessage() );
 				return 'page_id';
 			}
 		}

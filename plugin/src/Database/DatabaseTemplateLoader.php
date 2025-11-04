@@ -70,27 +70,27 @@ class DatabaseTemplateLoader {
 			return;
 		}
 
-		// Enqueue Tabulator CSS.
+		// Enqueue Tabulator CSS (bundled locally for WordPress.org compliance).
 		wp_enqueue_style(
 			'tabulator',
-			'https://unpkg.com/tabulator-tables@6.3.0/dist/css/tabulator.min.css',
+			NOTION_SYNC_URL . 'assets/vendor/tabulator/tabulator.min.css',
 			array(),
 			'6.3.0'
 		);
 
-		// Enqueue Luxon.js (required for datetime sorting).
+		// Enqueue Luxon.js (bundled locally - required for datetime sorting).
 		wp_enqueue_script(
 			'luxon',
-			'https://cdn.jsdelivr.net/npm/luxon@3.4.4/build/global/luxon.min.js',
+			NOTION_SYNC_URL . 'assets/vendor/tabulator/luxon.min.js',
 			array(),
 			'3.4.4',
 			true
 		);
 
-		// Enqueue Tabulator JS (depends on luxon for datetime sorting).
+		// Enqueue Tabulator JS (bundled locally - depends on luxon for datetime sorting).
 		wp_enqueue_script(
 			'tabulator',
-			'https://unpkg.com/tabulator-tables@6.3.0/dist/js/tabulator.min.js',
+			NOTION_SYNC_URL . 'assets/vendor/tabulator/tabulator.min.js',
 			array( 'luxon' ),
 			'6.3.0',
 			true
@@ -116,12 +116,12 @@ class DatabaseTemplateLoader {
 				'nonce'   => wp_create_nonce( 'wp_rest' ),
 				'postId'  => $post_id,
 				'i18n'    => array(
-					'loading'      => __( 'Loading database...', 'notion-wp' ),
-					'error'        => __( 'Error loading database', 'notion-wp' ),
-					'noData'       => __( 'No rows found', 'notion-wp' ),
-					'exportCsv'    => __( 'Export CSV', 'notion-wp' ),
-					'exportJson'   => __( 'Export JSON', 'notion-wp' ),
-					'resetFilters' => __( 'Reset Filters', 'notion-wp' ),
+					'loading'      => __( 'Loading database...', 'notion-sync' ),
+					'error'        => __( 'Error loading database', 'notion-sync' ),
+					'noData'       => __( 'No rows found', 'notion-sync' ),
+					'exportCsv'    => __( 'Export CSV', 'notion-sync' ),
+					'exportJson'   => __( 'Export JSON', 'notion-sync' ),
+					'resetFilters' => __( 'Reset Filters', 'notion-sync' ),
 				),
 			)
 		);

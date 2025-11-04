@@ -38,14 +38,20 @@ class AdminNotices {
 		}
 
 		// Check for success message.
+		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Read-only display of redirect messages, no state change.
 		if ( isset( $_GET['notion_sync_success'] ) ) {
+			// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Read-only display of redirect messages, no state change.
 			$message = sanitize_text_field( wp_unslash( $_GET['notion_sync_success'] ) );
+			// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Read-only display of redirect messages, no state change.
 			$this->show_success( rawurldecode( $message ) );
 		}
 
 		// Check for error message.
+		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Read-only display of redirect messages, no state change.
 		if ( isset( $_GET['notion_sync_error'] ) ) {
+			// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Read-only display of redirect messages, no state change.
 			$message = sanitize_text_field( wp_unslash( $_GET['notion_sync_error'] ) );
+			// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Read-only display of redirect messages, no state change.
 			$this->show_error( rawurldecode( $message ) );
 		}
 	}
@@ -63,7 +69,7 @@ class AdminNotices {
 
 		printf(
 			'<div class="notice notice-success is-dismissible"><p><strong>%s</strong> %s</p></div>',
-			esc_html__( 'Success:', 'notion-wp' ),
+			esc_html__( 'Success:', 'notion-sync' ),
 			esc_html( $message )
 		);
 	}
@@ -81,7 +87,7 @@ class AdminNotices {
 
 		printf(
 			'<div class="notice notice-error is-dismissible"><p><strong>%s</strong> %s</p></div>',
-			esc_html__( 'Error:', 'notion-wp' ),
+			esc_html__( 'Error:', 'notion-sync' ),
 			esc_html( $message )
 		);
 	}

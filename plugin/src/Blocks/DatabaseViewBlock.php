@@ -205,8 +205,6 @@ class DatabaseViewBlock {
 			)
 		);
 
-		// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log -- Debug logging.
-		error_log( '[DatabaseViewBlock] Block registered: ' . self::FULL_BLOCK_NAME );
 	}
 
 	/**
@@ -229,8 +227,6 @@ class DatabaseViewBlock {
 		$show_export  = $attributes['showExport'] ?? true;
 		$page_size    = $attributes['pageSize'] ?? 50;
 
-		// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log -- Debug logging.
-		error_log( sprintf( '[DatabaseViewBlock] Rendering block for database ID: %d', $database_id ) );
 
 		// Validate database ID.
 		if ( 0 === $database_id || 'notion_database' !== get_post_type( $database_id ) ) {
@@ -287,18 +283,18 @@ class DatabaseViewBlock {
 	 * @return void
 	 */
 	private function enqueue_frontend_assets(): void {
-		// Enqueue Tabulator CSS (from CDN).
+		// Enqueue Tabulator CSS (bundled locally for WordPress.org compliance).
 		wp_enqueue_style(
 			'tabulator',
-			'https://unpkg.com/tabulator-tables@6.3.0/dist/css/tabulator.min.css',
+			NOTION_SYNC_URL . 'assets/vendor/tabulator/tabulator.min.css',
 			array(),
 			'6.3.0'
 		);
 
-		// Enqueue Tabulator JS (from CDN).
+		// Enqueue Tabulator JS (bundled locally for WordPress.org compliance).
 		wp_enqueue_script(
 			'tabulator',
-			'https://unpkg.com/tabulator-tables@6.3.0/dist/js/tabulator.min.js',
+			NOTION_SYNC_URL . 'assets/vendor/tabulator/tabulator.min.js',
 			array(),
 			'6.3.0',
 			true

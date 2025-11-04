@@ -89,16 +89,12 @@ class BatchProcessor {
 			);
 		}
 
-		// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log -- Debug logging.
-		error_log( 'BatchProcessor: Starting queue_database_sync for database: ' . $database_id );
 
 		// Fetch database schema first to validate the ID and get metadata.
 		// This will throw an exception if the database_id is invalid (e.g., a block ID).
 		try {
 			$database_info = $this->fetcher->get_database_schema( $database_id );
 		} catch ( \Exception $e ) {
-			// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log -- Debug logging.
-			error_log( 'BatchProcessor: Failed to fetch database schema: ' . $e->getMessage() );
 			throw new \RuntimeException(
 				sprintf(
 					'Failed to fetch database schema for ID %s. ' .
@@ -116,8 +112,6 @@ class BatchProcessor {
 		try {
 			$entries = $this->fetcher->query_database( $database_id );
 		} catch ( \Exception $e ) {
-			// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log -- Debug logging.
-			error_log( 'BatchProcessor: Failed to query database: ' . $e->getMessage() );
 			throw new \RuntimeException(
 				sprintf(
 					'Failed to query database %s. Error: %s',
@@ -133,15 +127,11 @@ class BatchProcessor {
 			throw new \RuntimeException( 'No entries found in database' );
 		}
 
-		// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log -- Debug logging.
-		error_log( 'BatchProcessor: Fetched ' . count( $entries ) . ' entries from database' );
 
 		// Find or create database post.
 		$database_cpt  = new DatabasePostType();
 		$post_id       = $database_cpt->find_or_create( $database_id, $database_info );
 
-		// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log -- Debug logging.
-		error_log( 'BatchProcessor: Database post ID: ' . $post_id );
 
 		// Register/update database link in registry.
 		// This enables /notion/{slug} URLs to redirect to the database viewer.
@@ -160,14 +150,10 @@ class BatchProcessor {
 		// Generate unique batch ID.
 		$batch_id = 'batch_' . substr( md5( $database_id . time() ), 0, 10 );
 
-		// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log -- Debug logging.
-		error_log( 'BatchProcessor: Generated batch ID: ' . $batch_id );
 
 		// Split entries into batches.
 		$batches = array_chunk( $entries, self::BATCH_SIZE );
 
-		// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log -- Debug logging.
-		error_log( 'BatchProcessor: Split into ' . count( $batches ) . ' batches of size ' . self::BATCH_SIZE );
 
 		// Save batch metadata first.
 		update_option(
@@ -192,27 +178,9 @@ class BatchProcessor {
 			// Store batch entries in wp_options.
 			update_option( $batch_key, $batch, false );
 
-			// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log -- Debug logging.
-			error_log(
-				sprintf(
-					'BatchProcessor: Stored %d entries in %s',
-					count( $batch ),
-					$batch_key
-				)
-			);
 
 			$scheduled_time = time() + ( $index * 3 );
 
-			// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log -- Debug logging.
-			error_log(
-				sprintf(
-					'BatchProcessor: Scheduling batch %d/%d for time %s (in %d seconds)',
-					$index + 1,
-					count( $batches ),
-					gmdate( 'Y-m-d H:i:s', $scheduled_time ),
-					$index * 3
-				)
-			);
 
 			// Only pass minimal data to Action Scheduler (not the full entries array).
 			$action_id = as_schedule_single_action(
@@ -226,8 +194,6 @@ class BatchProcessor {
 				)
 			);
 
-			// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log -- Debug logging.
-			error_log( 'BatchProcessor: Scheduled action returned ID: ' . var_export( $action_id, true ) );
 		}
 
 		return $batch_id;
@@ -256,24 +222,9 @@ class BatchProcessor {
 		$entries   = get_option( $batch_key, array() );
 
 		if ( empty( $entries ) ) {
-			// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log -- Debug logging.
-			error_log(
-				sprintf(
-					'BatchProcessor: No entries found for %s',
-					$batch_key
-				)
-			);
 			return;
 		}
 
-		// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log -- Debug logging.
-		error_log(
-			sprintf(
-				'BatchProcessor: Retrieved %d entries from %s',
-				count( $entries ),
-				$batch_key
-			)
-		);
 
 		// Update status to processing.
 		$this->update_batch_status( $batch_id, 'processing' );
@@ -307,15 +258,6 @@ class BatchProcessor {
 
 			} catch ( \Exception $e ) {
 				++$failed;
-				// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log -- Debug logging for batch processing.
-				error_log(
-					sprintf(
-						'Batch %s: Failed to sync entry %s: %s',
-						$batch_id,
-						$entry['id'] ?? 'unknown',
-						$e->getMessage()
-					)
-				);
 			}
 		}
 
@@ -325,13 +267,6 @@ class BatchProcessor {
 		// Clean up batch data after processing.
 		delete_option( $batch_key );
 
-		// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log -- Debug logging.
-		error_log(
-			sprintf(
-				'BatchProcessor: Cleaned up batch data for %s',
-				$batch_key
-			)
-		);
 
 		// If this is the last batch, mark as complete.
 		if ( $batch_number === $total_batches ) {

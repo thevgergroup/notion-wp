@@ -94,7 +94,6 @@ class MediaRegistry {
 
 		// Verify attachment exists if attachment_id provided.
 		if ( null !== $attachment_id && ! get_post( $attachment_id ) ) {
-			error_log( "MediaRegistry: Attachment ID {$attachment_id} does not exist" );
 			return false;
 		}
 
@@ -111,14 +110,6 @@ class MediaRegistry {
 		);
 
 		if ( false === $result ) {
-			error_log(
-				sprintf(
-					'MediaRegistry: Failed to register %s → %s: %s',
-					$notion_identifier,
-					$attachment_id ? $attachment_id : 'null',
-					$wpdb->last_error
-				)
-			);
 			return false;
 		}
 
@@ -273,7 +264,6 @@ class MediaRegistry {
 
 		// Verify attachment exists if provided.
 		if ( null !== $attachment_id && ! get_post( $attachment_id ) ) {
-			error_log( "MediaRegistry: Attachment ID {$attachment_id} does not exist" );
 			return false;
 		}
 
@@ -291,13 +281,6 @@ class MediaRegistry {
 		);
 
 		if ( false === $result ) {
-			error_log(
-				sprintf(
-					'MediaRegistry: Failed to update %s: %s',
-					$notion_identifier,
-					$wpdb->last_error
-				)
-			);
 			return false;
 		}
 

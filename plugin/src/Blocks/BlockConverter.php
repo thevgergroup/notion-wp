@@ -158,12 +158,6 @@ class BlockConverter {
 		}
 
 		// Log block type summary.
-		error_log(
-			sprintf(
-				'[PERF] Block type distribution: %s',
-				wp_json_encode( $block_type_counts )
-			)
-		);
 
 		return $gutenberg_content;
 	}
@@ -203,13 +197,6 @@ class BlockConverter {
 		$block_type = $notion_block['type'] ?? 'unknown';
 		$block_id   = $notion_block['id'] ?? 'no-id';
 
-		error_log(
-			sprintf(
-				'[NotionSync] Unsupported block type: %s (ID: %s)',
-				$block_type,
-				$block_id
-			)
-		);
 	}
 
 	/**

@@ -56,8 +56,6 @@ class ChildDatabaseConverter implements BlockConverterInterface {
 
 		if ( empty( $database_id ) ) {
 			// Cannot create link without database ID.
-			// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log -- Debug logging.
-			error_log( '[ChildDatabaseConverter] No database ID provided' );
 			return sprintf(
 				"<!-- wp:paragraph -->\n<p><strong>📊 Database: %s</strong></p>\n<!-- /wp:paragraph -->\n\n",
 				esc_html( $title )
@@ -67,15 +65,11 @@ class ChildDatabaseConverter implements BlockConverterInterface {
 		// Normalize database ID (remove dashes).
 		$normalized_id = str_replace( '-', '', $database_id );
 
-		// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log -- Debug logging.
-		error_log( sprintf( '[ChildDatabaseConverter] Processing child database: %s (ID: %s)', $title, $normalized_id ) );
 
 		// Try to find parent database via loadCachedPageChunkV2 API.
 		$wp_database_id = $this->find_parent_database( $database_id );
 
 		if ( $wp_database_id ) {
-			// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log -- Debug logging.
-			error_log( sprintf( '[ChildDatabaseConverter] Found parent database: WP Post ID %d', $wp_database_id ) );
 
 			// Create database-view block.
 			return sprintf(
@@ -85,8 +79,6 @@ class ChildDatabaseConverter implements BlockConverterInterface {
 		}
 
 		// Fallback: Parent database not found, create notion-link block.
-		// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log -- Debug logging.
-		error_log( sprintf( '[ChildDatabaseConverter] Parent database not found, creating notion-link fallback for: %s', $title ) );
 
 		// Use LinkRewriter to get the /notion/{slug} URL.
 		// This automatically registers the link in LinkRegistry.
@@ -132,23 +124,17 @@ class ChildDatabaseConverter implements BlockConverterInterface {
 			// Get Notion API client.
 			$client = $this->get_notion_client();
 			if ( ! $client ) {
-				// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log -- Debug logging.
-				error_log( '[ChildDatabaseConverter] Failed to initialize Notion client' );
 				return null;
 			}
 
 			// Format ID with dashes for API call.
 			$formatted_id = $this->format_id_with_dashes( $child_database_id );
 
-			// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log -- Debug logging.
-			error_log( sprintf( '[ChildDatabaseConverter] Querying page chunk API for: %s', $formatted_id ) );
 
 			// Query the loadCachedPageChunkV2 API.
 			$chunk_data = $client->load_page_chunk( $formatted_id );
 
 			if ( isset( $chunk_data['error'] ) ) {
-				// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log -- Debug logging.
-				error_log( sprintf( '[ChildDatabaseConverter] Page chunk API error: %s', $chunk_data['error'] ) );
 				return null;
 			}
 
@@ -156,20 +142,14 @@ class ChildDatabaseConverter implements BlockConverterInterface {
 			$collection_id = $this->extract_collection_id( $chunk_data, $formatted_id );
 
 			if ( ! $collection_id ) {
-				// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log -- Debug logging.
-				error_log( '[ChildDatabaseConverter] Could not extract collection_id from page chunk response' );
 				return null;
 			}
 
-			// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log -- Debug logging.
-			error_log( sprintf( '[ChildDatabaseConverter] Extracted collection_id: %s', $collection_id ) );
 
 			// Look up WordPress database post by collection_id.
 			return $this->lookup_database_by_collection_id( $collection_id );
 
 		} catch ( \Exception $e ) {
-			// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log -- Debug logging.
-			error_log( sprintf( '[ChildDatabaseConverter] Exception during parent database lookup: %s', $e->getMessage() ) );
 			return null;
 		}
 	}
@@ -188,8 +168,6 @@ class ChildDatabaseConverter implements BlockConverterInterface {
 		$encrypted_token = get_option( 'notion_wp_token' );
 
 		if ( empty( $encrypted_token ) ) {
-			// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log -- Debug logging.
-			error_log( '[ChildDatabaseConverter] Notion API token not configured' );
 			return null;
 		}
 
@@ -197,15 +175,11 @@ class ChildDatabaseConverter implements BlockConverterInterface {
 			$token = \NotionSync\Security\Encryption::decrypt( $encrypted_token );
 
 			if ( empty( $token ) ) {
-				// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log -- Debug logging.
-				error_log( '[ChildDatabaseConverter] Failed to decrypt Notion API token' );
 				return null;
 			}
 
 			return new \NotionSync\API\NotionClient( $token );
 		} catch ( \Exception $e ) {
-			// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log -- Debug logging.
-			error_log( sprintf( '[ChildDatabaseConverter] Exception creating Notion client: %s', $e->getMessage() ) );
 			return null;
 		}
 	}
@@ -249,8 +223,6 @@ class ChildDatabaseConverter implements BlockConverterInterface {
 	private function extract_collection_id( array $chunk_data, string $formatted_id ): ?string {
 		// Validate response structure.
 		if ( ! isset( $chunk_data['recordMap'] ) ) {
-			// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log -- Debug logging.
-			error_log( '[ChildDatabaseConverter] Missing recordMap in page chunk response' );
 			return null;
 		}
 
@@ -258,8 +230,6 @@ class ChildDatabaseConverter implements BlockConverterInterface {
 
 		// Get the block data.
 		if ( ! isset( $record_map['block'][ $formatted_id ]['value'] ) ) {
-			// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log -- Debug logging.
-			error_log( sprintf( '[ChildDatabaseConverter] Block %s not found in response', $formatted_id ) );
 			return null;
 		}
 
@@ -267,8 +237,6 @@ class ChildDatabaseConverter implements BlockConverterInterface {
 
 		// Get view IDs.
 		if ( ! isset( $block_data['view_ids'] ) || empty( $block_data['view_ids'] ) ) {
-			// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log -- Debug logging.
-			error_log( '[ChildDatabaseConverter] No view_ids found in block data' );
 			return null;
 		}
 
@@ -276,8 +244,6 @@ class ChildDatabaseConverter implements BlockConverterInterface {
 
 		// Get collection view data.
 		if ( ! isset( $record_map['collection_view'][ $view_id ]['value'] ) ) {
-			// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log -- Debug logging.
-			error_log( sprintf( '[ChildDatabaseConverter] Collection view %s not found in response', $view_id ) );
 			return null;
 		}
 
@@ -285,8 +251,6 @@ class ChildDatabaseConverter implements BlockConverterInterface {
 
 		// Get collection pointer.
 		if ( ! isset( $collection_view['format']['collection_pointer']['id'] ) ) {
-			// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log -- Debug logging.
-			error_log( '[ChildDatabaseConverter] No collection_pointer found in view data' );
 			return null;
 		}
 
@@ -324,8 +288,6 @@ class ChildDatabaseConverter implements BlockConverterInterface {
 			return (int) $post_id;
 		}
 
-		// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log -- Debug logging.
-		error_log( sprintf( '[ChildDatabaseConverter] No WordPress database found with collection_id: %s', $collection_id ) );
 		return null;
 	}
 }

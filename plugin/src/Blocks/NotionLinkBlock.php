@@ -151,8 +151,6 @@ class NotionLinkBlock {
 			)
 		);
 
-		// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log -- Debug logging.
-		error_log( '[NotionLinkBlock] Block registered: ' . self::FULL_BLOCK_NAME );
 	}
 
 	/**
@@ -172,8 +170,6 @@ class NotionLinkBlock {
 
 		$notion_id = $attributes['notionId'] ?? '';
 
-		// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log -- Debug logging.
-		error_log( sprintf( '[NotionLinkBlock] Rendering block for Notion ID: %s', $notion_id ) );
 
 		if ( empty( $notion_id ) ) {
 			// No Notion ID - show placeholder for logged-in users.

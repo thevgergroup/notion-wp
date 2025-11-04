@@ -41,8 +41,8 @@ class DatabaseViewPage {
 	public function add_admin_page(): void {
 		add_submenu_page(
 			'notion-sync', // Parent page slug (Notion Sync main page).
-			__( 'View Database', 'notion-wp' ),
-			__( 'View Database', 'notion-wp' ),
+			__( 'View Database', 'notion-sync' ),
+			__( 'View Database', 'notion-sync' ),
 			'manage_options',
 			'notion-sync-view-database',
 			array( $this, 'render_page' )
@@ -74,27 +74,27 @@ class DatabaseViewPage {
 			return;
 		}
 
-		// Enqueue Tabulator CSS.
+		// Enqueue Tabulator CSS (bundled locally for WordPress.org compliance).
 		wp_enqueue_style(
 			'tabulator',
-			'https://unpkg.com/tabulator-tables@6.3.0/dist/css/tabulator.min.css',
+			NOTION_SYNC_URL . 'assets/vendor/tabulator/tabulator.min.css',
 			array(),
 			'6.3.0'
 		);
 
-		// Enqueue Luxon.js (required for datetime sorting).
+		// Enqueue Luxon.js (bundled locally - required for datetime sorting).
 		wp_enqueue_script(
 			'luxon',
-			'https://cdn.jsdelivr.net/npm/luxon@3.4.4/build/global/luxon.min.js',
+			NOTION_SYNC_URL . 'assets/vendor/tabulator/luxon.min.js',
 			array(),
 			'3.4.4',
 			true
 		);
 
-		// Enqueue Tabulator JS (depends on luxon for datetime sorting).
+		// Enqueue Tabulator JS (bundled locally - depends on luxon for datetime sorting).
 		wp_enqueue_script(
 			'tabulator',
-			'https://unpkg.com/tabulator-tables@6.3.0/dist/js/tabulator.min.js',
+			NOTION_SYNC_URL . 'assets/vendor/tabulator/tabulator.min.js',
 			array( 'luxon' ),
 			'6.3.0',
 			true
@@ -110,6 +110,7 @@ class DatabaseViewPage {
 		);
 
 		// Localize script with REST API data.
+		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Read-only parameter for determining which database to display.
 		$post_id = isset( $_GET['post_id'] ) ? absint( $_GET['post_id'] ) : 0;
 
 		wp_localize_script(
@@ -120,12 +121,12 @@ class DatabaseViewPage {
 				'nonce'   => wp_create_nonce( 'wp_rest' ),
 				'postId'  => $post_id,
 				'i18n'    => array(
-					'loading'      => __( 'Loading database...', 'notion-wp' ),
-					'error'        => __( 'Error loading database', 'notion-wp' ),
-					'noData'       => __( 'No rows found', 'notion-wp' ),
-					'exportCsv'    => __( 'Export CSV', 'notion-wp' ),
-					'exportJson'   => __( 'Export JSON', 'notion-wp' ),
-					'resetFilters' => __( 'Reset Filters', 'notion-wp' ),
+					'loading'      => __( 'Loading database...', 'notion-sync' ),
+					'error'        => __( 'Error loading database', 'notion-sync' ),
+					'noData'       => __( 'No rows found', 'notion-sync' ),
+					'exportCsv'    => __( 'Export CSV', 'notion-sync' ),
+					'exportJson'   => __( 'Export JSON', 'notion-sync' ),
+					'resetFilters' => __( 'Reset Filters', 'notion-sync' ),
 				),
 			)
 		);
@@ -190,6 +191,7 @@ class DatabaseViewPage {
 		}
 
 		// Get database title if available.
+		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Read-only parameter for determining which database to display.
 		$post_id = isset( $_GET['post_id'] ) ? absint( $_GET['post_id'] ) : 0;
 		if ( $post_id ) {
 			$post = get_post( $post_id );
@@ -199,7 +201,7 @@ class DatabaseViewPage {
 		}
 
 		// Fallback to generic title.
-		return __( 'View Database', 'notion-wp' ) . ' &lsaquo; ' . get_bloginfo( 'name' );
+		return __( 'View Database', 'notion-sync' ) . ' &lsaquo; ' . get_bloginfo( 'name' );
 	}
 
 	/**
@@ -209,16 +211,17 @@ class DatabaseViewPage {
 	 */
 	public function render_page(): void {
 		// Get database post ID.
+		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Read-only parameter for determining which database to display.
 		$post_id = isset( $_GET['post_id'] ) ? absint( $_GET['post_id'] ) : 0;
 
 		if ( ! $post_id ) {
-			wp_die( esc_html__( 'Invalid database ID', 'notion-wp' ) );
+			wp_die( esc_html__( 'Invalid database ID', 'notion-sync' ) );
 		}
 
 		// Verify post exists and is a database.
 		$post = get_post( $post_id );
 		if ( ! $post || 'notion_database' !== $post->post_type ) {
-			wp_die( esc_html__( 'Database not found', 'notion-wp' ) );
+			wp_die( esc_html__( 'Database not found', 'notion-sync' ) );
 		}
 
 		// Get database metadata.

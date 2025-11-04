@@ -51,7 +51,6 @@ class PerformanceLogger {
 	 */
 	public static function stop( string $label ): void {
 		if ( ! isset( self::$timers[ $label ] ) ) {
-			error_log( "PerformanceLogger: Attempted to stop non-existent timer: {$label}" );
 			return;
 		}
 
@@ -79,14 +78,6 @@ class PerformanceLogger {
 		unset( self::$timers[ $label ] );
 
 		// Log individual measurement.
-		error_log(
-			sprintf(
-				'[PERF] %s: %.3fs, %s memory',
-				$label,
-				$duration,
-				self::format_bytes( $memory_delta )
-			)
-		);
 	}
 
 	/**
@@ -112,14 +103,6 @@ class PerformanceLogger {
 		++self::$measurements[ $label ]['count'];
 
 		// Log measurement.
-		error_log(
-			sprintf(
-				'[PERF] %s: %.3fs, %s memory',
-				$label,
-				$duration,
-				self::format_bytes( $memory_used )
-			)
-		);
 	}
 
 	/**
@@ -151,12 +134,9 @@ class PerformanceLogger {
 		$summary = self::get_summary();
 
 		if ( empty( $summary ) ) {
-			error_log( "[PERF SUMMARY] {$context}: No measurements recorded" );
 			return;
 		}
 
-		error_log( "[PERF SUMMARY] {$context}:" );
-		error_log( str_repeat( '=', 80 ) );
 
 		// Sort by total duration descending.
 		uasort(
@@ -167,32 +147,13 @@ class PerformanceLogger {
 		);
 
 		foreach ( $summary as $label => $data ) {
-			error_log(
-				sprintf(
-					'  %-50s | Total: %.3fs | Avg: %.3fs | Calls: %d | Memory: %s',
-					$label,
-					$data['duration'],
-					$data['avg_duration'],
-					$data['count'],
-					self::format_bytes( $data['memory_delta'] )
-				)
-			);
 		}
 
-		error_log( str_repeat( '=', 80 ) );
 
 		// Calculate totals.
 		$total_duration = array_sum( array_column( $summary, 'duration' ) );
 		$total_memory   = array_sum( array_column( $summary, 'memory_delta' ) );
 
-		error_log(
-			sprintf(
-				'  TOTAL: %.3fs | Memory: %s',
-				$total_duration,
-				self::format_bytes( $total_memory )
-			)
-		);
-		error_log( str_repeat( '=', 80 ) );
 	}
 
 	/**

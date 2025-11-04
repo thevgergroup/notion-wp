@@ -609,7 +609,7 @@ class PropertyFormatter {
 		return sprintf(
 			'<span class="notion-relation">%d %s</span>',
 			$count,
-			_n( 'relation', 'relations', $count, 'notion-wp' )
+			_n( 'relation', 'relations', $count, 'notion-sync' )
 		);
 	}
 

@@ -10,7 +10,7 @@
  * Author URI: https://thevgergroup.com
  * License: GPL-3.0+
  * License URI: https://www.gnu.org/licenses/gpl-3.0.html
- * Text Domain: notion-wp
+ * Text Domain: notion-sync
  * Domain Path: /languages
  *
  * @package NotionSync
@@ -85,14 +85,22 @@ spl_autoload_register(
 /**
  * Load plugin text domain for internationalization.
  *
+ * Note: Since WordPress 4.6+, translations for plugins hosted on WordPress.org
+ * are automatically loaded by WordPress. The load_plugin_textdomain() call
+ * is no longer necessary for WordPress.org plugins.
+ *
+ * @see https://make.wordpress.org/core/2016/07/06/i18n-improvements-in-4-6/
+ *
  * @return void
  */
 function load_textdomain() {
-	load_plugin_textdomain(
-		'notion-wp',
-		false,
-		dirname( plugin_basename( __FILE__ ) ) . '/languages'
-	);
+	// WordPress.org automatically loads translations for plugins since WP 4.6+.
+	// Keeping this function for potential future use or non-WordPress.org installations.
+	// load_plugin_textdomain(
+	//  'notion-sync',
+	//  false,
+	//  dirname( plugin_basename( __FILE__ ) ) . '/languages'
+	// );
 }
 add_action( 'plugins_loaded', __NAMESPACE__ . '\\load_textdomain' );
 

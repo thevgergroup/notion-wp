@@ -202,8 +202,6 @@ class ParagraphConverter implements BlockConverterInterface {
 			$link_data   = LinkRewriter::rewrite_url( $link_url );
 			$escaped_url = esc_url( $link_data['url'] );
 
-			// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log -- Debug logging.
-			error_log( sprintf( '[ParagraphConverter] Link rewrite: %s -> %s', $link_url, $escaped_url ) );
 
 			// Use shortcode for Notion internal links (dynamic content).
 			// Use static HTML for external links.

@@ -78,8 +78,6 @@ class ActionSchedulerConfig {
 			// Check if we've already retried this action.
 			$retry_key = "notion_retry_{$action_id}";
 			if ( get_transient( $retry_key ) ) {
-				// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log -- Debug logging.
-				error_log( "ActionSchedulerConfig: Action {$action_id} already retried, skipping" );
 				return;
 			}
 
@@ -97,14 +95,6 @@ class ActionSchedulerConfig {
 				'notion-sync'
 			);
 
-			// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log -- Debug logging.
-			error_log(
-				sprintf(
-					'ActionSchedulerConfig: Retrying failed action %d (page %s) in 1 minute',
-					$action_id,
-					$args[1] ?? 'unknown'
-				)
-			);
 		} catch ( \Exception $e ) {
 			// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log -- Error logging.
 			error_log( 'ActionSchedulerConfig: Error in auto_retry_failed_sync: ' . $e->getMessage() );

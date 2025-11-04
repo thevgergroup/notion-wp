@@ -51,8 +51,8 @@ class Patterns {
 		register_block_pattern_category(
 			'notion-sync',
 			array(
-				'label'       => __( 'Notion Sync', 'notion-wp' ),
-				'description' => __( 'Patterns for displaying Notion content and navigation.', 'notion-wp' ),
+				'label'       => __( 'Notion Sync', 'notion-sync' ),
+				'description' => __( 'Patterns for displaying Notion content and navigation.', 'notion-sync' ),
 			)
 		);
 	}
@@ -102,8 +102,8 @@ class Patterns {
 		register_block_pattern(
 			'notion-sync/navigation-hierarchy',
 			array(
-				'title'       => __( 'Notion Navigation Hierarchy', 'notion-wp' ),
-				'description' => __( 'Display your Notion pages as a hierarchical navigation menu. Perfect for sidebars and documentation sites.', 'notion-wp' ),
+				'title'       => __( 'Notion Navigation Hierarchy', 'notion-sync' ),
+				'description' => __( 'Display your Notion pages as a hierarchical navigation menu. Perfect for sidebars and documentation sites.', 'notion-sync' ),
 				'content'     => $pattern_content,
 				'categories'  => array( 'notion-sync', 'featured' ),
 				'keywords'    => array( 'notion', 'navigation', 'menu', 'sidebar', 'hierarchy' ),
@@ -134,7 +134,7 @@ class Patterns {
 		$pattern = '<!-- wp:group {"layout":{"type":"constrained"}} -->
 <div class="wp-block-group">
 	<!-- wp:heading {"level":3,"fontSize":"medium"} -->
-	<h3 class="wp-block-heading has-medium-font-size">' . esc_html__( 'Notion Pages', 'notion-wp' ) . '</h3>
+	<h3 class="wp-block-heading has-medium-font-size">' . esc_html__( 'Notion Pages', 'notion-sync' ) . '</h3>
 	<!-- /wp:heading -->
 
 	<!-- wp:navigation {"ref":' . absint( $menu_id ) . ',"overlayMenu":"never","openSubmenusOnClick":true,"showSubmenuIcon":true,"layout":{"type":"flex","orientation":"vertical"},"style":{"spacing":{"blockGap":"0.5rem"}}} /-->
@@ -160,7 +160,7 @@ class Patterns {
 
 		if ( empty( $menu_items ) ) {
 			return '<!-- wp:paragraph -->
-<p>' . esc_html__( 'No Notion pages found. Please sync pages from Notion first.', 'notion-wp' ) . '</p>
+<p>' . esc_html__( 'No Notion pages found. Please sync pages from Notion first.', 'notion-sync' ) . '</p>
 <!-- /wp:paragraph -->';
 		}
 
@@ -170,7 +170,7 @@ class Patterns {
 		$pattern = '<!-- wp:group {"layout":{"type":"constrained"}} -->
 <div class="wp-block-group">
 	<!-- wp:heading {"level":3,"fontSize":"medium"} -->
-	<h3 class="wp-block-heading has-medium-font-size">' . esc_html__( 'Notion Pages', 'notion-wp' ) . '</h3>
+	<h3 class="wp-block-heading has-medium-font-size">' . esc_html__( 'Notion Pages', 'notion-sync' ) . '</h3>
 	<!-- /wp:heading -->
 
 	' . $list_html . '
@@ -220,7 +220,7 @@ class Patterns {
 
 			// Add toggle button for items with children.
 			if ( $has_children ) {
-				$html .= '<button class="notion-nav-toggle" aria-expanded="false" aria-label="' . esc_attr__( 'Expand submenu', 'notion-wp' ) . '"><span class="chevron"></span></button>';
+				$html .= '<button class="notion-nav-toggle" aria-expanded="false" aria-label="' . esc_attr__( 'Expand submenu', 'notion-sync' ) . '"><span class="chevron"></span></button>';
 			}
 
 			$html .= '<a href="' . esc_url( $item->url ) . '">' . esc_html( $item->title ) . '</a>';

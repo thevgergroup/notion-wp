@@ -115,13 +115,9 @@ class LinkUpdater {
 		$updated_content  = $original_content;
 		$links_rewritten  = 0;
 
-		// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log -- Debug logging.
-		error_log( sprintf( 'LinkUpdater: Processing post ID %d, content length: %d', $post_id, strlen( $original_content ) ) );
 
 		// Check if content has any Notion links.
 		$has_notion_links = strpos( $original_content, 'notion.so' ) !== false;
-		// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log -- Debug logging.
-		error_log( sprintf( 'LinkUpdater: Has notion.so links: %s', $has_notion_links ? 'YES' : 'NO' ) );
 
 		// Pattern 1: Match links with data-notion-id attribute (newer format).
 		// This allows updating links even after they've been rewritten to WordPress permalinks.
@@ -177,9 +173,6 @@ class LinkUpdater {
 		// Matches: href="/[32-hex-chars]" or href="https://notion.so/[32-hex-chars]" (with optional query params).
 		$pattern_no_id = '~href="(/[a-f0-9]{32}(?:[?#][^"]*)?|https://notion\.so/[a-f0-9]{32}(?:-[a-f0-9]{12})?(?:[?#][^"]*)?)"~i';
 
-		// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log -- Debug logging.
-		preg_match_all( $pattern_no_id, $updated_content, $test_matches );
-		error_log( sprintf( 'LinkUpdater: Pattern 2 found %d potential matches', count( $test_matches[0] ) ) );
 
 		$updated_content = preg_replace_callback(
 			$pattern_no_id,

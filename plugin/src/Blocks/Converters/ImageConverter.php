@@ -126,13 +126,6 @@ class ImageConverter implements BlockConverterInterface {
 			return $this->generate_placeholder( 'Unknown image type: ' . $image_type );
 
 		} catch ( \Exception $e ) {
-			error_log(
-				sprintf(
-					'ImageConverter: Failed to convert image block %s: %s',
-					$block_id,
-					$e->getMessage()
-				)
-			);
 			return $this->generate_placeholder( 'Image conversion failed' );
 		}
 	}
@@ -182,7 +175,6 @@ class ImageConverter implements BlockConverterInterface {
 
 		// Check if we need to re-upload (image changed in Notion).
 		if ( $attachment_id && MediaRegistry::needs_reupload( $block_id, $notion_url ) ) {
-			error_log( "ImageConverter: Image changed in Notion, queueing re-upload for block {$block_id}" );
 			// Delete old registry entry to prevent race condition where another process
 			// finds the stale attachment before we queue the new download.
 			MediaRegistry::delete( $block_id );
@@ -347,7 +339,6 @@ class ImageConverter implements BlockConverterInterface {
 	 */
 	private function queue_image_download( string $block_id, string $notion_url, array $image_data ): void {
 		if ( ! function_exists( 'as_schedule_single_action' ) ) {
-			error_log( 'ImageConverter: Action Scheduler not available, cannot queue image download' );
 			return;
 		}
 
@@ -366,7 +357,6 @@ class ImageConverter implements BlockConverterInterface {
 			foreach ( $pending_actions as $action_id ) {
 				$action = as_get_scheduled_action( $action_id );
 				if ( $action && isset( $action->get_args()[0] ) && $action->get_args()[0] === $block_id ) {
-					error_log( "ImageConverter: Download already queued for block {$block_id}, skipping duplicate" );
 					return;
 				}
 			}
@@ -377,7 +367,6 @@ class ImageConverter implements BlockConverterInterface {
 
 		// Ensure Action Scheduler is available before scheduling.
 		if ( ! function_exists( 'as_schedule_single_action' ) ) {
-			error_log( "ImageConverter: Action Scheduler not available, cannot schedule image download for block {$block_id}" );
 			return;
 		}
 
@@ -396,14 +385,6 @@ class ImageConverter implements BlockConverterInterface {
 			'notion-sync-media'
 		);
 
-		error_log(
-			sprintf(
-				'ImageConverter: Queued image download for block %s (post %d, page %s)',
-				$block_id,
-				$this->parent_post_id ?? 0,
-				$this->notion_page_id ?? 'unknown'
-			)
-		);
 	}
 
 	/**
