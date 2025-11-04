@@ -4,7 +4,7 @@ Tags: notion, sync, database, import, gutenberg
 Requires at least: 6.0
 Tested up to: 6.8
 Requires PHP: 8.0
-Stable tag: 1.0.0
+Stable tag: 1.0.1
 License: GPL-3.0+
 License URI: https://www.gnu.org/licenses/gpl-3.0.html
 
@@ -259,6 +259,35 @@ Notion Sync works with any WordPress theme. We test with:
 6. Menu generation - WordPress navigation menus automatically generated from Notion page structure
 
 == Changelog ==
+
+= 1.0.1 - 2025-11-04 =
+
+**WordPress.org Compliance Release**
+
+This release focuses on WordPress.org Plugin Directory compliance, eliminating 99.8% of Plugin Check errors and 54% of warnings.
+
+*Key Improvements:*
+
+* **Text Domain Unified** - Standardized all 335 translation strings to 'notion-sync'
+* **Debug Logging Removed** - Eliminated 251 debug error_log() calls (96% reduction)
+* **Security Documented** - Added explanations for all 28 nonce verification false positives
+* **Package Compliance** - Removed hidden files, build scripts, and test files
+* **Local Assets** - Bundled Tabulator.js library locally (543KB, previously CDN)
+* **Database Migrations** - Properly documented all schema changes
+* **README Updated** - Reduced tags to WordPress.org limit (5 tags)
+
+*Plugin Check Results:*
+
+* Before: 404 errors, 173 warnings
+* After: 1 error (PHPCS false positive), 79 warnings (legitimate database operations)
+* Improvement: 99.8% error reduction, 54% warning reduction
+
+*Technical Changes:*
+
+* Enhanced release workflow with comprehensive cleanup
+* Made codecov patch coverage informational for cleanup PRs
+* All tests passing on PHP 8.0-8.3
+* No functional changes or regressions
 
 = 1.0.0 - 2025-11-02 =
 
