@@ -10,7 +10,7 @@
  * Author URI: https://thevgergroup.com
  * License: GPL-3.0+
  * License URI: https://www.gnu.org/licenses/gpl-3.0.html
- * Text Domain: notion-wp
+ * Text Domain: notion-sync
  * Domain Path: /languages
  *
  * @package NotionSync
