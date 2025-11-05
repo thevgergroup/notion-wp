@@ -120,7 +120,7 @@ If still broken:
 
 ## Next Steps
 
-- [Getting Started](GETTING-STARTED.md) - Initial setup guide
+- [Getting Started](getting-started.md) - Initial setup guide
 - [Usage Guide](USAGE.md) - Learn how to use the plugin
 - [Security Guide](SECURITY.md) - Security features and best practices
 
