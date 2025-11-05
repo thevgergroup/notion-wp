@@ -122,7 +122,7 @@ Most themes support navigation menus. Simply assign the auto-created "Notion Pag
 **Option 2: Sidebar Pattern (For themes without menu support)**
 Some themes don't support navigation menus. For these, we include a collapsible sidebar pattern you can insert via the block editor (**Patterns → Notion Sync → Navigation Hierarchy**).
 
-**[Complete Setup Guide →](docs/GETTING-STARTED.md)**
+**[Complete Setup Guide →](docs/getting-started.md)**
 
 ---
 
@@ -141,7 +141,7 @@ Some themes don't support navigation menus. For these, we include a collapsible 
 ## Documentation
 
 ### User Guides
-- [Getting Started](docs/GETTING-STARTED.md) - Complete setup guide
+- [Getting Started](docs/getting-started.md) - Complete setup guide
 - [Usage Guide](docs/USAGE.md) - How to sync pages and databases
 - [FAQ](docs/FAQ.md) - Common questions and troubleshooting
 - [Block Patterns Guide](docs/features/BLOCK-PATTERNS.md) - Collapsible sidebar navigation
@@ -159,7 +159,6 @@ Some themes don't support navigation menus. For these, we include a collapsible 
 Need help? Here's how to get support:
 
 - **Bug Reports:** [GitHub Issues](https://github.com/thevgergroup/notion-wp/issues)
-- **Feature Requests:** [GitHub Discussions](https://github.com/thevgergroup/notion-wp/discussions)
 - **Documentation:** [docs/](docs/)
 
 ---

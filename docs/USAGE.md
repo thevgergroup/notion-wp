@@ -163,7 +163,7 @@ The plugin outputs standard WordPress blocks with class names for styling:
 ## Next Steps
 
 - [FAQ](FAQ.md) - Common questions and troubleshooting
-- [Getting Started](GETTING-STARTED.md) - Initial setup guide
+- [Getting Started](getting-started.md) - Initial setup guide
 - [Block Patterns Guide](features/BLOCK-PATTERNS.md) - Sidebar navigation patterns
 
 ---
