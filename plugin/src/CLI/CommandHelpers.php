@@ -31,7 +31,7 @@ class CommandHelpers {
 		$encrypted_token = get_option( 'notion_wp_token' );
 
 		if ( empty( $encrypted_token ) ) {
-			return array( null, 'Notion API token not configured. Please configure it in Settings > Notion Sync.' );
+			return array( null, 'Notion API token not configured. Please configure it in Settings > Vger Sync for Notion.' );
 		}
 
 		if ( ! Encryption::is_available() ) {

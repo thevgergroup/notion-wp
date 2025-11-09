@@ -80,9 +80,9 @@ All data is stored in your WordPress database. Your Notion API token is stored s
 = From WordPress.org =
 
 1. Go to **Plugins > Add New** in your WordPress admin
-2. Search for "Notion Sync"
+2. Search for "Vger Sync for Notion"
 3. Click **Install Now**, then **Activate**
-4. Go to **Settings → Notion Sync** to configure
+4. Go to **Settings → Vger Sync for Notion** to configure
 
 = Manual Installation =
 
@@ -90,7 +90,7 @@ All data is stored in your WordPress database. Your Notion API token is stored s
 2. Go to **Plugins > Add New > Upload Plugin**
 3. Choose the ZIP file and click **Install Now**
 4. Click **Activate** after installation
-5. Go to **Settings → Notion Sync** to configure
+5. Go to **Settings → Vger Sync for Notion** to configure
 
 = Setup Steps =
 
@@ -114,7 +114,7 @@ All data is stored in your WordPress database. Your Notion API token is stored s
 
 **Step 3: Connect WordPress to Notion**
 
-1. In WordPress, go to **Settings → Notion Sync**
+1. In WordPress, go to **Settings → Vger Sync for Notion**
 2. Paste your Integration Token
 3. Click **Test Connection**
 4. If successful, you'll see your available pages
@@ -141,7 +141,7 @@ All data is stored in your WordPress database. Your Notion API token is stored s
 2. Click "New integration"
 3. Give it a name and select your workspace
 4. Copy the "Internal Integration Token"
-5. Paste it into the Notion Sync settings page
+5. Paste it into the plugin settings page
 
 Don't forget to share your Notion pages with the integration!
 
@@ -223,7 +223,7 @@ For large pages with many images, the sync happens in the background using WordP
 
 If you're experiencing issues:
 
-1. Check **Settings → Notion Sync → Sync Logs** for details
+1. Check **Settings → Vger Sync for Notion → Sync Logs** for details
 2. Try syncing smaller pages first
 3. Make sure your WordPress cron is working (`wp cron event list`)
 4. Increase PHP's `max_execution_time` if needed
@@ -242,7 +242,7 @@ Yes! All Notion content is converted to native WordPress Gutenberg blocks. You c
 
 = What themes does this work with? =
 
-Notion Sync works with any WordPress theme. We test with:
+Vger Sync for Notion works with any WordPress theme. We test with:
 
 * Twenty Twenty-Four (block theme)
 * Twenty Twenty-Three
@@ -364,7 +364,7 @@ This release focuses on WordPress.org Plugin Directory compliance, eliminating 9
 
 **Initial Public Release**
 
-This is the first stable release of Notion Sync for WordPress. All core features are production-ready.
+This is the first stable release of Vger Sync for Notion. All core features are production-ready.
 
 *Features Included:*
 

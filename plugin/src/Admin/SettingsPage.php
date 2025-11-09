@@ -1,6 +1,6 @@
 <?php
 /**
- * Settings Page - Admin interface for Notion Sync configuration.
+ * Settings Page - Admin interface for Vger Sync for Notion configuration.
  *
  * @package NotionSync
  * @since 0.1.0
@@ -15,7 +15,7 @@ use NotionSync\Sync\SyncManager;
 /**
  * Class SettingsPage
  *
- * Handles the admin settings page for Notion Sync plugin.
+ * Handles the admin settings page for Vger Sync for Notion plugin.
  * Provides UI for connecting to Notion API and viewing workspace information.
  */
 class SettingsPage {
@@ -52,8 +52,8 @@ class SettingsPage {
 	 */
 	public function add_menu_page() {
 		add_menu_page(
-			__( 'Notion Sync', 'vger-sync-for-notion' ),
-			__( 'Notion Sync', 'vger-sync-for-notion' ),
+			__( 'Vger Sync for Notion', 'vger-sync-for-notion' ),
+			__( 'Vger Sync for Notion', 'vger-sync-for-notion' ),
 			'manage_options',
 			'vger-sync-for-notion',
 			array( $this, 'render' ),
@@ -70,13 +70,13 @@ class SettingsPage {
 	 */
 	public function enqueue_assets( $hook ) {
 		// Only load on our settings page.
-		if ( 'toplevel_page_notion-sync' !== $hook ) {
+		if ( 'toplevel_page_vger-sync-for-notion' !== $hook ) {
 			return;
 		}
 
 		// Enqueue custom admin CSS.
 		wp_enqueue_style(
-			'notion-sync-admin',
+			'vger-sync-admin',
 			VGER_SYNC_URL . 'assets/src/css/admin.css',
 			array(),
 			VGER_SYNC_VERSION,
@@ -85,7 +85,7 @@ class SettingsPage {
 
 		// Enqueue custom admin JavaScript (ES6 module).
 		wp_enqueue_script(
-			'notion-sync-admin',
+			'vger-sync-admin',
 			VGER_SYNC_URL . 'assets/src/js/admin.js',
 			array(),
 			VGER_SYNC_VERSION,
@@ -105,7 +105,7 @@ class SettingsPage {
 		add_filter(
 			'script_loader_tag',
 			function ( $tag, $handle ) {
-				if ( 'notion-sync-admin' === $handle ) {
+				if ( 'vger-sync-admin' === $handle ) {
 					return str_replace( '<script ', '<script type="module" ', $tag );
 				}
 				return $tag;
@@ -116,7 +116,7 @@ class SettingsPage {
 
 		// Pass data to JavaScript.
 		wp_localize_script(
-			'notion-sync-admin',
+			'vger-sync-admin',
 			'notionSyncAdmin',
 			array(
 				'ajaxUrl' => admin_url( 'admin-ajax.php' ),
@@ -167,7 +167,7 @@ class SettingsPage {
 			wp_die(
 				sprintf(
 					/* translators: SSL/TLS configuration message */
-					esc_html__( 'HTTPS is required to configure Notion Sync. Please enable SSL/TLS or add %s to wp-config.php.', 'vger-sync-for-notion' ),
+					esc_html__( 'HTTPS is required to configure Vger Sync for Notion. Please enable SSL/TLS or add %s to wp-config.php.', 'vger-sync-for-notion' ),
 					'<code>define( \'FORCE_SSL_ADMIN\', true );</code>'
 				),
 				esc_html__( 'HTTPS Required', 'vger-sync-for-notion' ),

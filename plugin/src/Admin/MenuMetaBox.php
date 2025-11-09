@@ -208,7 +208,7 @@ class MenuMetaBox {
 		<p class="field-notion-sync description description-wide">
 			<label for="notion-synced-<?php echo esc_attr( $item_id ); ?>">
 				<span class="dashicons dashicons-update" style="color: #2271b1;" aria-hidden="true"></span>
-				<?php esc_html_e( 'Notion Sync', 'vger-sync-for-notion' ); ?>
+				<?php esc_html_e( 'Vger Sync for Notion', 'vger-sync-for-notion' ); ?>
 			</label>
 			<span id="notion-synced-<?php echo esc_attr( $item_id ); ?>" class="notion-sync-indicator">
 				<?php esc_html_e( 'This item is synced from Notion', 'vger-sync-for-notion' ); ?>

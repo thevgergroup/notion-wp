@@ -33,14 +33,14 @@ class DatabaseViewPage {
 	/**
 	 * Add admin menu page.
 	 *
-	 * Added as submenu of Notion Sync but hidden from display using CSS.
+	 * Added as submenu of Vger Sync for Notion but hidden from display using CSS.
 	 * This prevents PHP 8.3 deprecation warnings with hidden pages.
 	 *
 	 * @since 1.0.0
 	 */
 	public function add_admin_page(): void {
 		add_submenu_page(
-			'vger-sync-for-notion', // Parent page slug (Notion Sync main page).
+			'vger-sync-for-notion', // Parent page slug (main settings page).
 			__( 'View Database', 'vger-sync-for-notion' ),
 			__( 'View Database', 'vger-sync-for-notion' ),
 			'manage_options',
@@ -52,7 +52,7 @@ class DatabaseViewPage {
 		add_action(
 			'admin_head',
 			function () {
-				echo '<style>#toplevel_page_notion-sync .wp-submenu li a[href*="notion-sync-view-database"] { display: none !important; }</style>';
+				echo '<style>#toplevel_page_vger-sync-for-notion .wp-submenu li a[href*="vger-sync-view-database"] { display: none !important; }</style>';
 			}
 		);
 	}

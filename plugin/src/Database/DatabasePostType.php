@@ -50,7 +50,7 @@ class DatabasePostType {
 				'public'             => true,
 				'publicly_queryable' => true,
 				'show_ui'            => true,
-				'show_in_menu'       => false, // Accessed via Notion Sync settings page.
+				'show_in_menu'       => false, // Accessed via plugin settings page.
 				'show_in_rest'       => false,
 				'capability_type'    => 'post',
 				'hierarchical'       => false,

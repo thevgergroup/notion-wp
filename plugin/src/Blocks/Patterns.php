@@ -1,6 +1,6 @@
 <?php
 /**
- * Block Patterns for Notion Sync
+ * Block Patterns for Vger Sync for Notion
  *
  * Provides pre-configured block patterns for displaying Notion content,
  * particularly navigation menus and hierarchies.
@@ -38,7 +38,7 @@ class Patterns {
 	 * Register custom pattern category for Notion patterns.
 	 *
 	 * Creates a dedicated category in the block pattern inserter
-	 * for all Notion Sync related patterns.
+	 * for all Vger Sync for Notion related patterns.
 	 *
 	 * @since 1.0.0
 	 * @return void
@@ -51,7 +51,7 @@ class Patterns {
 		register_block_pattern_category(
 			'vger-sync-for-notion',
 			array(
-				'label'       => __( 'Notion Sync', 'vger-sync-for-notion' ),
+				'label'       => __( 'Vger Sync for Notion', 'vger-sync-for-notion' ),
 				'description' => __( 'Patterns for displaying Notion content and navigation.', 'vger-sync-for-notion' ),
 			)
 		);

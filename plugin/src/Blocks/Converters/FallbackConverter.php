@@ -77,7 +77,7 @@ class FallbackConverter implements BlockConverterInterface {
 
 		// If no text content, just output a warning comment.
 		return sprintf(
-			"<!-- Unsupported Notion block type: %s (Block ID: %s) -->\n<!-- This block type is not yet supported by the Notion Sync plugin -->\n\n",
+			"<!-- Unsupported Notion block type: %s (Block ID: %s) -->\n<!-- This block type is not yet supported by the Vger Sync for Notion plugin -->\n\n",
 			esc_html( $type ),
 			esc_html( $notion_block['id'] ?? 'unknown' )
 		);
