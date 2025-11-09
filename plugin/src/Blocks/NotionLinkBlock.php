@@ -75,9 +75,9 @@ class NotionLinkBlock {
 	public function enqueue_editor_assets(): void {
 		wp_enqueue_script(
 			'notion-link-block-editor',
-			NOTION_SYNC_URL . 'assets/src/js/blocks/notion-link.js',
+			VGER_SYNC_URL . 'assets/src/js/blocks/notion-link.js',
 			array( 'wp-blocks', 'wp-element', 'wp-editor', 'wp-components', 'wp-i18n', 'wp-api-fetch' ),
-			NOTION_SYNC_VERSION,
+			VGER_SYNC_VERSION,
 			true
 		);
 

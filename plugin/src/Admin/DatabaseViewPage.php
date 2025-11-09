@@ -40,9 +40,9 @@ class DatabaseViewPage {
 	 */
 	public function add_admin_page(): void {
 		add_submenu_page(
-			'notion-sync', // Parent page slug (Notion Sync main page).
-			__( 'View Database', 'notion-sync' ),
-			__( 'View Database', 'notion-sync' ),
+			'vger-sync-for-notion', // Parent page slug (Notion Sync main page).
+			__( 'View Database', 'vger-sync-for-notion' ),
+			__( 'View Database', 'vger-sync-for-notion' ),
 			'manage_options',
 			'notion-sync-view-database',
 			array( $this, 'render_page' )
@@ -77,7 +77,7 @@ class DatabaseViewPage {
 		// Enqueue Tabulator CSS (bundled locally for WordPress.org compliance).
 		wp_enqueue_style(
 			'tabulator',
-			NOTION_SYNC_URL . 'assets/vendor/tabulator/tabulator.min.css',
+			VGER_SYNC_URL . 'assets/vendor/tabulator/tabulator.min.css',
 			array(),
 			'6.3.0'
 		);
@@ -85,7 +85,7 @@ class DatabaseViewPage {
 		// Enqueue Luxon.js (bundled locally - required for datetime sorting).
 		wp_enqueue_script(
 			'luxon',
-			NOTION_SYNC_URL . 'assets/vendor/tabulator/luxon.min.js',
+			VGER_SYNC_URL . 'assets/vendor/tabulator/luxon.min.js',
 			array(),
 			'3.4.4',
 			true
@@ -94,7 +94,7 @@ class DatabaseViewPage {
 		// Enqueue Tabulator JS (bundled locally - depends on luxon for datetime sorting).
 		wp_enqueue_script(
 			'tabulator',
-			NOTION_SYNC_URL . 'assets/vendor/tabulator/tabulator.min.js',
+			VGER_SYNC_URL . 'assets/vendor/tabulator/tabulator.min.js',
 			array( 'luxon' ),
 			'6.3.0',
 			true
@@ -103,9 +103,9 @@ class DatabaseViewPage {
 		// Enqueue custom database viewer script.
 		wp_enqueue_script(
 			'notion-sync-database-viewer',
-			NOTION_SYNC_URL . 'assets/src/js/database-viewer.js',
+			VGER_SYNC_URL . 'assets/src/js/database-viewer.js',
 			array( 'tabulator' ),
-			NOTION_SYNC_VERSION,
+			VGER_SYNC_VERSION,
 			true
 		);
 
@@ -121,12 +121,12 @@ class DatabaseViewPage {
 				'nonce'   => wp_create_nonce( 'wp_rest' ),
 				'postId'  => $post_id,
 				'i18n'    => array(
-					'loading'      => __( 'Loading database...', 'notion-sync' ),
-					'error'        => __( 'Error loading database', 'notion-sync' ),
-					'noData'       => __( 'No rows found', 'notion-sync' ),
-					'exportCsv'    => __( 'Export CSV', 'notion-sync' ),
-					'exportJson'   => __( 'Export JSON', 'notion-sync' ),
-					'resetFilters' => __( 'Reset Filters', 'notion-sync' ),
+					'loading'      => __( 'Loading database...', 'vger-sync-for-notion' ),
+					'error'        => __( 'Error loading database', 'vger-sync-for-notion' ),
+					'noData'       => __( 'No rows found', 'vger-sync-for-notion' ),
+					'exportCsv'    => __( 'Export CSV', 'vger-sync-for-notion' ),
+					'exportJson'   => __( 'Export JSON', 'vger-sync-for-notion' ),
+					'resetFilters' => __( 'Reset Filters', 'vger-sync-for-notion' ),
 				),
 			)
 		);
@@ -201,7 +201,7 @@ class DatabaseViewPage {
 		}
 
 		// Fallback to generic title.
-		return __( 'View Database', 'notion-sync' ) . ' &lsaquo; ' . get_bloginfo( 'name' );
+		return __( 'View Database', 'vger-sync-for-notion' ) . ' &lsaquo; ' . get_bloginfo( 'name' );
 	}
 
 	/**
@@ -215,13 +215,13 @@ class DatabaseViewPage {
 		$post_id = isset( $_GET['post_id'] ) ? absint( $_GET['post_id'] ) : 0;
 
 		if ( ! $post_id ) {
-			wp_die( esc_html__( 'Invalid database ID', 'notion-sync' ) );
+			wp_die( esc_html__( 'Invalid database ID', 'vger-sync-for-notion' ) );
 		}
 
 		// Verify post exists and is a database.
 		$post = get_post( $post_id );
 		if ( ! $post || 'notion_database' !== $post->post_type ) {
-			wp_die( esc_html__( 'Database not found', 'notion-sync' ) );
+			wp_die( esc_html__( 'Database not found', 'vger-sync-for-notion' ) );
 		}
 
 		// Get database metadata.
@@ -230,6 +230,6 @@ class DatabaseViewPage {
 		$last_synced  = get_post_meta( $post_id, 'last_synced', true );
 
 		// Render page template.
-		include NOTION_SYNC_PATH . 'templates/admin/database-view.php';
+		include VGER_SYNC_PATH . 'templates/admin/database-view.php';
 	}
 }

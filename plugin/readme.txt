@@ -1,20 +1,20 @@
-=== Notion Sync ===
+=== Vger Sync for Notion ===
 Contributors: thevgergroup
 Tags: notion, sync, database, import, gutenberg
 Requires at least: 6.0
 Tested up to: 6.8
 Requires PHP: 8.0
-Stable tag: 1.0.3
+Stable tag: 1.0.4
 License: GPL-3.0+
 License URI: https://www.gnu.org/licenses/gpl-3.0.html
 
-Sync Notion pages and databases to WordPress with automatic navigation menus and embedded database views.
+Sync content from Notion to WordPress with automatic navigation menus and embedded database views.
 
 == Description ==
 
 **Write in Notion. Publish to WordPress.**
 
-Notion Sync brings your Notion content to WordPress with one click. Perfect for teams who love Notion's collaborative writing experience but need WordPress for their public-facing website.
+Vger Sync for Notion brings your Notion content to WordPress with one click. Perfect for teams who love Notion's collaborative writing experience but need WordPress for their public-facing website.
 
 = Features =
 
@@ -260,6 +260,33 @@ Notion Sync works with any WordPress theme. We test with:
 
 == Changelog ==
 
+= 1.0.4 - 2025-11-09 =
+
+**WordPress.org Trademark Compliance**
+
+This release addresses WordPress.org automated review feedback regarding trademark usage and plugin description accuracy.
+
+*Changes:*
+
+* **Plugin Name** - Renamed from "Notion Sync" to "Vger Sync for Notion" to comply with trademark guidelines
+* **Plugin Slug** - Updated from "notion-sync" to "vger-sync-for-notion"
+* **Text Domain** - Updated from "notion-sync" to "vger-sync-for-notion" throughout all files
+* **Description** - Corrected to accurately reflect current functionality (Notion → WordPress sync only)
+* **Asset Handles** - Updated all CSS/JS handles from "notion-sync-*" to "vger-sync-*"
+* **Constants** - Renamed from "NOTION_SYNC_*" to "VGER_SYNC_*" for consistency
+
+*WordPress.org Compliance:*
+
+* Trademark guidelines: Plugin name now clearly denotes no affiliation with Notion
+* Accurate feature description: Removed "bi-directional" claim, correctly states one-way sync
+* Bi-directional sync remains planned for future release (as documented in "Coming Soon" section)
+
+*Technical Notes:*
+
+* No functional changes - only naming and branding updates
+* All existing functionality remains identical
+* This is the initial WordPress.org submission
+
 = 1.0.3 - 2025-11-04 =
 
 **WordPress.org PHPCS False Positive Fix**
@@ -372,9 +399,13 @@ See the [GitHub repository](https://github.com/thevgergroup/notion-wp) for detai
 
 == Upgrade Notice ==
 
+= 1.0.4 =
+
+WordPress.org compliance update: Plugin renamed to "Vger Sync for Notion" to comply with trademark guidelines. Description updated to accurately reflect current functionality (Notion → WordPress sync). No functional changes.
+
 = 1.0.0 =
 
-First stable release of Notion Sync for WordPress. Import Notion content with one click, auto-generate navigation menus, and display databases as interactive tables. Fully tested and production-ready.
+First stable release of Vger Sync for Notion. Import Notion content with one click, auto-generate navigation menus, and display databases as interactive tables. Fully tested and production-ready.
 
 == Development ==
 

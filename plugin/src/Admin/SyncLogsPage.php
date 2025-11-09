@@ -57,7 +57,7 @@ class SyncLogsPage {
 		}
 
 		add_submenu_page(
-			'notion-sync',
+			'vger-sync-for-notion',
 			'Sync Logs',
 			$menu_title,
 			'manage_options',

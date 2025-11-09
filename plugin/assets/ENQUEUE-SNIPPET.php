@@ -34,10 +34,10 @@ public function register(): void {
  */
 public function add_menu_page(): void {
 	add_menu_page(
-		__( 'Notion Sync', 'notion-sync' ),
-		__( 'Notion Sync', 'notion-sync' ),
+		__( 'Vger Sync for Notion', 'vger-sync-for-notion' ),
+		__( 'Vger Sync for Notion', 'vger-sync-for-notion' ),
 		'manage_options',
-		'notion-sync',
+		'vger-sync-for-notion',
 		array( $this, 'render' ),
 		'dashicons-cloud',
 		30 // Position in menu (after Settings)
@@ -51,18 +51,18 @@ public function add_menu_page(): void {
  */
 public function enqueue_assets( string $hook_suffix ): void {
 	// Only load on our settings page
-	// The hook suffix format is: toplevel_page_notion-sync
-	if ( 'toplevel_page_notion-sync' !== $hook_suffix ) {
+	// The hook suffix format is: toplevel_page_vger-sync-for-notion
+	if ( 'toplevel_page_vger-sync-for-notion' !== $hook_suffix ) {
 		return;
 	}
 
 	// Define asset paths
-	$plugin_url = plugin_dir_url( NOTION_SYNC_FILE );
-	$plugin_version = NOTION_SYNC_VERSION; // From your main plugin file constant
+	$plugin_url = plugin_dir_url( VGER_SYNC_FILE );
+	$plugin_version = VGER_SYNC_VERSION; // From your main plugin file constant
 
 	// Enqueue CSS
 	wp_enqueue_style(
-		'notion-sync-admin', // Handle
+		'vger-sync-admin', // Handle
 		$plugin_url . 'assets/dist/css/admin.min.css', // Source (adjust path if using build process)
 		array(), // Dependencies (none)
 		$plugin_version, // Version
@@ -71,7 +71,7 @@ public function enqueue_assets( string $hook_suffix ): void {
 
 	// Enqueue JavaScript
 	wp_enqueue_script(
-		'notion-sync-admin', // Handle
+		'vger-sync-admin', // Handle
 		$plugin_url . 'assets/dist/js/admin.min.js', // Source (adjust path if using build process)
 		array(), // Dependencies (vanilla JS, no jQuery needed)
 		$plugin_version, // Version
@@ -80,16 +80,16 @@ public function enqueue_assets( string $hook_suffix ): void {
 
 	// Optional: Pass PHP data to JavaScript
 	wp_localize_script(
-		'notion-sync-admin',
+		'vger-sync-admin',
 		'notionSyncAdmin', // JavaScript object name
 		array(
 			'ajaxUrl' => admin_url( 'admin-ajax.php' ),
 			'nonce'   => wp_create_nonce( 'notion_sync_ajax' ),
 			'i18n'    => array(
-				'connecting'    => __( 'Connecting...', 'notion-sync' ),
-				'connected'     => __( 'Connected!', 'notion-sync' ),
-				'disconnecting' => __( 'Disconnecting...', 'notion-sync' ),
-				'error'         => __( 'An error occurred. Please try again.', 'notion-sync' ),
+				'connecting'    => __( 'Connecting...', 'vger-sync-for-notion' ),
+				'connected'     => __( 'Connected!', 'vger-sync-for-notion' ),
+				'disconnecting' => __( 'Disconnecting...', 'vger-sync-for-notion' ),
+				'error'         => __( 'An error occurred. Please try again.', 'vger-sync-for-notion' ),
 			),
 		)
 	);
@@ -103,18 +103,18 @@ public function enqueue_assets( string $hook_suffix ): void {
 
 /*
 public function enqueue_assets( string $hook_suffix ): void {
-	if ( 'toplevel_page_notion-sync' !== $hook_suffix ) {
+	if ( 'toplevel_page_vger-sync-for-notion' !== $hook_suffix ) {
 		return;
 	}
 
-	$plugin_url = plugin_dir_url( NOTION_SYNC_FILE );
-	$plugin_version = NOTION_SYNC_VERSION;
+	$plugin_url = plugin_dir_url( VGER_SYNC_FILE );
+	$plugin_version = VGER_SYNC_VERSION;
 
 	// Get asset file data (if using @wordpress/scripts or similar)
-	$asset_file = include plugin_dir_path( NOTION_SYNC_FILE ) . 'assets/dist/js/admin.asset.php';
+	$asset_file = include plugin_dir_path( VGER_SYNC_FILE ) . 'assets/dist/js/admin.asset.php';
 
 	wp_enqueue_style(
-		'notion-sync-admin',
+		'vger-sync-admin',
 		$plugin_url . 'assets/dist/css/admin.min.css',
 		array(),
 		$asset_file['version'] ?? $plugin_version,
@@ -122,7 +122,7 @@ public function enqueue_assets( string $hook_suffix ): void {
 	);
 
 	wp_enqueue_script(
-		'notion-sync-admin',
+		'vger-sync-admin',
 		$plugin_url . 'assets/dist/js/admin.min.js',
 		$asset_file['dependencies'] ?? array(),
 		$asset_file['version'] ?? $plugin_version,
@@ -130,16 +130,16 @@ public function enqueue_assets( string $hook_suffix ): void {
 	);
 
 	wp_localize_script(
-		'notion-sync-admin',
+		'vger-sync-admin',
 		'notionSyncAdmin',
 		array(
 			'ajaxUrl' => admin_url( 'admin-ajax.php' ),
 			'nonce'   => wp_create_nonce( 'notion_sync_ajax' ),
 			'i18n'    => array(
-				'connecting'    => __( 'Connecting...', 'notion-sync' ),
-				'connected'     => __( 'Connected!', 'notion-sync' ),
-				'disconnecting' => __( 'Disconnecting...', 'notion-sync' ),
-				'error'         => __( 'An error occurred. Please try again.', 'notion-sync' ),
+				'connecting'    => __( 'Connecting...', 'vger-sync-for-notion' ),
+				'connected'     => __( 'Connected!', 'vger-sync-for-notion' ),
+				'disconnecting' => __( 'Disconnecting...', 'vger-sync-for-notion' ),
+				'error'         => __( 'An error occurred. Please try again.', 'vger-sync-for-notion' ),
 			),
 		)
 	);
@@ -151,12 +151,12 @@ public function enqueue_assets( string $hook_suffix ): void {
  */
 
 /*
-// In notion-sync.php or your main plugin file:
+// In vger-sync-for-notion.php or your main plugin file:
 
-define( 'NOTION_SYNC_VERSION', '0.1.0' );
-define( 'NOTION_SYNC_FILE', __FILE__ );
-define( 'NOTION_SYNC_PATH', plugin_dir_path( __FILE__ ) );
-define( 'NOTION_SYNC_URL', plugin_dir_url( __FILE__ ) );
+define( 'VGER_SYNC_VERSION', '0.1.0' );
+define( 'VGER_SYNC_FILE', __FILE__ );
+define( 'VGER_SYNC_PATH', plugin_dir_path( __FILE__ ) );
+define( 'VGER_SYNC_URL', plugin_dir_url( __FILE__ ) );
 */
 
 /**
@@ -198,16 +198,16 @@ define( 'NOTION_SYNC_URL', plugin_dir_url( __FILE__ ) );
 
 /*
 public function enqueue_assets( string $hook_suffix ): void {
-	if ( 'toplevel_page_notion-sync' !== $hook_suffix ) {
+	if ( 'toplevel_page_vger-sync-for-notion' !== $hook_suffix ) {
 		return;
 	}
 
-	$plugin_url = plugin_dir_url( NOTION_SYNC_FILE );
-	$plugin_version = NOTION_SYNC_VERSION;
+	$plugin_url = plugin_dir_url( VGER_SYNC_FILE );
+	$plugin_version = VGER_SYNC_VERSION;
 
 	// Load source files directly (for development only)
 	wp_enqueue_style(
-		'notion-sync-admin',
+		'vger-sync-admin',
 		$plugin_url . 'assets/src/scss/admin.scss', // Browser won't compile SCSS
 		array(),
 		$plugin_version,
@@ -218,7 +218,7 @@ public function enqueue_assets( string $hook_suffix ): void {
 	// Better approach: Use simple CSS instead of SCSS for Phase 0
 
 	wp_enqueue_script(
-		'notion-sync-admin',
+		'vger-sync-admin',
 		$plugin_url . 'assets/src/js/admin.js', // Raw JS works fine
 		array(),
 		$plugin_version,
@@ -231,7 +231,7 @@ public function enqueue_assets( string $hook_suffix ): void {
  * DEBUGGING TIPS:
  *
  * 1. Check if assets are enqueued:
- *    - View page source and search for "notion-sync-admin"
+ *    - View page source and search for "vger-sync-admin"
  *    - Check Network tab in browser DevTools
  *
  * 2. Verify hook suffix:
@@ -245,7 +245,7 @@ public function enqueue_assets( string $hook_suffix ): void {
  *    - Look for 404s or syntax errors
  *
  * 4. Verify file paths:
- *    - Check that NOTION_SYNC_FILE constant points to main plugin file
+ *    - Check that VGER_SYNC_FILE constant points to main plugin file
  *    - Verify directory structure matches path in enqueue calls
  */
 

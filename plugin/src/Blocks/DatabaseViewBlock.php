@@ -71,9 +71,9 @@ class DatabaseViewBlock {
 	public function enqueue_editor_assets(): void {
 		wp_enqueue_script(
 			'notion-wp-database-view-editor',
-			NOTION_SYNC_URL . 'assets/src/js/blocks/database-view.js',
+			VGER_SYNC_URL . 'assets/src/js/blocks/database-view.js',
 			array( 'wp-blocks', 'wp-element', 'wp-editor', 'wp-components', 'wp-i18n', 'wp-data', 'wp-core-data' ),
-			NOTION_SYNC_VERSION,
+			VGER_SYNC_VERSION,
 			true
 		);
 
@@ -272,7 +272,7 @@ class DatabaseViewBlock {
 
 		// Render the block HTML.
 		ob_start();
-		include NOTION_SYNC_PATH . 'templates/blocks/database-view.php';
+		include VGER_SYNC_PATH . 'templates/blocks/database-view.php';
 		return ob_get_clean();
 	}
 
@@ -286,7 +286,7 @@ class DatabaseViewBlock {
 		// Enqueue Tabulator CSS (bundled locally for WordPress.org compliance).
 		wp_enqueue_style(
 			'tabulator',
-			NOTION_SYNC_URL . 'assets/vendor/tabulator/tabulator.min.css',
+			VGER_SYNC_URL . 'assets/vendor/tabulator/tabulator.min.css',
 			array(),
 			'6.3.0'
 		);
@@ -294,7 +294,7 @@ class DatabaseViewBlock {
 		// Enqueue Tabulator JS (bundled locally for WordPress.org compliance).
 		wp_enqueue_script(
 			'tabulator',
-			NOTION_SYNC_URL . 'assets/vendor/tabulator/tabulator.min.js',
+			VGER_SYNC_URL . 'assets/vendor/tabulator/tabulator.min.js',
 			array(),
 			'6.3.0',
 			true
@@ -303,18 +303,18 @@ class DatabaseViewBlock {
 		// Enqueue our block frontend script.
 		wp_enqueue_script(
 			'notion-wp-database-view-frontend',
-			NOTION_SYNC_URL . 'assets/src/js/frontend/database-view.js',
+			VGER_SYNC_URL . 'assets/src/js/frontend/database-view.js',
 			array( 'tabulator' ),
-			NOTION_SYNC_VERSION,
+			VGER_SYNC_VERSION,
 			true
 		);
 
 		// Enqueue block frontend styles.
 		wp_enqueue_style(
 			'notion-wp-database-view-frontend',
-			NOTION_SYNC_URL . 'assets/src/css/blocks/database-view.css',
+			VGER_SYNC_URL . 'assets/src/css/blocks/database-view.css',
 			array( 'tabulator' ),
-			NOTION_SYNC_VERSION
+			VGER_SYNC_VERSION
 		);
 
 		// Localize script with REST API data.

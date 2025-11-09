@@ -92,7 +92,7 @@ class ActionSchedulerConfig {
 				time() + MINUTE_IN_SECONDS,
 				$action->get_hook(),
 				$args,
-				'notion-sync'
+				'vger-sync-for-notion'
 			);
 
 		} catch ( \Exception $e ) {

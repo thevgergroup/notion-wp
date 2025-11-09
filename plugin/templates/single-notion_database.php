@@ -106,10 +106,10 @@ $notionsync_last_synced  = get_post_meta( $notionsync_post_id, 'last_synced', tr
 							<?php
 							$notionsync_time_diff = $notionsync_last_synced
 								? human_time_diff( strtotime( $notionsync_last_synced ), current_time( 'timestamp' ) ) . ' ago'
-								: __( 'Never', 'notion-sync' );
+								: __( 'Never', 'vger-sync-for-notion' );
 							printf(
 								/* translators: 1: row count, 2: last sync time */
-								esc_html__( '%1$d rows • Last synced: %2$s', 'notion-sync' ),
+								esc_html__( '%1$d rows • Last synced: %2$s', 'vger-sync-for-notion' ),
 								(int) $notionsync_row_count,
 								esc_html( $notionsync_time_diff )
 							);
@@ -119,13 +119,13 @@ $notionsync_last_synced  = get_post_meta( $notionsync_post_id, 'last_synced', tr
 
 					<div class="database-actions">
 						<button type="button" id="reset-filters">
-							<?php esc_html_e( 'Reset Filters', 'notion-sync' ); ?>
+							<?php esc_html_e( 'Reset Filters', 'vger-sync-for-notion' ); ?>
 						</button>
 						<button type="button" id="export-csv">
-							<?php esc_html_e( 'Export CSV', 'notion-sync' ); ?>
+							<?php esc_html_e( 'Export CSV', 'vger-sync-for-notion' ); ?>
 						</button>
 						<button type="button" id="export-json">
-							<?php esc_html_e( 'Export JSON', 'notion-sync' ); ?>
+							<?php esc_html_e( 'Export JSON', 'vger-sync-for-notion' ); ?>
 						</button>
 					</div>
 				</div>
@@ -134,11 +134,11 @@ $notionsync_last_synced  = get_post_meta( $notionsync_post_id, 'last_synced', tr
 
 				<div id="table-loading">
 					<span class="spinner"></span>
-					<?php esc_html_e( 'Loading database...', 'notion-sync' ); ?>
+					<?php esc_html_e( 'Loading database...', 'vger-sync-for-notion' ); ?>
 				</div>
 
 				<div id="table-error">
-					<strong><?php esc_html_e( 'Error:', 'notion-sync' ); ?></strong>
+					<strong><?php esc_html_e( 'Error:', 'vger-sync-for-notion' ); ?></strong>
 					<span id="error-message"></span>
 				</div>
 			</div>

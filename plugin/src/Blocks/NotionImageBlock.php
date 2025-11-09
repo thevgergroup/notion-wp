@@ -45,7 +45,7 @@ class NotionImageBlock {
 	/**
 	 * Log debug message if debug mode is enabled.
 	 *
-	 * Debug mode can be enabled by defining NOTION_SYNC_DEBUG constant as true
+	 * Debug mode can be enabled by defining VGER_SYNC_DEBUG constant as true
 	 * or setting 'notion_wp_debug' option to true.
 	 *
 	 * @since 0.4.0
@@ -57,7 +57,7 @@ class NotionImageBlock {
 		static $debug_enabled = null;
 
 		if ( null === $debug_enabled ) {
-			$debug_enabled = ( defined( 'NOTION_SYNC_DEBUG' ) && NOTION_SYNC_DEBUG ) ||
+			$debug_enabled = ( defined( 'VGER_SYNC_DEBUG' ) && VGER_SYNC_DEBUG ) ||
 							get_option( 'notion_wp_debug', false );
 		}
 

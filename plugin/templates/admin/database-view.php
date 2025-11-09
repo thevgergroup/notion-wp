@@ -26,7 +26,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	</h1>
 
 	<a href="<?php echo esc_url( admin_url( 'admin.php?page=notion-sync&tab=databases' ) ); ?>" class="page-title-action">
-		<?php esc_html_e( '← Back to Databases', 'notion-sync' ); ?>
+		<?php esc_html_e( '← Back to Databases', 'vger-sync-for-notion' ); ?>
 	</a>
 
 	<hr class="wp-header-end">
@@ -39,10 +39,10 @@ if ( ! defined( 'ABSPATH' ) ) {
 					<?php
 					printf(
 						/* translators: 1: row count, 2: last sync time */
-						esc_html__( '%1$d rows • Last synced: %2$s', 'notion-sync' ),
+						esc_html__( '%1$d rows • Last synced: %2$s', 'vger-sync-for-notion' ),
 						(int) $row_count,
 						// phpcs:ignore Generic.Files.LineLength.TooLong, Generic.Files.LineLength.MaxExceeded -- Template readability.
-						$last_synced ? esc_html( human_time_diff( strtotime( $last_synced ), current_time( 'timestamp' ) ) . ' ago' ) : esc_html__( 'Never', 'notion-sync' )
+						$last_synced ? esc_html( human_time_diff( strtotime( $last_synced ), current_time( 'timestamp' ) ) . ' ago' ) : esc_html__( 'Never', 'vger-sync-for-notion' )
 					);
 					?>
 				</div>
@@ -50,13 +50,13 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 			<div class="database-actions">
 				<button type="button" class="button" id="reset-filters">
-					<?php esc_html_e( 'Reset Filters', 'notion-sync' ); ?>
+					<?php esc_html_e( 'Reset Filters', 'vger-sync-for-notion' ); ?>
 				</button>
 				<button type="button" class="button" id="export-csv">
-					<?php esc_html_e( 'Export CSV', 'notion-sync' ); ?>
+					<?php esc_html_e( 'Export CSV', 'vger-sync-for-notion' ); ?>
 				</button>
 				<button type="button" class="button" id="export-json">
-					<?php esc_html_e( 'Export JSON', 'notion-sync' ); ?>
+					<?php esc_html_e( 'Export JSON', 'vger-sync-for-notion' ); ?>
 				</button>
 			</div>
 		</div>
@@ -65,12 +65,12 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 		<div id="table-loading" style="text-align: center; padding: 40px; color: #666;">
 			<span class="spinner is-active" style="float: none; margin: 0 10px 0 0;"></span>
-			<?php esc_html_e( 'Loading database...', 'notion-sync' ); ?>
+			<?php esc_html_e( 'Loading database...', 'vger-sync-for-notion' ); ?>
 		</div>
 
 		<?php // phpcs:ignore Generic.Files.LineLength.MaxExceeded -- Template inline styles. ?>
 	<div id="table-error" style="display: none; padding: 20px; background: #f8d7da; border: 1px solid #f5c6cb; border-radius: 4px; color: #721c24; margin-top: 20px;">
-			<strong><?php esc_html_e( 'Error:', 'notion-sync' ); ?></strong>
+			<strong><?php esc_html_e( 'Error:', 'vger-sync-for-notion' ); ?></strong>
 			<span id="error-message"></span>
 		</div>
 	</div>

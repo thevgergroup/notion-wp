@@ -52,10 +52,10 @@ class SettingsPage {
 	 */
 	public function add_menu_page() {
 		add_menu_page(
-			__( 'Notion Sync', 'notion-sync' ),
-			__( 'Notion Sync', 'notion-sync' ),
+			__( 'Notion Sync', 'vger-sync-for-notion' ),
+			__( 'Notion Sync', 'vger-sync-for-notion' ),
 			'manage_options',
-			'notion-sync',
+			'vger-sync-for-notion',
 			array( $this, 'render' ),
 			'dashicons-cloud',
 			30
@@ -77,27 +77,27 @@ class SettingsPage {
 		// Enqueue custom admin CSS.
 		wp_enqueue_style(
 			'notion-sync-admin',
-			NOTION_SYNC_URL . 'assets/src/css/admin.css',
+			VGER_SYNC_URL . 'assets/src/css/admin.css',
 			array(),
-			NOTION_SYNC_VERSION,
+			VGER_SYNC_VERSION,
 			'all'
 		);
 
 		// Enqueue custom admin JavaScript (ES6 module).
 		wp_enqueue_script(
 			'notion-sync-admin',
-			NOTION_SYNC_URL . 'assets/src/js/admin.js',
+			VGER_SYNC_URL . 'assets/src/js/admin.js',
 			array(),
-			NOTION_SYNC_VERSION,
+			VGER_SYNC_VERSION,
 			true
 		);
 
 		// Enqueue Preact sync dashboard.
 		wp_enqueue_script(
 			'notion-sync-dashboard',
-			NOTION_SYNC_URL . 'assets/build/sync-dashboard.js',
+			VGER_SYNC_URL . 'assets/build/sync-dashboard.js',
 			array(),
-			NOTION_SYNC_VERSION,
+			VGER_SYNC_VERSION,
 			true
 		);
 
@@ -124,20 +124,20 @@ class SettingsPage {
 				'nonce'   => wp_create_nonce( 'notion_sync_ajax' ),
 				'restNonce' => wp_create_nonce( 'wp_rest' ),
 				'i18n'    => array(
-					'connecting'           => __( 'Connecting...', 'notion-sync' ),
-					'connected'            => __( 'Connected!', 'notion-sync' ),
-					'disconnecting'        => __( 'Disconnecting...', 'notion-sync' ),
-					'error'                => __( 'An error occurred. Please try again.', 'notion-sync' ),
-					'syncing'              => __( 'Syncing...', 'notion-sync' ),
-					'synced'               => __( 'Synced', 'notion-sync' ),
-					'syncError'            => __( 'Sync failed', 'notion-sync' ),
-					'confirmBulkSync'      => __( 'Are you sure you want to sync the selected pages?', 'notion-sync' ),
-					'selectPages'          => __( 'Please select at least one page to sync.', 'notion-sync' ),
-					'copied'               => __( 'Copied!', 'notion-sync' ),
-					'confirmDatabaseSync'  => __( 'Are you sure you want to sync this database? This will import all entries.', 'notion-sync' ),
-					'databaseSyncStarted'  => __( 'Database sync started. Please wait...', 'notion-sync' ),
-					'databaseSyncComplete' => __( 'Database sync complete!', 'notion-sync' ),
-					'cancelBatch'          => __( 'Are you sure you want to cancel this sync?', 'notion-sync' ),
+					'connecting'           => __( 'Connecting...', 'vger-sync-for-notion' ),
+					'connected'            => __( 'Connected!', 'vger-sync-for-notion' ),
+					'disconnecting'        => __( 'Disconnecting...', 'vger-sync-for-notion' ),
+					'error'                => __( 'An error occurred. Please try again.', 'vger-sync-for-notion' ),
+					'syncing'              => __( 'Syncing...', 'vger-sync-for-notion' ),
+					'synced'               => __( 'Synced', 'vger-sync-for-notion' ),
+					'syncError'            => __( 'Sync failed', 'vger-sync-for-notion' ),
+					'confirmBulkSync'      => __( 'Are you sure you want to sync the selected pages?', 'vger-sync-for-notion' ),
+					'selectPages'          => __( 'Please select at least one page to sync.', 'vger-sync-for-notion' ),
+					'copied'               => __( 'Copied!', 'vger-sync-for-notion' ),
+					'confirmDatabaseSync'  => __( 'Are you sure you want to sync this database? This will import all entries.', 'vger-sync-for-notion' ),
+					'databaseSyncStarted'  => __( 'Database sync started. Please wait...', 'vger-sync-for-notion' ),
+					'databaseSyncComplete' => __( 'Database sync complete!', 'vger-sync-for-notion' ),
+					'cancelBatch'          => __( 'Are you sure you want to cancel this sync?', 'vger-sync-for-notion' ),
 				),
 			)
 		);
@@ -152,8 +152,8 @@ class SettingsPage {
 		// Check user capabilities.
 		if ( ! current_user_can( 'manage_options' ) ) {
 			wp_die(
-				esc_html__( 'You do not have sufficient permissions to access this page.', 'notion-sync' ),
-				esc_html__( 'Insufficient Permissions', 'notion-sync' ),
+				esc_html__( 'You do not have sufficient permissions to access this page.', 'vger-sync-for-notion' ),
+				esc_html__( 'Insufficient Permissions', 'vger-sync-for-notion' ),
 				array( 'response' => 403 )
 			);
 		}
@@ -167,10 +167,10 @@ class SettingsPage {
 			wp_die(
 				sprintf(
 					/* translators: SSL/TLS configuration message */
-					esc_html__( 'HTTPS is required to configure Notion Sync. Please enable SSL/TLS or add %s to wp-config.php.', 'notion-sync' ),
+					esc_html__( 'HTTPS is required to configure Notion Sync. Please enable SSL/TLS or add %s to wp-config.php.', 'vger-sync-for-notion' ),
 					'<code>define( \'FORCE_SSL_ADMIN\', true );</code>'
 				),
-				esc_html__( 'HTTPS Required', 'notion-sync' ),
+				esc_html__( 'HTTPS Required', 'vger-sync-for-notion' ),
 				array(
 					'response'  => 403,
 					'back_link' => true,
@@ -205,7 +205,7 @@ class SettingsPage {
 						set_transient( 'notion_wp_workspace_info_cache', $workspace_info, HOUR_IN_SECONDS );
 						update_option( 'notion_wp_workspace_info', $workspace_info );
 					} else {
-						$error_message = $workspace_info['error'] ?? __( 'Unable to fetch workspace information.', 'notion-sync' );
+						$error_message = $workspace_info['error'] ?? __( 'Unable to fetch workspace information.', 'vger-sync-for-notion' );
 					}
 				} catch ( \Exception $e ) {
 					$error_message = $e->getMessage();
@@ -240,7 +240,7 @@ class SettingsPage {
 		}
 
 		// Load template.
-		require_once NOTION_SYNC_PATH . 'templates/admin/settings.php';
+		require_once VGER_SYNC_PATH . 'templates/admin/settings.php';
 	}
 
 	/**
@@ -252,8 +252,8 @@ class SettingsPage {
 		// Check user capabilities.
 		if ( ! current_user_can( 'manage_options' ) ) {
 			wp_die(
-				esc_html__( 'You do not have sufficient permissions to perform this action.', 'notion-sync' ),
-				esc_html__( 'Insufficient Permissions', 'notion-sync' ),
+				esc_html__( 'You do not have sufficient permissions to perform this action.', 'vger-sync-for-notion' ),
+				esc_html__( 'Insufficient Permissions', 'vger-sync-for-notion' ),
 				array( 'response' => 403 )
 			);
 		}
@@ -262,8 +262,8 @@ class SettingsPage {
 		if ( ! isset( $_POST['notion_sync_connect_nonce'] ) ||
 			! wp_verify_nonce( sanitize_text_field( wp_unslash( $_POST['notion_sync_connect_nonce'] ) ), 'notion_sync_connect' ) ) {
 			wp_die(
-				esc_html__( 'Security check failed. Please try again.', 'notion-sync' ),
-				esc_html__( 'Security Error', 'notion-sync' ),
+				esc_html__( 'Security check failed. Please try again.', 'vger-sync-for-notion' ),
+				esc_html__( 'Security Error', 'vger-sync-for-notion' ),
 				array( 'response' => 403 )
 			);
 		}
@@ -273,7 +273,7 @@ class SettingsPage {
 
 		// Validate token format.
 		if ( empty( $token ) ) {
-			$this->redirect_with_message( 'error', __( 'Please enter a Notion API token.', 'notion-sync' ) );
+			$this->redirect_with_message( 'error', __( 'Please enter a Notion API token.', 'vger-sync-for-notion' ) );
 			return;
 		}
 
@@ -281,14 +281,14 @@ class SettingsPage {
 		if ( strpos( $token, 'secret_' ) !== 0 && strpos( $token, 'ntn_' ) !== 0 ) {
 			$this->redirect_with_message(
 				'error',
-				__( 'Invalid token format. Notion API tokens should start with "secret_" or "ntn_".', 'notion-sync' )
+				__( 'Invalid token format. Notion API tokens should start with "secret_" or "ntn_".', 'vger-sync-for-notion' )
 			);
 			return;
 		}
 
 		// Check rate limiting.
 		if ( $this->is_rate_limited() ) {
-			$this->redirect_with_message( 'error', __( 'Too many connection attempts. Please wait 5 minutes and try again.', 'notion-sync' ) );
+			$this->redirect_with_message( 'error', __( 'Too many connection attempts. Please wait 5 minutes and try again.', 'vger-sync-for-notion' ) );
 			return;
 		}
 
@@ -297,7 +297,7 @@ class SettingsPage {
 			$client = new NotionClient( $token );
 
 			if ( ! $client->test_connection() ) {
-				$this->redirect_with_message( 'error', __( 'Connection failed. Please check your token and try again.', 'notion-sync' ) );
+				$this->redirect_with_message( 'error', __( 'Connection failed. Please check your token and try again.', 'vger-sync-for-notion' ) );
 				return;
 			}
 
@@ -320,12 +320,12 @@ class SettingsPage {
 			$this->clear_rate_limit();
 
 			// Success!
-			$workspace_name = $workspace_info['workspace_name'] ?? __( 'Unknown Workspace', 'notion-sync' );
+			$workspace_name = $workspace_info['workspace_name'] ?? __( 'Unknown Workspace', 'vger-sync-for-notion' );
 			$this->redirect_with_message(
 				'success',
 				sprintf(
 					/* translators: %s: workspace name */
-					__( 'Successfully connected to Notion workspace: %s', 'notion-sync' ),
+					__( 'Successfully connected to Notion workspace: %s', 'vger-sync-for-notion' ),
 					$workspace_name
 				)
 			);
@@ -343,8 +343,8 @@ class SettingsPage {
 		// Check user capabilities.
 		if ( ! current_user_can( 'manage_options' ) ) {
 			wp_die(
-				esc_html__( 'You do not have sufficient permissions to perform this action.', 'notion-sync' ),
-				esc_html__( 'Insufficient Permissions', 'notion-sync' ),
+				esc_html__( 'You do not have sufficient permissions to perform this action.', 'vger-sync-for-notion' ),
+				esc_html__( 'Insufficient Permissions', 'vger-sync-for-notion' ),
 				array( 'response' => 403 )
 			);
 		}
@@ -353,8 +353,8 @@ class SettingsPage {
 		if ( ! isset( $_POST['notion_sync_disconnect_nonce'] ) ||
 			! wp_verify_nonce( sanitize_text_field( wp_unslash( $_POST['notion_sync_disconnect_nonce'] ) ), 'notion_sync_disconnect' ) ) {
 			wp_die(
-				esc_html__( 'Security check failed. Please try again.', 'notion-sync' ),
-				esc_html__( 'Security Error', 'notion-sync' ),
+				esc_html__( 'Security check failed. Please try again.', 'vger-sync-for-notion' ),
+				esc_html__( 'Security Error', 'vger-sync-for-notion' ),
 				array( 'response' => 403 )
 			);
 		}
@@ -365,7 +365,7 @@ class SettingsPage {
 		delete_transient( 'notion_wp_workspace_info_cache' );
 
 		// Redirect with success message.
-		$this->redirect_with_message( 'success', __( 'Successfully disconnected from Notion.', 'notion-sync' ) );
+		$this->redirect_with_message( 'success', __( 'Successfully disconnected from Notion.', 'vger-sync-for-notion' ) );
 	}
 
 	/**
@@ -395,7 +395,7 @@ class SettingsPage {
 	 */
 	private function redirect_with_message( $type, $message, $tab = null ) {
 		$args = array(
-			'page'                 => 'notion-sync',
+			'page'                 => 'vger-sync-for-notion',
 			'notion_sync_' . $type => rawurlencode( $message ),
 		);
 
@@ -460,8 +460,8 @@ class SettingsPage {
 		// Check user capabilities.
 		if ( ! current_user_can( 'manage_options' ) ) {
 			wp_die(
-				esc_html__( 'You do not have sufficient permissions to perform this action.', 'notion-sync' ),
-				esc_html__( 'Insufficient Permissions', 'notion-sync' ),
+				esc_html__( 'You do not have sufficient permissions to perform this action.', 'vger-sync-for-notion' ),
+				esc_html__( 'Insufficient Permissions', 'vger-sync-for-notion' ),
 				array( 'response' => 403 )
 			);
 		}
@@ -470,8 +470,8 @@ class SettingsPage {
 		if ( ! isset( $_POST['notion_sync_flush_rewrites_nonce'] ) ||
 			! wp_verify_nonce( sanitize_text_field( wp_unslash( $_POST['notion_sync_flush_rewrites_nonce'] ) ), 'notion_sync_flush_rewrites' ) ) {
 			wp_die(
-				esc_html__( 'Security check failed. Please try again.', 'notion-sync' ),
-				esc_html__( 'Security Error', 'notion-sync' ),
+				esc_html__( 'Security check failed. Please try again.', 'vger-sync-for-notion' ),
+				esc_html__( 'Security Error', 'vger-sync-for-notion' ),
 				array( 'response' => 403 )
 			);
 		}
@@ -487,7 +487,7 @@ class SettingsPage {
 		// Redirect with success message.
 		$this->redirect_with_message(
 			'success',
-			__( 'Rewrite rules have been flushed. /notion/{slug} URLs should now work correctly.', 'notion-sync' )
+			__( 'Rewrite rules have been flushed. /notion/{slug} URLs should now work correctly.', 'vger-sync-for-notion' )
 		);
 	}
 
@@ -505,8 +505,8 @@ class SettingsPage {
 		// Check user capabilities.
 		if ( ! current_user_can( 'manage_options' ) ) {
 			wp_die(
-				esc_html__( 'You do not have sufficient permissions to perform this action.', 'notion-sync' ),
-				esc_html__( 'Insufficient Permissions', 'notion-sync' ),
+				esc_html__( 'You do not have sufficient permissions to perform this action.', 'vger-sync-for-notion' ),
+				esc_html__( 'Insufficient Permissions', 'vger-sync-for-notion' ),
 				array( 'response' => 403 )
 			);
 		}
@@ -517,8 +517,8 @@ class SettingsPage {
 			: '';
 		if ( ! wp_verify_nonce( $nonce_value, 'notion_sync_navigation_settings' ) ) {
 			wp_die(
-				esc_html__( 'Security check failed. Please try again.', 'notion-sync' ),
-				esc_html__( 'Security Error', 'notion-sync' ),
+				esc_html__( 'Security check failed. Please try again.', 'vger-sync-for-notion' ),
+				esc_html__( 'Security Error', 'vger-sync-for-notion' ),
 				array( 'response' => 403 )
 			);
 		}
@@ -534,7 +534,7 @@ class SettingsPage {
 		if ( empty( trim( $menu_name ) ) ) {
 			$this->redirect_with_message(
 				'error',
-				__( 'Menu name cannot be empty. Please provide a valid menu name.', 'notion-sync' ),
+				__( 'Menu name cannot be empty. Please provide a valid menu name.', 'vger-sync-for-notion' ),
 				'navigation'
 			);
 			return;
@@ -547,7 +547,7 @@ class SettingsPage {
 		// Redirect with success message.
 		$this->redirect_with_message(
 			'success',
-			__( 'Navigation settings saved successfully.', 'notion-sync' ),
+			__( 'Navigation settings saved successfully.', 'vger-sync-for-notion' ),
 			'navigation'
 		);
 	}

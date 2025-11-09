@@ -46,7 +46,7 @@ echo implode(
 
 		<?php if ( $show_export ) : ?>
 			<button class="notion-wp-database-view__export-btn" type="button">
-				<?php esc_html_e( 'Export CSV', 'notion-sync' ); ?>
+				<?php esc_html_e( 'Export CSV', 'vger-sync-for-notion' ); ?>
 			</button>
 		<?php endif; ?>
 	</div>
@@ -69,7 +69,7 @@ echo implode(
 					<?php
 					printf(
 						/* translators: %s: view type name */
-						esc_html__( '%s view coming soon!', 'notion-sync' ),
+						esc_html__( '%s view coming soon!', 'vger-sync-for-notion' ),
 						esc_html( ucfirst( $view_type ) )
 					);
 					?>
@@ -80,10 +80,10 @@ echo implode(
 
 	<div class="notion-wp-database-view__loading" style="display: none;">
 		<span class="spinner is-active"></span>
-		<span><?php esc_html_e( 'Loading database...', 'notion-sync' ); ?></span>
+		<span><?php esc_html_e( 'Loading database...', 'vger-sync-for-notion' ); ?></span>
 	</div>
 
 	<div class="notion-wp-database-view__error" style="display: none;">
-		<p><?php esc_html_e( 'Error loading database. Please try again.', 'notion-sync' ); ?></p>
+		<p><?php esc_html_e( 'Error loading database. Please try again.', 'vger-sync-for-notion' ); ?></p>
 	</div>
 </div>

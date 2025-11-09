@@ -1,8 +1,8 @@
 {
 	"_comment": "PLUGIN COMPOSER.JSON - Production Deployment",
 	"_purpose": "This file manages only production dependencies for WordPress.org deployment. For development tools and testing, use the root composer.json instead.",
-	"name": "thevgergroup/notion-sync",
-	"description": "Bi-directional synchronization between Notion and WordPress",
+	"name": "thevgergroup/vger-sync-for-notion",
+	"description": "Sync content from Notion to WordPress with automatic navigation menus and embedded database views",
 	"type": "wordpress-plugin",
 	"license": "GPL-3.0-or-later",
 	"require": {
