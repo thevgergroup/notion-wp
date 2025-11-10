@@ -33,7 +33,7 @@ fi
 echo -e "${YELLOW}Bumping version to ${NEW_VERSION}...${NC}\n"
 
 # Get current version from plugin file
-CURRENT_VERSION=$(grep "Version:" plugin/notion-sync.php | awk '{print $3}')
+CURRENT_VERSION=$(grep "Version:" plugin/vger-sync-for-notion.php | awk '{print $3}')
 echo -e "Current version: ${CURRENT_VERSION}"
 echo -e "New version: ${NEW_VERSION}\n"
 
@@ -45,14 +45,14 @@ if [[ ! $REPLY =~ ^[Yy]$ ]]; then
     exit 1
 fi
 
-# Update plugin/notion-sync.php (header)
-echo -e "${YELLOW}Updating plugin/notion-sync.php...${NC}"
-sed -i.bak "s/Version: ${CURRENT_VERSION}/Version: ${NEW_VERSION}/" plugin/notion-sync.php
-rm plugin/notion-sync.php.bak
+# Update plugin/vger-sync-for-notion.php (header)
+echo -e "${YELLOW}Updating plugin/vger-sync-for-notion.php...${NC}"
+sed -i.bak "s/Version: ${CURRENT_VERSION}/Version: ${NEW_VERSION}/" plugin/vger-sync-for-notion.php
+rm plugin/vger-sync-for-notion.php.bak
 
-# Update plugin/notion-sync.php (constant)
-sed -i.bak "s/NOTION_SYNC_VERSION', '${CURRENT_VERSION}/NOTION_SYNC_VERSION', '${NEW_VERSION}/" plugin/notion-sync.php
-rm plugin/notion-sync.php.bak
+# Update plugin/vger-sync-for-notion.php (constant)
+sed -i.bak "s/VGER_SYNC_VERSION', '${CURRENT_VERSION}/VGER_SYNC_VERSION', '${NEW_VERSION}/" plugin/vger-sync-for-notion.php
+rm plugin/vger-sync-for-notion.php.bak
 
 # Update package.json
 echo -e "${YELLOW}Updating package.json...${NC}"

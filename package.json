@@ -1,7 +1,7 @@
 {
 	"name": "notion-wp",
-	"version": "1.0.0",
-	"description": "Bi-directional sync between Notion and WordPress",
+	"version": "1.0.4",
+	"description": "Sync content from Notion to WordPress with automatic navigation menus and embedded database views",
 	"author": "The VGER Group",
 	"license": "GPL-3.0+",
 	"private": true,
