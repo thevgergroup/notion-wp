@@ -261,7 +261,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 					<p>
 						<?php
 						esc_html_e(
-							'Configure how Notion page hierarchies are synchronized to WordPress navigation menus. When enabled, the plugin will automatically create and maintain a WordPress menu based on your Notion page structure.'',
+							'Configure how Notion page hierarchies are synchronized to WordPress navigation menus. When enabled, the plugin will automatically create and maintain a WordPress menu based on your Notion page structure.',
 							'vger-sync-for-notion'
 						);
 						?>
