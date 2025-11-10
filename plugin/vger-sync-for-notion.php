@@ -3,7 +3,7 @@
  * Plugin Name: Vger Sync for Notion
  * Plugin URI: https://github.com/thevgergroup/notion-wp
  * Description: Sync content from Notion to WordPress with automatic navigation menus and embedded database views
- * Version: 1.0.5
+ * Version: 1.0.6
  * Requires at least: 6.0
  * Requires PHP: 8.0
  * Author: The Vger Group
@@ -29,7 +29,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 // Plugin constants.
-define( 'VGER_SYNC_VERSION', '1.0.5' );
+define( 'VGER_SYNC_VERSION', '1.0.6' );
 define( 'VGER_SYNC_FILE', __FILE__ );
 define( 'VGER_SYNC_PATH', plugin_dir_path( __FILE__ ) );
 define( 'VGER_SYNC_URL', plugin_dir_url( __FILE__ ) );

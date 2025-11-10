@@ -4,7 +4,7 @@ Tags: notion, sync, database, import, gutenberg
 Requires at least: 6.0
 Tested up to: 6.8
 Requires PHP: 8.0
-Stable tag: 1.0.5
+Stable tag: 1.0.6
 License: GPL-3.0+
 License URI: https://www.gnu.org/licenses/gpl-3.0.html
 
@@ -260,6 +260,25 @@ Vger Sync for Notion works with any WordPress theme. We test with:
 
 == Changelog ==
 
+= 1.0.6 - 2025-11-10 =
+
+**Company Name Correction & Plugin Finalization**
+
+This patch release corrects the company name and finalizes the WordPress.org submission package.
+
+*Changes:*
+
+* **Company Name** - Corrected from "The Verger Group" to "The Vger Group" throughout all files
+* **Admin URLs** - Finalized admin page slug updates from "notion-sync" to "vger-sync-for-notion"
+* **Code Quality** - Improved variable naming in uninstall.php for WordPress coding standards
+* **Cleanup** - Removed obsolete development files (ENQUEUE-SNIPPET.php, settings-sample.php)
+
+*Technical Notes:*
+
+* No functional changes - only branding corrections and code cleanup
+* All existing functionality remains identical
+* Ready for WordPress.org final submission
+
 = 1.0.4 - 2025-11-09 =
 
 **WordPress.org Trademark Compliance**
@@ -398,6 +417,10 @@ This is the first stable release of Vger Sync for Notion. All core features are 
 See the [GitHub repository](https://github.com/thevgergroup/notion-wp) for detailed changelog and development roadmap.
 
 == Upgrade Notice ==
+
+= 1.0.6 =
+
+Patch release: Corrects company name from "The Verger Group" to "The Vger Group" and finalizes WordPress.org submission. No functional changes.
 
 = 1.0.4 =
 
