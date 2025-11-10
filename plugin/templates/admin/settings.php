@@ -127,19 +127,19 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 			<!-- Tab Navigation -->
 			<h2 class="nav-tab-wrapper">
-				<a href="<?php echo esc_url( add_query_arg( 'tab', 'pages', admin_url( 'admin.php?page=notion-sync' ) ) ); ?>"
+				<a href="<?php echo esc_url( add_query_arg( 'tab', 'pages', admin_url( 'admin.php?page=vger-sync-for-notion' ) ) ); ?>"
 					class="nav-tab <?php echo 'pages' === $current_tab ? 'nav-tab-active' : ''; ?>">
 					<?php esc_html_e( 'Pages', 'vger-sync-for-notion' ); ?>
 				</a>
-				<a href="<?php echo esc_url( add_query_arg( 'tab', 'databases', admin_url( 'admin.php?page=notion-sync' ) ) ); ?>"
+				<a href="<?php echo esc_url( add_query_arg( 'tab', 'databases', admin_url( 'admin.php?page=vger-sync-for-notion' ) ) ); ?>"
 					class="nav-tab <?php echo 'databases' === $current_tab ? 'nav-tab-active' : ''; ?>">
 					<?php esc_html_e( 'Databases', 'vger-sync-for-notion' ); ?>
 				</a>
-				<a href="<?php echo esc_url( add_query_arg( 'tab', 'navigation', admin_url( 'admin.php?page=notion-sync' ) ) ); ?>"
+				<a href="<?php echo esc_url( add_query_arg( 'tab', 'navigation', admin_url( 'admin.php?page=vger-sync-for-notion' ) ) ); ?>"
 					class="nav-tab <?php echo 'navigation' === $current_tab ? 'nav-tab-active' : ''; ?>">
 					<?php esc_html_e( 'Navigation', 'vger-sync-for-notion' ); ?>
 				</a>
-				<a href="<?php echo esc_url( add_query_arg( 'tab', 'settings', admin_url( 'admin.php?page=notion-sync' ) ) ); ?>"
+				<a href="<?php echo esc_url( add_query_arg( 'tab', 'settings', admin_url( 'admin.php?page=vger-sync-for-notion' ) ) ); ?>"
 					class="nav-tab <?php echo 'settings' === $current_tab ? 'nav-tab-active' : ''; ?>">
 					<?php esc_html_e( 'Settings', 'vger-sync-for-notion' ); ?>
 				</a>
@@ -291,12 +291,8 @@ if ( ! defined( 'ABSPATH' ) ) {
 											</label>
 											<p class="description">
 												<?php
-												esc_html_e(
-													// phpcs:ignore Generic.Files.LineLength.MaxExceeded
-													'When enabled, the plugin will create and maintain a WordPress navigation menu that mirrors your Notion page structure. ' .
-													'Parent-child relationships in Notion will be preserved as menu items and sub-items.',
-													'vger-sync-for-notion'
-												);
+												// phpcs:ignore Generic.Files.LineLength.MaxExceeded
+												esc_html_e( 'When enabled, the plugin will create and maintain a WordPress navigation menu that mirrors your Notion page structure. Parent-child relationships in Notion will be preserved as menu items and sub-items.', 'vger-sync-for-notion' );
 												?>
 											</p>
 										</fieldset>
@@ -346,11 +342,8 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 					<p>
 						<?php
-						esc_html_e(
-							'Trigger a manual sync of your Notion page hierarchy to the WordPress menu. ' .
-							'This will update the menu structure to match your current Notion workspace.',
-							'vger-sync-for-notion'
-						);
+						// phpcs:ignore Generic.Files.LineLength.MaxExceeded
+					esc_html_e( 'Trigger a manual sync of your Notion page hierarchy to the WordPress menu. This will update the menu structure to match your current Notion workspace.', 'vger-sync-for-notion' );
 						?>
 					</p>
 
@@ -370,11 +363,8 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 						<p class="description" style="margin-top: 10px;">
 							<?php
-							esc_html_e(
-								'This will fetch your Notion page hierarchy and update the WordPress menu to match. ' .
-								'Existing menu items will be preserved if they still exist in Notion.',
-								'vger-sync-for-notion'
-							);
+						// phpcs:ignore Generic.Files.LineLength.MaxExceeded
+						esc_html_e( 'This will fetch your Notion page hierarchy and update the WordPress menu to match. Existing menu items will be preserved if they still exist in Notion.', 'vger-sync-for-notion' );
 							?>
 						</p>
 					<?php else : ?>
@@ -462,11 +452,8 @@ if ( ! defined( 'ABSPATH' ) ) {
 					<h3 style="margin-top: 20px;"><?php esc_html_e( 'Flush Rewrite Rules', 'vger-sync-for-notion' ); ?></h3>
 					<p class="description">
 						<?php
-						esc_html_e(
-							'If /notion/{slug} URLs are not working correctly, ' .
-							'click this button to flush and regenerate WordPress rewrite rules.',
-							'vger-sync-for-notion'
-						);
+					// phpcs:ignore Generic.Files.LineLength.MaxExceeded
+					esc_html_e( 'If /notion/{slug} URLs are not working correctly, this tool will refresh the permalink structure to ensure proper URL routing.', 'vger-sync-for-notion' );
 						?>
 					</p>
 

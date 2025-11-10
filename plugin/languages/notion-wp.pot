@@ -1,4 +1,4 @@
-# Copyright (C) 2025 The Verger Group
+# Copyright (C) 2025 The Vger Group
 # This file is distributed under the GPL-3.0+.
 msgid ""
 msgstr ""
@@ -36,7 +36,7 @@ msgstr ""
 
 #. Author of the plugin
 #: notion-sync.php
-msgid "The Verger Group"
+msgid "The Vger Group"
 msgstr ""
 
 #. Author URI of the plugin

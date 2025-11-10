@@ -25,7 +25,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 		<?php echo esc_html( $post->post_title ); ?>
 	</h1>
 
-	<a href="<?php echo esc_url( admin_url( 'admin.php?page=notion-sync&tab=databases' ) ); ?>" class="page-title-action">
+	<a href="<?php echo esc_url( admin_url( 'admin.php?page=vger-sync-for-notion&tab=databases' ) ); ?>" class="page-title-action">
 		<?php esc_html_e( '← Back to Databases', 'vger-sync-for-notion' ); ?>
 	</a>
 

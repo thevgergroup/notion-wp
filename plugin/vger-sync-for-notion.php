@@ -6,7 +6,7 @@
  * Version: 1.0.5
  * Requires at least: 6.0
  * Requires PHP: 8.0
- * Author: The Verger Group
+ * Author: The Vger Group
  * Author URI: https://thevgergroup.com
  * License: GPL-3.0+
  * License URI: https://www.gnu.org/licenses/gpl-3.0.html

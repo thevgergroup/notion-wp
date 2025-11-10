@@ -19,7 +19,7 @@ global $wpdb;
 /**
  * Delete plugin options
  */
-$options = array(
+$vger_sync_options = array(
 	'notion_wp_token',
 	'notion_wp_workspace_info',
 	'notion_sync_menu_enabled',
@@ -27,8 +27,8 @@ $options = array(
 	'notion_menu_last_sync_time',
 );
 
-foreach ( $options as $option ) {
-	delete_option( $option );
+foreach ( $vger_sync_options as $vger_sync_option ) {
+	delete_option( $vger_sync_option );
 }
 
 /**
@@ -39,22 +39,22 @@ delete_transient( 'notion_wp_workspace_info_cache' );
 /**
  * Delete custom database tables
  */
-$tables = array(
+$vger_sync_tables = array(
 	$wpdb->prefix . 'notion_database_rows',
 	$wpdb->prefix . 'notion_sync_logs',
 	$wpdb->prefix . 'notion_media_registry',
 	$wpdb->prefix . 'notion_links',
 );
 
-foreach ( $tables as $table ) {
+foreach ( $vger_sync_tables as $vger_sync_table ) {
 	// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.DirectDatabaseQuery.SchemaChange
-	$wpdb->query( "DROP TABLE IF EXISTS {$table}" );
+	$wpdb->query( "DROP TABLE IF EXISTS {$vger_sync_table}" );
 }
 
 /**
  * Delete all posts of custom post type 'notion_database'
  */
-$database_posts = get_posts(
+$vger_sync_database_posts = get_posts(
 	array(
 		'post_type'      => 'notion_database',
 		'posts_per_page' => -1,
@@ -63,8 +63,8 @@ $database_posts = get_posts(
 	)
 );
 
-foreach ( $database_posts as $post_id ) {
-	wp_delete_post( $post_id, true );
+foreach ( $vger_sync_database_posts as $vger_sync_post_id ) {
+	wp_delete_post( $vger_sync_post_id, true );
 }
 
 /**
@@ -72,7 +72,7 @@ foreach ( $database_posts as $post_id ) {
  *
  * This removes Notion-related meta from all posts.
  */
-$meta_keys = array(
+$vger_sync_meta_keys = array(
 	'_notion_page_id',
 	'_notion_database_id',
 	'_notion_last_edited',
@@ -84,11 +84,11 @@ $meta_keys = array(
 	'last_synced',
 );
 
-foreach ( $meta_keys as $meta_key ) {
+foreach ( $vger_sync_meta_keys as $vger_sync_meta_key ) {
 	// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
 	$wpdb->delete(
 		$wpdb->postmeta,
-		array( 'meta_key' => $meta_key ),
+		array( 'meta_key' => $vger_sync_meta_key ),
 		array( '%s' )
 	);
 }
@@ -96,26 +96,26 @@ foreach ( $meta_keys as $meta_key ) {
 /**
  * Delete scheduled cron events
  */
-$cron_hooks = array(
+$vger_sync_cron_hooks = array(
 	'notion_sync_check_updates',
 	'notion_sync_media_queue',
 );
 
-foreach ( $cron_hooks as $hook ) {
-	$timestamp = wp_next_scheduled( $hook );
-	if ( $timestamp ) {
-		wp_unschedule_event( $timestamp, $hook );
+foreach ( $vger_sync_cron_hooks as $vger_sync_hook ) {
+	$vger_sync_timestamp = wp_next_scheduled( $vger_sync_hook );
+	if ( $vger_sync_timestamp ) {
+		wp_unschedule_event( $vger_sync_timestamp, $vger_sync_hook );
 	}
 }
 
 /**
  * Delete the Notion menu if it exists
  */
-$menu_name = get_option( 'notion_sync_menu_name', 'Notion Navigation' );
-$menu      = wp_get_nav_menu_object( $menu_name );
+$vger_sync_menu_name = get_option( 'notion_sync_menu_name', 'Notion Navigation' );
+$vger_sync_menu      = wp_get_nav_menu_object( $vger_sync_menu_name );
 
-if ( $menu ) {
-	wp_delete_nav_menu( $menu->term_id );
+if ( $vger_sync_menu ) {
+	wp_delete_nav_menu( $vger_sync_menu->term_id );
 }
 
 /**
@@ -125,10 +125,10 @@ if ( $menu ) {
  * This removes all scheduled, pending, and completed actions.
  */
 if ( class_exists( 'ActionScheduler' ) ) {
-	$action_scheduler = ActionScheduler::store();
+	$vger_sync_action_scheduler = ActionScheduler::store();
 
 	// Find all actions with 'notion' or 'vger_sync' in the hook name.
-	$actions = $action_scheduler->query_actions(
+	$vger_sync_actions = $vger_sync_action_scheduler->query_actions(
 		array(
 			'hook'     => 'notion_%',
 			'status'   => ActionScheduler_Store::STATUS_PENDING,
@@ -136,7 +136,7 @@ if ( class_exists( 'ActionScheduler' ) ) {
 		)
 	);
 
-	foreach ( $actions as $action_id ) {
-		$action_scheduler->cancel_action( $action_id );
+	foreach ( $vger_sync_actions as $vger_sync_action_id ) {
+		$vger_sync_action_scheduler->cancel_action( $vger_sync_action_id );
 	}
 }

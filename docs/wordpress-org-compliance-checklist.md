@@ -245,7 +245,7 @@ find plugin/assets -name "*notion-sync*" -type f
 - [ ] **Username:** `pjaol` - ✅ No trademark issues
 - [ ] **Display Name:** Verify on WordPress.org profile
 - [ ] **Plugin URL:** `https://github.com/thevgergroup/notion-wp` - ✅ OK (not user-facing)
-- [ ] **Author:** `The Verger Group` - ✅ No trademark issues
+- [ ] **Author:** `The Vger Group` - ✅ No trademark issues
 - [ ] **Author URI:** `https://thevgergroup.com` - ✅ No trademark issues
 - [ ] **Icon:** Check if exists - verify no "Notion" branding
 - [ ] **Banner:** Check if exists - verify no "Notion" branding

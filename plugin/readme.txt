@@ -436,7 +436,7 @@ See CONTRIBUTING.md for detailed guidelines.
 
 == Credits ==
 
-**Developed by:** The Verger Group ([https://thevgergroup.com](https://thevgergroup.com))
+**Developed by:** The Vger Group ([https://thevgergroup.com](https://thevgergroup.com))
 
 **Dependencies:**
 * Action Scheduler by Automattic ([https://actionscheduler.org](https://actionscheduler.org))

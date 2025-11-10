@@ -20,7 +20,7 @@ All WordPress.org automated review feedback has been addressed. The plugin has b
 **Resolution:** Renamed to "Vger Sync for Notion"
 - Plugin name follows recommended pattern: `[Brand] Sync for [Trademark]`
 - Clearly denotes no affiliation with Notion
-- Uses company brand "Vger" (from The Verger Group)
+- Uses company brand "Vger" (from The Vger Group)
 
 ### ✅ Issue 2: Description Inaccuracy
 **Problem:** Plugin header claimed "Bi-directional synchronization" but only supports Notion → WordPress.
@@ -93,7 +93,7 @@ All WordPress.org automated review feedback has been addressed. The plugin has b
 - ✅ **Username:** `pjaol` - no trademark issues
 - ✅ **Display Name:** TBD - verify on WordPress.org profile
 - ✅ **Contributors:** `thevgergroup` - no trademark issues
-- ✅ **Author:** "The Verger Group" - no trademark issues
+- ✅ **Author:** "The Vger Group" - no trademark issues
 - ✅ **Author URI:** `https://thevgergroup.com` - no trademark issues
 - ✅ **Plugin URI:** `https://github.com/thevgergroup/notion-wp` - OK (not user-facing)
 - ✅ **Icons/Banners:** Exist in `plugin/assets/` - manual review recommended
