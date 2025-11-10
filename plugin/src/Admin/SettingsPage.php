@@ -94,7 +94,7 @@ class SettingsPage {
 
 		// Enqueue Preact sync dashboard.
 		wp_enqueue_script(
-			'notion-sync-dashboard',
+			'vger-sync-dashboard',
 			VGER_SYNC_URL . 'assets/build/sync-dashboard.js',
 			array(),
 			VGER_SYNC_VERSION,

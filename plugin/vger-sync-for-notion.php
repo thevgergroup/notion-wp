@@ -14,6 +14,11 @@
  * Domain Path: /languages
  *
  * @package NotionSync
+ *
+ * Note: The PHP namespace remains 'NotionSync' for backwards compatibility.
+ * This preserves existing database records, hooks, and integrations when upgrading
+ * from previous versions. The public-facing plugin name is "Vger Sync for Notion"
+ * to comply with WordPress.org trademark guidelines.
  */
 
 namespace NotionSync;
