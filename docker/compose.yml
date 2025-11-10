@@ -81,7 +81,7 @@ services:
       # WORDPRESS_CONFIG_EXTRA is used in wp-config.php
     volumes:
       # Mount plugin source from plugin directory
-      - ../plugin:/var/www/html/wp-content/plugins/notion-sync:rw
+      - ../plugin:/var/www/html/wp-content/plugins/vger-sync-for-notion:rw
 
       # WordPress core and wp-content stored in named volume
       - wp_data:/var/www/html
@@ -126,7 +126,7 @@ services:
       - wp_data:/var/www/html
 
       # Mount plugin source from plugin directory
-      - ../plugin:/var/www/html/wp-content/plugins/notion-sync:rw
+      - ../plugin:/var/www/html/wp-content/plugins/vger-sync-for-notion:rw
     networks:
       - internal
     depends_on:

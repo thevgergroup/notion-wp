@@ -35,7 +35,7 @@ jobs:
 
             - name: Verify version matches plugin file
               run: |
-                  PLUGIN_VERSION=$(grep "Version:" plugin/notion-sync.php | awk '{print $3}')
+                  PLUGIN_VERSION=$(grep "Version:" plugin/vger-sync-for-notion.php | awk '{print $3}')
                   TAG_VERSION="${{ steps.version.outputs.VERSION }}"
                   if [ "$PLUGIN_VERSION" != "$TAG_VERSION" ]; then
                     echo "Error: Plugin version ($PLUGIN_VERSION) doesn't match tag version ($TAG_VERSION)"
@@ -53,24 +53,24 @@ jobs:
               run: npm run build
 
             - name: Create plugin directory
-              run: mkdir -p build/notion-sync
+              run: mkdir -p build/vger-sync-for-notion
 
             - name: Copy plugin files
               run: |
                   # Copy main plugin files
-                  cp -r plugin/* build/notion-sync/
+                  cp -r plugin/* build/vger-sync-for-notion/
 
                   # Copy compiled assets
-                  mkdir -p build/notion-sync/assets
-                  cp -r plugin/assets/css build/notion-sync/assets/
-                  cp -r plugin/assets/js build/notion-sync/assets/
+                  mkdir -p build/vger-sync-for-notion/assets
+                  cp -r plugin/assets/css build/vger-sync-for-notion/assets/
+                  cp -r plugin/assets/js build/vger-sync-for-notion/assets/
 
                   # Copy readme and license
-                  cp README.md build/notion-sync/
-                  cp LICENSE build/notion-sync/
+                  cp README.md build/vger-sync-for-notion/
+                  cp LICENSE build/vger-sync-for-notion/
 
             - name: Remove development files
-              working-directory: build/notion-sync
+              working-directory: build/vger-sync-for-notion
               run: |
                   # Remove development files and directories
                   rm -rf tests/
@@ -105,7 +105,7 @@ jobs:
               run: |
                   # Create zip excluding system files
                   # Note: .github/ and other dev files already removed in previous step
-                  zip -r notion-sync-${{ steps.version.outputs.VERSION }}.zip notion-sync/ \
+                  zip -r vger-sync-for-notion-${{ steps.version.outputs.VERSION }}.zip vger-sync-for-notion/ \
                     -x "*/.DS_Store" \
                     -x "*/._.DS_Store" \
                     -x "*/Thumbs.db" \
@@ -113,7 +113,7 @@ jobs:
                     -x "*/.gitattributes"
 
                   # Calculate checksums
-                  sha256sum notion-sync-${{ steps.version.outputs.VERSION }}.zip > notion-sync-${{ steps.version.outputs.VERSION }}.zip.sha256
+                  sha256sum vger-sync-for-notion-${{ steps.version.outputs.VERSION }}.zip > vger-sync-for-notion-${{ steps.version.outputs.VERSION }}.zip.sha256
 
             - name: Generate changelog
               id: changelog
@@ -135,8 +135,8 @@ jobs:
                   name: Release ${{ steps.version.outputs.VERSION }}
                   body_path: changelog.txt
                   files: |
-                      build/notion-sync-${{ steps.version.outputs.VERSION }}.zip
-                      build/notion-sync-${{ steps.version.outputs.VERSION }}.zip.sha256
+                      build/vger-sync-for-notion-${{ steps.version.outputs.VERSION }}.zip
+                      build/vger-sync-for-notion-${{ steps.version.outputs.VERSION }}.zip.sha256
                   draft: false
                   prerelease: false
               env:
@@ -145,6 +145,6 @@ jobs:
             - name: Upload artifact
               uses: actions/upload-artifact@v4
               with:
-                  name: notion-sync-${{ steps.version.outputs.VERSION }}
-                  path: build/notion-sync-${{ steps.version.outputs.VERSION }}.zip
+                  name: vger-sync-for-notion-${{ steps.version.outputs.VERSION }}
+                  path: build/vger-sync-for-notion-${{ steps.version.outputs.VERSION }}.zip
                   retention-days: 90

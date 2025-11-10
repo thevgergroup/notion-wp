@@ -82,14 +82,14 @@ class NotionClient {
 
 			// Extract workspace information.
 			$workspace_name = 'Unknown Workspace';
-			$user_name      = $user_response['name'] ?? __( 'Unknown User', 'notion-sync' );
+			$user_name      = $user_response['name'] ?? __( 'Unknown User', 'vger-sync-for-notion' );
 			$user_email     = $user_response['person']['email'] ?? '';
 
 			// Try to get workspace name from bot object.
 			if ( isset( $user_response['bot']['workspace_name'] ) ) {
 				$workspace_name = $user_response['bot']['workspace_name'];
 			} elseif ( isset( $user_response['bot']['owner']['workspace'] ) && $user_response['bot']['owner']['workspace'] ) {
-				$workspace_name = __( 'Workspace', 'notion-sync' );
+				$workspace_name = __( 'Workspace', 'vger-sync-for-notion' );
 			}
 
 			return array(
@@ -159,7 +159,7 @@ class NotionClient {
 	 * @return array Formatted page information.
 	 */
 	private function format_page_info( $page_data ) {
-		$title = __( 'Untitled', 'notion-sync' );
+		$title = __( 'Untitled', 'vger-sync-for-notion' );
 
 		// Try to get title from properties.
 		if ( isset( $page_data['properties'] ) && is_array( $page_data['properties'] ) ) {
@@ -174,7 +174,7 @@ class NotionClient {
 		}
 
 		// Fallback: Try to get title from child_page or other sources.
-		if ( __( 'Untitled', 'notion-sync' ) === $title ) {
+		if ( __( 'Untitled', 'vger-sync-for-notion' ) === $title ) {
 			if ( isset( $page_data['child_page']['title'] ) ) {
 				$title = $page_data['child_page']['title'];
 			}
@@ -317,7 +317,7 @@ class NotionClient {
 			throw new \Exception(
 				sprintf(
 					/* translators: %s: error message */
-					__( 'HTTP request failed: %s', 'notion-sync' ),
+					__( 'HTTP request failed: %s', 'vger-sync-for-notion' ),
 					$response->get_error_message()
 				)
 			);
@@ -429,25 +429,25 @@ class NotionClient {
 			case 400:
 				return sprintf(
 					/* translators: %s: API error message */
-					__( 'Bad request: %s', 'notion-sync' ),
-					$api_message ? $api_message : __( 'The request was invalid.', 'notion-sync' )
+					__( 'Bad request: %s', 'vger-sync-for-notion' ),
+					$api_message ? $api_message : __( 'The request was invalid.', 'vger-sync-for-notion' )
 				);
 
 			case 401:
-				return __( 'Authentication failed. Please check that your API token is correct and has not been revoked.', 'notion-sync' );
+				return __( 'Authentication failed. Please check that your API token is correct and has not been revoked.', 'vger-sync-for-notion' );
 
 			case 403:
-				return __( 'Access forbidden. Make sure you have shared your Notion pages with this integration.', 'notion-sync' );
+				return __( 'Access forbidden. Make sure you have shared your Notion pages with this integration.', 'vger-sync-for-notion' );
 
 			case 404:
 				return sprintf(
 					/* translators: %s: API error message */
-					__( 'Resource not found: %s', 'notion-sync' ),
-					$api_message ? $api_message : __( 'The requested resource does not exist.', 'notion-sync' )
+					__( 'Resource not found: %s', 'vger-sync-for-notion' ),
+					$api_message ? $api_message : __( 'The requested resource does not exist.', 'vger-sync-for-notion' )
 				);
 
 			case 429:
-				return __( 'Too many requests. Please wait a moment and try again. Notion has rate limits to ensure service stability.', 'notion-sync' );
+				return __( 'Too many requests. Please wait a moment and try again. Notion has rate limits to ensure service stability.', 'vger-sync-for-notion' );
 
 			case 500:
 			case 502:
@@ -455,16 +455,16 @@ class NotionClient {
 			case 504:
 				return sprintf(
 					/* translators: %s: API error message */
-					__( 'Notion server error: %s. Please try again later.', 'notion-sync' ),
-					$api_message ? $api_message : __( 'The Notion API is experiencing issues.', 'notion-sync' )
+					__( 'Notion server error: %s. Please try again later.', 'vger-sync-for-notion' ),
+					$api_message ? $api_message : __( 'The Notion API is experiencing issues.', 'vger-sync-for-notion' )
 				);
 
 			default:
 				return sprintf(
 					/* translators: 1: HTTP status code, 2: API error message */
-					__( 'API error (Code %1$d): %2$s', 'notion-sync' ),
+					__( 'API error (Code %1$d): %2$s', 'vger-sync-for-notion' ),
 					$status_code,
-					$api_message ? $api_message : __( 'An unknown error occurred.', 'notion-sync' )
+					$api_message ? $api_message : __( 'An unknown error occurred.', 'vger-sync-for-notion' )
 				);
 		}
 	}

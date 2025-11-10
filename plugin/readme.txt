@@ -1,20 +1,20 @@
-=== Notion Sync ===
+=== Vger Sync for Notion ===
 Contributors: thevgergroup
 Tags: notion, sync, database, import, gutenberg
 Requires at least: 6.0
 Tested up to: 6.8
 Requires PHP: 8.0
-Stable tag: 1.0.3
+Stable tag: 1.0.4
 License: GPL-3.0+
 License URI: https://www.gnu.org/licenses/gpl-3.0.html
 
-Sync Notion pages and databases to WordPress with automatic navigation menus and embedded database views.
+Sync content from Notion to WordPress with automatic navigation menus and embedded database views.
 
 == Description ==
 
 **Write in Notion. Publish to WordPress.**
 
-Notion Sync brings your Notion content to WordPress with one click. Perfect for teams who love Notion's collaborative writing experience but need WordPress for their public-facing website.
+Vger Sync for Notion brings your Notion content to WordPress with one click. Perfect for teams who love Notion's collaborative writing experience but need WordPress for their public-facing website.
 
 = Features =
 
@@ -80,9 +80,9 @@ All data is stored in your WordPress database. Your Notion API token is stored s
 = From WordPress.org =
 
 1. Go to **Plugins > Add New** in your WordPress admin
-2. Search for "Notion Sync"
+2. Search for "Vger Sync for Notion"
 3. Click **Install Now**, then **Activate**
-4. Go to **Settings → Notion Sync** to configure
+4. Go to **Settings → Vger Sync for Notion** to configure
 
 = Manual Installation =
 
@@ -90,7 +90,7 @@ All data is stored in your WordPress database. Your Notion API token is stored s
 2. Go to **Plugins > Add New > Upload Plugin**
 3. Choose the ZIP file and click **Install Now**
 4. Click **Activate** after installation
-5. Go to **Settings → Notion Sync** to configure
+5. Go to **Settings → Vger Sync for Notion** to configure
 
 = Setup Steps =
 
@@ -114,7 +114,7 @@ All data is stored in your WordPress database. Your Notion API token is stored s
 
 **Step 3: Connect WordPress to Notion**
 
-1. In WordPress, go to **Settings → Notion Sync**
+1. In WordPress, go to **Settings → Vger Sync for Notion**
 2. Paste your Integration Token
 3. Click **Test Connection**
 4. If successful, you'll see your available pages
@@ -141,7 +141,7 @@ All data is stored in your WordPress database. Your Notion API token is stored s
 2. Click "New integration"
 3. Give it a name and select your workspace
 4. Copy the "Internal Integration Token"
-5. Paste it into the Notion Sync settings page
+5. Paste it into the plugin settings page
 
 Don't forget to share your Notion pages with the integration!
 
@@ -223,7 +223,7 @@ For large pages with many images, the sync happens in the background using WordP
 
 If you're experiencing issues:
 
-1. Check **Settings → Notion Sync → Sync Logs** for details
+1. Check **Settings → Vger Sync for Notion → Sync Logs** for details
 2. Try syncing smaller pages first
 3. Make sure your WordPress cron is working (`wp cron event list`)
 4. Increase PHP's `max_execution_time` if needed
@@ -242,7 +242,7 @@ Yes! All Notion content is converted to native WordPress Gutenberg blocks. You c
 
 = What themes does this work with? =
 
-Notion Sync works with any WordPress theme. We test with:
+Vger Sync for Notion works with any WordPress theme. We test with:
 
 * Twenty Twenty-Four (block theme)
 * Twenty Twenty-Three
@@ -259,6 +259,33 @@ Notion Sync works with any WordPress theme. We test with:
 6. Menu generation - WordPress navigation menus automatically generated from Notion page structure
 
 == Changelog ==
+
+= 1.0.4 - 2025-11-09 =
+
+**WordPress.org Trademark Compliance**
+
+This release addresses WordPress.org automated review feedback regarding trademark usage and plugin description accuracy.
+
+*Changes:*
+
+* **Plugin Name** - Renamed from "Notion Sync" to "Vger Sync for Notion" to comply with trademark guidelines
+* **Plugin Slug** - Updated from "notion-sync" to "vger-sync-for-notion"
+* **Text Domain** - Updated from "notion-sync" to "vger-sync-for-notion" throughout all files
+* **Description** - Corrected to accurately reflect current functionality (Notion → WordPress sync only)
+* **Asset Handles** - Updated all CSS/JS handles from "notion-sync-*" to "vger-sync-*"
+* **Constants** - Renamed from "NOTION_SYNC_*" to "VGER_SYNC_*" for consistency
+
+*WordPress.org Compliance:*
+
+* Trademark guidelines: Plugin name now clearly denotes no affiliation with Notion
+* Accurate feature description: Removed "bi-directional" claim, correctly states one-way sync
+* Bi-directional sync remains planned for future release (as documented in "Coming Soon" section)
+
+*Technical Notes:*
+
+* No functional changes - only naming and branding updates
+* All existing functionality remains identical
+* This is the initial WordPress.org submission
 
 = 1.0.3 - 2025-11-04 =
 
@@ -337,7 +364,7 @@ This release focuses on WordPress.org Plugin Directory compliance, eliminating 9
 
 **Initial Public Release**
 
-This is the first stable release of Notion Sync for WordPress. All core features are production-ready.
+This is the first stable release of Vger Sync for Notion. All core features are production-ready.
 
 *Features Included:*
 
@@ -372,9 +399,13 @@ See the [GitHub repository](https://github.com/thevgergroup/notion-wp) for detai
 
 == Upgrade Notice ==
 
+= 1.0.4 =
+
+WordPress.org compliance update: Plugin renamed to "Vger Sync for Notion" to comply with trademark guidelines. Description updated to accurately reflect current functionality (Notion → WordPress sync). No functional changes.
+
 = 1.0.0 =
 
-First stable release of Notion Sync for WordPress. Import Notion content with one click, auto-generate navigation menus, and display databases as interactive tables. Fully tested and production-ready.
+First stable release of Vger Sync for Notion. Import Notion content with one click, auto-generate navigation menus, and display databases as interactive tables. Fully tested and production-ready.
 
 == Development ==
 

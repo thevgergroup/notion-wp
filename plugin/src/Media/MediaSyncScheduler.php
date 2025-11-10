@@ -132,7 +132,7 @@ class MediaSyncScheduler {
 			time(),
 			self::ACTION_HOOK,
 			[ $post_id, $batch_id, $total ],
-			'notion-sync'
+			'vger-sync-for-notion'
 		);
 
 		return [

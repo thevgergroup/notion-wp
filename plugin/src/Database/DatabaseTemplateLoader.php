@@ -50,7 +50,7 @@ class DatabaseTemplateLoader {
 		}
 
 		// Use plugin template.
-		$plugin_template = NOTION_SYNC_PATH . 'templates/single-notion_database.php';
+		$plugin_template = VGER_SYNC_PATH . 'templates/single-notion_database.php';
 		if ( file_exists( $plugin_template ) ) {
 			return $plugin_template;
 		}
@@ -73,7 +73,7 @@ class DatabaseTemplateLoader {
 		// Enqueue Tabulator CSS (bundled locally for WordPress.org compliance).
 		wp_enqueue_style(
 			'tabulator',
-			NOTION_SYNC_URL . 'assets/vendor/tabulator/tabulator.min.css',
+			VGER_SYNC_URL . 'assets/vendor/tabulator/tabulator.min.css',
 			array(),
 			'6.3.0'
 		);
@@ -81,7 +81,7 @@ class DatabaseTemplateLoader {
 		// Enqueue Luxon.js (bundled locally - required for datetime sorting).
 		wp_enqueue_script(
 			'luxon',
-			NOTION_SYNC_URL . 'assets/vendor/tabulator/luxon.min.js',
+			VGER_SYNC_URL . 'assets/vendor/tabulator/luxon.min.js',
 			array(),
 			'3.4.4',
 			true
@@ -90,7 +90,7 @@ class DatabaseTemplateLoader {
 		// Enqueue Tabulator JS (bundled locally - depends on luxon for datetime sorting).
 		wp_enqueue_script(
 			'tabulator',
-			NOTION_SYNC_URL . 'assets/vendor/tabulator/tabulator.min.js',
+			VGER_SYNC_URL . 'assets/vendor/tabulator/tabulator.min.js',
 			array( 'luxon' ),
 			'6.3.0',
 			true
@@ -99,9 +99,9 @@ class DatabaseTemplateLoader {
 		// Enqueue custom database viewer script.
 		wp_enqueue_script(
 			'notion-sync-database-viewer',
-			NOTION_SYNC_URL . 'assets/src/js/database-viewer.js',
+			VGER_SYNC_URL . 'assets/src/js/database-viewer.js',
 			array( 'tabulator' ),
-			NOTION_SYNC_VERSION,
+			VGER_SYNC_VERSION,
 			true
 		);
 
@@ -116,12 +116,12 @@ class DatabaseTemplateLoader {
 				'nonce'   => wp_create_nonce( 'wp_rest' ),
 				'postId'  => $post_id,
 				'i18n'    => array(
-					'loading'      => __( 'Loading database...', 'notion-sync' ),
-					'error'        => __( 'Error loading database', 'notion-sync' ),
-					'noData'       => __( 'No rows found', 'notion-sync' ),
-					'exportCsv'    => __( 'Export CSV', 'notion-sync' ),
-					'exportJson'   => __( 'Export JSON', 'notion-sync' ),
-					'resetFilters' => __( 'Reset Filters', 'notion-sync' ),
+					'loading'      => __( 'Loading database...', 'vger-sync-for-notion' ),
+					'error'        => __( 'Error loading database', 'vger-sync-for-notion' ),
+					'noData'       => __( 'No rows found', 'vger-sync-for-notion' ),
+					'exportCsv'    => __( 'Export CSV', 'vger-sync-for-notion' ),
+					'exportJson'   => __( 'Export JSON', 'vger-sync-for-notion' ),
+					'resetFilters' => __( 'Reset Filters', 'vger-sync-for-notion' ),
 				),
 			)
 		);

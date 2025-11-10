@@ -1,19 +1,24 @@
 <?php
 /**
- * Plugin Name: Notion Sync
+ * Plugin Name: Vger Sync for Notion
  * Plugin URI: https://github.com/thevgergroup/notion-wp
- * Description: Bi-directional synchronization between Notion and WordPress
- * Version: 1.0.3
+ * Description: Sync content from Notion to WordPress with automatic navigation menus and embedded database views
+ * Version: 1.0.4
  * Requires at least: 6.0
  * Requires PHP: 8.0
  * Author: The Verger Group
  * Author URI: https://thevgergroup.com
  * License: GPL-3.0+
  * License URI: https://www.gnu.org/licenses/gpl-3.0.html
- * Text Domain: notion-sync
+ * Text Domain: vger-sync-for-notion
  * Domain Path: /languages
  *
  * @package NotionSync
+ *
+ * Note: The PHP namespace remains 'NotionSync' for backwards compatibility.
+ * This preserves existing database records, hooks, and integrations when upgrading
+ * from previous versions. The public-facing plugin name is "Vger Sync for Notion"
+ * to comply with WordPress.org trademark guidelines.
  */
 
 namespace NotionSync;
@@ -24,22 +29,22 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 // Plugin constants.
-define( 'NOTION_SYNC_VERSION', '1.0.3' );
-define( 'NOTION_SYNC_FILE', __FILE__ );
-define( 'NOTION_SYNC_PATH', plugin_dir_path( __FILE__ ) );
-define( 'NOTION_SYNC_URL', plugin_dir_url( __FILE__ ) );
-define( 'NOTION_SYNC_BASENAME', plugin_basename( __FILE__ ) );
+define( 'VGER_SYNC_VERSION', '1.0.4' );
+define( 'VGER_SYNC_FILE', __FILE__ );
+define( 'VGER_SYNC_PATH', plugin_dir_path( __FILE__ ) );
+define( 'VGER_SYNC_URL', plugin_dir_url( __FILE__ ) );
+define( 'VGER_SYNC_BASENAME', plugin_basename( __FILE__ ) );
 
 // Load composer autoloader for Action Scheduler and other dependencies.
 // Note: vendor directory is inside the plugin directory for Docker mount compatibility.
-if ( file_exists( NOTION_SYNC_PATH . 'vendor/autoload.php' ) ) {
-	require_once NOTION_SYNC_PATH . 'vendor/autoload.php';
+if ( file_exists( VGER_SYNC_PATH . 'vendor/autoload.php' ) ) {
+	require_once VGER_SYNC_PATH . 'vendor/autoload.php';
 }
 
 // Initialize Action Scheduler (WooCommerce library for background processing).
 // This must be loaded before WordPress init to ensure proper initialization.
-if ( file_exists( NOTION_SYNC_PATH . 'vendor/woocommerce/action-scheduler/action-scheduler.php' ) ) {
-	require_once NOTION_SYNC_PATH . 'vendor/woocommerce/action-scheduler/action-scheduler.php';
+if ( file_exists( VGER_SYNC_PATH . 'vendor/woocommerce/action-scheduler/action-scheduler.php' ) ) {
+	require_once VGER_SYNC_PATH . 'vendor/woocommerce/action-scheduler/action-scheduler.php';
 }
 
 // PSR-4 autoloader for NotionSync namespace.
@@ -97,7 +102,7 @@ function load_textdomain() {
 	// WordPress.org automatically loads translations for plugins since WP 4.6+.
 	// Keeping this function for potential future use or non-WordPress.org installations.
 	// load_plugin_textdomain(
-	//  'notion-sync',
+	//  'vger-sync-for-notion',
 	//  false,
 	//  dirname( plugin_basename( __FILE__ ) ) . '/languages'
 	// );
@@ -262,37 +267,37 @@ add_action( 'init', __NAMESPACE__ . '\init' );
 function enqueue_frontend_assets(): void {
 	// Enqueue callout block styles.
 	wp_enqueue_style(
-		'notion-sync-callout-blocks',
-		NOTION_SYNC_URL . 'assets/css/callout-blocks.css',
+		'vger-sync-callout-blocks',
+		VGER_SYNC_URL . 'assets/css/callout-blocks.css',
 		array(),
-		NOTION_SYNC_VERSION,
+		VGER_SYNC_VERSION,
 		'all'
 	);
 
 	// Enqueue toggle block styles.
 	wp_enqueue_style(
-		'notion-sync-toggle-blocks',
-		NOTION_SYNC_URL . 'assets/css/toggle-blocks.css',
+		'vger-sync-toggle-blocks',
+		VGER_SYNC_URL . 'assets/css/toggle-blocks.css',
 		array(),
-		NOTION_SYNC_VERSION,
+		VGER_SYNC_VERSION,
 		'all'
 	);
 
 	// Enqueue navigation pattern styles.
 	wp_enqueue_style(
-		'notion-sync-navigation-patterns',
-		NOTION_SYNC_URL . 'assets/css/navigation-patterns.css',
+		'vger-sync-navigation-patterns',
+		VGER_SYNC_URL . 'assets/css/navigation-patterns.css',
 		array(),
-		NOTION_SYNC_VERSION,
+		VGER_SYNC_VERSION,
 		'all'
 	);
 
 	// Enqueue navigation pattern scripts.
 	wp_enqueue_script(
-		'notion-sync-navigation-patterns',
-		NOTION_SYNC_URL . 'assets/js/navigation-patterns.js',
+		'vger-sync-navigation-patterns',
+		VGER_SYNC_URL . 'assets/js/navigation-patterns.js',
 		array(),
-		NOTION_SYNC_VERSION,
+		VGER_SYNC_VERSION,
 		true
 	);
 }
@@ -307,8 +312,8 @@ function enqueue_frontend_assets(): void {
  */
 function enqueue_block_editor_assets(): void {
 	// Get file path for cache busting with filemtime.
-	$script_path = NOTION_SYNC_PATH . 'assets/js/blocks/notion-image-block.js';
-	$script_url  = NOTION_SYNC_URL . 'assets/js/blocks/notion-image-block.js';
+	$script_path = VGER_SYNC_PATH . 'assets/js/blocks/notion-image-block.js';
+	$script_url  = VGER_SYNC_URL . 'assets/js/blocks/notion-image-block.js';
 
 	// Only enqueue if file exists.
 	if ( ! file_exists( $script_path ) ) {
@@ -319,7 +324,7 @@ function enqueue_block_editor_assets(): void {
 
 	// Enqueue Notion Image block editor script.
 	wp_enqueue_script(
-		'notion-sync-image-block',
+		'vger-sync-image-block',
 		$script_url,
 		array( 'wp-blocks', 'wp-element', 'wp-block-editor', 'wp-i18n' ),
 		filemtime( $script_path ),
@@ -329,9 +334,9 @@ function enqueue_block_editor_assets(): void {
 	// Set script translations if available.
 	if ( function_exists( 'wp_set_script_translations' ) ) {
 		wp_set_script_translations(
-			'notion-sync-image-block',
-			'notion-sync',
-			NOTION_SYNC_PATH . 'languages'
+			'vger-sync-image-block',
+			'vger-sync-for-notion',
+			VGER_SYNC_PATH . 'languages'
 		);
 	}
 }

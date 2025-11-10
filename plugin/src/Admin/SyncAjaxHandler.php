@@ -48,7 +48,7 @@ class SyncAjaxHandler {
 		if ( ! current_user_can( 'manage_options' ) ) {
 			wp_send_json_error(
 				array(
-					'message' => __( 'Insufficient permissions to sync pages.', 'notion-sync' ),
+					'message' => __( 'Insufficient permissions to sync pages.', 'vger-sync-for-notion' ),
 				),
 				403
 			);
@@ -60,7 +60,7 @@ class SyncAjaxHandler {
 		if ( empty( $page_id ) ) {
 			wp_send_json_error(
 				array(
-					'message' => __( 'Page ID is required.', 'notion-sync' ),
+					'message' => __( 'Page ID is required.', 'vger-sync-for-notion' ),
 				),
 				400
 			);
@@ -77,7 +77,7 @@ class SyncAjaxHandler {
 
 				wp_send_json_success(
 					array(
-						'message'     => __( 'Page synced successfully!', 'notion-sync' ),
+						'message'     => __( 'Page synced successfully!', 'vger-sync-for-notion' ),
 						'post_id'     => $result['post_id'],
 						'edit_url'    => get_edit_post_link( $result['post_id'] ),
 						'view_url'    => get_permalink( $result['post_id'] ),
@@ -87,7 +87,7 @@ class SyncAjaxHandler {
 			} else {
 				wp_send_json_error(
 					array(
-						'message' => $result['error'] ?? __( 'An unknown error occurred while syncing.', 'notion-sync' ),
+						'message' => $result['error'] ?? __( 'An unknown error occurred while syncing.', 'vger-sync-for-notion' ),
 					),
 					500
 				);
@@ -97,7 +97,7 @@ class SyncAjaxHandler {
 				array(
 					'message' => sprintf(
 						/* translators: %s: error message */
-						__( 'Sync failed: %s', 'notion-sync' ),
+						__( 'Sync failed: %s', 'vger-sync-for-notion' ),
 						$e->getMessage()
 					),
 				),
@@ -124,7 +124,7 @@ class SyncAjaxHandler {
 		if ( ! current_user_can( 'manage_options' ) ) {
 			wp_send_json_error(
 				array(
-					'message' => __( 'Insufficient permissions to sync pages.', 'notion-sync' ),
+					'message' => __( 'Insufficient permissions to sync pages.', 'vger-sync-for-notion' ),
 				),
 				403
 			);
@@ -136,7 +136,7 @@ class SyncAjaxHandler {
 		if ( empty( $page_ids ) ) {
 			wp_send_json_error(
 				array(
-					'message' => __( 'No pages selected for sync.', 'notion-sync' ),
+					'message' => __( 'No pages selected for sync.', 'vger-sync-for-notion' ),
 				),
 				400
 			);
@@ -182,14 +182,14 @@ class SyncAjaxHandler {
 					'Successfully synced %d page.',
 					'Successfully synced %d pages.',
 					$success_count,
-					'notion-sync'
+					'vger-sync-for-notion'
 				),
 				$success_count
 			);
 		} elseif ( $success_count > 0 && $error_count > 0 ) {
 			$message = sprintf(
 				/* translators: 1: number of successful syncs, 2: number of failed syncs */
-				__( 'Synced %1$d pages successfully. %2$d failed.', 'notion-sync' ),
+				__( 'Synced %1$d pages successfully. %2$d failed.', 'vger-sync-for-notion' ),
 				$success_count,
 				$error_count
 			);
@@ -200,7 +200,7 @@ class SyncAjaxHandler {
 					'Failed to sync %d page.',
 					'Failed to sync %d pages.',
 					$error_count,
-					'notion-sync'
+					'vger-sync-for-notion'
 				),
 				$error_count
 			);
@@ -235,7 +235,7 @@ class SyncAjaxHandler {
 		if ( ! current_user_can( 'manage_options' ) ) {
 			wp_send_json_error(
 				array(
-					'message' => __( 'Insufficient permissions to sync pages.', 'notion-sync' ),
+					'message' => __( 'Insufficient permissions to sync pages.', 'vger-sync-for-notion' ),
 				),
 				403
 			);
@@ -247,7 +247,7 @@ class SyncAjaxHandler {
 		if ( empty( $page_ids ) ) {
 			wp_send_json_error(
 				array(
-					'message' => __( 'No pages selected for sync.', 'notion-sync' ),
+					'message' => __( 'No pages selected for sync.', 'vger-sync-for-notion' ),
 				),
 				400
 			);
@@ -267,7 +267,7 @@ class SyncAjaxHandler {
 								'Queued %d page for sync.',
 								'Queued %d pages for sync.',
 								$result['total'],
-								'notion-sync'
+								'vger-sync-for-notion'
 							),
 							$result['total']
 						),
@@ -278,7 +278,7 @@ class SyncAjaxHandler {
 			} else {
 				wp_send_json_error(
 					array(
-						'message' => $result['error'] ?? __( 'Failed to queue bulk sync.', 'notion-sync' ),
+						'message' => $result['error'] ?? __( 'Failed to queue bulk sync.', 'vger-sync-for-notion' ),
 					),
 					500
 				);
@@ -288,7 +288,7 @@ class SyncAjaxHandler {
 				array(
 					'message' => sprintf(
 						/* translators: %s: error message */
-						__( 'Failed to queue bulk sync: %s', 'notion-sync' ),
+						__( 'Failed to queue bulk sync: %s', 'vger-sync-for-notion' ),
 						$e->getMessage()
 					),
 				),
@@ -314,7 +314,7 @@ class SyncAjaxHandler {
 		if ( ! current_user_can( 'manage_options' ) ) {
 			wp_send_json_error(
 				array(
-					'message' => __( 'Insufficient permissions.', 'notion-sync' ),
+					'message' => __( 'Insufficient permissions.', 'vger-sync-for-notion' ),
 				),
 				403
 			);
@@ -326,7 +326,7 @@ class SyncAjaxHandler {
 		if ( empty( $batch_id ) ) {
 			wp_send_json_error(
 				array(
-					'message' => __( 'Batch ID is required.', 'notion-sync' ),
+					'message' => __( 'Batch ID is required.', 'vger-sync-for-notion' ),
 				),
 				400
 			);
@@ -340,7 +340,7 @@ class SyncAjaxHandler {
 			if ( null === $progress ) {
 				wp_send_json_error(
 					array(
-						'message' => __( 'Batch not found.', 'notion-sync' ),
+						'message' => __( 'Batch not found.', 'vger-sync-for-notion' ),
 					),
 					404
 				);
@@ -352,7 +352,7 @@ class SyncAjaxHandler {
 				array(
 					'message' => sprintf(
 						/* translators: %s: error message */
-						__( 'Failed to get batch status: %s', 'notion-sync' ),
+						__( 'Failed to get batch status: %s', 'vger-sync-for-notion' ),
 						$e->getMessage()
 					),
 				),

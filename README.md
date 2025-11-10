@@ -1,8 +1,8 @@
 <div align="center">
-  <img src="docs/images/notion-wp-logo.png" alt="Notion Sync Logo" width="128">
+  <img src="docs/images/notion-wp-logo.png" alt="Vger Sync for Notion Logo" width="128">
 </div>
 
-# Notion Sync for WordPress
+# Vger Sync for Notion
 
 [![Tests](https://github.com/thevgergroup/notion-wp/actions/workflows/test.yml/badge.svg)](https://github.com/thevgergroup/notion-wp/actions/workflows/test.yml)
 [![Code Quality](https://github.com/thevgergroup/notion-wp/actions/workflows/lint.yml/badge.svg)](https://github.com/thevgergroup/notion-wp/actions/workflows/lint.yml)
@@ -75,16 +75,16 @@ Monitor sync status and manage your synced content.
 ### From GitHub (Manual Installation)
 
 1. Download the latest release from the [Releases page](https://github.com/thevgergroup/notion-wp/releases)
-2. Upload the `notion-sync` folder to `/wp-content/plugins/`
+2. Upload the `vger-sync-for-notion` folder to `/wp-content/plugins/`
 3. Activate the plugin through the 'Plugins' menu in WordPress
-4. Go to **Settings → Notion Sync** to configure
+4. Go to **Settings → Vger Sync for Notion** to configure
 
 ### Via WP-CLI
 
 Install and activate the plugin with a single command:
 
 ```bash
-wp plugin install https://github.com/thevgergroup/notion-wp/releases/download/v1.0.0/notion-sync-1.0.0.zip --activate
+wp plugin install https://github.com/thevgergroup/notion-wp/releases/download/v1.0.4/vger-sync-for-notion-1.0.4.zip --activate
 ```
 
 Replace `v1.0.0` with the latest version from the [Releases page](https://github.com/thevgergroup/notion-wp/releases).
@@ -120,7 +120,7 @@ The plugin creates a WordPress menu from your Notion page hierarchy. You have tw
 Most themes support navigation menus. Simply assign the auto-created "Notion Pages" menu to your theme's menu location via **Appearance → Menus** or use it in a Navigation block.
 
 **Option 2: Sidebar Pattern (For themes without menu support)**
-Some themes don't support navigation menus. For these, we include a collapsible sidebar pattern you can insert via the block editor (**Patterns → Notion Sync → Navigation Hierarchy**).
+Some themes don't support navigation menus. For these, we include a collapsible sidebar pattern you can insert via the block editor (**Patterns → Vger Sync for Notion → Navigation Hierarchy**).
 
 **[Complete Setup Guide →](docs/getting-started.md)**
 
@@ -212,4 +212,4 @@ If this plugin helps you, please:
 - Improve documentation
 - Contribute code
 
-Thank you for using Notion Sync for WordPress!
+Thank you for using Vger Sync for Notion!

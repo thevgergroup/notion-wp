@@ -124,7 +124,7 @@ class PageSyncScheduler {
 				time() + $index,
 				self::ACTION_HOOK,
 				[ $batch_id, $page_id ],
-				'notion-sync'
+				'vger-sync-for-notion'
 			);
 		}
 

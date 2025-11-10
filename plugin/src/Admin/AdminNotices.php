@@ -11,7 +11,7 @@ namespace NotionSync\Admin;
 /**
  * Class AdminNotices
  *
- * Handles displaying admin notices for Notion Sync plugin.
+ * Handles displaying admin notices for Vger Sync for Notion plugin.
  * Shows success and error messages based on query parameters.
  */
 class AdminNotices {
@@ -33,7 +33,7 @@ class AdminNotices {
 	public function display_notices() {
 		// Only show on our settings page.
 		$screen = get_current_screen();
-		if ( ! $screen || 'toplevel_page_notion-sync' !== $screen->id ) {
+		if ( ! $screen || 'toplevel_page_vger-sync-for-notion' !== $screen->id ) {
 			return;
 		}
 
@@ -69,7 +69,7 @@ class AdminNotices {
 
 		printf(
 			'<div class="notice notice-success is-dismissible"><p><strong>%s</strong> %s</p></div>',
-			esc_html__( 'Success:', 'notion-sync' ),
+			esc_html__( 'Success:', 'vger-sync-for-notion' ),
 			esc_html( $message )
 		);
 	}
@@ -87,7 +87,7 @@ class AdminNotices {
 
 		printf(
 			'<div class="notice notice-error is-dismissible"><p><strong>%s</strong> %s</p></div>',
-			esc_html__( 'Error:', 'notion-sync' ),
+			esc_html__( 'Error:', 'vger-sync-for-notion' ),
 			esc_html( $message )
 		);
 	}

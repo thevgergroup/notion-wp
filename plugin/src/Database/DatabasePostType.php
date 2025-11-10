@@ -38,19 +38,19 @@ class DatabasePostType {
 			self::POST_TYPE,
 			array(
 				'labels'             => array(
-					'name'          => __( 'Notion Databases', 'notion-sync' ),
-					'singular_name' => __( 'Notion Database', 'notion-sync' ),
-					'add_new'       => __( 'Add New', 'notion-sync' ),
-					'add_new_item'  => __( 'Add New Database', 'notion-sync' ),
-					'edit_item'     => __( 'Edit Database', 'notion-sync' ),
-					'view_item'     => __( 'View Database', 'notion-sync' ),
-					'all_items'     => __( 'All Databases', 'notion-sync' ),
-					'search_items'  => __( 'Search Databases', 'notion-sync' ),
+					'name'          => __( 'Notion Databases', 'vger-sync-for-notion' ),
+					'singular_name' => __( 'Notion Database', 'vger-sync-for-notion' ),
+					'add_new'       => __( 'Add New', 'vger-sync-for-notion' ),
+					'add_new_item'  => __( 'Add New Database', 'vger-sync-for-notion' ),
+					'edit_item'     => __( 'Edit Database', 'vger-sync-for-notion' ),
+					'view_item'     => __( 'View Database', 'vger-sync-for-notion' ),
+					'all_items'     => __( 'All Databases', 'vger-sync-for-notion' ),
+					'search_items'  => __( 'Search Databases', 'vger-sync-for-notion' ),
 				),
 				'public'             => true,
 				'publicly_queryable' => true,
 				'show_ui'            => true,
-				'show_in_menu'       => false, // Accessed via Notion Sync settings page.
+				'show_in_menu'       => false, // Accessed via plugin settings page.
 				'show_in_rest'       => false,
 				'capability_type'    => 'post',
 				'hierarchical'       => false,

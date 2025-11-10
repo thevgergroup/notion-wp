@@ -53,13 +53,13 @@ class DatabasesListTable extends \WP_List_Table {
 	 */
 	public function get_columns(): array {
 		return array(
-			'title'       => __( 'Database Title', 'notion-sync' ),
-			'notion_id'   => __( 'Notion ID', 'notion-sync' ),
-			'sync_status' => __( 'Status', 'notion-sync' ),
-			'entries'     => __( 'Entries', 'notion-sync' ),
-			'last_synced' => __( 'Last Synced', 'notion-sync' ),
-			'wp_post'     => __( 'WordPress Post', 'notion-sync' ),
-			'actions'     => __( 'Actions', 'notion-sync' ),
+			'title'       => __( 'Database Title', 'vger-sync-for-notion' ),
+			'notion_id'   => __( 'Notion ID', 'vger-sync-for-notion' ),
+			'sync_status' => __( 'Status', 'vger-sync-for-notion' ),
+			'entries'     => __( 'Entries', 'vger-sync-for-notion' ),
+			'last_synced' => __( 'Last Synced', 'vger-sync-for-notion' ),
+			'wp_post'     => __( 'WordPress Post', 'vger-sync-for-notion' ),
+			'actions'     => __( 'Actions', 'vger-sync-for-notion' ),
 		);
 	}
 
@@ -96,18 +96,18 @@ class DatabasesListTable extends \WP_List_Table {
 		?>
 		<div class="alignleft actions">
 			<label for="filter-status" class="screen-reader-text">
-				<?php esc_html_e( 'Filter by status', 'notion-sync' ); ?>
+				<?php esc_html_e( 'Filter by status', 'vger-sync-for-notion' ); ?>
 			</label>
 			<select name="filter_status" id="filter-status">
-				<option value=""><?php esc_html_e( 'All Statuses', 'notion-sync' ); ?></option>
+				<option value=""><?php esc_html_e( 'All Statuses', 'vger-sync-for-notion' ); ?></option>
 				<option value="synced" <?php selected( $current_filter, 'synced' ); ?>>
-					<?php esc_html_e( 'Synced', 'notion-sync' ); ?>
+					<?php esc_html_e( 'Synced', 'vger-sync-for-notion' ); ?>
 				</option>
 				<option value="not_synced" <?php selected( $current_filter, 'not_synced' ); ?>>
-					<?php esc_html_e( 'Not Synced', 'notion-sync' ); ?>
+					<?php esc_html_e( 'Not Synced', 'vger-sync-for-notion' ); ?>
 				</option>
 			</select>
-			<?php submit_button( __( 'Filter', 'notion-sync' ), 'button', 'filter_action', false ); ?>
+			<?php submit_button( __( 'Filter', 'vger-sync-for-notion' ), 'button', 'filter_action', false ); ?>
 		</div>
 		<?php
 	}
@@ -226,7 +226,7 @@ class DatabasesListTable extends \WP_List_Table {
 	public function column_title( $item ): string {
 		$title = sprintf(
 			'<strong>%s</strong>',
-			esc_html( $item['title'] ?? __( 'Untitled', 'notion-sync' ) )
+			esc_html( $item['title'] ?? __( 'Untitled', 'vger-sync-for-notion' ) )
 		);
 
 		// Build row actions.
@@ -245,7 +245,7 @@ class DatabasesListTable extends \WP_List_Table {
 			$actions['view'] = sprintf(
 				'<a href="%s">%s</a>',
 				esc_url( $view_url ),
-				esc_html__( 'View', 'notion-sync' )
+				esc_html__( 'View', 'vger-sync-for-notion' )
 			);
 		}
 
@@ -254,7 +254,7 @@ class DatabasesListTable extends \WP_List_Table {
 			$actions['notion'] = sprintf(
 				'<a href="%s" target="_blank" rel="noopener noreferrer">%s</a>',
 				esc_url( $item['url'] ),
-				esc_html__( 'Open in Notion', 'notion-sync' )
+				esc_html__( 'Open in Notion', 'vger-sync-for-notion' )
 			);
 		}
 
@@ -283,7 +283,7 @@ class DatabasesListTable extends \WP_List_Table {
 					' style="color: #00a32a; font-size: 18px; width: 18px; height: 18px;"></span>' .
 				'</span>',
 				esc_attr( $item['id'] ),
-				esc_attr__( 'Synced - WordPress post is up-to-date', 'notion-sync' )
+				esc_attr__( 'Synced - WordPress post is up-to-date', 'vger-sync-for-notion' )
 			);
 		} else {
 			return sprintf(
@@ -294,7 +294,7 @@ class DatabasesListTable extends \WP_List_Table {
 					' style="color: #8c8f94; font-size: 18px; width: 18px; height: 18px;"></span>' .
 				'</span>',
 				esc_attr( $item['id'] ),
-				esc_attr__( 'Not Synced - This database has not been synced yet', 'notion-sync' )
+				esc_attr__( 'Not Synced - This database has not been synced yet', 'vger-sync-for-notion' )
 			);
 		}
 	}
@@ -326,7 +326,7 @@ class DatabasesListTable extends \WP_List_Table {
 			);
 		}
 
-		return '<em>' . esc_html__( 'Unknown', 'notion-sync' ) . '</em>';
+		return '<em>' . esc_html__( 'Unknown', 'vger-sync-for-notion' ) . '</em>';
 	}
 
 	/**
@@ -344,7 +344,7 @@ class DatabasesListTable extends \WP_List_Table {
 			);
 		}
 
-		return '<em>' . esc_html__( 'Never', 'notion-sync' ) . '</em>';
+		return '<em>' . esc_html__( 'Never', 'vger-sync-for-notion' ) . '</em>';
 	}
 
 	/**
@@ -373,7 +373,7 @@ class DatabasesListTable extends \WP_List_Table {
 			);
 		}
 
-		return '<em>' . esc_html__( 'Not synced yet', 'notion-sync' ) . '</em>';
+		return '<em>' . esc_html__( 'Not synced yet', 'vger-sync-for-notion' ) . '</em>';
 	}
 
 	/**
@@ -386,8 +386,8 @@ class DatabasesListTable extends \WP_List_Table {
 		$has_synced = ! empty( $item['wp_post_id'] );
 
 		$button_text = $has_synced
-			? __( 'Re-sync', 'notion-sync' )
-			: __( 'Sync Now', 'notion-sync' );
+			? __( 'Re-sync', 'vger-sync-for-notion' )
+			: __( 'Sync Now', 'vger-sync-for-notion' );
 
 		return sprintf(
 			'<button type="button" class="button button-small sync-database" data-database-id="%s">%s</button>',
@@ -479,7 +479,7 @@ class DatabasesListTable extends \WP_List_Table {
 			?>
 			<div class="notice notice-info inline">
 				<p>
-					<?php esc_html_e( 'No databases found. Make sure you have shared databases with your Notion integration.', 'notion-sync' ); ?>
+					<?php esc_html_e( 'No databases found. Make sure you have shared databases with your Notion integration.', 'vger-sync-for-notion' ); ?>
 				</p>
 			</div>
 			<?php

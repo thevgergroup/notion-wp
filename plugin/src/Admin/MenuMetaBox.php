@@ -74,7 +74,7 @@ class MenuMetaBox {
 	public function add_meta_box(): void {
 		add_meta_box(
 			'notion-menu-sync',
-			__( 'Notion Menu Sync', 'notion-sync' ),
+			__( 'Notion Menu Sync', 'vger-sync-for-notion' ),
 			array( $this, 'render_meta_box' ),
 			'nav-menus',
 			'side',
@@ -95,7 +95,7 @@ class MenuMetaBox {
 		$nav_menu_selected_id = isset( $_REQUEST['menu'] ) ? (int) $_REQUEST['menu'] : 0;
 
 		if ( ! $nav_menu_selected_id ) {
-			echo '<p>' . esc_html__( 'Select or create a menu to view sync status.', 'notion-sync' ) . '</p>';
+			echo '<p>' . esc_html__( 'Select or create a menu to view sync status.', 'vger-sync-for-notion' ) . '</p>';
 			return;
 		}
 
@@ -124,30 +124,30 @@ class MenuMetaBox {
 			<div class="notion-sync-stats">
 				<?php if ( $last_sync_time > 0 ) : ?>
 					<p class="notion-sync-last-synced">
-						<strong><?php esc_html_e( 'Last Synced:', 'notion-sync' ); ?></strong>
+						<strong><?php esc_html_e( 'Last Synced:', 'vger-sync-for-notion' ); ?></strong>
 						<br>
 						<time datetime="<?php echo esc_attr( gmdate( 'c', $last_sync_time ) ); ?>">
 							<?php
 							// translators: %s: human-readable time difference.
-							printf( esc_html__( '%s ago', 'notion-sync' ), esc_html( human_time_diff( $last_sync_time ) ) );
+							printf( esc_html__( '%s ago', 'vger-sync-for-notion' ), esc_html( human_time_diff( $last_sync_time ) ) );
 							?>
 						</time>
 					</p>
 				<?php else : ?>
 					<p class="notion-sync-never">
-						<strong><?php esc_html_e( 'Last Synced:', 'notion-sync' ); ?></strong>
+						<strong><?php esc_html_e( 'Last Synced:', 'vger-sync-for-notion' ); ?></strong>
 						<br>
-						<?php esc_html_e( 'Never', 'notion-sync' ); ?>
+						<?php esc_html_e( 'Never', 'vger-sync-for-notion' ); ?>
 					</p>
 				<?php endif; ?>
 
 				<p class="notion-sync-item-count">
-					<strong><?php esc_html_e( 'Synced Items:', 'notion-sync' ); ?></strong>
+					<strong><?php esc_html_e( 'Synced Items:', 'vger-sync-for-notion' ); ?></strong>
 					<br>
 					<?php
 					printf(
 						/* translators: 1: number of synced items, 2: total number of items */
-						esc_html__( '%1$d of %2$d', 'notion-sync' ),
+						esc_html__( '%1$d of %2$d', 'vger-sync-for-notion' ),
 						absint( $synced_count ),
 						absint( $total_items )
 					);
@@ -161,10 +161,10 @@ class MenuMetaBox {
 					id="notion-sync-menu-button"
 					class="button button-primary button-large"
 					data-nonce="<?php echo esc_attr( $nonce ); ?>"
-					aria-label="<?php esc_attr_e( 'Sync menu from Notion now', 'notion-sync' ); ?>"
+					aria-label="<?php esc_attr_e( 'Sync menu from Notion now', 'vger-sync-for-notion' ); ?>"
 				>
 					<span class="dashicons dashicons-update" aria-hidden="true"></span>
-					<?php esc_html_e( 'Sync from Notion Now', 'notion-sync' ); ?>
+					<?php esc_html_e( 'Sync from Notion Now', 'vger-sync-for-notion' ); ?>
 				</button>
 			</div>
 
@@ -175,7 +175,7 @@ class MenuMetaBox {
 					<span class="dashicons dashicons-info" aria-hidden="true"></span>
 					<?php
 					// phpcs:ignore Generic.Files.LineLength.MaxExceeded
-					esc_html_e( 'Notion-synced items show a sync icon (🔄). Toggle "Prevent Notion Updates" to preserve manual changes.', 'notion-sync' );
+					esc_html_e( 'Notion-synced items show a sync icon (🔄). Toggle "Prevent Notion Updates" to preserve manual changes.', 'vger-sync-for-notion' );
 					?>
 				</p>
 			</div>
@@ -208,17 +208,17 @@ class MenuMetaBox {
 		<p class="field-notion-sync description description-wide">
 			<label for="notion-synced-<?php echo esc_attr( $item_id ); ?>">
 				<span class="dashicons dashicons-update" style="color: #2271b1;" aria-hidden="true"></span>
-				<?php esc_html_e( 'Notion Sync', 'notion-sync' ); ?>
+				<?php esc_html_e( 'Vger Sync for Notion', 'vger-sync-for-notion' ); ?>
 			</label>
 			<span id="notion-synced-<?php echo esc_attr( $item_id ); ?>" class="notion-sync-indicator">
-				<?php esc_html_e( 'This item is synced from Notion', 'notion-sync' ); ?>
+				<?php esc_html_e( 'This item is synced from Notion', 'vger-sync-for-notion' ); ?>
 			</span>
 		</p>
 
 		<?php if ( $notion_page_id ) : ?>
 			<p class="field-notion-page-id description description-wide">
 				<label for="notion-page-id-<?php echo esc_attr( $item_id ); ?>">
-					<?php esc_html_e( 'Notion Page ID:', 'notion-sync' ); ?>
+					<?php esc_html_e( 'Notion Page ID:', 'vger-sync-for-notion' ); ?>
 				</label>
 				<code id="notion-page-id-<?php echo esc_attr( $item_id ); ?>" class="notion-page-id-display">
 					<?php echo esc_html( $notion_page_id ); ?>
@@ -236,10 +236,10 @@ class MenuMetaBox {
 					<?php checked( $has_override, true ); ?>
 					aria-describedby="notion-override-help-<?php echo esc_attr( $item_id ); ?>"
 				>
-				<?php esc_html_e( 'Prevent Notion Updates', 'notion-sync' ); ?>
+				<?php esc_html_e( 'Prevent Notion Updates', 'vger-sync-for-notion' ); ?>
 			</label>
 			<span id="notion-override-help-<?php echo esc_attr( $item_id ); ?>" class="description">
-				<?php esc_html_e( 'When checked, this item will not be updated during Notion sync.', 'notion-sync' ); ?>
+				<?php esc_html_e( 'When checked, this item will not be updated during Notion sync.', 'vger-sync-for-notion' ); ?>
 			</span>
 		</p>
 		<?php
@@ -298,7 +298,7 @@ class MenuMetaBox {
 		}
 
 		// Add sync emoji indicator.
-		return '<span class="notion-sync-icon" aria-label="' . esc_attr__( 'Synced from Notion', 'notion-sync' ) . '">🔄</span> ' . $title;
+		return '<span class="notion-sync-icon" aria-label="' . esc_attr__( 'Synced from Notion', 'vger-sync-for-notion' ) . '">🔄</span> ' . $title;
 	}
 
 	/**
@@ -315,8 +315,8 @@ class MenuMetaBox {
 		}
 
 		// Enqueue admin navigation script.
-		$script_path = NOTION_SYNC_PATH . 'assets/dist/js/admin-navigation.js';
-		$script_url  = NOTION_SYNC_URL . 'assets/dist/js/admin-navigation.js';
+		$script_path = VGER_SYNC_PATH . 'assets/dist/js/admin-navigation.js';
+		$script_url  = VGER_SYNC_URL . 'assets/dist/js/admin-navigation.js';
 
 		if ( file_exists( $script_path ) ) {
 			wp_enqueue_script(

@@ -31,7 +31,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	<?php if ( ! empty( $error_message ) ) : ?>
 		<div class="notice notice-warning is-dismissible">
 			<p>
-				<strong><?php esc_html_e( 'Warning:', 'notion-sync' ); ?></strong>
+				<strong><?php esc_html_e( 'Warning:', 'vger-sync-for-notion' ); ?></strong>
 				<?php echo esc_html( $error_message ); ?>
 			</p>
 		</div>
@@ -43,12 +43,12 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 			<!-- Connection Form -->
 			<div class="card connection-card">
-				<h2><?php esc_html_e( 'Connect to Notion', 'notion-sync' ); ?></h2>
+				<h2><?php esc_html_e( 'Connect to Notion', 'vger-sync-for-notion' ); ?></h2>
 
 				<p>
 					<?php
 					echo wp_kses(
-						__( 'To get started, you need to create a Notion integration and obtain an API token.', 'notion-sync' ),
+						__( 'To get started, you need to create a Notion integration and obtain an API token.', 'vger-sync-for-notion' ),
 						array()
 					);
 					?>
@@ -64,7 +64,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 								__(
 									// phpcs:ignore Generic.Files.LineLength.MaxExceeded
 									'Visit <a href="%s" target="_blank" rel="noopener noreferrer">Notion Integrations</a> and create a new integration.',
-									'notion-sync'
+									'vger-sync-for-notion'
 								),
 								array(
 									'a' => array(
@@ -79,9 +79,9 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 						?>
 					</li>
-					<li><?php esc_html_e( 'Copy the "Internal Integration Token" (starts with "secret_").', 'notion-sync' ); ?></li>
-					<li><?php esc_html_e( 'Paste the token below and click "Connect to Notion".', 'notion-sync' ); ?></li>
-					<li><?php esc_html_e( 'Share your Notion pages with the integration to grant access.', 'notion-sync' ); ?></li>
+					<li><?php esc_html_e( 'Copy the "Internal Integration Token" (starts with "secret_").', 'vger-sync-for-notion' ); ?></li>
+					<li><?php esc_html_e( 'Paste the token below and click "Connect to Notion".', 'vger-sync-for-notion' ); ?></li>
+					<li><?php esc_html_e( 'Share your Notion pages with the integration to grant access.', 'vger-sync-for-notion' ); ?></li>
 				</ol>
 
 				<form method="post" action="<?php echo esc_url( admin_url( 'admin-post.php' ) ); ?>" style="margin-top: 20px;">
@@ -93,7 +93,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 							<tr>
 								<th scope="row">
 									<label for="notion_token">
-										<?php esc_html_e( 'Notion API Token', 'notion-sync' ); ?>
+										<?php esc_html_e( 'Notion API Token', 'vger-sync-for-notion' ); ?>
 									</label>
 								</th>
 								<td>
@@ -108,7 +108,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 										autocomplete="off"
 									>
 									<p class="description">
-										<?php esc_html_e( 'Your Notion Internal Integration Token. Starts with "secret_".', 'notion-sync' ); ?>
+										<?php esc_html_e( 'Your Notion Internal Integration Token. Starts with "secret_".', 'vger-sync-for-notion' ); ?>
 									</p>
 								</td>
 							</tr>
@@ -117,7 +117,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 					<p class="submit">
 						<button type="submit" class="button button-primary button-large">
-							<?php esc_html_e( 'Connect to Notion', 'notion-sync' ); ?>
+							<?php esc_html_e( 'Connect to Notion', 'vger-sync-for-notion' ); ?>
 						</button>
 					</p>
 				</form>
@@ -129,19 +129,19 @@ if ( ! defined( 'ABSPATH' ) ) {
 			<h2 class="nav-tab-wrapper">
 				<a href="<?php echo esc_url( add_query_arg( 'tab', 'pages', admin_url( 'admin.php?page=notion-sync' ) ) ); ?>"
 					class="nav-tab <?php echo 'pages' === $current_tab ? 'nav-tab-active' : ''; ?>">
-					<?php esc_html_e( 'Pages', 'notion-sync' ); ?>
+					<?php esc_html_e( 'Pages', 'vger-sync-for-notion' ); ?>
 				</a>
 				<a href="<?php echo esc_url( add_query_arg( 'tab', 'databases', admin_url( 'admin.php?page=notion-sync' ) ) ); ?>"
 					class="nav-tab <?php echo 'databases' === $current_tab ? 'nav-tab-active' : ''; ?>">
-					<?php esc_html_e( 'Databases', 'notion-sync' ); ?>
+					<?php esc_html_e( 'Databases', 'vger-sync-for-notion' ); ?>
 				</a>
 				<a href="<?php echo esc_url( add_query_arg( 'tab', 'navigation', admin_url( 'admin.php?page=notion-sync' ) ) ); ?>"
 					class="nav-tab <?php echo 'navigation' === $current_tab ? 'nav-tab-active' : ''; ?>">
-					<?php esc_html_e( 'Navigation', 'notion-sync' ); ?>
+					<?php esc_html_e( 'Navigation', 'vger-sync-for-notion' ); ?>
 				</a>
 				<a href="<?php echo esc_url( add_query_arg( 'tab', 'settings', admin_url( 'admin.php?page=notion-sync' ) ) ); ?>"
 					class="nav-tab <?php echo 'settings' === $current_tab ? 'nav-tab-active' : ''; ?>">
-					<?php esc_html_e( 'Settings', 'notion-sync' ); ?>
+					<?php esc_html_e( 'Settings', 'vger-sync-for-notion' ); ?>
 				</a>
 			</h2>
 
@@ -159,18 +159,18 @@ if ( ! defined( 'ABSPATH' ) ) {
 					</div>
 				<?php else : ?>
 					<div class="card" style="margin-top: 20px;">
-						<h2><?php esc_html_e( 'No Databases Found', 'notion-sync' ); ?></h2>
+						<h2><?php esc_html_e( 'No Databases Found', 'vger-sync-for-notion' ); ?></h2>
 						<p>
-							<?php esc_html_e( 'No databases are currently accessible by this integration.', 'notion-sync' ); ?>
+							<?php esc_html_e( 'No databases are currently accessible by this integration.', 'vger-sync-for-notion' ); ?>
 						</p>
 						<p>
-							<?php esc_html_e( 'Grant access for your Notion databases', 'notion-sync' ); ?>
+							<?php esc_html_e( 'Grant access for your Notion databases', 'vger-sync-for-notion' ); ?>
 						</p>
 						<ol style="margin-left: 20px; line-height: 1.8;">
-							<li><?php esc_html_e( 'Open a database in Notion', 'notion-sync' ); ?></li>
-							<li><?php esc_html_e( 'Click the "..." menu in the top right', 'notion-sync' ); ?></li>
-							<li><?php esc_html_e( 'Select "Add connections"', 'notion-sync' ); ?></li>
-							<li><?php esc_html_e( 'Choose your integration from the list', 'notion-sync' ); ?></li>
+							<li><?php esc_html_e( 'Open a database in Notion', 'vger-sync-for-notion' ); ?></li>
+							<li><?php esc_html_e( 'Click the "..." menu in the top right', 'vger-sync-for-notion' ); ?></li>
+							<li><?php esc_html_e( 'Select "Add connections"', 'vger-sync-for-notion' ); ?></li>
+							<li><?php esc_html_e( 'Choose your integration from the list', 'vger-sync-for-notion' ); ?></li>
 						</ol>
 					</div>
 				<?php endif; ?>
@@ -188,23 +188,23 @@ if ( ! defined( 'ABSPATH' ) ) {
 				<?php if ( ! $notionwp_theme_supports_menus || empty( $notionwp_menu_locations ) ) : ?>
 					<!-- Theme Menu Support Warning -->
 					<div class="notice notice-warning inline" style="margin-top: 20px;">
-						<h3><?php esc_html_e( 'Theme Does Not Support Navigation Menus', 'notion-sync' ); ?></h3>
+						<h3><?php esc_html_e( 'Theme Does Not Support Navigation Menus', 'vger-sync-for-notion' ); ?></h3>
 						<p>
 							<?php
 							esc_html_e(
 								// phpcs:ignore Generic.Files.LineLength.MaxExceeded
 								'Your current theme does not register any menu locations. While the plugin can still create WordPress menus from your Notion page hierarchy, you will not be able to assign them to your theme without additional configuration.',
-								'notion-sync'
+								'vger-sync-for-notion'
 							);
 							?>
 						</p>
-						<p><strong><?php esc_html_e( 'Options:', 'notion-sync' ); ?></strong></p>
+						<p><strong><?php esc_html_e( 'Options:', 'vger-sync-for-notion' ); ?></strong></p>
 						<ul style="margin-left: 20px; list-style: disc;">
 							<li>
 								<?php
 								esc_html_e(
 									'Switch to a theme that supports navigation menus (most modern WordPress themes do)',
-									'notion-sync'
+									'vger-sync-for-notion'
 								);
 								?>
 							</li>
@@ -213,7 +213,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 								printf(
 									wp_kses(
 										/* translators: %s: URL to WordPress theme customization docs */
-										__( 'Add menu support to your current theme by following <a href="%s" target="_blank" rel="noopener noreferrer">WordPress theme customization documentation</a>', 'notion-sync' ), // phpcs:ignore Generic.Files.LineLength.MaxExceeded
+										__( 'Add menu support to your current theme by following <a href="%s" target="_blank" rel="noopener noreferrer">WordPress theme customization documentation</a>', 'vger-sync-for-notion' ), // phpcs:ignore Generic.Files.LineLength.MaxExceeded
 										array(
 											'a' => array(
 												'href'   => array(),
@@ -230,7 +230,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 								<?php
 								esc_html_e(
 									'Use a plugin like Max Mega Menu or WP Navigation Menu to add menu functionality',
-									'notion-sync'
+									'vger-sync-for-notion'
 								);
 								?>
 							</li>
@@ -238,7 +238,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 								<?php
 								esc_html_e(
 									'Display the menu using a shortcode or widget (if your theme supports widgets)',
-									'notion-sync'
+									'vger-sync-for-notion'
 								);
 								?>
 							</li>
@@ -247,7 +247,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 							<?php
 							esc_html_e(
 								'You can still sync menus below, and they will be ready to use once you configure menu support in your theme.',
-								'notion-sync'
+								'vger-sync-for-notion'
 							);
 							?>
 						</p>
@@ -256,13 +256,13 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 				<!-- Menu Sync Configuration -->
 				<div class="card" style="margin-top: 20px;">
-					<h2><?php esc_html_e( 'Menu Sync Configuration', 'notion-sync' ); ?></h2>
+					<h2><?php esc_html_e( 'Menu Sync Configuration', 'vger-sync-for-notion' ); ?></h2>
 
 					<p>
 						<?php
 						esc_html_e(
 							'Configure how Notion page hierarchies are synchronized to WordPress navigation menus. When enabled, the plugin will automatically create and maintain a WordPress menu based on your Notion page structure.'',
-							'notion-sync'
+							'vger-sync-for-notion'
 						);
 						?>
 					</p>
@@ -275,7 +275,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 							<tbody>
 								<tr>
 									<th scope="row">
-										<?php esc_html_e( 'Enable Menu Sync', 'notion-sync' ); ?>
+										<?php esc_html_e( 'Enable Menu Sync', 'vger-sync-for-notion' ); ?>
 									</th>
 									<td>
 										<fieldset>
@@ -287,7 +287,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 													value="1"
 													<?php checked( get_option( 'notion_sync_menu_enabled', true ) ); ?>
 												>
-												<?php esc_html_e( 'Automatically sync Notion page hierarchy to WordPress menu', 'notion-sync' ); ?>
+												<?php esc_html_e( 'Automatically sync Notion page hierarchy to WordPress menu', 'vger-sync-for-notion' ); ?>
 											</label>
 											<p class="description">
 												<?php
@@ -295,7 +295,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 													// phpcs:ignore Generic.Files.LineLength.MaxExceeded
 													'When enabled, the plugin will create and maintain a WordPress navigation menu that mirrors your Notion page structure. ' .
 													'Parent-child relationships in Notion will be preserved as menu items and sub-items.',
-													'notion-sync'
+													'vger-sync-for-notion'
 												);
 												?>
 											</p>
@@ -306,7 +306,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 								<tr>
 									<th scope="row">
 										<label for="notion_sync_menu_name">
-											<?php esc_html_e( 'Menu Name', 'notion-sync' ); ?>
+											<?php esc_html_e( 'Menu Name', 'vger-sync-for-notion' ); ?>
 										</label>
 									</th>
 									<td>
@@ -316,14 +316,14 @@ if ( ! defined( 'ABSPATH' ) ) {
 											id="notion_sync_menu_name"
 											class="regular-text"
 											value="<?php echo esc_attr( get_option( 'notion_sync_menu_name', 'Notion Navigation' ) ); ?>"
-											placeholder="<?php esc_attr_e( 'Notion Navigation', 'notion-sync' ); ?>"
+											placeholder="<?php esc_attr_e( 'Notion Navigation', 'vger-sync-for-notion' ); ?>"
 										>
 										<p class="description">
 											<?php
 											esc_html_e(
 												// phpcs:ignore Generic.Files.LineLength.MaxExceeded
 												'The name of the WordPress menu that will be created. After syncing, go to Appearance → Menus to assign this menu to a theme location (such as Primary Menu or Footer Menu).',
-												'notion-sync'
+												'vger-sync-for-notion'
 											);
 											?>
 										</p>
@@ -334,7 +334,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 						<p class="submit">
 							<button type="submit" class="button button-primary">
-								<?php esc_html_e( 'Save Navigation Settings', 'notion-sync' ); ?>
+								<?php esc_html_e( 'Save Navigation Settings', 'vger-sync-for-notion' ); ?>
 							</button>
 						</p>
 					</form>
@@ -342,14 +342,14 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 				<!-- Manual Menu Sync -->
 				<div class="card" style="margin-top: 20px;">
-					<h2><?php esc_html_e( 'Manual Menu Sync', 'notion-sync' ); ?></h2>
+					<h2><?php esc_html_e( 'Manual Menu Sync', 'vger-sync-for-notion' ); ?></h2>
 
 					<p>
 						<?php
 						esc_html_e(
 							'Trigger a manual sync of your Notion page hierarchy to the WordPress menu. ' .
 							'This will update the menu structure to match your current Notion workspace.',
-							'notion-sync'
+							'vger-sync-for-notion'
 						);
 						?>
 					</p>
@@ -365,7 +365,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 							data-nonce="<?php echo esc_attr( wp_create_nonce( 'notion_sync_menu_now' ) ); ?>"
 						>
 							<span class="dashicons dashicons-update" style="margin-top: 3px;"></span>
-							<?php esc_html_e( 'Sync Menu Now', 'notion-sync' ); ?>
+							<?php esc_html_e( 'Sync Menu Now', 'vger-sync-for-notion' ); ?>
 						</button>
 
 						<p class="description" style="margin-top: 10px;">
@@ -373,7 +373,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 							esc_html_e(
 								'This will fetch your Notion page hierarchy and update the WordPress menu to match. ' .
 								'Existing menu items will be preserved if they still exist in Notion.',
-								'notion-sync'
+								'vger-sync-for-notion'
 							);
 							?>
 						</p>
@@ -383,7 +383,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 								<?php
 								esc_html_e(
 									'Menu sync is currently disabled. Enable it in the settings above to use manual sync.',
-									'notion-sync'
+									'vger-sync-for-notion'
 								);
 								?>
 							</p>
@@ -397,12 +397,12 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 				<!-- Connection Status -->
 				<div class="card connection-card" style="margin-top: 20px;">
-					<h2><?php esc_html_e( 'Connection Status', 'notion-sync' ); ?></h2>
+					<h2><?php esc_html_e( 'Connection Status', 'vger-sync-for-notion' ); ?></h2>
 
 					<div style="display: flex; align-items: center; gap: 10px; margin-bottom: 20px;">
 						<span class="dashicons dashicons-yes-alt" style="color: #46b450; font-size: 24px;"></span>
 						<strong style="color: #46b450; font-size: 16px;">
-							<?php esc_html_e( 'Connected to Notion', 'notion-sync' ); ?>
+							<?php esc_html_e( 'Connected to Notion', 'vger-sync-for-notion' ); ?>
 						</strong>
 					</div>
 
@@ -410,21 +410,21 @@ if ( ! defined( 'ABSPATH' ) ) {
 						<tbody>
 							<?php if ( ! empty( $workspace_info['workspace_name'] ) ) : ?>
 								<tr>
-									<th scope="row"><?php esc_html_e( 'Workspace', 'notion-sync' ); ?></th>
+									<th scope="row"><?php esc_html_e( 'Workspace', 'vger-sync-for-notion' ); ?></th>
 									<td><strong><?php echo esc_html( $workspace_info['workspace_name'] ); ?></strong></td>
 								</tr>
 							<?php endif; ?>
 
 							<?php if ( ! empty( $workspace_info['user_name'] ) ) : ?>
 								<tr>
-									<th scope="row"><?php esc_html_e( 'Integration Name', 'notion-sync' ); ?></th>
+									<th scope="row"><?php esc_html_e( 'Integration Name', 'vger-sync-for-notion' ); ?></th>
 									<td><?php echo esc_html( $workspace_info['user_name'] ); ?></td>
 								</tr>
 							<?php endif; ?>
 
 							<?php if ( ! empty( $workspace_info['bot_id'] ) ) : ?>
 								<tr>
-									<th scope="row"><?php esc_html_e( 'Integration ID', 'notion-sync' ); ?></th>
+									<th scope="row"><?php esc_html_e( 'Integration ID', 'vger-sync-for-notion' ); ?></th>
 									<td><code><?php echo esc_html( $workspace_info['bot_id'] ); ?></code></td>
 								</tr>
 							<?php endif; ?>
@@ -441,31 +441,31 @@ if ( ! defined( 'ABSPATH' ) ) {
 						onclick="return confirm(
 							<?php
 							echo esc_js(
-								__( 'Are you sure you want to disconnect from Notion? This will remove your API token.', 'notion-sync' )
+								__( 'Are you sure you want to disconnect from Notion? This will remove your API token.', 'vger-sync-for-notion' )
 							);
 							?>
 						);"
 						>
-							<?php esc_html_e( 'Disconnect', 'notion-sync' ); ?>
+							<?php esc_html_e( 'Disconnect', 'vger-sync-for-notion' ); ?>
 						</button>
 					</form>
 				</div>
 
 				<!-- Maintenance Tools -->
 				<div class="card" style="margin-top: 20px; max-width: 800px;">
-					<h2><?php esc_html_e( 'Maintenance Tools', 'notion-sync' ); ?></h2>
+					<h2><?php esc_html_e( 'Maintenance Tools', 'vger-sync-for-notion' ); ?></h2>
 
 					<p>
-						<?php esc_html_e( 'Use these tools to troubleshoot issues with the plugin.', 'notion-sync' ); ?>
+						<?php esc_html_e( 'Use these tools to troubleshoot issues with the plugin.', 'vger-sync-for-notion' ); ?>
 					</p>
 
-					<h3 style="margin-top: 20px;"><?php esc_html_e( 'Flush Rewrite Rules', 'notion-sync' ); ?></h3>
+					<h3 style="margin-top: 20px;"><?php esc_html_e( 'Flush Rewrite Rules', 'vger-sync-for-notion' ); ?></h3>
 					<p class="description">
 						<?php
 						esc_html_e(
 							'If /notion/{slug} URLs are not working correctly, ' .
 							'click this button to flush and regenerate WordPress rewrite rules.',
-							'notion-sync'
+							'vger-sync-for-notion'
 						);
 						?>
 					</p>
@@ -475,7 +475,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 						<?php wp_nonce_field( 'notion_sync_flush_rewrites', 'notion_sync_flush_rewrites_nonce' ); ?>
 
 						<button type="submit" class="button button-secondary">
-							<?php esc_html_e( 'Flush Rewrite Rules', 'notion-sync' ); ?>
+							<?php esc_html_e( 'Flush Rewrite Rules', 'vger-sync-for-notion' ); ?>
 						</button>
 					</form>
 				</div>
@@ -487,10 +487,10 @@ if ( ! defined( 'ABSPATH' ) ) {
 				<!-- Notion Pages List Table -->
 				<?php if ( null !== $list_table ) : ?>
 				<div class="card" style="margin-top: 20px;">
-					<h2><?php esc_html_e( 'Notion Pages', 'notion-sync' ); ?></h2>
+					<h2><?php esc_html_e( 'Notion Pages', 'vger-sync-for-notion' ); ?></h2>
 
 					<p>
-						<?php esc_html_e( 'Select pages to sync to WordPress. Pages will be created as draft posts.', 'notion-sync' ); ?>
+						<?php esc_html_e( 'Select pages to sync to WordPress. Pages will be created as draft posts.', 'vger-sync-for-notion' ); ?>
 					</p>
 
 					<!-- Admin notice container for AJAX messages -->
@@ -511,7 +511,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 									'Showing %d page. To access more pages, share them with your integration in Notion.',
 									'Showing %d pages. To access more pages, share them with your integration in Notion.',
 									count( $list_table->items ),
-									'notion-sync'
+									'vger-sync-for-notion'
 								)
 							),
 							count( $list_table->items )
@@ -521,21 +521,21 @@ if ( ! defined( 'ABSPATH' ) ) {
 				</div>
 			<?php else : ?>
 				<div class="card" style="margin-top: 20px;">
-					<h2><?php esc_html_e( 'No Pages Found', 'notion-sync' ); ?></h2>
+					<h2><?php esc_html_e( 'No Pages Found', 'vger-sync-for-notion' ); ?></h2>
 
 					<p>
-						<?php esc_html_e( 'No pages are currently accessible by this integration.', 'notion-sync' ); ?>
+						<?php esc_html_e( 'No pages are currently accessible by this integration.', 'vger-sync-for-notion' ); ?>
 					</p>
 
 					<p>
-						<?php esc_html_e( 'Share your pages with this plugin', 'notion-sync' ); ?>
+						<?php esc_html_e( 'Share your pages with this plugin', 'vger-sync-for-notion' ); ?>
 					</p>
 
 					<ol style="margin-left: 20px; line-height: 1.8;">
-						<li><?php esc_html_e( 'Open a page in Notion', 'notion-sync' ); ?></li>
-						<li><?php esc_html_e( 'Click the "..." menu in the top right', 'notion-sync' ); ?></li>
-						<li><?php esc_html_e( 'Select "Add connections"', 'notion-sync' ); ?></li>
-						<li><?php esc_html_e( 'Choose your integration from the list', 'notion-sync' ); ?></li>
+						<li><?php esc_html_e( 'Open a page in Notion', 'vger-sync-for-notion' ); ?></li>
+						<li><?php esc_html_e( 'Click the "..." menu in the top right', 'vger-sync-for-notion' ); ?></li>
+						<li><?php esc_html_e( 'Select "Add connections"', 'vger-sync-for-notion' ); ?></li>
+						<li><?php esc_html_e( 'Choose your integration from the list', 'vger-sync-for-notion' ); ?></li>
 					</ol>
 				</div>
 			<?php endif; ?>

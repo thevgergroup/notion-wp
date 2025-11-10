@@ -1,6 +1,6 @@
 <?php
 /**
- * WP-CLI Commands for Notion Sync
+ * WP-CLI Commands for Vger Sync for Notion
  *
  * Provides command-line interface for managing Notion synchronization.
  * All commands reuse existing plugin functionality from NotionClient, SyncManager,
