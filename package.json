@@ -40,7 +40,7 @@
 		"@wordpress/prettier-config": "^3.7.0",
 		"@wordpress/scripts": "^30.27.0",
 		"@wordpress/server-side-render": "^5.8.0",
-		"esbuild": "^0.25.11",
+		"esbuild": "^0.27.2",
 		"eslint": "^8.56.0",
 		"eslint-config-prettier": "^9.1.0",
 		"eslint-plugin-import": "^2.29.1",
