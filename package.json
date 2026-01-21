@@ -30,7 +30,7 @@
 		"postinstall": "echo '\n✓ npm dependencies installed successfully\n' && echo 'Run npm run lint to check code quality\n'"
 	},
 	"devDependencies": {
-		"@wordpress/block-editor": "^15.7.0",
+		"@wordpress/block-editor": "^15.11.0",
 		"@wordpress/blocks": "^14.8.0",
 		"@wordpress/components": "^29.8.0",
 		"@wordpress/data": "^10.8.0",
